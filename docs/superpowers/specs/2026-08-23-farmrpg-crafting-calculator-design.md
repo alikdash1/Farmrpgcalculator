@@ -50,12 +50,28 @@ with a `verify` flag so they can be corrected without touching code.
 
 - `coderanger/farmrpg-etl2` (pushed 2026-07): `items.json` — 1,138 items with prices,
   levels, XP; `recipes.json` — 1,394 craft recipes. **Primary dataset.**
-- `coderanger/farmrpg-ext` `data/`: `cooking_recipes.json`, `drop_rates.json`,
-  `locations.json`, `xp.json`. **Secondary** (2023 vintage) for sourcing/drop info.
+- `coderanger/farmrpg-ext` `data/`: `cooking_recipes.json`, `drop_rates.json` (48
+  locations of empirically logged 1-in-N explore/fish rates), `locations.json`,
+  `xp.json`. **Secondary** (2023 vintage) for sourcing/drop info.
+- `buddy.farm` (Buddy's Almanac): per-location pages used to fill gaps missing from
+  logged rates. Community-reported; frequently inaccurate — never trusted over logged
+  data or overrides.
+- `farmrpg-pricecheck.free.nf/prices2.json`: live player-market prices for 316 items in
+  Gold / AP / OJ (ranges like "15-17.5g/k" = gold per 1,000), with history and
+  conversion rates (`gold_to_ap_rate`, `gold_to_oj_rate`). Fetched at update time into
+  `data/market.json`. Powers "buy it from the market" costing.
 - `coderanger/farmrpg-wiki-archive`: Artifacts.bbcode, Perk Point Suggestions,
   Gold Perk Suggestions → curated into `data/effects.json`.
 - Conflicting item facts resolve toward etl2 (newer). Every file carries a `_meta`
   version stamp shown in the app footer.
+
+### Drop-rate trust model
+
+Every drop rate is tagged with its origin: `logged` (player-log ETL), `almanac`
+(buddy.farm), or `override`. Resolution order: **override > logged > almanac**.
+`data/drop_overrides.json` is a hand-editable map (`{"Location": {"Item": N}}`) where
+Ali corrects bad numbers; overridden values render with an explicit badge so they are
+visible, and the update script never overwrites them.
 
 ## Architecture
 
@@ -71,6 +87,8 @@ farmrpg-calc\
 │   ├── items.json        # merged items (etl2 primary)
 │   ├── recipes.json      # craft recipes (etl2) + cooking recipes (ext)
 │   ├── sources.json      # locations + drop rates + crop/fish source mapping
+│   ├── market.json       # player-market prices (G/AP/OJ) from pricecheck site
+│   ├── drop_overrides.json # Ali's hand corrections; wins over all sources
 │   ├── effects.json      # typed bonus table (above), editable
 │   └── constants.json    # tunable numbers w/ verify flags
 ├── update-data.ps1       # re-downloads snapshots from GitHub repos
@@ -97,12 +115,17 @@ farmrpg-calc\
    each crafted node.
 2. `annotateSources(tree)` → for each leaf: crops (plots = need / plot_yield, grow time =
    base × crop_speed_mult), fish (nets = need / net_catch_after_perks), explore drops
-   (explores = need / (drop_rate × drop_qty), stamina = explores × cost_mult), vendors
-   (cheapest buy price), or "sub-craft" if a recipe exists.
-3. `translateCosts(totals)` → silver total (craft cost after −60%, buy totals, plus
-   theoretical sell value after sale bonuses) and bottleneck equivalents:
-   stamina→apple ciders (with Cinnamon Sticks/Sprint Shoes multipliers),
-   fish→nets/large nets, exploring drinks→lemonade/Arnold Palmer counts.
+   (explores = need × rate_denominator, stamina = explores × cost_mult, rate tagged
+   logged/almanac/override), vendors (cheapest of NPC buy vs player-market G/AP/OJ price),
+   or "sub-craft" if a recipe exists.
+3. `translateCosts(totals)` → totals per acquisition route:
+   - Silver route: craft cost after −60% + vendor purchases + theoretical sell value after
+     sale bonuses.
+   - Market route: buying ingredients from players — converted to gold, AP, and OJ via
+     `market.json` prices (parsed from "g/k" ranges; midpoint used) and the configured
+     AP/OJ↔gold rates. Shown as "≈ X gold or Y AP or Z OJ".
+   - Effort route: stamina→apple ciders (with Cinnamon Sticks/Sprint Shoes multipliers),
+     fish→nets/large nets, exploring drinks→lemonade/Arnold Palmer counts.
 4. Owned inventory (`owned` map) subtracts from needs everywhere; results persist to
    localStorage.
 
