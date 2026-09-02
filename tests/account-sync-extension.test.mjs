@@ -46,5 +46,7 @@ test('personal Tower page uses the authoritative mastery-history snapshot', () =
   assert.equal(payload.masteries['Looking Glass'], 930930);
   assert.equal(payload.masteries['Mulberry Snapper'], 1000000);
   assert.match(index, /id="towerRail"/);
-  assert.match(index, /Manual backup/);
+  // Assert the manual-import control exists, not the wording around it —
+  // player-facing copy is rewritten often and shouldn't break the suite.
+  assert.match(index, /id="accountFile"[^>]*type="file"/);
 });

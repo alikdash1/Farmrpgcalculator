@@ -16,3 +16,12 @@
 @media(max-width:980px){.tower-summary{grid-template-columns:repeat(2,1fr)}.tower-floor{grid-template-columns:86px minmax(0,1fr)}}
 @media(max-width:760px){.tower-ledger-head{grid-template-columns:1fr}.tower-next-stamp{width:160px;justify-self:start}.tower-toolbar{align-items:flex-start;flex-wrap:wrap}.tower-sync-state{width:100%;margin-left:0}.tower-rail{padding-left:43px}.tower-rail:before{left:18px}.tower-floor:before{left:-32px}.tower-floor{grid-template-columns:1fr}.tower-floor-mark{grid-template-columns:auto auto auto;justify-content:start;gap:.5rem;padding:.65rem .85rem;border-right:0;border-bottom:1px solid var(--line)}.tower-floor-items{grid-template-columns:1fr}}
 
+
+/* Clickable mastery/floor entries should look clickable; entries the planner
+   has no data for should not pretend to be buttons. */
+.tower-mm[data-open-item],.tower-cost-item[data-open-item]{cursor:pointer}
+.tower-mm[data-open-item]:hover,.tower-mm[data-open-item]:focus-visible{background:rgba(190,158,88,.07)}
+.tower-cost-item[data-open-item]:hover,.tower-cost-item[data-open-item]:focus-visible{background:rgba(190,158,88,.07)}
+.tower-mm.no-plan,.tower-cost-item.no-plan{cursor:default}
+.tower-mm.no-plan .tower-mm-title strong,.tower-cost-item.no-plan b{color:var(--muted)}
+.tower-noplan{display:block;margin-top:.35rem;color:var(--muted);font-size:.52rem}

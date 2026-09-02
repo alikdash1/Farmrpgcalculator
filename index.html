@@ -56,7 +56,7 @@
         <button class="desk-drawer" data-open-view="quests"><span class="drawer-code">QUEST</span><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="newitems"><span class="drawer-code">MINE</span><strong>Mining release map</strong><p>New materials, crafts, mine locations and the recipes they feed.</p><span class="drawer-action">Open release map →</span></button>
       </section>
-      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">your own measured drop rates</button> · <button class="text-action" data-open-view="library">why a route was chosen</button></p>
+      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
 
       <section class="desk-lower">
         <article class="readiness-card"><div class="section-heading compact"><div><span class="eyebrow">Before You Calculate</span><h2>Check What Matches Your Farm</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
@@ -124,9 +124,9 @@
       <section class="page-intro"><span class="eyebrow">Your Farm</span><h1>Import Your Account.</h1><p>Load one complete snapshot to fill inventory, Tower, masteries, quests, perks, pets, and other progress. Your data stays in this browser.</p></section>
       <section class="account-import-panel">
         <div class="account-import-copy"><span class="eyebrow">Automatic</span><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><a class="primary-link" href="collectors/account-sync-extension/README.md">Install extension</a></div></div>
-        <div class="account-import-copy"><span class="eyebrow">Manual backup</span><h2>Load captures here</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Choose all page captures—or one finished snapshot</strong><small>The files are validated and merged inside this tab. Nothing is uploaded.</small></label><button id="clearAccount" class="quiet-button" type="button">Remove account snapshot</button></div>
+        <div class="account-import-copy"><span class="eyebrow">By hand</span><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button></div>
       </section>
-      <section id="accountEmpty" class="account-empty"><strong>No account snapshot loaded.</strong><span>Calculator assumptions remain manual until you import and review one.</span></section>
+      <section id="accountEmpty" class="account-empty"><strong>You haven't loaded your account yet.</strong><span>Everything still works — the planner just uses the settings you tick yourself on the Setup page instead of your real inventory and perks.</span></section>
       <section id="accountResult" class="hidden">
         <div id="accountSummary" class="account-summary"></div>
         <div id="accountConsumables" class="account-consumables"></div>

@@ -44,11 +44,19 @@
     return String(Math.round(n * 100) / 100);
   };
   const clean = (number) => String(Math.round(Number(number) * 10000) / 10000);
+  // Counts in player-facing sentences need agreement — "1 inputs" shipped once.
+  const plural = (count, one, many) => `${fmt(count)} ${Number(count) === 1 ? one : many}`;
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const imageUrl = (item) => item && item.img ? "https://farmrpg.com" + item.img : "";
-  const itemImg = (item, cls) => item && item.img
+  // Items the game has but this planner has no artwork for still need a tile.
+  // A bare "?" reads as a broken image, so fall back to the item's initial.
+  const artInitial = (item, fallbackName) => {
+    const name = String((item && item.name) || fallbackName || "").trim();
+    return name ? name[0].toUpperCase() : "·";
+  };
+  const itemImg = (item, cls, fallbackName) => item && item.img
     ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="48" height="48" referrerpolicy="no-referrer" src="${esc(imageUrl(item))}" alt=""></span>`
-    : `<span class="item-art missing-art ${cls || ""}">?</span>`;
+    : `<span class="item-art missing-art ${cls || ""}" aria-hidden="true">${esc(artInitial(item, fallbackName))}</span>`;
   const read = (key, fallback) => {
     try {
       const raw = localStorage.getItem(key);
@@ -683,7 +691,7 @@
   function treeHtml(node) {
     const item = index.itemsById.get(node.id);
     if (node.cyclic) return `<div class="leaf cyclic">↻ ${esc(node.name)} — circular recipe</div>`;
-    if (!node.children.length) return `<div class="leaf">${itemImg(item, "tree-art")}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}${node.stopped ? '<span class="node-kind">direct acquisition stop</span>' : ""}</div>`;
+    if (!node.children.length) return `<div class="leaf">${itemImg(item, "tree-art", node.name)}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}${node.stopped ? '<span class="node-kind">get ready-made</span>' : ""}</div>`;
     return `<details ${state.treeOpen ? "open" : ""}><summary>${itemImg(item, "tree-art")}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}<span class="node-kind">${node.kind} ×${fmt(node.craftsNeeded)}</span></summary>${node.children.map(treeHtml).join("")}</details>`;
   }
   const metric = (key, value, note) => `<div class="route-metric"><span>${key}${note ? `<small>${note}</small>` : ""}</span><b>${value}</b></div>`;
@@ -702,24 +710,48 @@
       el.error.textContent = error.message; el.error.classList.remove("hidden"); return;
     }
 
-    const allNodes = [...E.collectNodes(fullTree).values()].filter((node) => node.children && node.children.length);
-    const decisions = [];
-    const stopIds = new Set();
-    state.decisionActions = new Map();
-    for (const node of allNodes) {
-      const item = index.itemsById.get(node.id);
-      if (!item) continue;
-      const direct = E.marketQuote(index, node.id, node.qtyOut);
-      const infra = infraFor(item, node.qtyOut, m);
-      const farm = farmPlan(item, node.qtyOut, m, consts);
-      if (!direct && !infra && !farm) continue;
-      const decision = makeDecision(node, m, consts);
-      decisions.push({ node, item, ...decision });
-      state.decisionActions.set(node.id, decision.action);
-      if (["trade", "building", "farm"].includes(decision.action)) stopIds.add(node.id);
+    // How much of an ingredient you need depends on which of its parents are
+    // still being crafted, and that depends on the decisions themselves. So
+    // settle the two together: size every decision against the current tree,
+    // re-resolve the tree with the resulting "buy/farm instead" stops, and
+    // repeat until the stops stop changing. Sizing them once against the
+    // fully-expanded tree overstated shared ingredients — Glass Orb read 12m
+    // when the plan it was shown next to only needed 8m, because Red Dye was
+    // being bought rather than crafted through Glass Bottle.
+    const fullNodes = E.collectNodes(fullTree);
+    const craftableIds = [...fullNodes.values()].filter((node) => node.children && node.children.length).map((node) => node.id);
+    let tree = fullTree;
+    let treeNodes = fullNodes;
+    let decisions = [];
+    let stopIds = new Set();
+    for (let pass = 0; pass < 4; pass += 1) {
+      const passDecisions = [];
+      const passStops = new Set();
+      const passActions = new Map();
+      for (const id of craftableIds) {
+        const sized = treeNodes.get(id);
+        if (!sized) continue; // pruned away by a stop higher up the tree
+        const item = index.itemsById.get(id);
+        if (!item) continue;
+        const node = { id, name: item.name, qtyOut: sized.qtyOut };
+        const direct = E.marketQuote(index, id, node.qtyOut);
+        const infra = infraFor(item, node.qtyOut, m);
+        const farm = farmPlan(item, node.qtyOut, m, consts);
+        if (!direct && !infra && !farm) continue;
+        const decision = makeDecision(node, m, consts);
+        passDecisions.push({ node, item, ...decision });
+        passActions.set(id, decision.action);
+        if (["trade", "building", "farm"].includes(decision.action)) passStops.add(id);
+      }
+      const settled = pass > 0 && passStops.size === stopIds.size && [...passStops].every((id) => stopIds.has(id));
+      decisions = passDecisions;
+      stopIds = passStops;
+      state.decisionActions = passActions;
+      tree = E.resolveTree(index, state.itemId, state.qty, m, 0, [], consts, stopIds);
+      treeNodes = E.collectNodes(tree);
+      if (settled) break;
     }
-    const tree = E.resolveTree(index, state.itemId, state.qty, m, 0, [], consts, stopIds);
-    const activeNodeIds = new Set(E.collectNodes(tree).keys());
+    const activeNodeIds = new Set(treeNodes.keys());
     const activeDecisions = decisions.filter((decision) => activeNodeIds.has(decision.node.id));
     const leaves = E.flattenLeaves(tree);
     const rows = [...leaves.values()].filter((leaf) => leaf.id != null).map((leaf) => {
@@ -787,12 +819,12 @@
     const progressionFarmCount = activeDecisions.filter((decision) => decision.progressionWinner === "farm").length;
 
     el.empty.classList.add("hidden"); el.result.classList.remove("hidden");
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art")}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${rows.length} ingredients · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted</p></div></div><div class="goal-yield"><strong>${fmt(m.craftYield)}× yield</strong><span>${fmt(m.saleMult)}× sale value</span></div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art")}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${rows.length} ingredients · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted</p></div></div><div class="goal-yield"><strong>${fmt(m.craftYield)}× crafted output</strong><span>${fmt(m.saleMult)}× sell price</span></div>`;
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
-      trail("Trade value", fmt(tradeGoldEq) + " gold", "comparison value", "violet"),
-      trail("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`, "chosen explore routes"),
-      trail("Covered", fmt(coveredRows.length), passiveHours ? `${fmt(passiveHours)}h longest wait` : "farm / depot"),
+      trail("If you bought it all", fmt(tradeGoldEq) + " gold", "everything converted to gold", "violet"),
+      trail("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`, "drinks the chosen routes need"),
+      trail("Your farm covers", fmt(coveredRows.length), passiveHours ? `longest wait ${fmt(passiveHours)}h` : "ingredients you can skip"),
     ].join("");
     $("includeEvents").checked = state.includeEvents;
     $("drinkPath").value = state.drinkPath;
@@ -805,13 +837,13 @@
     }
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
-    $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">Buying is cheapest for ${fmt(cashBuyCount)} craftable inputs. Farming may be worth it for ${fmt(progressionFarmCount)} inputs because the same run also helps masteries, quests, or useful drops.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
-    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("OJ-equivalent", fmt(oj))}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${metric("Large Nets", fmt(largeNets))}${metric("Crop plants", fmt(plants))}<p class="route-note">Routes at the same location share one exploration run; the largest requirement covers the smaller co-drops. Consumables remain valued at their current trade opportunity.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
-    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Direct acquisition</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("Gold-equivalent", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
+    $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">${plural(cashBuyCount, "ingredient is", "ingredients are")} cheaper to buy than to craft. ${plural(progressionFarmCount, "ingredient is", "ingredients are")} worth farming anyway, because the same run also feeds masteries, quests or other drops you want.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
+    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("Stamina as Orange Juice", fmt(oj))}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">Anything from the same location comes out of one trip — the biggest requirement carries the rest. Drinks are costed at what you could otherwise sell them for.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
+    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
 
     if (coveredRows.length) {
       el.covered.classList.remove("hidden");
-      el.covered.innerHTML = `<div><span class="eyebrow">Handled quietly</span><strong>${coveredRows.length} infrastructure-covered inputs</strong><p>${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)} — ${esc(row.route.label)}`).join(" · ")}</p></div><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show them in the workbench</label>`;
+      el.covered.innerHTML = `<div><span class="eyebrow">Your farm already covers these</span><strong>${plural(coveredRows.length, "ingredient you do not need to chase", "ingredients you do not need to chase")}</strong><p>${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)} — ${esc(row.route.label)}`).join(" · ")}</p></div><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show them in the list anyway</label>`;
       el.covered.querySelector("[data-show-covered]").onchange = (event) => { state.showCovered = event.target.checked; $("toggleCovered").checked = state.showCovered; render(); };
     } else {
       el.covered.classList.add("hidden");
@@ -821,7 +853,7 @@
       el.makeBuy.classList.remove("hidden");
       el.makeBuy.innerHTML = `<div class="section-heading compact"><div><span class="eyebrow">Route decisions</span><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
         const selected = state.makeChoices[decision.item.id] || "auto";
-        const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)}g through the cheapest known ingredient routes` : `${decision.materials.priced}/${decision.materials.count} ingredient routes priced`;
+        const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients on the cheapest routes` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
         const directText = decision.direct ? quoteText(decision.direct) : "";
         const infraText = decision.infra ? decision.infra.detail : "";
@@ -838,7 +870,7 @@
     }
 
     $("ingCount").textContent = `${visibleRows.length} shown · ${rows.length} active`;
-    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>recipe stopped at the chosen acquisition route</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
+    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
     el.ingBody.querySelectorAll(".owned").forEach((input) => {
       input.onchange = () => {
         const value = parseInt(input.value.replace(/\D/g, ""), 10);
@@ -1392,12 +1424,17 @@
     $("towerShowDone").checked = state.towerShowDone;
     $("towerNextFloor").textContent = `T${nextFloor}`;
     const captureDate = PERSONAL.authoritativeMasteries ? PERSONAL.capturedAt : state.extensionConnectedAt || state.account && state.account.generatedAt || PERSONAL.capturedAt;
-    $("towerCaptureAge").textContent = captureDate ? `Progress saved ${new Date(captureDate).toLocaleString()}` : "Progress date unknown";
+    $("towerCaptureAge").textContent = captureDate
+      ? `Last updated ${new Date(captureDate).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}`
+      : "No saved progress yet";
+    // The named-mastery list only reaches as far as the data does — don't
+    // claim a floor range the rows can't back up.
+    const namedTop = rows.length ? rows[rows.length - 1].floor : start;
     $("towerSummary").innerHTML = [
-      ["Named MM goals left", `${unfinished.length} / ${rows.length}`, "mastery plan through T330"],
-      ["Floor costs", String(TOWER_FLOORS.floors.length), "T301 through T340"],
-      ["Progress left", fmt(remaining), "mastery actions / output"],
-      ["Completed here", String(rows.length - unfinished.length), "MM requirements"],
+      ["Masteries still to finish", `${unfinished.length} / ${rows.length}`, `named goals up to T${namedTop}`],
+      ["Floors priced", String(TOWER_FLOORS.floors.length), "T301 through T340"],
+      ["Still to make or catch", fmt(remaining), "items across every unfinished mastery"],
+      ["Already at Mega Mastery", String(rows.length - unfinished.length), `of ${rows.length} in this range`],
     ].map(([label, value, note]) => `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`).join("");
     const visibleFloors = [...floors].filter(([, items]) => state.towerShowDone || items.some((row) => !row.complete));
     $("towerRail").innerHTML = visibleFloors.length ? visibleFloors.map(([floor, items]) => {
@@ -1408,18 +1445,22 @@
         const percent = Math.min(100, row.current / 10000);
         const method = row.methods.join(" / ") || "item";
         const pjGap = PUMPKIN_JUICE_MMS.has(row.name) && !row.complete ? Math.max(0, 909091 - row.current) : null;
-        const openAttrs = row.complete ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the Craft planner"`;
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}"${openAttrs}>${itemImg(item, "tower-art")}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">One-PJ setup: ${fmt(pjGap)} more to 909.09k</small>` : ""}</div></div>`;
+        // Only offer the "open in the planner" click when the planner actually
+        // knows the item. Otherwise it looked like a button and did nothing.
+        const plannable = !!item;
+        const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the Craft planner"`;
+        const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${itemImg(item, "tower-art", row.name)}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
     const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(301, start) && row.floor <= goal);
     const costGrid = $("towerCostGrid");
-    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} MM minimum</small></div><div class="tower-cost-items">${row.items.map((entry) => { const item = itemByName(entry.name); return `<div class="tower-cost-item" data-open-item="${esc(entry.name)}" data-open-qty="${entry.quantity}" tabindex="0" role="button" title="Open ${esc(entry.name)} in the Craft planner">${itemImg(item, "tower-art")}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 costs in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
+    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} MM minimum</small></div><div class="tower-cost-items">${row.items.map((entry) => { const item = itemByName(entry.name); const attrs = item ? ` data-open-item="${esc(entry.name)}" data-open-qty="${entry.quantity}" tabindex="0" role="button" title="Open ${esc(entry.name)} in the Craft planner"` : ""; return `<div class="tower-cost-item${item ? "" : " no-plan"}"${attrs}>${itemImg(item, "tower-art", entry.name)}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 costs in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
-    sync.innerHTML = `<span></span><strong>${connected ? "Extension connected" : "Saved account"}</strong><small>${connected ? `Updated ${new Date(state.extensionConnectedAt).toLocaleTimeString()}` : "Extension not connected"}</small>`;
+    sync.innerHTML = `<span></span><strong>${connected ? "Updating automatically" : "Using your saved progress"}</strong><small>${connected ? `Refreshed ${new Date(state.extensionConnectedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "Numbers change only when you import again"}</small>`;
     const accountSync = $("extensionStatus");
     if (accountSync) {
       accountSync.classList.toggle("connected", connected);

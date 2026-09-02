@@ -30,3 +30,8 @@ h1,h2,h3{text-wrap:balance}p{text-wrap:pretty}
 .brand-logo{width:44px;height:44px;display:block;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(0,0,0,.3))}
 :where(a,button,input,select,textarea):focus-visible{outline:2px solid #78c9d5;outline-offset:3px}
 @media(max-width:760px){.masthead{gap:10px}.brand small{display:none}.brand-logo{width:38px;height:38px}.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{flex:0 0 auto}}
+
+/* Fallback tile for items with no artwork: the item's initial, not a "?" */
+.missing-art{font:650 15px Fraunces,serif;color:var(--muted);letter-spacing:.02em;opacity:.75}
+.missing-art.tree-art{font-size:11px}
+.missing-art.table-art{font-size:13px}
