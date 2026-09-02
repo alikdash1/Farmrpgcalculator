@@ -1,0 +1,10 @@
+{
+  "name": "Lantern Ledger",
+  "short_name": "Lantern",
+  "description": "A fan-made Farm RPG planning desk for crafting, Tower progress, routes, and new items.",
+  "start_url": "./index.html#home",
+  "display": "standalone",
+  "background_color": "#101c1c",
+  "theme_color": "#101c1c",
+  "icons": [{ "src": "assets/lantern-ledger-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,0 +1,37 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-24T09:00:00.000Z",
+  "pageType": "quests-completed",
+  "pageLabel": "Completed Help Requests",
+  "title": "Farm RPG - Completed Help Requests (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/quests.php",
+  "fields": {
+    "quests": [
+      {
+        "title": "Low On Coal",
+        "giver": "Fixture Fiona",
+        "status": "completed",
+        "requiredItems": [],
+        "rewards": [],
+        "prerequisites": null,
+        "chain": null,
+        "confidence": "inferred-page-section"
+      },
+      {
+        "title": "Befriending Buddy",
+        "giver": null,
+        "status": "completed",
+        "requiredItems": [],
+        "rewards": [],
+        "prerequisites": null,
+        "chain": null,
+        "confidence": "inferred-page-section"
+      }
+    ]
+  },
+  "visibleText": "Completed Help Requests\nLow On Coal\nBefriending Buddy\n(fake fixture text)",
+  "warnings": []
+}

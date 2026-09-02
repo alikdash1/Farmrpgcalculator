@@ -1,0 +1,35 @@
+{
+  "schema": "farmrpg-account-v1",
+  "capturedAt": "YYYY-MM-DDTHH:mm:ssZ",
+  "towerLevel": null,
+  "skills": {
+    "farming": null,
+    "fishing": null,
+    "crafting": null,
+    "exploring": null,
+    "cooking": null
+  },
+  "inventoryCapacity": null,
+  "inventory": {},
+  "activeQuests": [],
+  "completedQuestIds": [],
+  "masteries": {},
+  "pets": {},
+  "buildings": {
+    "sawmill": {},
+    "quarry": {},
+    "orchard": {}
+  },
+  "perks": [],
+  "artifacts": [],
+  "availableMeals": [],
+  "dailyIncome": {
+    "Large Net": null,
+    "Apple Cider": null,
+    "Arnold Palmer": null,
+    "Orange Juice": null,
+    "Lemonade": null
+  },
+  "notes": "Unknown values can stay null. Separate files can be kept for each friend."
+}
+

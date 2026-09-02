@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "profile": "Endgame-ready; every permanent bonus stays toggleable",
+    "sources": [
+      "Farm RPG Library and Farm Supply",
+      "Buddy's Almanac item and meal pages",
+      "community guide snapshots supplied with the project"
+    ],
+    "note": "Meal effects and passive buildings are configured separately in Setup."
+  },
+  "effects": [
+    { "id": "artisan", "name": "Artisan I-IV", "kind": "Skill perks", "type": "craft_cost_off", "value": 0.5, "plain": "Cuts Workshop silver cost by 50%." },
+    { "id": "toolbox", "name": "Toolbox I", "kind": "Farm Supply", "type": "craft_cost_off", "value": 0.1, "plain": "Cuts Workshop silver cost by another 10%." },
+    { "id": "charm", "name": "Odthorin's Charm", "kind": "Artifact", "type": "craft_cost_off", "value": 0.1, "plain": "Cuts Workshop silver cost by another 10%." },
+    { "id": "rs1", "name": "Resource Saver I", "kind": "Skill perk", "type": "craft_yield", "value": 0.1, "plain": "About 10% extra crafted output over time." },
+    { "id": "rs2", "name": "Resource Saver II", "kind": "Farm Supply", "type": "craft_yield", "value": 0.15, "plain": "About 15% extra crafted output over time." },
+    { "id": "luna", "name": "Headdress of Luna", "kind": "Artifact", "type": "craft_yield", "value": 0.2, "plain": "About 20% extra crafted output over time." },
+    { "id": "ashes", "name": "Ashes of Pentagorn", "kind": "Artifact", "type": "cook_save", "value": 0.9, "plain": "Cooking uses roughly 10% fewer ingredients." },
+    { "id": "bahltru", "name": "Bahltruvian Scales", "kind": "Artifact", "type": "sale_bonus", "value": 0.1, "plain": "Items sell for 10% more silver." },
+    { "id": "fert", "name": "Fertilizer I", "kind": "Farm Supply", "type": "sale_bonus", "value": 0.1, "plain": "Items sell for 10% more silver." },
+    { "id": "negotiator", "name": "Negotiator I-IV", "kind": "Skill perks", "type": "sale_bonus", "value": 0.2, "plain": "Items sell for about 20% more silver." },
+    { "id": "lemonsq", "family": "lemon_squeezer", "name": "Lemon Squeezer", "kind": "Farm Supply", "type": "lemonade_items_bonus", "value": 10, "plain": "Lemonade finds 20 items instead of 10." },
+    { "id": "lemonsq_ap", "family": "lemon_squeezer", "name": "Lemon Squeezer", "kind": "Farm Supply", "type": "ap_items_bonus", "value": 300, "plain": "Arnold Palmer finds 500 items instead of 200." },
+    { "id": "cinnamon", "name": "Cinnamon Sticks", "kind": "Farm Supply", "type": "cider_eff", "value": 0.25, "plain": "Apple Cider is 25% more effective." },
+    { "id": "wanderer", "name": "Wanderer I-IV", "kind": "Skill perks", "type": "stamina_save", "value": 0.2, "plain": "Uses about 20% less stamina while exploring." },
+    { "id": "reinforced_fn", "family": "reinforced_netting", "name": "Reinforced Netting", "kind": "Farm Supply", "type": "fn_bonus", "value": 5, "plain": "Fishing Nets catch 15 items." },
+    { "id": "reinforced_ln", "family": "reinforced_netting", "name": "Reinforced Netting", "kind": "Farm Supply", "type": "ln_bonus", "value": 150, "plain": "Large Nets catch 400 items before artifacts." },
+    { "id": "trigonn", "name": "Trigon Knot", "kind": "Artifact", "type": "ln_bonus", "value": 100, "plain": "Adds 100 items per Large Net." },
+    { "id": "iron_depot", "name": "Iron Depot", "kind": "Farm Supply", "type": "iron_depot", "value": 1, "plain": "Auto-buys Iron and Nails with silver and keeps them full." },
+    { "id": "runecube", "name": "Runecube", "kind": "Artifact", "type": "rare_boost", "value": 0.2, "plain": "Boosts some rare drops; only used where the exact formula is known." }
+  ]
+}

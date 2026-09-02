@@ -1,0 +1,21 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player. Newer inventory capture.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-25T09:00:00.000Z",
+  "pageType": "inventory",
+  "pageLabel": "Inventory",
+  "title": "Farm RPG - Inventory (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/inventory.php",
+  "fields": {
+    "inventory": [
+      { "name": "Wood", "quantity": { "value": 15500, "raw": "15,500", "confidence": "visible-table" }, "capacity": null, "locked": null, "itemId": null },
+      { "name": "Wooden Plank", "quantity": { "value": 40, "raw": "40", "confidence": "visible-table" }, "capacity": null, "locked": null, "itemId": null },
+      { "name": "Board", "quantity": null, "capacity": null, "locked": null, "itemId": null },
+      { "name": "Glass Orb", "quantity": { "value": "100000000000000000000", "raw": "100,000,000,000,000,000,000", "confidence": "visible-table" }, "capacity": null, "locked": null, "itemId": null }
+    ]
+  },
+  "visibleText": "Wood 15,500\nWooden Plank 40\nGlass Orb 100,000,000,000,000,000,000\n(fake fixture text, newer capture; Glass Orb count is deliberately huge to test big-number safety)",
+  "warnings": []
+}

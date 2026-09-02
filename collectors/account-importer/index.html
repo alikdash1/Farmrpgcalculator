@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farm RPG Account Importer</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Farm RPG Account Importer</h1>
+  <p class="tagline">Local-only tool. Nothing is uploaded, nothing is sent anywhere, no server is needed.</p>
+</header>
+
+<main>
+
+  <section class="panel" id="section-import" aria-labelledby="h-import">
+    <h2 id="h-import">1. Import captures</h2>
+    <p class="hint">
+      Use <code>capture-current-page.js</code> in your browser console on each Farm RPG account page
+      (see README.md), then add the downloaded <code>.json</code> files here.
+    </p>
+    <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Add capture files">
+      <strong>Drop capture .json files here</strong>
+      <span>or click to choose files</span>
+    </div>
+    <input type="file" id="file-input" accept=".json,application/json" multiple hidden>
+    <ul id="import-log" class="log" aria-live="polite"></ul>
+  </section>
+
+  <section class="panel" id="section-pages" aria-labelledby="h-pages">
+    <div class="panel-head">
+      <h2 id="h-pages">2. Imported pages</h2>
+      <button id="btn-clear-all" class="btn btn-danger btn-small" type="button">Clear all captures</button>
+    </div>
+    <div class="table-wrap">
+      <table id="captures-table">
+        <thead>
+          <tr>
+            <th>Page type</th><th>Captured at</th><th>File</th><th>Source URL</th><th>Notes</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="captures-tbody"></tbody>
+      </table>
+      <p id="captures-empty" class="empty-note">No captures imported yet.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="section-summary" aria-labelledby="h-summary">
+    <h2 id="h-summary">3. Account summary</h2>
+    <p class="hint">Compact values are shown for readability — hover or long-press any value for the exact stored number. Unknown values are shown as <em>unknown</em>, never as zero.</p>
+    <div id="summary-grid" class="summary-grid"></div>
+  </section>
+
+  <section class="panel" id="section-missing" aria-labelledby="h-missing">
+    <h2 id="h-missing">4. Missing information</h2>
+    <p class="hint">Fields the captures did not provide. Capture the matching page and re-import to fill them in.</p>
+    <ul id="missing-list" class="chips"></ul>
+    <p id="missing-none" class="empty-note" hidden>Nothing missing — every expected field has a value.</p>
+  </section>
+
+  <section class="panel" id="section-warnings" aria-labelledby="h-warnings">
+    <h2 id="h-warnings">5. Validation warnings</h2>
+    <ul id="warnings-list" class="warnings"></ul>
+    <p id="warnings-none" class="empty-note" hidden>No warnings.</p>
+  </section>
+
+  <section class="panel" id="section-export" aria-labelledby="h-export">
+    <h2 id="h-export">6. Export</h2>
+    <p class="hint">Produces <code>farmrpg-account-snapshot.json</code> — one merged snapshot where the newest capture wins each field, with provenance for every value. Give this file to whoever maintains the calculator.</p>
+    <div class="export-row">
+      <button id="btn-export" class="btn btn-primary" type="button">Export account snapshot</button>
+      <button id="btn-clear-local" class="btn btn-danger" type="button">Clear local data</button>
+    </div>
+    <details class="tech">
+      <summary>Technical details (schema, provenance, raw snapshot)</summary>
+      <h3>Snapshot schema</h3>
+      <p><code>farmrpg-account-snapshot-v1</code> plus a <code>legacyV1</code> bridge object matching the older <code>farmrpg-account-v1</code> template in <code>collectors/account-snapshot.template.json</code>.</p>
+      <h3>Provenance</h3>
+      <pre id="provenance-view" class="code-view"></pre>
+      <h3>Raw merged snapshot</h3>
+      <pre id="snapshot-view" class="code-view"></pre>
+    </details>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>Runs fully offline. Imported captures are stored only in this browser's local storage so a refresh does not lose work; use “Clear local data” to remove them completely.</p>
+</footer>
+
+<script src="shared/numbers.js"></script>
+<script src="shared/sanitize.js"></script>
+<script src="shared/schema.js"></script>
+<script src="shared/merge.js"></script>
+<script src="importer.js"></script>
+</body>
+</html>

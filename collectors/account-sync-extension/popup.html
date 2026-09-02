@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Lantern Ledger Account Sync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <span>LANTERN LEDGER</span>
+    <h1>Account Sync</h1>
+    <p>Read-only memory for the Farm RPG pages you visit.</p>
+  </header>
+  <main>
+    <section class="state"><i></i><div><strong id="status">Checking…</strong><small id="updated">No saved pages yet</small></div></section>
+    <section class="coverage"><div><span>Account sections learned</span><b id="count">0 / 12</b></div><p id="missing"></p></section>
+    <button id="capture" class="primary">Capture this Farm RPG page</button>
+    <button id="open">Open Lantern Ledger Tower</button>
+    <button id="export">Export complete account snapshot</button>
+    <details>
+      <summary>Local calculator and data controls</summary>
+      <label for="calculatorUrl">Local calculator address</label>
+      <div class="url-row"><input id="calculatorUrl" type="url" spellcheck="false" value="http://127.0.0.1:8772/index.html"><button id="saveUrl">Save</button></div>
+      <p>Automatic sync stays limited to localhost or a local file. For a hosted copy, export the snapshot and load it from the Account tab.</p>
+      <button id="clear" class="danger">Clear saved captures</button>
+    </details>
+    <p id="message" role="status"></p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

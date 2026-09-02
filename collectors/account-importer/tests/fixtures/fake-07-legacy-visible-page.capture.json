@@ -1,0 +1,8 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player. Legacy raw-text export in the old farmrpg-visible-page-v1 shape (as produced by collectors/collect-visible-page.js).",
+  "schema": "farmrpg-visible-page-v1",
+  "capturedAt": "2026-08-19T09:00:00.000Z",
+  "title": "Farm RPG - Some Page (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/somepage.php?token=SHOULD-BE-STRIPPED&sid=123",
+  "visibleText": "This is fake raw visible text from the legacy collector.\nIt has no structured fields, so the importer should keep it as fallback text only."
+}

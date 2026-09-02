@@ -1,0 +1,175 @@
+  const itemFact = (name) => P.items[name] || { questSteps: 0, questTotal: 0, usedInCrafts: 0, relevance: 0, hoard: false };
+  const routeRule = (name) => P.routeRules[name] || null;
+  const farmLabel = (farm) => farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn overlay" : "Explore";
+
+  function coDropSentence(route) {
+    if (!route || !route.coDrops || !route.coDrops.length) return "";
+    return route.coDrops.slice(0, 4).map((drop) => `${fmt(drop.expected)} ${esc(drop.name)}`).join(" · ");
+  }
+
+  function farmPlan(item, need, m, consts) {
+    if (!item || need <= 0) return null;
+    const sources = E.sourcesFor(index, item.id, need, m, consts);
+    if (item.name === "Hide") {
+      const measured = acornPlan(need);
+      if (measured) return measured;
+    }
+    if (sources.crop) {
+      return {
+        type: "crop",
+        plants: sources.crop.plants,
+        minutes: sources.crop.minutesEach,
+        goldEq: null,
+        confidence: { label: "Official crop time", level: 3 },
+        progressionScore: itemFact(item.name).relevance || 0,
+        detail: `${fmt(sources.crop.plants)} plants · ${fmt(sources.crop.minutesEach)} min/harvest`,
+      };
+    }
+    const rule = routeRule(item.name);
+    const dropPlans = sources.drops.filter((row) => row.explores != null).map((drop) => {
+      const qc = state.meals.quandary ? 1 + c("quandary_bonus", 0.1) : 1;
+      const neigh = state.meals.neigh ? 1 - c("neigh_stamina_save", 0.2) : 1;
+      const ciderUses = drop.explores / m.drinks.ciderRolls;
+      const stamina = drop.explores * m.exploreStaminaPer * neigh;
+      const oj = stamina / c("oj_stamina", 100);
+      const apUses = drop.explores / (m.drinks.apItems * qc);
+      const ciderUnit = goldEach("Apple Cider");
+      const apUnit = goldEach("Arnold Palmer");
+      const ojUnit = E.currencyGoldEach(index, "oj");
+      const ciderGold = ciderUnit == null || ojUnit == null ? null : ciderUses * ciderUnit + oj * ojUnit;
+      const apGold = apUnit == null ? null : apUses * apUnit;
+      const useAp = apGold != null && (ciderGold == null || apGold < ciderGold);
+      const coDrops = E.coDropsFor(index, drop.location, drop.explores, item.name, P, 20);
+      const prized = (P.locationNotes[drop.location] || {}).prizedCoDrops || [];
+      coDrops.sort((a, b) => {
+        const ai = prized.indexOf(a.name), bi = prized.indexOf(b.name);
+        return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || b.score - a.score;
+      });
+      const coDropSellSilver = coDrops.reduce((sum, co) => {
+        const coItem = itemByName(co.name);
+        return sum + (coItem && coItem.sell != null ? co.expected * coItem.sell * m.saleMult : 0);
+      }, 0);
+      const progressionScore = coDrops.reduce((sum, co) => sum + Math.min(6, co.score), itemFact(item.name).relevance || 0);
+      const preferred = !!(rule && rule.action === "farm" && (!rule.location || rule.location === drop.location));
+      return {
+        type: "explore",
+        method: useAp ? "ap" : "cider",
+        location: drop.location,
+        explores: drop.explores,
+        stamina,
+        oj,
+        ciders: ciderUses,
+        aps: apUses,
+        goldEq: useAp ? apGold : ciderGold,
+        coDrops,
+        coDropSellSilver,
+        progressionScore,
+        preferred,
+        confidence: E.sourceConfidence(drop.src),
+        reason: preferred ? rule.why : coDrops.length ? `Also advances ${coDrops.slice(0, 3).map((co) => co.name).join(", ")}` : "Fastest known direct drop",
+        detail: useAp
+          ? `${esc(drop.location)} · ${fmt(apUses)} AP with${state.meals.quandary ? "" : "out"} Quandary`
+          : `${esc(drop.location)} · ${fmt(ciderUses)} Cider + ${fmt(oj)} OJ-equivalent stamina`,
+      };
+    }).sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.explores - b.explores);
+    if (dropPlans.length) return dropPlans[0];
+    const fish = sources.fish.filter((row) => row.catches != null).sort((a, b) => a.catches - b.catches)[0];
+    if (fish) {
+      const mealBoost = state.meals.seapincher ? 1 + c("sea_pincher_bonus", 0.1) : 1;
+      const largeNets = fish.catches / (m.nets.lnCatch * mealBoost);
+      const lnUnit = goldEach("Large Net");
+      return {
+        type: "fish",
+        location: fish.location,
+        catches: fish.catches,
+        largeNets,
+        goldEq: lnUnit == null ? null : largeNets * lnUnit,
+        confidence: E.sourceConfidence(fish.src),
+        progressionScore: itemFact(item.name).relevance || 0,
+        detail: `${esc(fish.location)} · ${fmt(largeNets)} Large Nets`,
+      };
+    }
+    return null;
+  }
+
+  function makeMaterialQuote(node, m, consts) {
+    const subtree = E.resolveTree(index, node.id, node.qtyOut, m, 0, [], consts);
+    const leaves = E.flattenLeaves(subtree);
+    let totalGold = 0;
+    let priced = 0;
+    let count = 0;
+    const routes = [];
+    for (const [, leaf] of leaves) {
+      if (leaf.id == null) continue;
+      count += 1;
+      const item = index.itemsById.get(leaf.id);
+      const infra = infraFor(item, leaf.total, m);
+      if (infra) {
+        priced += 1;
+        routes.push({ name: item.name, type: "covered", goldEq: 0 });
+        continue;
+      }
+      const quote = E.marketQuote(index, leaf.id, leaf.total);
+      const farm = farmPlan(item, leaf.total, m, consts);
+      const choices = [
+        quote && quote.best.goldEq != null && { type: "trade", goldEq: quote.best.goldEq },
+        farm && farm.goldEq != null && { type: "farm", goldEq: farm.goldEq },
+      ].filter(Boolean).sort((a, b) => a.goldEq - b.goldEq);
+      if (choices.length) {
+        totalGold += choices[0].goldEq;
+        priced += 1;
+        routes.push({ name: item.name, ...choices[0] });
+      }
+    }
+    return { goldEq: totalGold, complete: count > 0 && priced === count, priced, count, routes };
+  }
+
+  function makeDecision(node, m, consts) {
+    const manual = state.makeChoices[node.id] || "auto";
+    const item = index.itemsById.get(node.id);
+    const infra = infraFor(item, node.qtyOut, m);
+    const direct = E.marketQuote(index, node.id, node.qtyOut);
+    const farm = farmPlan(item, node.qtyOut, m, consts);
+    const materials = makeMaterialQuote(node, m, consts);
+    const rule = routeRule(item.name);
+    const costs = [
+      materials.complete && { action: "craft", goldEq: materials.goldEq },
+      direct && direct.best.goldEq != null && { action: "trade", goldEq: direct.best.goldEq },
+      farm && farm.goldEq != null && { action: "farm", goldEq: farm.goldEq },
+    ].filter(Boolean).sort((a, b) => a.goldEq - b.goldEq);
+    const cashWinner = costs[0] || { action: "craft", goldEq: materials.goldEq };
+    let auto = cashWinner.action;
+    let reason = "Lowest known single-item opportunity cost";
+    if (infra) {
+      auto = "building";
+      reason = infra.kind + " covers this input";
+    } else if (rule && rule.action === "farm" && farm && (!rule.location || rule.location === farm.location)) {
+      auto = "farm";
+      reason = rule.why;
+    } else if (farm && farm.goldEq != null && cashWinner.goldEq != null) {
+      const ratio = cashWinner.goldEq > 0 ? farm.goldEq / cashWinner.goldEq : Infinity;
+      if (ratio <= 1.2 || (ratio <= 1.5 && farm.progressionScore >= 16)) {
+        auto = "farm";
+        reason = ratio <= 1.2
+          ? "Farm cost is close enough that co-drops and mastery progress break the tie"
+          : "Progression-rich location offsets part of the higher consumable cost";
+      } else if (cashWinner.action === "trade") {
+        reason = "Buying is the cash winner; farming remains the progression alternative";
+      }
+    }
+    const progressionWinner = farm && (farm.preferred || farm.progressionScore >= 8) ? "farm" : auto;
+    const action = manual === "auto" ? auto : manual;
+    return {
+      action,
+      auto,
+      reason,
+      direct,
+      farm,
+      materials,
+      infra,
+      manual,
+      cashWinner: cashWinner.action,
+      progressionWinner,
+    };
+  }
+

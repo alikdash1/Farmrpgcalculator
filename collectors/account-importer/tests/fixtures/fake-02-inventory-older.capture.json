@@ -1,0 +1,21 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player. Older inventory capture.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-20T09:00:00.000Z",
+  "pageType": "inventory",
+  "pageLabel": "Inventory",
+  "title": "Farm RPG - Inventory (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/inventory.php",
+  "fields": {
+    "inventory": [
+      { "name": "Wood", "quantity": { "value": 12000, "raw": "12,000", "confidence": "visible-table" }, "capacity": null, "locked": null, "itemId": null },
+      { "name": "Board", "quantity": { "value": 5000, "raw": "5,000", "confidence": "visible-table" }, "capacity": null, "locked": null, "itemId": null },
+      { "name": "wood  ", "quantity": { "value": 99, "raw": "99", "confidence": "unparsed-text" }, "capacity": null, "locked": null, "itemId": null },
+      { "name": "Iron", "quantity": { "value": 800, "raw": "800", "confidence": "visible-table" }, "capacity": null, "locked": true, "itemId": 990011 }
+    ]
+  },
+  "visibleText": "Wood 12,000\nBoard 5,000\nIron 800\n(fake fixture text, older capture)",
+  "warnings": []
+}

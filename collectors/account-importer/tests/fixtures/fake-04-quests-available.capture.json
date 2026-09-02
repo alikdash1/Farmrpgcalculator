@@ -1,0 +1,41 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-22T09:00:00.000Z",
+  "pageType": "quests-available",
+  "pageLabel": "Available Help Requests",
+  "title": "Farm RPG - Help Requests (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/quests.php",
+  "fields": {
+    "quests": [
+      {
+        "title": "A Towering Investment",
+        "giver": "Fixture Frank",
+        "status": "available",
+        "requiredItems": [
+          { "name": "Board", "have": { "value": 1200, "raw": "1,200" }, "need": { "value": 5000, "raw": "5,000" } }
+        ],
+        "rewards": ["5,000 Silver (fake)"],
+        "prerequisites": null,
+        "chain": "Tower (fake chain)",
+        "confidence": "unparsed-text"
+      },
+      {
+        "title": "Low On Coal",
+        "giver": "Fixture Fiona",
+        "status": "active",
+        "requiredItems": [
+          { "name": "Coal", "have": { "value": 40, "raw": "40" }, "need": { "value": 200, "raw": "200" } }
+        ],
+        "rewards": [],
+        "prerequisites": null,
+        "chain": null,
+        "confidence": "unparsed-text"
+      }
+    ]
+  },
+  "visibleText": "A Towering Investment\nBoard 1,200/5,000\nLow On Coal\nCoal 40/200\n(fake fixture text)",
+  "warnings": []
+}

@@ -1,0 +1,121 @@
+{
+  "schema": "farmrpg-field-rates-v1",
+  "generatedAt": "2026-08-25T22:45:35.028Z",
+  "warning": "The 95% range is a quick Poisson approximation, not a guarantee. Keep distinct perks and meals in separate groups.",
+  "rates": [
+    {
+      "mode": "explore",
+      "location": "Ember Lagoon",
+      "method": "Arnold Palmer",
+      "meals": "Acorn Pie + Lemon Cream Pie + Quandary Chowder",
+      "profile": "endgame-default",
+      "item": "Ancient Coin",
+      "runs": 1,
+      "actions": 20,
+      "consumablesUsed": 100,
+      "quantity": 260,
+      "dropsPerAction": 13,
+      "dropsPerConsumable": 2.6,
+      "actionsPerDrop": 0.07692307692307693,
+      "approximate95Range": {
+        "lowDropsPerAction": 11.419797481333484,
+        "highDropsPerAction": 14.580202518666514
+      }
+    },
+    {
+      "mode": "explore",
+      "location": "Ember Lagoon",
+      "method": "Arnold Palmer",
+      "meals": "Acorn Pie + Lemon Cream Pie + Quandary Chowder",
+      "profile": "endgame-default",
+      "item": "Emberstone",
+      "runs": 1,
+      "actions": 20,
+      "consumablesUsed": 100,
+      "quantity": 1700,
+      "dropsPerAction": 85,
+      "dropsPerConsumable": 17,
+      "actionsPerDrop": 0.011764705882352941,
+      "approximate95Range": {
+        "lowDropsPerAction": 80.95935648689469,
+        "highDropsPerAction": 89.04064351310531
+      }
+    },
+    {
+      "mode": "explore",
+      "location": "Ember Lagoon",
+      "method": "Arnold Palmer",
+      "meals": "Acorn Pie + Lemon Cream Pie + Quandary Chowder",
+      "profile": "endgame-default",
+      "item": "Glass Orb",
+      "runs": 1,
+      "actions": 20,
+      "consumablesUsed": 100,
+      "quantity": 2400,
+      "dropsPerAction": 120,
+      "dropsPerConsumable": 24,
+      "actionsPerDrop": 0.008333333333333333,
+      "approximate95Range": {
+        "lowDropsPerAction": 115.19900010414497,
+        "highDropsPerAction": 124.80099989585503
+      }
+    },
+    {
+      "mode": "explore",
+      "location": "Ember Lagoon",
+      "method": "Arnold Palmer",
+      "meals": "Acorn Pie + Lemon Cream Pie + Quandary Chowder",
+      "profile": "endgame-default",
+      "item": "Hide",
+      "runs": 1,
+      "actions": 20,
+      "consumablesUsed": 100,
+      "quantity": 650,
+      "dropsPerAction": 32.5,
+      "dropsPerConsumable": 6.5,
+      "actionsPerDrop": 0.03076923076923077,
+      "approximate95Range": {
+        "lowDropsPerAction": 30.001480438339538,
+        "highDropsPerAction": 34.998519561660466
+      }
+    },
+    {
+      "mode": "fish",
+      "location": "Large Island",
+      "method": "Large Net",
+      "meals": "Sea Pincher Special",
+      "profile": "endgame-default",
+      "item": "Gold Coral",
+      "runs": 1,
+      "actions": 100,
+      "consumablesUsed": 100,
+      "quantity": 1600,
+      "dropsPerAction": 16,
+      "dropsPerConsumable": 16,
+      "actionsPerDrop": 0.0625,
+      "approximate95Range": {
+        "lowDropsPerAction": 15.216,
+        "highDropsPerAction": 16.784
+      }
+    },
+    {
+      "mode": "fish",
+      "location": "Large Island",
+      "method": "Large Net",
+      "meals": "Sea Pincher Special",
+      "profile": "endgame-default",
+      "item": "Swordfish",
+      "runs": 1,
+      "actions": 100,
+      "consumablesUsed": 100,
+      "quantity": 12000,
+      "dropsPerAction": 120,
+      "dropsPerConsumable": 120,
+      "actionsPerDrop": 0.008333333333333333,
+      "approximate95Range": {
+        "lowDropsPerAction": 117.85292757457975,
+        "highDropsPerAction": 122.14707242542025
+      }
+    }
+  ]
+}

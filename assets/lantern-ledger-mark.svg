@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Lantern Ledger</title>
+  <path fill="#112624" d="M9 6h38l8 9v39H17l-8-9z"/>
+  <path fill="#29423d" d="M15 12h28l6 6v30H21l-6-6z"/>
+  <path fill="#e2b75a" d="M25 19h16v4H25zm-3 7h22l-3 20H25zm6 4 1 11h8l2-11z"/>
+  <path fill="#f5e6a4" d="m31 31 5 2-2 7-5-2z"/>
+  <path fill="#79c9d4" d="M19 17h4v29h-4z"/>
+  <path fill="#9ac56d" d="M43 12c8 0 11 5 10 11-7 1-11-2-12-8 3 3 5 4 9 4-2-3-4-4-7-7z"/>
+</svg>

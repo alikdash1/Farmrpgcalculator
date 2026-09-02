@@ -1,0 +1,38 @@
+{
+  "schema": "farmrpg-field-runs-v1",
+  "runs": [
+    {
+      "capturedAt": "YYYY-MM-DDTHH:mm:ssZ",
+      "mode": "explore",
+      "location": "Ember Lagoon",
+      "method": "Arnold Palmer",
+      "consumablesUsed": 100,
+      "actions": 20,
+      "meals": ["Acorn Pie", "Lemon Cream Pie", "Quandary Chowder"],
+      "profile": "endgame-default",
+      "drops": {
+        "Glass Orb": 2400,
+        "Emberstone": 1700,
+        "Hide": 650,
+        "Ancient Coin": 260
+      },
+      "notes": "Example only; replace every number with one observed uninterrupted run."
+    },
+    {
+      "capturedAt": "YYYY-MM-DDTHH:mm:ssZ",
+      "mode": "fish",
+      "location": "Large Island",
+      "method": "Large Net",
+      "consumablesUsed": 100,
+      "actions": 100,
+      "meals": ["Sea Pincher Special"],
+      "profile": "endgame-default",
+      "drops": {
+        "Swordfish": 12000,
+        "Gold Coral": 1600
+      },
+      "notes": "For fishing, actions can equal Nets/Large Nets used; consumablesUsed must be the real amount consumed."
+    }
+  ]
+}
+

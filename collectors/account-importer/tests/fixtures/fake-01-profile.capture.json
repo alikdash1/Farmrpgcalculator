@@ -1,0 +1,47 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-21T10:00:00.000Z",
+  "pageType": "profile",
+  "pageLabel": "Profile",
+  "title": "Farm RPG - Profile (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/profile.php",
+  "fields": {
+    "player": {
+      "name": { "value": "FixtureFarmer", "raw": "FixtureFarmer", "confidence": "visible-label" },
+      "playerId": { "value": "900001", "raw": "900001", "confidence": "visible-label" },
+      "accountCreated": { "value": "March 2020 (fake)", "raw": "March 2020 (fake)", "confidence": "visible-label" }
+    },
+    "levels": {
+      "farming": { "value": 55, "raw": "55", "confidence": "visible-label" },
+      "fishing": { "value": 40, "raw": "40", "confidence": "visible-label" },
+      "crafting": { "value": 52, "raw": "52", "confidence": "visible-label" },
+      "exploring": { "value": 48, "raw": "48", "confidence": "visible-label" },
+      "cooking": { "value": 30, "raw": "30", "confidence": "visible-label" },
+      "tower": { "value": 201, "raw": "201", "confidence": "visible-label" }
+    },
+    "balances": {
+      "silver": { "value": 1250000, "raw": "1.25M", "confidence": "visible-label" },
+      "gold": { "value": 12400, "raw": "12,400", "confidence": "visible-label" },
+      "staminaCurrent": { "value": 4500, "raw": "4,500", "confidence": "visible-label" },
+      "staminaMaximum": { "value": 6000, "raw": "6,000", "confidence": "visible-label" }
+    },
+    "capacity": {
+      "inventoryCurrent": { "value": 3200, "raw": "3,200", "confidence": "visible-label" },
+      "inventoryMaximum": { "value": 5000, "raw": "5,000", "confidence": "visible-label" }
+    },
+    "consumables": [
+      { "name": "Ancient Coin", "quantity": { "value": 260, "raw": "260", "confidence": "visible-label" } },
+      { "name": "Apple Cider", "quantity": { "value": 12, "raw": "12", "confidence": "visible-label" } },
+      { "name": "Arnold Palmer", "quantity": { "value": 8, "raw": "8", "confidence": "visible-label" } },
+      { "name": "Orange Juice", "quantity": { "value": 30, "raw": "30", "confidence": "visible-label" } },
+      { "name": "Lemonade", "quantity": { "value": 15, "raw": "15", "confidence": "visible-label" } },
+      { "name": "Fishing Net", "quantity": { "value": 1200, "raw": "1.2K", "confidence": "visible-label" } },
+      { "name": "Large Net", "quantity": { "value": 140, "raw": "140", "confidence": "visible-label" } }
+    ]
+  },
+  "visibleText": "FixtureFarmer\nPlayer ID: 900001\nFarming Level 55\nFishing Level 40\nCrafting Level 52\nExploring Level 48\nCooking Level 30\nTower Level 201\nSilver: 1.25M\nGold: 12,400\nStamina: 4,500 / 6,000\nInventory: 3,200 / 5,000\n(fake fixture text)",
+  "warnings": []
+}

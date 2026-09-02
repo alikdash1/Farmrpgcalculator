@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "note": "Verified values come from Farm RPG/Buddy pages. Amber estimates remain editable in Setup.",
+    "marketUnits": "Price Check values ending in /k are per 1,000 items."
+  },
+  "crop_qf_is_reduction": { "v": 0.8, "verified": true, "why": "Quicker Farming I-IV plus Irrigation I-II: 80% reduction" },
+  "crop_dod_base_cut": { "v": 0.1, "verified": true, "why": "Diary of O'Dynn cuts 10% of base growth time" },
+  "craft_cost_cap": { "v": 0.75, "verified": false, "why": "Safety cap until the complete stacking rule is verified" },
+  "net_fn_base_catch": { "v": 10, "verified": true, "why": "Items per Fishing Net before Reinforced Netting" },
+  "net_ln_base_catch": { "v": 250, "verified": true, "why": "Items per Large Net before Reinforced Netting and Trigon Knot" },
+  "cider_base_rolls": { "v": 1000, "verified": true, "why": "Base item-roll equivalent per Apple Cider before Cinnamon Sticks" },
+  "lemonade_base_items": { "v": 10, "verified": true, "why": "Items per Lemonade before Lemon Squeezer" },
+  "ap_base_items": { "v": 200, "verified": true, "why": "Items per Arnold Palmer before Lemon Squeezer" },
+  "oj_stamina": { "v": 100, "verified": true, "why": "Stamina restored by one Orange Juice" },
+  "quandary_bonus": { "v": 0.1, "verified": true, "why": "Quandary Chowder gives 10% more Lemonade/AP output" },
+  "neigh_stamina_save": { "v": 0.2, "verified": true, "why": "Neigh makes Cider use 20% less stamina" },
+  "sea_pincher_bonus": { "v": 0.1, "verified": false, "why": "Community-documented Net/LN effectiveness boost" },
+  "hickory_tick_bonus": { "v": 0.2, "verified": true, "why": "Hickory Omelette adds 20% Sawmill production every 10 minutes for one hour" },
+  "acorn_pie_actions": { "v": 150, "verified": true, "why": "Acorn Pie adds Hide outside Forest for 150 actions; rate varies by location and method" },
+  "explore_base_stamina": { "v": 1, "verified": false, "why": "Base stamina opportunity per logged item roll" },
+  "plot_yield_default": { "v": 1, "verified": false, "why": "Crops harvested per planted seed before account-specific bonuses" },
+  "rate_adjust_global": { "v": 1, "verified": true, "why": "Multiplier for the archived community drop denominators" },
+  "cooking_tools_not_consumed": { "v": ["Cooking Pot"], "verified": false, "why": "Reusable tools excluded from cooking ingredient totals" }
+}

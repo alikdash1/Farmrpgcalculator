@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Farm RPG Exploration Logger",
+  "version": "0.1.0",
+  "description": "Locally records Farm RPG exploration responses you trigger manually.",
+  "permissions": [
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://farmrpg.com/*",
+    "https://www.farmrpg.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://farmrpg.com/*",
+        "https://www.farmrpg.com/*"
+      ],
+      "js": [
+        "page-hook.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://farmrpg.com/*",
+        "https://www.farmrpg.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "panel.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

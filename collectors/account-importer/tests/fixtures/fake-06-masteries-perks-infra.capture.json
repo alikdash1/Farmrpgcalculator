@@ -1,0 +1,66 @@
+{
+  "_notice": "FAKE TEST FIXTURE — invented account data, not a real player.",
+  "schema": "farmrpg-page-capture-v1",
+  "collectorVersion": "1.0.0",
+  "parserStatus": "provisional",
+  "capturedAt": "2026-08-23T09:00:00.000Z",
+  "pageType": "mastery",
+  "pageLabel": "Mastery",
+  "title": "Farm RPG - Mastery (FAKE FIXTURE)",
+  "url": "https://farmrpg.com/mastery.php",
+  "fields": {
+    "masteries": [
+      {
+        "itemName": "Board",
+        "masteryCount": { "value": 12345, "raw": "12,345", "confidence": "visible-label" },
+        "masteryLevel": null,
+        "grandMastery": true,
+        "megaMastery": false,
+        "towerRequirement": { "value": 201, "raw": "201", "confidence": "visible-label" },
+        "progress": { "current": "12,345", "next": "50,000", "raw": "12,345 / 50,000" },
+        "completed": null,
+        "confidence": "unparsed-text"
+      },
+      {
+        "itemName": "Wood",
+        "masteryCount": { "value": 60000, "raw": "60,000", "confidence": "visible-label" },
+        "masteryLevel": null,
+        "grandMastery": true,
+        "megaMastery": true,
+        "towerRequirement": null,
+        "progress": null,
+        "completed": true,
+        "confidence": "unparsed-text"
+      }
+    ],
+    "perks": [
+      { "name": "Artisan IV", "owned": true, "description": "Fake perk description for testing only.", "confidence": "unparsed-text" },
+      { "name": "Negotiator II", "owned": false, "description": "Fake locked perk for testing only.", "confidence": "unparsed-text" }
+    ],
+    "farmSupply": [
+      { "name": "Toolbox I", "owned": true, "description": "Fake Farm Supply upgrade for testing only.", "confidence": "unparsed-text" }
+    ],
+    "artifacts": [
+      { "name": "Bahltruvian Scales", "owned": true, "description": "Fake artifact for testing only.", "confidence": "unparsed-text" }
+    ],
+    "infrastructure": {
+      "ironDepot": { "value": true, "raw": "Iron Depot mentioned on page", "confidence": "unparsed-text" },
+      "sawmill": {
+        "level": { "value": 12, "raw": "12", "confidence": "visible-label" },
+        "woodPerHour": { "value": 120, "raw": "120", "confidence": "visible-label" },
+        "boardPerHour": { "value": 30, "raw": "30", "confidence": "visible-label" },
+        "capacity": { "value": 5000, "raw": "5,000", "confidence": "visible-label" }
+      },
+      "quarry": {
+        "level": { "value": 9, "raw": "9", "confidence": "visible-label" },
+        "stonePerHour": { "value": 200, "raw": "200", "confidence": "visible-label" },
+        "coalPerHour": { "value": 45, "raw": "45", "confidence": "visible-label" }
+      },
+      "storehouse": {
+        "level": { "value": 8, "raw": "8", "confidence": "visible-label" }
+      }
+    }
+  },
+  "visibleText": "Board 12,345 Mastered\nGrand Mastery ✓\nWood 60,000 Mastered\nMega Mastery ✓\nSawmill Level 12\n(fake fixture text)",
+  "warnings": []
+}
