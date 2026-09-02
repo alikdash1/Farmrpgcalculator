@@ -93,6 +93,7 @@
     sourceChoices: read("frpg_sources_v2", {}),
     farmLocations: read("frpg_farm_locations_v1", {}),
     includeEvents: read("frpg_include_events_v1", false) === true,
+    drinkPath: read("frpg_drink_path_v1", "auto"),
     makeChoices: read("frpg_make_v2", {}),
     account: read("frpg_account_snapshot_v1", null),
     acornTests: read("frpg_acorn_tests_v2", []),
@@ -136,6 +137,7 @@
     localStorage.setItem("frpg_sources_v2", JSON.stringify(state.sourceChoices));
     localStorage.setItem("frpg_farm_locations_v1", JSON.stringify(state.farmLocations));
     localStorage.setItem("frpg_include_events_v1", JSON.stringify(state.includeEvents));
+    localStorage.setItem("frpg_drink_path_v1", JSON.stringify(state.drinkPath));
     localStorage.setItem("frpg_make_v2", JSON.stringify(state.makeChoices));
     localStorage.setItem("frpg_acorn_tests_v2", JSON.stringify(state.acornTests));
     localStorage.setItem("frpg_tower_start_v1", JSON.stringify(state.towerStart));
@@ -164,7 +166,14 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   document.querySelectorAll(".tab").forEach((tab) => { tab.onclick = () => showTab(tab.dataset.tab); });
+  document.addEventListener("click", (event) => {
+    const control = event.target.closest("[data-open-view]");
+    if (!control || control.dataset.openViewBound === "1") return;
+    event.preventDefault();
+    showTab(control.dataset.openView);
+  });
   document.querySelectorAll("[data-open-view]").forEach((control) => {
+    control.dataset.openViewBound = "1";
     control.onclick = (event) => { event.preventDefault(); showTab(control.dataset.openView); };
   });
 
@@ -421,7 +430,10 @@
       const ojUnit = E.currencyGoldEach(index, "oj");
       const ciderGold = ciderUnit == null || ojUnit == null ? null : ciderUses * ciderUnit + oj * ojUnit;
       const apGold = apUnit == null ? null : apUses * apUnit;
-      const useAp = apGold != null && (ciderGold == null || apGold < ciderGold);
+      const cheaperIsAp = apGold != null && (ciderGold == null || apGold < ciderGold);
+      const useAp = state.drinkPath === "ap" ? apGold != null
+        : state.drinkPath === "cider" ? false
+        : cheaperIsAp;
       const coDrops = E.coDropsFor(index, drop.location, drop.explores, item.name, P, 20);
       const prized = (P.locationNotes[drop.location] || {}).prizedCoDrops || [];
       coDrops.sort((a, b) => {
@@ -773,6 +785,14 @@
       trail("Covered", fmt(coveredRows.length), passiveHours ? `${fmt(passiveHours)}h longest wait` : "farm / depot"),
     ].join("");
     $("includeEvents").checked = state.includeEvents;
+    $("drinkPath").value = state.drinkPath;
+    const acornNotice = $("acornNotice");
+    if (state.meals.acorn && !state.acornTests.length) {
+      acornNotice.innerHTML = 'Acorn Pie is on, but it cannot change these numbers yet. It needs at least one of your own measured samples \u2014 how many Hide you got from how many uses \u2014 because the rate differs by location and method. <button class="text-action" data-open-view="fieldlab">Add a sample</button>';
+      acornNotice.hidden = false;
+    } else {
+      acornNotice.hidden = true;
+    }
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
     $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">Buying is cheapest for ${fmt(cashBuyCount)} craftable inputs. Farming may be worth it for ${fmt(progressionFarmCount)} inputs because the same run also helps masteries, quests, or useful drops.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
@@ -1441,6 +1461,7 @@
   $("zeroProfile").onclick = () => { state.enabled.clear(); save(); renderSetup(); render(); };
   $("resetAssumptions").onclick = () => { state.overrides = {}; save(); renderSetup(); render(); };
   $("includeEvents").onchange = (event) => { state.includeEvents = event.target.checked; save(); render(); };
+  $("drinkPath").onchange = (event) => { state.drinkPath = event.target.value; save(); render(); };
   $("accountFile").onchange = async (event) => {
     const files = [...(event.target.files || [])];
     if (!files.length) return;

@@ -80,7 +80,11 @@
       <section id="result" class="hidden">
         <section id="goalHeader" class="goal-header"></section>
         <section id="resourceTrail" class="resource-trail"></section>
-        <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Seasonal event locations</b><small>Off by default. Enable only while those areas are actually open.</small></span></label>
+        <div class="planner-switches">
+          <label class="event-switch drink-switch"><span><b>Exploring drink</b><small>Which drink the exploring routes are costed in.</small></span><select id="drinkPath" aria-label="Which drink to cost exploring routes in"><option value="auto">Auto — whichever is cheaper</option><option value="cider">Apple Cider</option><option value="ap">Arnold Palmer</option></select></label>
+          <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Seasonal event locations</b><small>Off by default. Enable only while those areas are actually open.</small></span></label>
+        </div>
+        <p id="acornNotice" class="planner-notice" hidden></p>
 
         <div class="section-heading"><div><span class="eyebrow">Route summary</span><h2>Your Route at a Glance</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
         <section class="route-grid three">

@@ -325,6 +325,37 @@ body {
   background: var(--green);
 }
 
+.planner-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  justify-content: flex-end;
+  margin-bottom: 2.2rem;
+}
+
+.planner-switches .event-switch { margin: 0; }
+
+.drink-switch select {
+  padding: .35rem .45rem;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--ink3);
+  font: inherit;
+  font-size: .7rem;
+}
+
+.planner-notice {
+  margin: -1.4rem 0 2rem;
+  padding: .6rem .75rem;
+  border-left: 3px solid var(--amber);
+  color: var(--muted);
+  background: var(--ink2);
+  font-size: .72rem;
+}
+
+.planner-notice .text-action { font-size: .72rem; }
+
 .event-switch {
   display: flex;
   width: max-content;
