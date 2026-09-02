@@ -1,5 +1,41 @@
 # Next Phase
 
+## ⚠ BIGGEST OPEN ISSUE: two divergent front-ends (found 2026-09-02)
+
+There are **two different versions of the app** in this repo and they have
+drifted apart:
+
+| | `calculator/` (root) | `calculator/publish/` |
+|---|---|---|
+| Views | 9 | 7 |
+| Home shortcuts | CALC, FARM, **Field lab**, **Strategy library** | CALC, FARM, **Tower T340**, **Main quests**, **Mining map** |
+| Rule card | "Rules already understood — Not every cheap route is the right route." | "Useful Routes — Cheap Is Not Always Best." |
+| `fieldlab` + `library` sections | present | **removed** |
+| Latest fixes (2026-09-02) | yes | no |
+
+`publish/` is a **player-facing trim** — someone (a previous Codex session)
+did the "make it for the player, not for the developer" pass the user asked
+for, but did it as a separate build folder and **never merged it back**.
+
+**This is almost certainly why the user says the site "feels like it's for
+you and not the player": the file they actually open, `calculator/index.html`,
+is the developer-facing version.** The cleaned-up one has been sitting in
+`publish/` unused.
+
+Decision needed from the user before merging:
+
+1. **Field lab** (record personal Acorn Pie displacement samples) — delete,
+   or keep but move out of the home page? It is arguably real player value,
+   not just dev tooling.
+2. **Strategy library** (sources, rules, unknowns) — same question. Explains
+   *why* a route was chosen, which builds trust, but reads as internal notes.
+3. Once decided: merge one direction, delete the other copy, and replace the
+   manual copy-paste with a real build step so they can never drift again.
+
+Do **not** deploy `publish/` as-is — it is missing every fix made on
+2026-09-02.
+
+
 ## Immediate — in progress this session (2026-09-02)
 
 The user's last request to the previous session, never finished (it got cut
