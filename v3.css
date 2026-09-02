@@ -632,3 +632,8 @@ body {
   .decision-controls { grid-column: 2 / -1; }
   .event-switch { margin-left: 0; }
 }
+
+/* Cider-vs-AP working, shown under the planner switches */
+.drink-compare{line-height:1.55}
+.drink-compare b{color:var(--text)}
+.stamina-switch input[type=number]{width:5.5rem;text-align:right}

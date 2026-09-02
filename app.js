@@ -46,6 +46,9 @@
   const clean = (number) => String(Math.round(Number(number) * 10000) / 10000);
   // Counts in player-facing sentences need agreement — "1 inputs" shipped once.
   const plural = (count, one, many) => `${fmt(count)} ${Number(count) === 1 ? one : many}`;
+  // Filled in on every render; treeHtml reads it to label each leaf's real route.
+  let leafRoutes = new Map();
+  const capitalise = (text) => String(text || "").replace(/^./, (c) => c.toUpperCase());
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const imageUrl = (item) => item && item.img ? "https://farmrpg.com" + item.img : "";
   // Items the game has but this planner has no artwork for still need a tile.
@@ -134,6 +137,11 @@
   function mods() {
     const base = E.computeMods(BASE_EFFECTS.filter((effect) => state.enabled.has(effect.id)), constants());
     if (state.meals.shrimp) base.saleMult += 0.1;
+    // The perk list above knows about Wanderer and little else, so it can badly
+    // overstate stamina for an endgame account. If the player has told us what
+    // they actually spend, that wins.
+    const measured = Number(c("explore_stamina_measured", 0));
+    if (measured > 0) base.exploreStaminaPer = c("explore_base_stamina", 1) * measured;
     return base;
   }
   function save() {
@@ -467,6 +475,11 @@
         ciders: ciderUses,
         aps: apUses,
         goldEq: useAp ? apGold : ciderGold,
+        // Keep both sides of the drink comparison so the plan can show its
+        // working. Cider looks cheaper per bottle but burns stamina, and how
+        // much stamina depends on the player's own perks and meals.
+        ciderGold,
+        apGold,
         coDrops,
         coDropSellSilver,
         progressionScore,
@@ -688,11 +701,30 @@
     const summary = route.coDrops && route.coDrops.length ? `See ${route.coDrops.length} useful drops & future uses` : "Why this route";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
   }
+  // Everything hanging off a craft used to render bare, which made fished and
+  // explored items look like things you craft. Say how each one is actually got.
+  const treeRouteWord = (route) => {
+    if (!route) return "";
+    switch (route.type) {
+      case "fish": return "fish for it";
+      case "crop": return "grow it";
+      case "explore": return "explore for it";
+      case "acorn": return "explore with Acorn Pie";
+      case "trade": return "buy in trade";
+      case "vendor": return "buy at the Country Store";
+      case "covered": return "your farm covers it";
+      case "owned": return "already in your inventory";
+      default: return "";
+    }
+  };
   function treeHtml(node) {
     const item = index.itemsById.get(node.id);
     if (node.cyclic) return `<div class="leaf cyclic">↻ ${esc(node.name)} — circular recipe</div>`;
-    if (!node.children.length) return `<div class="leaf">${itemImg(item, "tree-art", node.name)}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}${node.stopped ? '<span class="node-kind">get ready-made</span>' : ""}</div>`;
-    return `<details ${state.treeOpen ? "open" : ""}><summary>${itemImg(item, "tree-art")}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}<span class="node-kind">${node.kind} ×${fmt(node.craftsNeeded)}</span></summary>${node.children.map(treeHtml).join("")}</details>`;
+    if (!node.children.length) {
+      const how = treeRouteWord(leafRoutes.get(node.id)) || (node.stopped ? "get ready-made" : "");
+      return `<div class="leaf">${itemImg(item, "tree-art", node.name)}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}${how ? `<span class="node-kind">${esc(how)}</span>` : ""}</div>`;
+    }
+    return `<details ${state.treeOpen ? "open" : ""}><summary>${itemImg(item, "tree-art", node.name)}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}<span class="node-kind">${node.kind} ×${fmt(node.craftsNeeded)}</span></summary>${node.children.map(treeHtml).join("")}</details>`;
   }
   const metric = (key, value, note) => `<div class="route-metric"><span>${key}${note ? `<small>${note}</small>` : ""}</span><b>${value}</b></div>`;
   const trail = (label, value, note, tone) => `<div class="trail-stop ${tone || ""}"><span>${label}</span><strong>${value}</strong><small>${note || ""}</small></div>`;
@@ -760,6 +792,7 @@
       const missing = Math.max(0, leaf.total - owned);
       return { leaf, item, owned, missing, route: sourceRoute(item, missing, m, consts) };
     }).sort((a, b) => b.missing - a.missing);
+    leafRoutes = new Map(rows.map((row) => [row.item.id, row.route]));
 
     let craftSilver = E.treeCraftSilver(tree, m);
     let vendorSilver = 0, tradeGoldEq = 0, farmGoldEq = 0, rawSellValue = 0;
@@ -807,6 +840,16 @@
       oj += route.method === "cider" ? route.oj || 0 : 0;
     }
     const sharedExploreSavings = Math.max(0, independentExplores - explores);
+    // Both sides of the Cider-vs-AP choice, totalled over the exploring runs
+    // this plan actually needs, so the choice can be shown rather than asserted.
+    const drinkCompare = [...exploreBundles.values()].reduce((acc, route) => {
+      if (route.ciderGold != null) { acc.ciderGold += route.ciderGold; acc.ciders += route.ciders || 0; acc.oj += route.oj || 0; }
+      else acc.ciderKnown = false;
+      if (route.apGold != null) { acc.apGold += route.apGold; acc.aps += route.aps || 0; }
+      else acc.apKnown = false;
+      return acc;
+    }, { ciderGold: 0, apGold: 0, ciders: 0, aps: 0, oj: 0, ciderKnown: true, apKnown: true });
+    const drinkComparable = exploreBundles.size > 0 && drinkCompare.ciderKnown && drinkCompare.apKnown;
 
     const goal = index.itemsById.get(state.itemId);
     const outputSell = goal.sell != null ? goal.sell * m.saleMult * state.qty : null;
@@ -819,7 +862,13 @@
     const progressionFarmCount = activeDecisions.filter((decision) => decision.progressionWinner === "farm").length;
 
     el.empty.classList.add("hidden"); el.result.classList.remove("hidden");
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art")}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${rows.length} ingredients · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted</p></div></div><div class="goal-yield"><strong>${fmt(m.craftYield)}× crafted output</strong><span>${fmt(m.saleMult)}× sell price</span></div>`;
+    // A fished or explored goal has no recipe, so crafting language (and the
+    // crafting-yield chip) doesn't apply to it.
+    const goalIsCrafted = !!(fullTree.children && fullTree.children.length);
+    const goalSummary = goalIsCrafted
+      ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted`
+      : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted ? `<strong>${fmt(m.craftYield)}× crafted output</strong>` : ""}<span>${fmt(m.saleMult)}× sell price</span></div>`;
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
       trail("If you bought it all", fmt(tradeGoldEq) + " gold", "everything converted to gold", "violet"),
@@ -828,6 +877,39 @@
     ].join("");
     $("includeEvents").checked = state.includeEvents;
     $("drinkPath").value = state.drinkPath;
+    const staminaField = $("staminaMeasured");
+    if (staminaField && document.activeElement !== staminaField) {
+      const measured = Number(state.overrides.explore_stamina_measured || 0);
+      staminaField.value = measured > 0 ? String(Math.round(measured * 100)) : "";
+    }
+    // Show the drink comparison instead of just asserting a winner. Cider is
+    // cheaper per bottle but spends stamina; whether that still wins depends on
+    // the player's own stamina perks and meals, which they can change above.
+    const drinkNote = $("drinkCompare");
+    if (drinkComparable) {
+      const ciderSide = `<b>Apple Cider</b> ${fmt(drinkCompare.ciders)} bottles + ${fmt(drinkCompare.oj)} OJ of stamina ≈ ${fmt(drinkCompare.ciderGold)} gold`;
+      const apSide = `<b>Arnold Palmer</b> ${fmt(drinkCompare.aps)} ≈ ${fmt(drinkCompare.apGold)} gold`;
+      const ciderWins = drinkCompare.ciderGold <= drinkCompare.apGold;
+      const gap = Math.abs(drinkCompare.ciderGold - drinkCompare.apGold);
+      const margin = Math.max(drinkCompare.ciderGold, drinkCompare.apGold);
+      const close = margin > 0 && gap / margin < 0.1;
+      // This comparison swings hard on three perks, so say when they are off
+      // rather than presenting a winner the player's account would not agree with.
+      const drinkPerks = [
+        !state.enabled.has("lemonsq_ap") && "Lemon Squeezer (Arnold Palmer finds 500 instead of 200)",
+        !state.enabled.has("cinnamon") && "Cinnamon Sticks (Cider 25% more effective)",
+        !state.enabled.has("wanderer") && "Wanderer I-IV (less stamina per explore)",
+      ].filter(Boolean);
+      const perkWarning = drinkPerks.length
+        ? ` <b>These numbers assume you don't have ${drinkPerks.join(", ")}.</b> Turn on what you own in Setup — it changes which drink wins.`
+        : "";
+      drinkNote.innerHTML = `${ciderSide} · ${apSide}. ${close
+        ? `That is close enough to be a coin flip — the Cider side moves with your stamina perks and Neigh, so check it against your own account.`
+        : `${ciderWins ? "Cider" : "Arnold Palmer"} wins by about ${fmt(gap)} gold. The Cider figure counts the stamina it spends, priced as Orange Juice.`}${perkWarning}`;
+      drinkNote.hidden = false;
+    } else {
+      drinkNote.hidden = true;
+    }
     const acornNotice = $("acornNotice");
     if (state.meals.acorn && !state.acornTests.length) {
       acornNotice.innerHTML = 'Acorn Pie is on, but it cannot change these numbers yet. It needs at least one of your own measured samples \u2014 how many Hide you got from how many uses \u2014 because the rate differs by location and method. <button class="text-action" data-open-view="fieldlab">Add a sample</button>';
@@ -1513,6 +1595,12 @@
   $("resetAssumptions").onclick = () => { state.overrides = {}; save(); renderSetup(); render(); };
   $("includeEvents").onchange = (event) => { state.includeEvents = event.target.checked; save(); render(); };
   $("drinkPath").onchange = (event) => { state.drinkPath = event.target.value; save(); render(); };
+  $("staminaMeasured").oninput = (event) => {
+    const percent = Number(event.target.value);
+    if (event.target.value === "" || !Number.isFinite(percent) || percent <= 0) delete state.overrides.explore_stamina_measured;
+    else state.overrides.explore_stamina_measured = Math.min(100, percent) / 100;
+    save(); render();
+  };
   $("accountFile").onchange = async (event) => {
     const files = [...(event.target.files || [])];
     if (!files.length) return;

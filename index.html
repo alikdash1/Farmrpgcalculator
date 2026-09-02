@@ -82,8 +82,10 @@
         <section id="resourceTrail" class="resource-trail"></section>
         <div class="planner-switches">
           <label class="event-switch drink-switch"><span><b>Exploring drink</b><small>Which drink the exploring routes are costed in.</small></span><select id="drinkPath" aria-label="Which drink to cost exploring routes in"><option value="auto">Auto — whichever is cheaper</option><option value="cider">Apple Cider</option><option value="ap">Arnold Palmer</option></select></label>
+          <label class="event-switch stamina-switch"><span><b>Stamina you really spend</b><small>Percent of normal, per explore. Leave blank to use your perks.</small></span><input id="staminaMeasured" name="stamina-measured" type="number" min="1" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="auto"></label>
           <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Seasonal event locations</b><small>Off by default. Enable only while those areas are actually open.</small></span></label>
         </div>
+        <p id="drinkCompare" class="planner-notice drink-compare" hidden></p>
         <p id="acornNotice" class="planner-notice" hidden></p>
 
         <div class="section-heading"><div><span class="eyebrow">Route summary</span><h2>Your Route at a Glance</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
@@ -101,7 +103,7 @@
           <div class="tablewrap"><table id="ingTable"><thead><tr><th>Ingredient</th><th class="num">Need</th><th class="num">Owned</th><th class="num">Missing</th><th>How to Get It</th><th>Cost & Useful Drops</th></tr></thead><tbody></tbody></table></div>
         </section>
 
-        <section class="tree-card"><div class="section-heading compact"><div><span class="eyebrow">Recipe map</span><h2>Chosen craft tree</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
+        <section class="tree-card"><div class="section-heading compact"><div><span class="eyebrow">Step by step</span><h2>How this breaks down</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
       </section>
     </section>
 
@@ -234,7 +236,7 @@
     </section>
   </main>
 
-  <script src="data/data.js"></script>
+  <script src="data/data.js?v=20260902-6"></script>
   <script src="data/knowledge.js"></script>
   <script src="data/personal-tower.js?v=20260902-1"></script>
   <script src="data/tower-floors.js?v=20260902-1"></script>
@@ -248,7 +250,7 @@
   <script src="collectors/account-importer/shared/schema.js"></script>
   <script src="collectors/account-importer/shared/merge.js"></script>
   <script src="engine.js"></script>
-  <script src="app.js?v=20260902-5"></script>
+  <script src="app.js?v=20260902-7"></script>
   <script src="new-items-page.js?v=20260901-2"></script>
   <script src="quests-page.js?v=20260902-2"></script>
 </body>
