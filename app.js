@@ -123,6 +123,7 @@
     meals: Object.assign({}, MEAL_DEFAULTS, read("frpg_meals_v2", {})),
     sourceChoices: read("frpg_sources_v2", {}),
     farmLocations: read("frpg_farm_locations_v1", {}),
+    fishMethods: read("frpg_fish_methods_v1", {}),
     includeEvents: read("frpg_include_events_v1", false) === true,
     drinkPath: read("frpg_drink_path_v1", "auto"),
     makeChoices: read("frpg_make_v2", {}),
@@ -172,6 +173,7 @@
     localStorage.setItem("frpg_meals_v2", JSON.stringify(state.meals));
     localStorage.setItem("frpg_sources_v2", JSON.stringify(state.sourceChoices));
     localStorage.setItem("frpg_farm_locations_v1", JSON.stringify(state.farmLocations));
+    localStorage.setItem("frpg_fish_methods_v1", JSON.stringify(state.fishMethods));
     localStorage.setItem("frpg_include_events_v1", JSON.stringify(state.includeEvents));
     localStorage.setItem("frpg_drink_path_v1", JSON.stringify(state.drinkPath));
     localStorage.setItem("frpg_make_v2", JSON.stringify(state.makeChoices));
@@ -241,7 +243,7 @@
   }
 
   // Cross-page bridge: lets other loaded scripts (Quests, New items) open an
-  // item directly in the Craft planner without duplicating item lookup/route
+  // item directly in the calculator without duplicating item lookup/route
   // logic. Returns true if the item was found and opened.
   window.FRPG_openItem = function (name, qty) {
     const id = index.idByName.get(String(name || "").trim().toLowerCase());
@@ -414,6 +416,15 @@
     return plans.filter((plan) => plan.goldEq != null).sort((a, b) => a.goldEq - b.goldEq)[0] || plans[0] || null;
   }
 
+  const isFish = (item) => !!item && item.type === "fish";
+  // Drops per Arnold Palmer, straight from the shared workbook. Null when that
+  // location/item pair was never measured — never guessed from the explore rate.
+  function workbookApRate(location, itemName) {
+    const table = window.FRPG_WORKBOOK_RATES && window.FRPG_WORKBOOK_RATES.exploring;
+    const row = table && table[location];
+    const rate = row && row[itemName];
+    return rate > 0 ? rate : null;
+  }
   const itemFact = (name) => P.items[name] || { questSteps: 0, questTotal: 0, usedInCrafts: 0, relevance: 0, hoard: false };
   const routeRule = (name) => P.routeRules[name] || null;
   const farmLabel = (farm) => farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn overlay" : "Explore";
@@ -463,12 +474,21 @@
       const ciderUses = drop.explores / m.drinks.ciderRolls;
       const stamina = drop.explores * m.exploreStaminaPer * neigh;
       const oj = stamina / c("oj_stamina", 100);
-      const apUses = drop.explores / (m.drinks.apItems * qc);
+      // Arnold Palmer is NOT exploring. Exploring spends stamina; an AP finds
+      // items on its own, with its own drop rate per use. Deriving AP uses from
+      // the explore count treated one as a bulk purchase of the other, which is
+      // wrong. Use the workbook's measured drops-per-AP when we have it.
+      // Its exploring rates are stated with Quandary Chowder on (each location's
+      // table sums to 550 = 500 x 1.1), so back that out if the meal is off.
+      const wbAp = workbookApRate(drop.location, item.name);
+      const apUses = wbAp != null
+        ? need / (wbAp * (state.meals.quandary ? 1 : 1 / (1 + c("quandary_bonus", 0.1))))
+        : null;
       const ciderUnit = goldEach("Apple Cider");
       const apUnit = goldEach("Arnold Palmer");
       const ojUnit = E.currencyGoldEach(index, "oj");
       const ciderGold = ciderUnit == null || ojUnit == null ? null : ciderUses * ciderUnit + oj * ojUnit;
-      const apGold = apUnit == null ? null : apUses * apUnit;
+      const apGold = apUnit == null || apUses == null ? null : apUses * apUnit;
       const cheaperIsAp = apGold != null && (ciderGold == null || apGold < ciderGold);
       const useAp = state.drinkPath === "ap" ? apGold != null
         : state.drinkPath === "cider" ? false
@@ -519,17 +539,35 @@
     const fish = chosenFish || (!dropPlans.length ? fishPlans[0] : null);
     if (fish) {
       const mealBoost = state.meals.seapincher ? 1 + c("sea_pincher_bonus", 0.1) : 1;
-      const largeNets = fish.catches / (m.nets.lnCatch * mealBoost);
+      const lnCatch = m.nets.lnCatch * mealBoost;
+      const fnCatch = m.nets.fnCatch * mealBoost;
+      const largeNets = lnCatch > 0 ? fish.catches / lnCatch : null;
+      const fishingNets = fnCatch > 0 ? fish.catches / fnCatch : null;
+      // Fishing by hand is one cast at a time. How much stamina a cast costs is
+      // not recorded in any local source, so the cast count is given and the
+      // stamina is left blank rather than guessed.
+      const method = FISH_METHODS[state.fishMethods[item.id]] ? state.fishMethods[item.id] : "large";
       const lnUnit = goldEach("Large Net");
+      const fnUnit = goldEach("Fishing Net");
+      const goldEq = method === "large" ? (lnUnit == null || largeNets == null ? null : largeNets * lnUnit)
+        : method === "net" ? (fnUnit == null || fishingNets == null ? null : fishingNets * fnUnit)
+        : null;
+      const detailBy = method === "large" ? `${fmt(largeNets)} Large Nets`
+        : method === "net" ? `${fmt(fishingNets)} Fishing Nets`
+        : `${fmt(fish.catches)} casts by hand`;
       return {
         type: "fish",
         location: fish.location,
         catches: fish.catches,
+        method,
         largeNets,
-        goldEq: lnUnit == null ? null : largeNets * lnUnit,
+        fishingNets,
+        lnCatch,
+        fnCatch,
+        goldEq,
         confidence: E.sourceConfidence(fish.src),
         progressionScore: itemFact(item.name).relevance || 0,
-        detail: `${esc(fish.location)} · ${fmt(largeNets)} Large Nets`,
+        detail: `${esc(fish.location)} · ${detailBy}`,
       };
     }
     if (dropPlans.length) return dropPlans[0];
@@ -665,7 +703,7 @@
     const isDepotItem = item.name === "Iron" || item.name === "Nails";
     const choice = state.sourceChoices[item.id] || "auto";
     if (choice === "covered" && infra) return { type: "covered", label: infra.kind, detail: infra.detail, hours: infra.hours, goldEq: 0 };
-    if (choice === "trade" && trade) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
+    if (choice === "trade" && trade && !isFish(item)) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
     if (choice === "farm" && farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
     if (choice === "vendor" && vendor) return vendor;
     if (choice !== "auto") return { type: "unknown", label: "Unavailable", detail: "That route is not known for this item" };
@@ -683,6 +721,8 @@
         : " Acorn remains the default because it adds Hide to exploration you already need.";
       return Object.assign({ label: "Acorn overlay" }, farm, { detail: farm.detail + cashNote });
     }
+    if (farm && farm.type === "fish") return Object.assign({ label: "Fish" }, farm);
+    if (isFish(item)) return { type: "unknown", label: "Fish for it", detail: "No fishing rate recorded for this one yet" };
     if (trade && farm && trade.best.goldEq != null && farm.goldEq != null && trade.best.goldEq <= farm.goldEq * 1.05) {
       return { type: "trade", label: "Buy in trade", detail: quoteText(trade) + " · cheaper than consumables", quote: trade, goldEq: trade.best.goldEq };
     }
@@ -695,9 +735,10 @@
   function routeOptions(item, route, m) {
     const source = E.sourcesFor(index, item.id, 1, m, constants());
     const options = [["auto", "Auto"]];
-    if (farmPlan(item, 1, m, constants())) options.push(["farm", "Farm"]);
-    if (E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
-    if (source.vendor) options.push(["vendor", "Store"]);
+    const gather = farmPlan(item, 1, m, constants());
+    if (gather) options.push(["farm", farmLabel(gather)]);
+    if (!isFish(item) && E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
+    if (!isFish(item) && source.vendor) options.push(["vendor", "Store"]);
     if (infraFor(item, 1, m)) options.push(["covered", "Covered"]);
     const selected = state.sourceChoices[item.id] || "auto";
     return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
@@ -746,6 +787,154 @@
     }
     return `<details ${state.treeOpen ? "open" : ""}><summary>${itemImg(item, "tree-art", node.name)}<span class="node-amt">×${fmt(node.qtyOut)}</span>${esc(node.name)}<span class="node-kind">${node.kind} ×${fmt(node.craftsNeeded)}</span></summary>${node.children.map(treeHtml).join("")}</details>`;
   }
+  // ---- Gathered goals (fish / explore / grow) -------------------------------
+  // Farm RPG does not craft a Drum. When the goal has no recipe, the craft
+  // scaffolding is hidden and this panel answers the real question instead.
+  const FISH_METHODS = {
+    hand:  { label: "By hand",      note: "one cast at a time" },
+    net:   { label: "Fishing Nets", note: "" },
+    large: { label: "Large Nets",   note: "" },
+  };
+
+  const GATHER_WORDS = {
+    fish:  { verb: "you fish for this one",     noun: "Fishing",   place: "Best pond",   act: "casts",    actTitle: "Casts",    also: "Also caught here" },
+    explore:{ verb: "you explore for this one", noun: "Exploring", place: "Best place",  act: "explores", actTitle: "Explores", also: "Also found here" },
+    acorn: { verb: "you explore for this one",  noun: "Exploring", place: "Best place",  act: "explores", actTitle: "Explores", also: "Also found here" },
+    crop:  { verb: "you grow this one",         noun: "Growing",   place: "On the farm", act: "plants",   actTitle: "Plants",   also: "" },
+  };
+
+  function gatherRankedPlaces(goal, need, m) {
+    const src = E.sourcesFor(index, goal.id, Math.max(1, need), m, constants());
+    const rows = [];
+    for (const row of src.fish || []) {
+      if (row.catches != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location)))
+        rows.push({ location: row.location, kind: "fish", denom: row.denom, actions: row.catches });
+    }
+    for (const row of src.drops || []) {
+      if (row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location)))
+        rows.push({ location: row.location, kind: "explore", denom: row.denom, actions: row.explores });
+    }
+    return rows.sort((a, b) => a.actions - b.actions);
+  }
+
+  function renderGatherPanel(goal, m, goalIsCrafted, tradeGoldEq) {
+    const panel = $("gatherPanel");
+    if (!panel) return;
+    const need = Math.max(1, state.qty);
+    const plan = goalIsCrafted ? null : farmPlan(goal, need, m, constants());
+    const gathered = !!plan && !!GATHER_WORDS[plan.type];
+
+    // Craft-shaped furniture only makes sense for something you craft.
+    for (const [id, hide] of [["routeSummaryHead", gathered], ["routeGrid", gathered], ["treeCard", gathered]]) {
+      const node = $(id);
+      if (node) node.classList.toggle("hidden", hide);
+    }
+    if ($("workbenchEyebrow")) $("workbenchEyebrow").textContent = gathered ? "Your options" : "Shopping & Farming List";
+    if ($("workbenchTitle")) $("workbenchTitle").textContent = gathered ? "Change how you get it" : "Items You Still Need";
+
+    if (!gathered) { panel.classList.add("hidden"); panel.innerHTML = ""; return; }
+
+    const words = GATHER_WORDS[plan.type];
+    const places = gatherRankedPlaces(goal, need, m);
+    const best = places.find((row) => row.location === plan.location) || places[0] || null;
+
+    // Both drink paths, in the units they are actually spent in. Apple Cider
+    // burns stamina and Arnold Palmer does not, so they are listed side by side
+    // and never totalled against each other or converted to gold — which of the
+    // two is "cheaper" depends on a farm's own stamina production.
+    const runLines = [];
+    if (best) runLines.push([words.actTitle, fmt(best.actions), best.denom != null ? `${fmt(round2(best.denom))} per ${esc(goal.name)}` : "rate not measured yet"]);
+    // The shared workbook quotes the same drops per Arnold Palmer / per Large
+    // Net. Shown as-is beside our own figure, never converted into it — the two
+    // use different rate semantics (see KNOWN_MISTAKES.md).
+    const wbRates = window.FRPG_WORKBOOK_RATES;
+    if (best && wbRates) {
+      const table = plan.type === "fish" ? wbRates.fishing : wbRates.exploring;
+      const quoted = table && table[best.location] && table[best.location][goal.name];
+      if (quoted) runLines.push(["Workbook rate", fmt(round2(quoted)), plan.type === "fish" ? "drops per Large Net" : "drops per Arnold Palmer"]);
+    }
+    if (plan.type === "fish") {
+      if (plan.method === "large" && plan.largeNets != null) runLines.push(["Large Nets", fmt(plan.largeNets), `${fmt(plan.lnCatch)} catches per net`]);
+      if (plan.method === "net" && plan.fishingNets != null) runLines.push(["Fishing Nets", fmt(plan.fishingNets), `${fmt(plan.fnCatch)} catches per net`]);
+      if (plan.method === "hand") runLines.push(["Casts by hand", fmt(plan.catches), "stamina per cast is not recorded yet"]);
+    }
+    if (plan.type === "crop" && plan.plants) runLines.push(["Plants", fmt(plan.plants), plan.minutesEach ? `${fmt(plan.minutesEach)} min each` : ""]);
+
+    const drinkPaths = [];
+    if (plan.ciders) drinkPaths.push(["If you explore for it", [
+      ["Apple Cider", fmt(plan.ciders), ""],
+      ["Stamina", fmt(plan.stamina), "Cider spends stamina — it does not give any"],
+    ]]);
+    if (plan.aps) drinkPaths.push(["Or use Arnold Palmers instead", [
+      ["Arnold Palmer", fmt(plan.aps), "finds items without exploring — no stamina at all"],
+    ]]);
+
+    const canBuy = !isFish(goal);
+    const quote = canBuy ? E.marketQuote(index, goal.id, need) : null;
+    const buyLines = [];
+    if (quote && quote.best) {
+      const b = quote.best;
+      buyLines.push([b.currency === "gold" ? "Gold" : b.currency.toUpperCase(), fmt(b.amount), b.raw ? `quoted at ${esc(b.raw)}` : ""]);
+    }
+    const vendorEach = goal.buy != null && goal.buy > 0 ? goal.buy : null;
+    if (canBuy && vendorEach) buyLines.push(["Country Store", fmt(vendorEach * need) + " silver", `${fmt(vendorEach)} each`]);
+
+    const coDrops = best ? E.coDropsFor(index, best.location, best.actions, goal.name, P, 6) : [];
+    const placeChoices = places.map((row) =>
+      `<option value="${esc(row.location)}" ${row === best ? "selected" : ""}>${esc(row.location)}${row.denom != null ? ` · ${fmt(round2(row.denom))} ${esc(words.act)} each` : ""}</option>`).join("");
+
+    const lineRow = ([k, v, note]) => `<div class="gather-line"><b>${esc(k)}</b><strong>${v}</strong>${note ? `<small>${note}</small>` : ""}</div>`;
+    const col = (label, lines, extra) =>
+      `<div class="gather-col"><span>${esc(label)}</span>` +
+      (lines.length ? lines.map(lineRow).join("")
+                    : `<p class="gather-none">No price recorded for this one yet.</p>`) +
+      (extra || "") + `</div>`;
+    const drinkBlocks = drinkPaths.map(([title, lines]) =>
+      `<div class="gather-path"><span>${esc(title)}</span>${lines.map(lineRow).join("")}</div>`).join("");
+
+    const fishBox = plan.type === "fish"
+      ? `<div class="gather-path"><span>How you fish it</span><div class="gather-methods">` +
+        Object.entries(FISH_METHODS).map(([key, meta]) => {
+          const amount = key === "large" ? plan.largeNets : key === "net" ? plan.fishingNets : plan.catches;
+          const unit = key === "hand" ? "casts" : "nets";
+          return `<label class="gather-method${plan.method === key ? " on" : ""}">` +
+            `<input type="radio" name="fishMethod" value="${key}" ${plan.method === key ? "checked" : ""}>` +
+            `<span><b>${esc(meta.label)}</b><small>${amount != null ? `${fmt(amount)} ${unit}` : "not recorded"}${meta.note ? ` · ${esc(meta.note)}` : ""}</small></span></label>`;
+        }).join("") + `</div></div>`
+      : "";
+
+    const acornRelevant = plan.type !== "fish" && plan.type !== "crop";
+    const acornBox = acornRelevant
+      ? `<label class="gather-acorn"><input type="checkbox" id="gatherAcorn" ${state.meals.acorn ? "checked" : ""}>` +
+        `<span><b>Using Acorn Pie</b><small>${best && best.location === "Forest"
+          ? "No effect in the Forest — Hide already drops there."
+          : "Adds Hide by replacing part of this location's normal drops. One charge per action, 150 per Pie."}</small></span></label>`
+      : "";
+
+    panel.innerHTML =
+      `<div class="gather-head"><span class="eyebrow">Gathered, not crafted</span>` +
+      `<h2>${esc(goal.name)} × ${fmt(state.qty)} — ${esc(words.verb)}</h2>` +
+      `<p class="gather-sub">${canBuy ? "What each way actually costs you. No winner is picked — that depends on your own stamina and stock." : "Fish cannot be mailed, so there is no trade route — this is the only way to get it."}</p></div>` +
+      (places.length > 1
+        ? `<label class="gather-where"><span>${esc(words.place)}</span><select data-location-id="${goal.id}">${placeChoices}</select></label>`
+        : best ? `<p class="gather-where-fixed"><span>${esc(words.place)}</span> <b>${esc(best.location)}</b></p>` : "") +
+      `<div class="gather-grid">` +
+        col(plan.type === "fish" ? "Fish for it" : plan.type === "crop" ? "Grow it" : "Explore for it", runLines, fishBox + drinkBlocks + acornBox) +
+        (canBuy ? col("Or buy it", buyLines) : "") +
+      `</div>` +
+      (coDrops.length ? `<p class="gather-others"><b>${esc(words.also)}:</b> ` +
+        coDrops.map((drop) => `${fmt(drop.expected)} ${esc(drop.name)}`).join(" · ") + `</p>` : "");
+    panel.classList.remove("hidden");
+
+    panel.querySelectorAll('input[name="fishMethod"]').forEach((radio) => {
+      radio.onchange = () => { if (radio.checked) { state.fishMethods[goal.id] = radio.value; save(); render(); } };
+    });
+    const acornToggle = $("gatherAcorn");
+    if (acornToggle) acornToggle.onchange = () => { state.meals.acorn = acornToggle.checked; save(); renderSetup(); render(); };
+  }
+
+  const round2 = (n) => Math.round(Number(n) * 100) / 100;
+
   const metric = (key, value, note) => `<div class="route-metric"><span>${key}${note ? `<small>${note}</small>` : ""}</span><b>${value}</b></div>`;
   const trail = (label, value, note, tone) => `<div class="trail-stop ${tone || ""}"><span>${label}</span><strong>${value}</strong><small>${note || ""}</small></div>`;
 
@@ -860,17 +1049,6 @@
       oj += route.method === "cider" ? route.oj || 0 : 0;
     }
     const sharedExploreSavings = Math.max(0, independentExplores - explores);
-    // Both sides of the Cider-vs-AP choice, totalled over the exploring runs
-    // this plan actually needs, so the choice can be shown rather than asserted.
-    const drinkCompare = [...exploreBundles.values()].reduce((acc, route) => {
-      if (route.ciderGold != null) { acc.ciderGold += route.ciderGold; acc.ciders += route.ciders || 0; acc.oj += route.oj || 0; }
-      else acc.ciderKnown = false;
-      if (route.apGold != null) { acc.apGold += route.apGold; acc.aps += route.aps || 0; }
-      else acc.apKnown = false;
-      return acc;
-    }, { ciderGold: 0, apGold: 0, ciders: 0, aps: 0, oj: 0, ciderKnown: true, apKnown: true });
-    const drinkComparable = exploreBundles.size > 0 && drinkCompare.ciderKnown && drinkCompare.apKnown;
-
     const goal = index.itemsById.get(state.itemId);
     const outputSell = goal.sell != null ? goal.sell * m.saleMult * state.qty : null;
     const netSilver = outputSell == null ? null : outputSell - craftSilver - vendorSilver;
@@ -888,47 +1066,19 @@
     const goalSummary = goalIsCrafted
       ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted`
       : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted ? `<strong>${fmt(m.craftYield)}× crafted output</strong>` : ""}<span>${fmt(m.saleMult)}× sell price</span></div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
-      trail("If you bought it all", fmt(tradeGoldEq) + " gold", "everything converted to gold", "violet"),
-      trail("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`, "drinks the chosen routes need"),
+      trail("Buying part", tradeGoldEq > 0 ? fmt(tradeGoldEq) + " gold" : "nothing", tradeGoldEq > 0 ? "the pieces you're buying" : "you're not buying any of it", "violet"),
+      trail("Ingredients", fmt(rows.length), rows.length === 1 ? "one thing to get" : "things to get"),
       trail("Your farm covers", fmt(coveredRows.length), passiveHours ? `longest wait ${fmt(passiveHours)}h` : "ingredients you can skip"),
     ].join("");
     $("includeEvents").checked = state.includeEvents;
-    $("drinkPath").value = state.drinkPath;
+    if ($("drinkPath")) $("drinkPath").value = state.drinkPath;
     const staminaField = $("staminaMeasured");
     if (staminaField && document.activeElement !== staminaField) {
       const measured = Number(state.overrides.explore_stamina_measured || 0);
       staminaField.value = measured > 0 ? String(Math.round(measured * 100)) : "";
-    }
-    // Show the drink comparison instead of just asserting a winner. Cider is
-    // cheaper per bottle but spends stamina; whether that still wins depends on
-    // the player's own stamina perks and meals, which they can change above.
-    const drinkNote = $("drinkCompare");
-    if (drinkComparable) {
-      const ciderSide = `<b>Apple Cider</b> ${fmt(drinkCompare.ciders)} bottles + ${fmt(drinkCompare.oj)} OJ of stamina ≈ ${fmt(drinkCompare.ciderGold)} gold`;
-      const apSide = `<b>Arnold Palmer</b> ${fmt(drinkCompare.aps)} ≈ ${fmt(drinkCompare.apGold)} gold`;
-      const ciderWins = drinkCompare.ciderGold <= drinkCompare.apGold;
-      const gap = Math.abs(drinkCompare.ciderGold - drinkCompare.apGold);
-      const margin = Math.max(drinkCompare.ciderGold, drinkCompare.apGold);
-      const close = margin > 0 && gap / margin < 0.1;
-      // This comparison swings hard on three perks, so say when they are off
-      // rather than presenting a winner the player's account would not agree with.
-      const drinkPerks = [
-        !state.enabled.has("lemonsq_ap") && "Lemon Squeezer (Arnold Palmer finds 500 instead of 200)",
-        !state.enabled.has("cinnamon") && "Cinnamon Sticks (Cider 25% more effective)",
-        !state.enabled.has("wanderer") && "Wanderer I-IV (less stamina per explore)",
-      ].filter(Boolean);
-      const perkWarning = drinkPerks.length
-        ? ` <b>These numbers assume you don't have ${drinkPerks.join(", ")}.</b> Turn on what you own in Setup — it changes which drink wins.`
-        : "";
-      drinkNote.innerHTML = `${ciderSide} · ${apSide}. ${close
-        ? `That is close enough to be a coin flip — the Cider side moves with your stamina perks and Neigh, so check it against your own account.`
-        : `${ciderWins ? "Cider" : "Arnold Palmer"} wins by about ${fmt(gap)} gold. The Cider figure counts the stamina it spends, priced as Orange Juice.`}${perkWarning}`;
-      drinkNote.hidden = false;
-    } else {
-      drinkNote.hidden = true;
     }
     const acornNotice = $("acornNotice");
     if (state.meals.acorn && !state.acornTests.length) {
@@ -940,8 +1090,15 @@
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
     $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">${plural(cashBuyCount, "ingredient is", "ingredients are")} cheaper to buy than to craft. ${plural(progressionFarmCount, "ingredient is", "ingredients are")} worth farming anyway, because the same run also feeds masteries, quests or other drops you want.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
-    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("Stamina as Orange Juice", fmt(oj))}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">Anything from the same location comes out of one trip — the biggest requirement carries the rest. Drinks are costed at what you could otherwise sell them for.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
+    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${explores > 0 ? metric("Explores", fmt(explores)) : ""}${ciders > 0 ? metric("Apple Cider", fmt(ciders), "spends stamina") : ""}${aps > 0 ? metric("Arnold Palmer", fmt(aps), "no stamina") : ""}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">Anything from the same location comes out of one trip — the biggest requirement carries the rest.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
     $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
+
+    // A fished, explored or grown goal is not a production plan. Its recipe
+    // tree, "mixed route" verdict and multi-ingredient shopping list are all
+    // empty scaffolding, so stand them down and lead with what the player
+    // actually asked: where do I get this, and what does it cost in nets or
+    // drinks compared with just buying it.
+    renderGatherPanel(goal, m, goalIsCrafted, tradeGoldEq);
 
     if (coveredRows.length) {
       el.covered.classList.remove("hidden");
@@ -1053,6 +1210,7 @@
     }).join("");
     document.querySelectorAll("[data-meal]").forEach((input) => { input.onchange = () => { state.meals[input.dataset.meal] = input.checked; save(); renderSetup(); render(); }; });
 
+    if (!$("acornTests") || !$("acornForm") || !$("assumptionGrid")) return;
     $("acornTests").innerHTML = state.acornTests.length ? state.acornTests.map((test, idx) => {
       const bulk = test.method === "ap" && state.meals.lemoncream ? 5 : test.method === "cider" && state.meals.cabbage ? 5 : 1;
       const hidesPerUse = Number(test.hides) / Number(test.uses);
@@ -1553,7 +1711,7 @@
         // Only offer the "open in the planner" click when the planner actually
         // knows the item. Otherwise it looked like a button and did nothing.
         const plannable = !!item;
-        const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the Craft planner"`;
+        const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the calculator"`;
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
         return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${itemImg(item, "tower-art", row.name)}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
       }).join("")}</div></article>`;
@@ -1561,7 +1719,9 @@
 
     const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(301, start) && row.floor <= goal);
     const costGrid = $("towerCostGrid");
-    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} MM minimum</small></div><div class="tower-cost-items">${row.items.map((entry) => { const item = itemByName(entry.name); const attrs = item ? ` data-open-item="${esc(entry.name)}" data-open-qty="${entry.quantity}" tabindex="0" role="button" title="Open ${esc(entry.name)} in the Craft planner"` : ""; return `<div class="tower-cost-item${item ? "" : " no-plan"}"${attrs}>${itemImg(item, "tower-art", entry.name)}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 costs in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
+    // Silver + AK + the named Mega Masteries are what a floor costs. The item
+    // list is what it pays out — the game prints it under "Level Rewards:".
+    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small class="tower-pay">You pay</small><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} Mega Masteries held</small></div><div class="tower-cost-items"><span class="tower-reward-label">You get</span>${row.items.map((entry) => { const item = itemByName(entry.name); return `<div class="tower-cost-item">${itemImg(item, "tower-art", entry.name)}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 floors in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
@@ -1615,10 +1775,10 @@
 
   $("maxProfile").onclick = () => { state.enabled = new Set(allEffectIds); save(); renderSetup(); render(); };
   $("zeroProfile").onclick = () => { state.enabled.clear(); save(); renderSetup(); render(); };
-  $("resetAssumptions").onclick = () => { state.overrides = {}; save(); renderSetup(); render(); };
+  if ($("resetAssumptions")) $("resetAssumptions").onclick = () => { state.overrides = {}; save(); renderSetup(); render(); };
   $("includeEvents").onchange = (event) => { state.includeEvents = event.target.checked; save(); render(); };
-  $("drinkPath").onchange = (event) => { state.drinkPath = event.target.value; save(); render(); };
-  $("staminaMeasured").oninput = (event) => {
+  if ($("drinkPath")) $("drinkPath").onchange = (event) => { state.drinkPath = event.target.value; save(); render(); };
+  if ($("staminaMeasured")) $("staminaMeasured").oninput = (event) => {
     const percent = Number(event.target.value);
     if (event.target.value === "" || !Number.isFinite(percent) || percent <= 0) delete state.overrides.explore_stamina_measured;
     else state.overrides.explore_stamina_measured = Math.min(100, percent) / 100;
@@ -1696,10 +1856,11 @@
   // Was a row of build counters (recipe rows, progression profiles, source
   // parse status). Players don't need the shape of the database — they need to
   // know how much of the game is covered.
-  $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
-  $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser.";
+  if ($("dataSummary")) $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
+  if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser.";
 
   function renderLibrary() {
+    if (!$('strategyRules') || !$('mechanicsIndex')) return;
     // This used to print build diagnostics — database integrity, unresolved
     // names, "21 parsed · 24 incomplete". None of that is a player's problem.
     // What is worth saying plainly: not every part of the game is covered.

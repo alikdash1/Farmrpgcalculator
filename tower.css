@@ -25,3 +25,27 @@
 .tower-mm.no-plan,.tower-cost-item.no-plan{cursor:default}
 .tower-mm.no-plan .tower-mm-title strong,.tower-cost-item.no-plan b{color:var(--muted)}
 .tower-noplan{display:block;margin-top:.35rem;color:var(--muted);font-size:.52rem}
+
+/* Shared rhythm: the newer pages were each inventing their own spacing and
+   type scale. One set of section headings keeps them reading as one desk. */
+.page-intro { padding: 2rem 0 .4rem; }
+.page-intro h1 { margin: .2rem 0 .3rem; }
+.page-intro p { color: var(--muted); max-width: 62ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.tower-pay { color: var(--gold) !important; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: .58rem !important; }
+.tower-reward-label {
+  grid-column: 1 / -1;
+  color: var(--gold);
+  font: 600 .58rem DM Mono, monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: .15rem;
+}

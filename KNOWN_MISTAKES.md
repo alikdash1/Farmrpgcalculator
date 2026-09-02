@@ -123,3 +123,79 @@ code, re-run the named test.
   flat per-floor constant — but it was never explicitly confirmed as
   per-floor-accurate rather than a placeholder. Verify with the user or
   against `buddy.farm/tower/` before trusting it for anything precise.
+
+## Source precedence (user's rule, 2026-09-03)
+
+**The shared workbook outranks buddy.farm.** Where the *FarmRPG Tower MM
+Calculator (Shared)* workbook and buddy.farm disagree, the workbook wins.
+Live copy:
+<https://docs.google.com/spreadsheets/d/1N4FdpTC3G2vjf7cn0mhcvZF2odP-_W8tSFUjiI1xjUs/edit>
+(public, comment-only; export any tab with
+`/export?format=csv&gid=<gid>`, or the whole book with `?format=xlsx`).
+The knowledge pack already carries a 2026-08-26 snapshot of it as `wb-tower-mm`.
+
+What a read of the live copy on 2026-09-03 established:
+
+- **Its Tower tab stops at T300.** Column A runs 201→300 and then ends, so it
+  does *not* supply named Mega Masteries for T301+, and cannot close the
+  T331–T340 gap. Whatever feeds the app's named MMs to T330 comes from
+  somewhere else. Do not claim this workbook as the source for them.
+- **Its Bonuses tab disagrees with the calculator's constants** (workbook
+  states it assumes every beneficial perk is on — resource saver, reinforced
+  netting, lemon squeezer):
+
+  | Thing | Workbook | `data/data.js` constant |
+  |---|---|---|
+  | Items per Arnold Palmer | 500 base | `ap_base_items` 200 (500 with Lemon Squeezer) |
+  | Items per Large Net | 500 base | `net_ln_base_catch` 250 (400 with Reinforced Netting) |
+  | Crafting dupe | 1.45 | — |
+  | Mastery bonus | +10% event, +10% Mushroom Stew | — |
+
+  The AP figure reconciles (workbook = perked). **The Large Net figure does
+  not**: 500 vs 400 even with Reinforced Netting, and the app's own note says
+  400 is "before artifacts". Unresolved — do not quietly change
+  `net_ln_base_catch`, because it moves every fishing number on the site.
+
+## Tower floor items are REWARDS, not requirements (confirmed 2026-09-03)
+
+`data/tower-floors.js` `items[]` is what a floor **pays out**. Confirmed twice:
+the game's own Tower page prints the list under "Level Rewards:" (see
+`raw/account-captures/farmrpg-capture-tower-2026-08-26_*.json`), and the user
+confirmed it directly. buddy.farm lists Silver *among* those items on some
+floors, which only parses as a payout. What a floor costs is Silver + 100 AK +
+holding that floor's named Mega Masteries. The page said "What Each Floor
+Costs" for months. Do not relabel it back.
+
+Also open: the same capture reads **T276 = 82.80B Silver** where buddy.farm
+says 41.4B — exactly 2x. Every `silverB` in `data/tower-floors.js` may be half
+the live cost. One data point only; confirm on a second floor before scaling.
+
+## Arnold Palmer is not exploring (user correction, 2026-09-03)
+
+**Exploring spends stamina. An Arnold Palmer finds items on its own and spends
+no stamina.** They are two different activities with two different drop rates —
+not one activity priced in two currencies.
+
+`app.js` had `apUses = drop.explores / (apItems * qc)`, i.e. it treated an AP as
+a bulk purchase of explores. For 1m Emberstone at Ember Lagoon that produced
+**145.02k Arnold Palmers**; the workbook's own measured rate gives **15.47k**.
+Nearly 10x wrong, and wrong in a way that made AP look far worse than Cider on
+every single explore route.
+
+Fixed: AP uses now come from the measured drops-per-AP in
+`data/workbook-rates.js` (`workbookApRate()`), and are `null` when that pair was
+never measured rather than derived from the explore rate.
+
+This also explains the "128 exploring conflicts" the knowledge pack preserved
+between the workbook's drops-per-AP and the 2023 logged explores-per-drop. They
+were never in conflict — they measure different actions. Do not try to convert
+between them.
+
+How the units were confirmed, if this ever needs re-checking:
+- Every fishing location's rates sum to **exactly 500** per Large Net.
+- Every exploring location's rates sum to **550** per AP = 500 x 1.1, so the
+  workbook's exploring figures assume **Quandary Chowder is active**. Back that
+  out for a player who does not have it.
+- Cross-check that the method is sound: converting the workbook's *fishing*
+  rates the same way reproduces the site's existing numbers almost exactly
+  (Small Pond Drum 2.10 casts vs 2.09; median agreement 0.92 over 117 pairs).

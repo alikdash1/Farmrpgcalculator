@@ -146,6 +146,9 @@
 }
 .recent-button > span { grid-column: 1 / -1; color: var(--gold); font: 500 .58rem DM Mono, monospace; text-transform: uppercase; letter-spacing: .1em; }
 .recent-button strong { display: flex; align-items: center; gap: .65rem; font-family: Fraunces, serif; font-size: 1.05rem; }
+/* The 30px tile hangs ~8px below the letter baseline, so a geometric centre
+   reads low next to the smaller type. Lift it optically without moving layout. */
+
 .recent-button b { color: var(--muted); font-size: .72rem; }
 .recent-button:hover { border-color: var(--gold); }
 .recent-empty { color: var(--muted); font-size: .75rem; }
@@ -301,10 +304,12 @@ body {
 }
 
 .resource-trail {
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   box-shadow: none;
   margin-bottom: 18px;
 }
+@media (max-width: 860px) { .resource-trail { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .resource-trail { grid-template-columns: minmax(0, 1fr); } .trail-stop { min-height: 0; border-right: 0; } }
 
 .route-grid.three {
   grid-template-columns: 1.1fr 1fr 1fr;
@@ -637,3 +642,57 @@ body {
 .drink-compare{line-height:1.55}
 .drink-compare b{color:var(--text)}
 .stamina-switch input[type=number]{width:5.5rem;text-align:right}
+
+/* Gathered goals (fish / explore / grow) — the Craft page's answer for
+   something with no recipe: two plain options, no computed winner. */
+.gather-panel { margin: 1.6rem 0 .4rem; padding: 1.1rem 1.2rem 1rem; border: 1px solid var(--line); background: rgba(22,37,37,.55); }
+.gather-head h2 { margin: .15rem 0 0; font-family: Fraunces, serif; font-size: 1.35rem; line-height: 1.25; }
+.gather-sub { margin: .35rem 0 0; color: var(--muted); font-size: .8rem; }
+.gather-where, .gather-where-fixed { display: flex; align-items: center; gap: .6rem; margin: .95rem 0 0; font-size: .78rem; }
+.gather-where > span, .gather-where-fixed > span { color: var(--gold); font: 500 .58rem DM Mono, monospace; text-transform: uppercase; letter-spacing: .1em; }
+.gather-where select { flex: 1 1 auto; max-width: 420px; }
+.gather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: .9rem; margin-top: .8rem; }
+.gather-col { padding: .8rem .9rem; border: 1px solid var(--line); background: rgba(12,22,22,.5); }
+.gather-col > span { display: block; color: var(--gold); font: 500 .58rem DM Mono, monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+.gather-line { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: .1rem .7rem; padding: .3rem 0; border-top: 1px solid rgba(241,234,216,.07); }
+.gather-line:first-of-type { border-top: 0; }
+.gather-line b { font-weight: 500; font-size: .82rem; }
+.gather-line strong { font-family: Fraunces, serif; font-size: 1rem; }
+.gather-line small { grid-column: 1 / -1; color: var(--muted); font-size: .7rem; }
+.gather-path { margin-top: .65rem; padding-top: .55rem; border-top: 1px solid rgba(241,234,216,.07); }
+.gather-path > span { display: block; color: var(--muted); font: 500 .58rem DM Mono, monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
+.gather-path .gather-line:first-of-type { border-top: 0; }
+.gather-methods { display: grid; gap: .3rem; margin-top: .2rem; }
+.gather-method { display: flex; gap: .5rem; align-items: flex-start; padding: .3rem .45rem; border: 1px solid transparent; cursor: pointer; }
+.gather-method.on { border-color: rgba(225,184,90,.45); background: rgba(225,184,90,.06); }
+.gather-method b { font-size: .82rem; font-weight: 500; }
+.gather-method small { display: block; color: var(--muted); font-size: .7rem; }
+.gather-none { margin: 0; color: var(--muted); font-size: .78rem; }
+.gather-acorn { display: flex; gap: .55rem; align-items: flex-start; margin-top: .7rem; padding-top: .65rem; border-top: 1px solid rgba(241,234,216,.07); cursor: pointer; }
+.gather-acorn small { display: block; color: var(--muted); font-size: .7rem; line-height: 1.45; }
+.gather-acorn b { font-size: .82rem; }
+.gather-others { margin: .8rem 0 0; color: var(--muted); font-size: .78rem; line-height: 1.55; }
+.gather-others b { color: var(--text); font-weight: 600; }
+@media (max-width: 620px) { .gather-grid { grid-template-columns: 1fr; } .gather-where { flex-wrap: wrap; } }
+
+/* --- whole-page guards ------------------------------------------------- */
+/* Wide content scrolls inside its own box; the page itself never does. */
+html, body { overflow-x: hidden; }
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tabs { scrollbar-width: thin; }
+
+/* One consistent focus ring, so keyboard users can always see where they are. */
+:where(a, button, select, input, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

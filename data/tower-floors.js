@@ -1,6 +1,21 @@
+// Per floor: [floor, silverB, minMM, rewards[]].
+//
+// The item list is what a floor PAYS OUT, not what it asks for. The game shows
+// it under "Level Rewards:" and buddy.farm lists Silver among those items on
+// some floors, which only makes sense as a reward. What a floor actually costs
+// is the Silver, 100 Ascension Knowledge, and holding that floor's named Mega
+// Masteries.
+//
+// silverB is buddy.farm's figure. The player's own Tower capture of
+// 2026-08-26 read "Level 276 - Cost: 100 AK - 82.80 B Silver" where buddy.farm
+// says 41.4B for the same level: exactly 2x. If that holds, every figure here
+// is half the live cost. Left as captured, and flagged, rather than doubled on
+// one data point - confirm against a second floor before scaling.
 window.FRPG_TOWER_FLOORS = {
   updated: "2026-09-02",
   source: "https://buddy.farm/tower/",
+  itemsAre: "rewards",
+  silverNote: "buddy.farm figures; player's 2026-08-26 game capture read 2x this at T276",
   floors: [
     [301,60.2,51,[['Arnold Palmer',3010],['Cranberry Juice',3],['Gold',300]]],
     [302,60.4,51,[['Large Net',3020],['Treasure Key',3020],['Large Chest 01',3020]]],

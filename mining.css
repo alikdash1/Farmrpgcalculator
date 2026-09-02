@@ -1,0 +1,110 @@
+/* Mines page — pick a mine, see its drops and what they make. */
+
+.mine-list { display: grid; gap: .5rem; margin-top: 1.4rem; }
+
+.mine-row { border: 1px solid var(--line); background: rgba(22, 37, 37, .55); }
+.mine-row[open] { border-color: var(--gold); background: rgba(225, 184, 90, .05); }
+.mine-row > summary {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: .85rem;
+  align-items: center;
+  padding: .8rem .9rem;
+  cursor: pointer;
+  list-style: none;
+}
+.mine-row > summary::-webkit-details-marker { display: none; }
+.mine-row > summary:hover .mine-row-cue,
+.mine-row[open] > summary .mine-row-cue { color: var(--gold); }
+.mine-row > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.mine-row-cue { color: var(--muted); font-size: .74rem; white-space: nowrap; }
+.mine-row[open] .mine-row-cue { visibility: hidden; }
+
+.mine-card-art {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(241, 234, 216, .16);
+  background: radial-gradient(circle, #314540, #182826);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.mine-card-art img { max-width: 92%; max-height: 92%; object-fit: contain; }
+.mine-card-body { display: grid; gap: .12rem; min-width: 0; }
+.mine-card-body strong { font-family: Fraunces, serif; font-size: 1.05rem; }
+.mine-card-body small { color: var(--muted); font-size: .72rem; }
+.mine-card-kit { color: var(--gold) !important; font: 500 .6rem DM Mono, monospace; letter-spacing: .04em; }
+
+.mine-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: .55rem;
+  padding: .8rem .9rem .9rem;
+  border-top: 1px solid rgba(241, 234, 216, .08);
+  align-items: start;
+}
+.mine-item {
+  padding: .6rem .7rem .65rem;
+  border: 1px solid var(--line);
+  background: rgba(12, 22, 22, .5);
+}
+.mine-item-head {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: .5rem;
+  align-items: center;
+}
+.mine-item-head strong { font-size: .88rem; font-weight: 600; }
+.mine-item-head small { grid-column: 2; color: var(--muted); font-size: .66rem; }
+
+.mine-art {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(241, 234, 216, .16);
+  background: radial-gradient(circle, #314540, #182826);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.mine-art img { max-width: 88%; max-height: 88%; object-fit: contain; }
+.mine-art.drop { width: 34px; height: 34px; }
+.mine-art.craft { width: 28px; height: 28px; }
+.mine-art.part { width: 22px; height: 22px; border-radius: 4px; }
+.mine-art.missing { font: 700 11px DM Mono, monospace; color: var(--muted); }
+
+.mine-craft {
+  margin-top: .5rem;
+  padding-top: .5rem;
+  border-top: 1px solid rgba(241, 234, 216, .08);
+}
+.mine-craft-head { display: grid; grid-template-columns: 28px 1fr; gap: .45rem; align-items: center; }
+.mine-craft-head b { font-size: .82rem; font-weight: 600; color: var(--gold); }
+.mine-craft-head small { display: block; color: var(--muted); font-size: .64rem; }
+
+.mine-recipe { list-style: none; margin: .4rem 0 0; padding: 0 0 0 .2rem; display: grid; gap: .22rem; }
+.mine-recipe li { display: grid; grid-template-columns: 22px 1fr; gap: .4rem; align-items: center; }
+.mine-recipe li b { font-size: .74rem; font-weight: 500; }
+.mine-recipe li small { display: block; color: var(--muted); font-size: .64rem; }
+.mine-recipe li small.unknown { font-style: italic; opacity: .8; }
+.mine-recipe li.is-this b { color: var(--gold); }
+.mine-recipe-none { margin: .4rem 0 0; color: var(--muted); font-size: .7rem; font-style: italic; }
+
+@media (max-width: 620px) {
+  .mine-items { grid-template-columns: 1fr; }
+  .mine-row > summary { grid-template-columns: 44px 1fr; }
+  .mine-row-cue { display: none; }
+}
+
+/* Shared rhythm: the newer pages were each inventing their own spacing and
+   type scale. One set of section headings keeps them reading as one desk. */
+.page-intro { padding: 2rem 0 .4rem; }
+.page-intro h1 { margin: .2rem 0 .3rem; }
+.page-intro p { color: var(--muted); max-width: 62ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

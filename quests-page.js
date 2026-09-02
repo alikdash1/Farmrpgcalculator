@@ -45,7 +45,7 @@
 
   function requirementHtml(row) {
     const qty = Number(row.quantity || 0);
-    return `<button type="button" class="quest-item" data-open-item="${esc(row.item)}" data-open-qty="${qty}" title="Open ${esc(row.item)} in the Craft planner">${itemImage(row.item)}<span><b>${esc(row.item)}</b><small>${fmt.format(qty)}</small></span></button>`;
+    return `<button type="button" class="quest-item" data-open-item="${esc(row.item)}" data-open-qty="${qty}" title="Open ${esc(row.item)} in the calculator">${itemImage(row.item)}<span><b>${esc(row.item)}</b><small>${fmt.format(qty)}</small></span></button>`;
   }
 
   function questHtml(quest, status) {

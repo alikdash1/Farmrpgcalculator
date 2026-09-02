@@ -8,10 +8,10 @@
   <title>Lantern Ledger - Farm RPG Planner</title>
   <link rel="icon" href="assets/lantern-ledger-mark.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="v3.css?v=20260902-1">
-  <link rel="stylesheet" href="tower.css">
-  <link rel="stylesheet" href="new-items.css?v=20260831-4">
+  <link rel="stylesheet" href="style.css?v=20260903-1">
+  <link rel="stylesheet" href="v3.css?v=20260903-10">
+  <link rel="stylesheet" href="tower.css?v=20260903-2">
+  <link rel="stylesheet" href="mining.css?v=20260903-5">
   <link rel="stylesheet" href="quests.css?v=20260902-2">
 </head>
 <body>
@@ -20,12 +20,12 @@
     <a class="brand" href="#home" data-open-view="home" aria-label="Lantern Ledger home"><img class="brand-logo" src="assets/lantern-ledger-mark.svg" alt="" width="44" height="44"><span><strong>Lantern Ledger</strong><small>Farm RPG planning desk</small></span></a>
     <nav class="tabs" aria-label="Planner sections">
       <button class="tab active" data-tab="home">Home</button>
-      <button class="tab" data-tab="planner">Craft</button>
+      <button class="tab" data-tab="planner">Calculate</button>
       <button class="tab" data-tab="setup">Setup <span id="perkCount"></span></button>
       <button class="tab" data-tab="account">Account</button>
       <button class="tab" data-tab="tower">Tower</button>
       <button class="tab" data-tab="quests">Quests</button>
-      <button class="tab" data-tab="newitems">New items <span class="tab-count">40</span></button>
+      <button class="tab" data-tab="mining">Mining</button>
           </nav>
     <button id="exportPlan" class="quiet-button">Export plan</button>
   </header>
@@ -50,11 +50,11 @@
       </section>
 
       <section class="desk-drawers" aria-label="Planner work areas">
-        <button class="desk-drawer featured" data-open-view="planner"><span class="drawer-code">CALC</span><strong>Production calculator</strong><p>Choose an item and see what to craft, buy, farm, or wait for.</p><span class="drawer-action">Open calculator →</span></button>
+        <button class="desk-drawer featured" data-open-view="planner"><span class="drawer-code">CALC</span><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
         <button class="desk-drawer" data-open-view="setup"><span class="drawer-code">FARM</span><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
         <button class="desk-drawer" data-open-view="tower"><span class="drawer-code">T340</span><strong>Tower ledger</strong><p>Your Mega Masteries and every floor cost through T340.</p><span class="drawer-action">Open Tower ledger →</span></button>
         <button class="desk-drawer" data-open-view="quests"><span class="drawer-code">QUEST</span><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
-        <button class="desk-drawer" data-open-view="newitems"><span class="drawer-code">MINE</span><strong>Mining release map</strong><p>New materials, crafts, mine locations and the recipes they feed.</p><span class="drawer-action">Open release map →</span></button>
+        <button class="desk-drawer" data-open-view="mining"><span class="drawer-code">MINE</span><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
       </section>
       <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
 
@@ -66,7 +66,7 @@
 
     <section id="planner" class="view">
       <section class="goal-board">
-        <div class="goal-copy"><span class="eyebrow">Set a production goal</span><h1>Choose an Item. Build Your Plan.</h1><p>Enter how many you need, then choose whether to craft, buy, farm, or use passive production.</p></div>
+        <div class="goal-copy"><span class="eyebrow">Set a goal</span><h1>Choose an Item. See What It Takes.</h1><p>Enter how many you need. Craft it, buy it, fish it, explore for it, grow it, or wait for your farm.</p></div>
         <div class="goal-controls">
           <label class="field search-field"><span>Item</span><input id="search" type="search" name="item-search" placeholder="Red Trunk…" autocomplete="off"><div id="suggest" class="suggest hidden"></div></label>
           <label class="field quantity-field"><span>Target quantity</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
@@ -81,15 +81,14 @@
         <section id="goalHeader" class="goal-header"></section>
         <section id="resourceTrail" class="resource-trail"></section>
         <div class="planner-switches">
-          <label class="event-switch drink-switch"><span><b>Exploring drink</b><small>Which drink the exploring routes are costed in.</small></span><select id="drinkPath" aria-label="Which drink to cost exploring routes in"><option value="auto">Auto — whichever is cheaper</option><option value="cider">Apple Cider</option><option value="ap">Arnold Palmer</option></select></label>
-          <label class="event-switch stamina-switch"><span><b>Stamina you really spend</b><small>Percent of normal, per explore. Leave blank to use your perks.</small></span><input id="staminaMeasured" name="stamina-measured" type="number" min="1" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="auto"></label>
           <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Seasonal event locations</b><small>Off by default. Enable only while those areas are actually open.</small></span></label>
         </div>
-        <p id="drinkCompare" class="planner-notice drink-compare" hidden></p>
         <p id="acornNotice" class="planner-notice" hidden></p>
 
-        <div class="section-heading"><div><span class="eyebrow">Route summary</span><h2>Your Route at a Glance</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
-        <section class="route-grid three">
+        <section id="gatherPanel" class="gather-panel hidden"></section>
+
+        <div class="section-heading" id="routeSummaryHead"><div><span class="eyebrow">Route summary</span><h2>Your Route at a Glance</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
+        <section class="route-grid three" id="routeGrid">
           <article id="bestRoute" class="route-card verdict-route"></article>
           <article id="grindRoute" class="route-card grind-route"></article>
           <article id="marketRoute" class="route-card market-route"></article>
@@ -98,12 +97,12 @@
         <section id="coveredStrip" class="covered-strip hidden"></section>
         <section id="makeBuy" class="make-buy hidden"></section>
 
-        <section class="workbench">
-          <div class="section-heading compact"><div><span class="eyebrow">Shopping & Farming List</span><h2>Items You Still Need</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
+        <section class="workbench" id="workbench">
+          <div class="section-heading compact"><div><span class="eyebrow" id="workbenchEyebrow">Shopping &amp; Farming List</span><h2 id="workbenchTitle">Items You Still Need</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
           <div class="tablewrap"><table id="ingTable"><thead><tr><th>Ingredient</th><th class="num">Need</th><th class="num">Owned</th><th class="num">Missing</th><th>How to Get It</th><th>Cost & Useful Drops</th></tr></thead><tbody></tbody></table></div>
         </section>
 
-        <section class="tree-card"><div class="section-heading compact"><div><span class="eyebrow">Step by step</span><h2>How this breaks down</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
+        <section class="tree-card" id="treeCard"><div class="section-heading compact"><div><span class="eyebrow">Step by step</span><h2>How this breaks down</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
       </section>
     </section>
 
@@ -157,7 +156,7 @@
       <section class="tower-legend"><span><i class="tower-dot next"></i>Next blocker</span><span><i class="tower-dot work"></i>Still needed</span><span><i class="tower-dot done"></i>MM complete</span><b>MM = 1,000,000</b></section>
       <section id="towerRail" class="tower-rail"></section>
       <section class="tower-costs">
-        <div class="tower-costs-head"><div><span class="eyebrow">T301–T340</span><h2>What Each Floor Costs</h2><p>These are the items, Silver, Ascension Knowledge, and minimum Mega Masteries needed to unlock each floor.</p></div><small class="tower-data-note">Updated September 2026</small></div>
+        <div class="tower-costs-head"><div><span class="eyebrow">T301–T340</span><h2>Every Floor, and What It Pays</h2><p>To unlock a floor you pay its Silver and 100 Ascension Knowledge, and you must already hold that floor’s named Mega Masteries. The items are what the floor hands back when you unlock it — you do not need to bring them.</p></div><small class="tower-data-note">Updated September 2026</small></div>
         <section id="towerCostGrid" class="tower-cost-grid"></section>
       </section>
     </section>
@@ -181,29 +180,14 @@
       <section id="questLines" class="quest-lines"></section>
     </section>
 
-    <section id="newitems" class="view">
-      <section class="ni-hero">
-        <div class="ni-hero-copy">
-          <span class="eyebrow">August 31 release</span>
-          <h1>Mining release map.</h1>
-          <p>New materials, Workshop crafts, equipment, bags, locations, fishing rates, and connected recipes.</p>
-        </div>
-        <div id="newItemStats" class="ni-stats" aria-label="New item release totals"></div>
+    <section id="mining" class="view">
+      <section class="page-intro">
+        <span class="eyebrow">Mining</span>
+        <h1>Pick a mine.</h1>
+        <p>Every mine, what it drops, and what those drops go on to make.</p>
       </section>
 
-      <section class="ni-toolbar" aria-label="New item filters">
-        <label class="ni-search"><span>Find an item or ingredient</span><input id="newItemSearch" name="new-item-search" type="search" autocomplete="off" placeholder="Ancient Pickaxe, Gravicite, Cave Paste…"></label>
-        <div class="ni-filters" role="group" aria-label="Item category">
-          <button class="active" data-ni-filter="craft">40 new crafts</button>
-          <button data-ni-filter="mining">Mining + support</button>
-          <button data-ni-filter="other">Other additions</button>
-          <button data-ni-filter="all">Everything</button>
-        </div>
-        <strong id="newItemCount" class="ni-count"></strong>
-      </section>
-
-      <aside class="ni-source-note"><span>Evidence</span><p>Buddy rates and live item pages. Confirmed mine locations are named; unknowns stay unknown.</p><a href="https://buddy.farm/" target="_blank" rel="noreferrer">Open Buddy's Almanac</a></aside>
-      <section id="newItemsGroups" class="ni-groups" aria-live="polite"></section>
+      <section id="mineGrid" class="mine-list" aria-label="Mines"></section>
     </section>
     <section id="fieldlab" class="view">
       <section class="page-intro"><span class="eyebrow">Your measurements</span><h1>Measure what guides cannot.</h1><p>Keep account-specific tests separate from universal game facts.</p></section>
@@ -244,15 +228,16 @@
   <script src="data/location-intel.js?v=20260901-2"></script>
   <script src="data/new-items.js?v=20260831-1"></script>
   <script src="data/mining-capture-items.js?v=20260901-3"></script>
+  <script src="data/workbook-rates.js?v=20260903-1"></script>
   <script src="collectors/account-importer/shared/numbers.js"></script>
   <script src="collectors/account-importer/shared/sanitize.js"></script>
   <script src="collectors/account-importer/shared/textparse.js"></script>
   <script src="collectors/account-importer/shared/schema.js"></script>
   <script src="collectors/account-importer/shared/merge.js"></script>
   <script src="engine.js"></script>
-  <script src="app.js?v=20260902-11"></script>
-  <script src="new-items-page.js?v=20260901-2"></script>
-  <script src="quests-page.js?v=20260902-2"></script>
+  <script src="app.js?v=20260903-12"></script>
+  <script src="mining-page.js?v=20260903-4"></script>
+  <script src="quests-page.js?v=20260903-1"></script>
 </body>
 </html>
 
