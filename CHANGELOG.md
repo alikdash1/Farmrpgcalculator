@@ -35,3 +35,25 @@ entirely.
   `AI_READ_FIRST.md`, and `docs/FARM_RPG_PLAYER_SKILL_BLUEPRINT.md` already
   existed and are the canonical game-knowledge memory — these new files are
   a project-status layer on top, not a duplicate.)
+- Fixed 5 **undefined CSS custom properties** (`--panel`, `--panel-2`,
+  `--accent`, `--bg`, `--bg-soft`) used across ~18 rules in `quests.css`,
+  which silently rendered quest filters, quest lines/steps, `.quest-item`,
+  `.tower-cost-card` and `.route-evidence` with no background, border or
+  accent colour. Remapped to the real design tokens. Same fix applied to
+  `publish/quests.css`. A full CSS audit now reports zero undefined custom
+  properties anywhere in the tree.
+- Added `window.FRPG_openItem(name, qty)` as a cross-page bridge, and wired
+  quest requirement chips, Tower mastery rows and Tower cost-grid items to
+  it — clicking anything you still need now opens it in the Craft planner
+  instead of leaving you to search for it by hand.
+- Added missing accessible names to the owned-quantity input and the
+  per-item route selector.
+- **Found the likely root cause of "the site feels like it's for you and not
+  the player":** there are two divergent front-ends. `publish/` is a
+  player-facing trim (no Field lab, no Strategy library, home shortcuts
+  pointing at Tower T340 / main quests / mining) that a previous session
+  built and never merged back. The root copy — the one actually opened — is
+  still the developer-facing version. See NEXT_PHASE.md; needs a user
+  decision before merging.
+- Archived the original Codex transcript to `docs/history/` so no future
+  session ever re-fetches the ChatGPT share link.
