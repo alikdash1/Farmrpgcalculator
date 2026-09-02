@@ -51,7 +51,7 @@ theme) were invisible in source and obvious on screen. So:
 
 ```bash
 node --check app.js                  # syntax
-node --test tests/*.mjs              # 38 tests, all should pass
+node --test tests/*.mjs              # 40 tests, all should pass
 python3 build/bundle.py              # inline everything into one file
 ```
 

@@ -58,6 +58,36 @@ code, re-run the named test.
    shell (as discovered this session) or if the folder is ever renamed/moved.
    Fixed via `path.join(path.dirname(fileURLToPath(import.meta.url)), '..')`.
 
+9. **Route decision cards were sized against the wrong tree.** They were
+   built from the fully-expanded recipe tree, while the shopping list and the
+   plan tree were built from the tree *after* "buy this instead" stops were
+   applied. Any ingredient reachable through two parents was therefore
+   overstated on its own card, along with its gold estimate — Glass Orb
+   showed "× 12m" (8m through Steel + 4m through Red Dye → Glass Bottle)
+   next to a list asking for 8m, because Red Dye is bought, not crafted.
+   Fixed by settling decisions and tree together to a fixed point. Tests:
+   `a shared ingredient is sized from the plan, not the unstopped tree`,
+   `Red Dye still reaches Glass Orb through Glass Bottle` (engine.test.mjs).
+   **If you add another pass that re-resolves the tree, make sure anything
+   already computed against the old tree is recomputed too.**
+10. **52 dead buttons on the Tower page.** Mastery and floor-cost entries
+   rendered with `role="button"`, `tabindex="0"` and a title promising "Open
+   X in the Craft planner", but `FRPG_openItem` returns `false` when the item
+   is not in the planner's index — so the click silently did nothing. This is
+   the same failure mode as the dead Acorn Pie toggle. **Any element given a
+   button role must be checked against whether its handler can actually
+   succeed for that specific row**, not just whether the handler exists.
+11. **Fished and explored ingredients were presented as crafts.** Leaves in
+   the plan tree rendered with no route label under a heading reading "Chosen
+   craft tree", so Pearl, Catfish and every other gathered item looked like
+   something you craft. The routing itself was correct the whole time — this
+   was purely how it was labelled, which the user reported as a data bug.
+   Every leaf now names its real route.
+12. **UI copy was asserted in a test.** `account-sync-extension.test.mjs`
+   matched the literal string "Manual backup" in `index.html`, so rewording
+   player-facing copy broke the suite for no good reason. Assert the control
+   (`id="accountFile"`), not the words around it.
+
 ## Not bugs, but easy to reintroduce accidentally
 
 - **Acorn Pie accounting**: it's action-limited (150 actions per pie), not

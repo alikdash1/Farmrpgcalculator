@@ -22,38 +22,45 @@ you and not the player": the file they actually open, `calculator/index.html`,
 is the developer-facing version.** The cleaned-up one has been sitting in
 `publish/` unused.
 
-Decision needed from the user before merging:
+**Decided 2026-09-02** (user: "idk what you are talking about just do whats
+best"): **both pages stay**, rewritten for players rather than deleted. The
+Field lab keeps its Acorn Pie sample form and its editable numbers now have
+readable names; the Strategy library became "Why routes get picked" with the
+build diagnostics stripped out. Neither is on the home page's main grid — they
+sit in the "Also here" line beneath it.
 
-1. **Field lab** (record personal Acorn Pie displacement samples) — delete,
-   or keep but move out of the home page? It is arguably real player value,
-   not just dev tooling.
-2. **Strategy library** (sources, rules, unknowns) — same question. Explains
-   *why* a route was chosen, which builds trust, but reads as internal notes.
-3. Once decided: merge one direction, delete the other copy, and replace the
-   manual copy-paste with a real build step so they can never drift again.
+Still to do: merge one front-end direction, delete the other copy, and replace
+the manual copy-paste with a real build step so they can never drift again.
 
 Do **not** deploy `publish/` as-is — it is missing every fix made on
 2026-09-02.
 
 
-## Immediate — in progress this session (2026-09-02)
+## Immediate — next up
 
-The user's last request to the previous session, never finished (it got cut
-off mid-edit by a usage limit): *"there's so many things in the site that
-seems like they are for you and not for the player make it easy to see and
-read and understand how to use ... also add tower to 340 with the
-requirments and we would need quests as well ... all the main quests no
-need for the event ones."*
+The 2026-09-02 player-facing pass is **done** (see CHANGELOG for the full
+list: one real quantity bug, 52 dead Tower buttons, fishing presented as
+crafting, the Cider-vs-AP comparison, and the dev-facing copy across every
+view). What that pass left open:
 
-- Tower T301–T340 + main quests: **done**, code was actually correct, just
-  had a syntax error left mid-edit — fixed this session.
-- Player-facing UX cleanup (remove dev/internal-facing language, simplify):
-  **not started** — this is the open part of that request. Needs an actual
-  visual pass in a real browser (not just source reading) to find what
-  reads as "for you, not for the player" — page copy, debug-looking labels,
-  raw numbers instead of the compact-number convention, anything that
-  assumes the reader is the AI building the tool rather than a player using
-  it.
+- **`publish/` is now much further behind.** It still has none of the
+  2026-09-02 fixes and never got the correctness fix either. Do not deploy it.
+  Deciding the merge direction is now the single most valuable next step.
+- **Stamina per explore is still unverified.** The perk list models only
+  Wanderer I-IV (20%) plus the Neigh meal (20%), which lands at 64% of normal.
+  The user believes their real figure is nearer 50% but was explicitly unsure,
+  and no source for the full stacking rule was found. There is now a "Stamina
+  you really spend" percentage control on the Craft page so they can set it —
+  but the underlying game rule is still an open question. Do not hard-code a
+  number for this; see KNOWN_MISTAKES.md on confidently-wrong game facts.
+- **43 items the game has are missing from the planner's item index** —
+  Basic Pillow, Brown Dye, Oak Table, Gold Ring, Magus Hat and the rest of the
+  T301+ list. They exist in `knowledge-pack/farmrpg.db` but with no recipe, no
+  price and (for all but 7) no image, so merging them in would fix almost
+  nothing. They now render honestly as "No route data for this one yet"
+  instead of as dead buttons. Real fix = getting the data, not the merge.
+- **The user has not reviewed any of this yet.** Their words: "finish
+  everything first then i will go through it." Expect a list.
 
 ## Backlog, from the previous session's own "is this production ready?"
 assessment (2026-08-3x) — still true unless noted

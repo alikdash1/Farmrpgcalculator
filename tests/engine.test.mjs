@@ -87,3 +87,37 @@ test("cycle detection does not hang", () => {
   const tree = Engine.resolveTree(custom, 999999, 1, mods, 0, [], consts);
   assert.ok([...Engine.flattenLeaves(tree).values()].some((leaf) => leaf.cyclic));
 });
+
+// Regression: the Route decisions cards were sized from the fully-expanded
+// tree, so a shared ingredient was overstated once one of its parents was
+// bought instead of crafted. Glass Orb showed 12m beside a shopping list
+// asking for 8m: 8m through Steel, plus 4m through Red Dye -> Glass Bottle,
+// but Red Dye is bought, so that second branch never happens.
+test("a shared ingredient is sized from the plan, not the unstopped tree", () => {
+  const idOf = (name) => index.idByName.get(name.toLowerCase());
+  const glassOrb = idOf("glass orb");
+  // No perks, so the numbers are the plain recipe maths the user reported.
+  const bare = Engine.computeMods([], consts);
+  const qtyIn = (tree) => Engine.collectNodes(tree).get(glassOrb)?.qtyOut ?? 0;
+
+  const unstopped = Engine.resolveTree(index, RED_TRUNK, 1000000, bare, 0, [], consts);
+  // Red Dye bought rather than crafted is what the planner actually chooses.
+  const stopped = Engine.resolveTree(index, RED_TRUNK, 1000000, bare, 0, [], consts, new Set([idOf("red dye")]));
+
+  assert.equal(qtyIn(unstopped), 12000000, "8m through Steel plus 4m through Red Dye");
+  assert.equal(qtyIn(stopped), 8000000, "buying Red Dye leaves only the Steel branch");
+
+  // And it still holds with the endgame perk profile applied.
+  const perked = Engine.resolveTree(index, RED_TRUNK, 1000000, mods, 0, [], consts, new Set([idOf("red dye")]));
+  assert.ok(qtyIn(perked) < qtyIn(Engine.resolveTree(index, RED_TRUNK, 1000000, mods, 0, [], consts)));
+});
+
+// Regression: Red Dye reaching Glass Orb through Glass Bottle is the exact
+// path that made the number above diverge. If the recipe data changes so this
+// no longer holds, the test above stops proving anything.
+test("Red Dye still reaches Glass Orb through Glass Bottle", () => {
+  const idOf = (name) => index.idByName.get(name.toLowerCase());
+  const tree = Engine.resolveTree(index, idOf("red dye"), 1000, mods, 0, [], consts);
+  assert.ok(Engine.collectNodes(tree).has(idOf("glass bottle")));
+  assert.ok(Engine.collectNodes(tree).has(idOf("glass orb")));
+});
