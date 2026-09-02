@@ -24,7 +24,7 @@
 }
 
 .winner-line b {
-  color: var(--ink);
+  color: var(--text);
   font-weight: 700;
 }
 
