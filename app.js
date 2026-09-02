@@ -195,6 +195,22 @@
     render();
   }
 
+  // Cross-page bridge: lets other loaded scripts (Quests, New items) open an
+  // item directly in the Craft planner without duplicating item lookup/route
+  // logic. Returns true if the item was found and opened.
+  window.FRPG_openItem = function (name, qty) {
+    const id = index.idByName.get(String(name || "").trim().toLowerCase());
+    if (!id) return false;
+    const parsedQty = Number(qty);
+    if (Number.isFinite(parsedQty) && parsedQty > 0) {
+      state.qty = Math.round(parsedQty);
+      el.qty.value = String(state.qty);
+    }
+    pick(id);
+    showTab("planner");
+    return true;
+  };
+
   function renderHome() {
     const item = state.itemId ? index.itemsById.get(state.itemId) : null;
     const enabledRows = profileRows().filter((row) => row.ids.every((id) => state.enabled.has(id))).length;
@@ -625,7 +641,7 @@
     if (source.vendor) options.push(["vendor", "Store"]);
     if (infraFor(item, 1, m)) options.push(["covered", "Covered"]);
     const selected = state.sourceChoices[item.id] || "auto";
-    return `<select class="route-select" data-source-id="${item.id}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
+    return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
   }
 
   function routeEvidence(item, route) {
@@ -789,7 +805,7 @@
     }
 
     $("ingCount").textContent = `${visibleRows.length} shown · ${rows.length} active`;
-    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>recipe stopped at the chosen acquisition route</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
+    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>recipe stopped at the chosen acquisition route</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
     el.ingBody.querySelectorAll(".owned").forEach((input) => {
       input.onchange = () => {
         const value = parseInt(input.value.replace(/\D/g, ""), 10);
@@ -1359,13 +1375,14 @@
         const percent = Math.min(100, row.current / 10000);
         const method = row.methods.join(" / ") || "item";
         const pjGap = PUMPKIN_JUICE_MMS.has(row.name) && !row.complete ? Math.max(0, 909091 - row.current) : null;
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}">${itemImg(item, "tower-art")}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">One-PJ setup: ${fmt(pjGap)} more to 909.09k</small>` : ""}</div></div>`;
+        const openAttrs = row.complete ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the Craft planner"`;
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}"${openAttrs}>${itemImg(item, "tower-art")}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">One-PJ setup: ${fmt(pjGap)} more to 909.09k</small>` : ""}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
     const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(301, start) && row.floor <= goal);
     const costGrid = $("towerCostGrid");
-    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} MM minimum</small></div><div class="tower-cost-items">${row.items.map((entry) => { const item = itemByName(entry.name); return `<div class="tower-cost-item">${itemImg(item, "tower-art")}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 costs in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
+    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} MM minimum</small></div><div class="tower-cost-items">${row.items.map((entry) => { const item = itemByName(entry.name); return `<div class="tower-cost-item" data-open-item="${esc(entry.name)}" data-open-qty="${entry.quantity}" tabindex="0" role="button" title="Open ${esc(entry.name)} in the Craft planner">${itemImg(item, "tower-art")}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 costs in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
@@ -1376,6 +1393,16 @@
       accountSync.innerHTML = `<span></span><strong>${connected ? "Extension connected" : "Waiting for extension"}</strong><small>${connected ? "New Farm RPG pages refresh this account automatically." : "Load the extension once, then browse Farm RPG normally."}</small>`;
     }
   }
+
+  function openTowerItem(target) {
+    const button = target.closest("[data-open-item]");
+    if (!button) return;
+    window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty);
+  }
+  $("towerRail").addEventListener("click", (event) => openTowerItem(event.target));
+  $("towerRail").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTowerItem(event.target); } });
+  $("towerCostGrid").addEventListener("click", (event) => openTowerItem(event.target));
+  $("towerCostGrid").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTowerItem(event.target); } });
 
   function applyAccountSnapshot() {
     if (!state.account) return;

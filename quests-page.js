@@ -44,7 +44,8 @@
   }
 
   function requirementHtml(row) {
-    return `<span class="quest-item">${itemImage(row.item)}<span><b>${esc(row.item)}</b><small>${fmt.format(Number(row.quantity || 0))}</small></span></span>`;
+    const qty = Number(row.quantity || 0);
+    return `<button type="button" class="quest-item" data-open-item="${esc(row.item)}" data-open-qty="${qty}" title="Open ${esc(row.item)} in the Craft planner">${itemImage(row.item)}<span><b>${esc(row.item)}</b><small>${fmt.format(qty)}</small></span></button>`;
   }
 
   function questHtml(quest, status) {
@@ -104,6 +105,12 @@
     document.querySelectorAll("[data-quest-filter]").forEach((row) => row.classList.toggle("active", row === button));
     render();
   }));
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-item]");
+    if (!button) return;
+    const opened = window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty);
+    if (!opened) return; // item not in the calculator's dataset yet; stay on this page.
+  });
   document.querySelector('[data-tab="quests"]')?.addEventListener("click", render);
   window.addEventListener("storage", render);
   window.addEventListener("message", (event) => {
