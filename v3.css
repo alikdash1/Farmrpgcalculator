@@ -78,8 +78,8 @@
   grid-template-columns: minmax(0, 1.12fr) minmax(360px, .72fr);
   gap: clamp(2rem, 7vw, 7rem);
   align-items: center;
-  min-height: 470px;
-  padding: clamp(2.5rem, 7vw, 6rem) 0 3.5rem;
+  min-height: 380px;
+  padding: clamp(1.75rem, 3.5vw, 3.25rem) 0 3rem;
   border-bottom: 1px solid rgba(241,234,216,.15);
 }
 
@@ -150,9 +150,17 @@
 .recent-button:hover { border-color: var(--gold); }
 .recent-empty { color: var(--muted); font-size: .75rem; }
 
+.desk-tools {
+  margin: -1rem 0 2rem;
+  color: var(--muted);
+  font-size: .74rem;
+}
+
+.desk-tools .text-action { font-size: .74rem; }
+
 .desk-drawers {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1px;
   margin: 2rem 0;
   padding: 1px;

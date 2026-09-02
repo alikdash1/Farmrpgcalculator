@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/lantern-ledger-mark.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="v3.css">
+  <link rel="stylesheet" href="v3.css?v=20260902-1">
   <link rel="stylesheet" href="tower.css">
   <link rel="stylesheet" href="new-items.css?v=20260831-4">
   <link rel="stylesheet" href="quests.css?v=20260902-2">
@@ -40,9 +40,9 @@
           <div id="homeRecent" class="recent-plan"></div>
         </div>
         <form id="homeGoal" class="dispatch-ticket">
-          <div class="ticket-stub"><span>Production order</span><b>FRPG / LOCAL</b></div>
+          <div class="ticket-stub"><span>Production order</span><b>Local only</b></div>
           <label class="field"><span>Item</span><input id="homeSearch" name="home-item" list="itemOptions" autocomplete="off" placeholder="Red Trunk" required></label>
-          <label class="field"><span>Quantity</span><input id="homeQty" name="home-quantity" type="text" inputmode="numeric" value="1000000" required></label>
+          <label class="field"><span>Quantity</span><input id="homeQty" name="home-quantity" type="text" inputmode="numeric" value="1,000,000" required></label>
           <datalist id="itemOptions"></datalist>
           <button type="submit" class="primary-action">Open calculation <span>→</span></button>
           <small>Nothing is sent anywhere. Your choices stay in this browser.</small>
@@ -52,13 +52,15 @@
       <section class="desk-drawers" aria-label="Planner work areas">
         <button class="desk-drawer featured" data-open-view="planner"><span class="drawer-code">CALC</span><strong>Production calculator</strong><p>Choose an item and see what to craft, buy, farm, or wait for.</p><span class="drawer-action">Open calculator →</span></button>
         <button class="desk-drawer" data-open-view="setup"><span class="drawer-code">FARM</span><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
-        <button class="desk-drawer" data-open-view="fieldlab"><span class="drawer-code">TEST</span><strong>Field lab</strong><p>Record Acorn Pie results and tune account-specific estimates without pretending they are universal.</p><span class="drawer-action">Open field notes →</span></button>
-        <button class="desk-drawer" data-open-view="library"><span class="drawer-code">WHY</span><strong>Strategy library</strong><p>Read the rules, mechanics, coverage and confidence behind the planner’s recommendations.</p><span class="drawer-action">Inspect evidence →</span></button>
+        <button class="desk-drawer" data-open-view="tower"><span class="drawer-code">T340</span><strong>Tower ledger</strong><p>Your Mega Masteries and every floor cost through T340.</p><span class="drawer-action">Open Tower ledger →</span></button>
+        <button class="desk-drawer" data-open-view="quests"><span class="drawer-code">QUEST</span><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
+        <button class="desk-drawer" data-open-view="newitems"><span class="drawer-code">MINE</span><strong>Mining release map</strong><p>New materials, crafts, mine locations and the recipes they feed.</p><span class="drawer-action">Open release map →</span></button>
       </section>
+      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">your own measured drop rates</button> · <button class="text-action" data-open-view="library">why a route was chosen</button></p>
 
       <section class="desk-lower">
         <article class="readiness-card"><div class="section-heading compact"><div><span class="eyebrow">Before You Calculate</span><h2>Check What Matches Your Farm</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
-        <article class="rule-card"><span class="eyebrow">Rules already understood</span><h2>Not every cheap route is the right route.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See all strategy evidence →</button></article>
+        <article class="rule-card"><span class="eyebrow">How routes are decided</span><h2>Not every cheap route is the right route.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See all strategy evidence →</button></article>
       </section>
     </section>
 
@@ -67,7 +69,7 @@
         <div class="goal-copy"><span class="eyebrow">Set a production goal</span><h1>Choose an Item. Build Your Plan.</h1><p>Enter how many you need, then choose whether to craft, buy, farm, or use passive production.</p></div>
         <div class="goal-controls">
           <label class="field search-field"><span>Item</span><input id="search" type="search" name="item-search" placeholder="Red Trunk…" autocomplete="off"><div id="suggest" class="suggest hidden"></div></label>
-          <label class="field quantity-field"><span>Target quantity</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1000000"></label>
+          <label class="field quantity-field"><span>Target quantity</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
           <div class="presets"><button data-q="1000">1k</button><button data-q="10000">10k</button><button data-q="100000">100k</button><button data-q="1000000">1m</button></div>
         </div>
       </section>
@@ -242,7 +244,7 @@
   <script src="collectors/account-importer/shared/schema.js"></script>
   <script src="collectors/account-importer/shared/merge.js"></script>
   <script src="engine.js"></script>
-  <script src="app.js?v=20260902-4"></script>
+  <script src="app.js?v=20260902-5"></script>
   <script src="new-items-page.js?v=20260901-2"></script>
   <script src="quests-page.js?v=20260902-2"></script>
 </body>

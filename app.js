@@ -204,7 +204,7 @@
     const parsedQty = Number(qty);
     if (Number.isFinite(parsedQty) && parsedQty > 0) {
       state.qty = Math.round(parsedQty);
-      el.qty.value = String(state.qty);
+      el.qty.value = state.qty.toLocaleString("en-US");
     }
     pick(id);
     showTab("planner");
@@ -226,7 +226,7 @@
     const recent = document.querySelector("[data-home-recent]");
     if (recent) recent.onclick = () => showTab("planner");
 
-    $("homeSetupSummary").textContent = `${enabledRows}/${totalRows} permanent bonus families · ${passive} passive sources · ${activeMeals} meals active.`;
+    $("homeSetupSummary").textContent = `${enabledRows}/${totalRows} permanent bonuses on · ${passive} passive sources · ${activeMeals} meals active.`;
     $("homeReadiness").textContent = `${readiness}/4 checked`;
     const readinessRows = [
       ["Permanent bonuses", `${enabledRows}/${totalRows} active`, enabledRows > 0],
@@ -236,9 +236,11 @@
     ];
     $("homeReadinessRows").innerHTML = readinessRows.map(([label, value, ready]) => `<div><span class="readiness-dot ${ready ? "ready" : "review"}"></span><strong>${esc(label)}</strong><b>${esc(value)}</b></div>`).join("");
 
-    const preferred = K.rules.filter((rule) => /glass orb|acorn pie|leather|sawmill|stone|coal/i.test(rule.rule));
-    const rules = (preferred.length ? preferred : K.rules).slice(0, 4);
-    $("homeRules").innerHTML = rules.length ? rules.map((rule) => `<div><span>${rule.needsVerification ? "Player rule" : "Supported rule"}</span><p>${esc(rule.rule)}</p></div>`).join("") : `<p class="empty-samples">Strategy export is unavailable. Rebuild data/knowledge.js.</p>`;
+    const ENGINE_DIRECTIVE = /should not|do not recommend|must not|never recommend|should be treated|do not treat/i;
+    const playerFacing = K.rules.filter((rule) => !ENGINE_DIRECTIVE.test(rule.rule));
+    const preferred = playerFacing.filter((rule) => /glass orb|acorn pie|leather|sawmill|stone|coal|ember|cider/i.test(rule.rule));
+    const rules = (preferred.length ? preferred : playerFacing).slice(0, 4);
+    $("homeRules").innerHTML = rules.length ? rules.map((rule) => `<div><span>${rule.needsVerification ? "From player reports" : "Confirmed"}</span><p>${esc(rule.rule)}</p></div>`).join("") : `<p class="empty-samples">Strategy export is unavailable. Rebuild data/knowledge.js.</p>`;
   }
 
   $("itemOptions").innerHTML = D.items.items.filter((item) => item.active).map((item) => `<option value="${esc(item.name)}"></option>`).join("");
@@ -269,8 +271,9 @@
     }
   };
   el.qty.oninput = () => { state.qty = parseInt(el.qty.value.replace(/\D/g, ""), 10) || 0; render(); };
+  el.qty.onblur = () => { if (state.qty > 0) el.qty.value = state.qty.toLocaleString("en-US"); };
   document.querySelectorAll("[data-q]").forEach((button) => {
-    button.onclick = () => { state.qty = Number(button.dataset.q); el.qty.value = button.dataset.q; render(); };
+    button.onclick = () => { state.qty = Number(button.dataset.q); el.qty.value = state.qty.toLocaleString("en-US"); render(); };
   });
   $("clearOwned").onclick = () => { state.owned = {}; save(); render(); };
   $("collapseTree").onclick = () => {
@@ -313,7 +316,7 @@
     const best = quote.best;
     const unit = best.currency === "gold" ? "gold" : best.currency.toUpperCase();
     const rate = best.raw || `${fmt(best.rate)} ${unit}${best.per === 1000 ? "/k" : ""}`;
-    return `${rate} → ${fmt(best.amount)} ${unit}${best.goldEq != null && best.currency !== "gold" ? ` ≈ ${fmt(best.goldEq)}g` : ""}`;
+    return `${rate} → ${fmt(best.amount)} ${unit}${best.goldEq != null && best.currency !== "gold" ? ` ≈ ${fmt(best.goldEq)} gold` : ""}`;
   }
   function goldEach(itemName) {
     const market = index.marketByName.get(itemName.toLowerCase());
@@ -547,7 +550,7 @@
     ].filter(Boolean).sort((a, b) => a.goldEq - b.goldEq);
     const cashWinner = costs[0] || { action: "craft", goldEq: materials.goldEq };
     let auto = cashWinner.action;
-    let reason = "Lowest known single-item opportunity cost";
+    let reason = "Cheapest way to get this item on its own";
     if (infra) {
       auto = "building";
       reason = infra.kind + " covers this input";
@@ -762,10 +765,10 @@
     const progressionFarmCount = activeDecisions.filter((decision) => decision.progressionWinner === "farm").length;
 
     el.empty.classList.add("hidden"); el.result.classList.remove("hidden");
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art")}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${rows.length} active inputs · ${coveredRows.length} handled by farm infrastructure · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} recipes replaced by direct acquisition</p></div></div><div class="goal-yield"><strong>${fmt(m.craftYield)}× yield</strong><span>${fmt(m.saleMult)}× sale value</span></div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art")}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${rows.length} ingredients · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted</p></div></div><div class="goal-yield"><strong>${fmt(m.craftYield)}× yield</strong><span>${fmt(m.saleMult)}× sale value</span></div>`;
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
-      trail("Trade value", fmt(tradeGoldEq) + "g", "comparison value", "violet"),
+      trail("Trade value", fmt(tradeGoldEq) + " gold", "comparison value", "violet"),
       trail("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`, "chosen explore routes"),
       trail("Covered", fmt(coveredRows.length), passiveHours ? `${fmt(passiveHours)}h longest wait` : "farm / depot"),
     ].join("");
@@ -774,7 +777,7 @@
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
     $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">Buying is cheapest for ${fmt(cashBuyCount)} craftable inputs. Farming may be worth it for ${fmt(progressionFarmCount)} inputs because the same run also helps masteries, quests, or useful drops.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
     $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("OJ-equivalent", fmt(oj))}${metric("Large Nets", fmt(largeNets))}${metric("Crop plants", fmt(plants))}<p class="route-note">Routes at the same location share one exploration run; the largest requirement covers the smaller co-drops. Consumables remain valued at their current trade opportunity.</p>`;
-    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Direct acquisition</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("Gold-equivalent", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Every Price Check quote ending in <b>/k</b> is divided by 1,000. Leather at 5 AP/k is now treated as 5 AP per 1,000 Leather.</p>`;
+    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Direct acquisition</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("Gold-equivalent", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
 
     if (coveredRows.length) {
       el.covered.classList.remove("hidden");
@@ -789,7 +792,7 @@
       el.makeBuy.innerHTML = `<div class="section-heading compact"><div><span class="eyebrow">Route decisions</span><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
         const selected = state.makeChoices[decision.item.id] || "auto";
         const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)}g through the cheapest known ingredient routes` : `${decision.materials.priced}/${decision.materials.count} ingredient routes priced`;
-        const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)}g` : ""}` : "";
+        const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
         const directText = decision.direct ? quoteText(decision.direct) : "";
         const infraText = decision.infra ? decision.infra.detail : "";
         const costText = decision.auto === "farm" ? farmText : decision.auto === "trade" ? directText : decision.auto === "building" ? infraText : materialText;
