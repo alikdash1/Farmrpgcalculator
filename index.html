@@ -60,7 +60,7 @@
 
       <section class="desk-lower">
         <article class="readiness-card"><div class="section-heading compact"><div><span class="eyebrow">Before You Calculate</span><h2>Check What Matches Your Farm</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
-        <article class="rule-card"><span class="eyebrow">How routes are decided</span><h2>Not every cheap route is the right route.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See all strategy evidence →</button></article>
+        <article class="rule-card"><span class="eyebrow">How routes are decided</span><h2>Not every cheap route is the right route.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See why each route gets picked →</button></article>
       </section>
     </section>
 
@@ -226,18 +226,18 @@
     </section>
 
     <section id="library" class="view">
-      <section class="page-intro"><span class="eyebrow">Strategy library</span><h1>Sources, rules, unknowns.</h1><p>Game data, player judgment, personal measurements, and unresolved gaps stay visibly separate.</p></section>
+      <section class="page-intro"><span class="eyebrow">Why routes get picked</span><h1>The reasoning behind the plan.</h1><p>The exceptions an experienced player would make, what each meal actually changes, and where the numbers came from.</p></section>
       <div id="knowledgeStatus" class="knowledge-status"></div>
       <div id="dataSummary" class="data-summary"></div>
-      <section class="library-grid"><article class="source-list"><h2>Experienced-player rules</h2><p>These are explicit route exceptions and endgame habits. They guide decisions but never masquerade as drop-rate measurements.</p><div id="strategyRules" class="strategy-rules"></div></article><article class="source-list"><h2>Meals and mechanics</h2><p>Only effects represented in the calculator change totals. Click-saving meals remain labeled as click-saving.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
-      <section class="source-list"><h2>Source and confidence order</h2><ol><li><b>Official mechanics</b><span>Farm RPG Library, Farm Supply and item descriptions</span></li><li><b>Items and recipes</b><span>FarmRPG ETL2 snapshot</span></li><li><b>Item pages</b><span>Buddy’s Almanac, including production timing and meals</span></li><li><b>Progression demand</b><span>Quest Tracker snapshot plus Tower-ranked mastery workbook</span></li><li><b>Experienced-player rules</b><span>Explicit exceptions such as Glass Orb in Ember Lagoon; each stays visible and testable</span></li><li><b>Trade ratios</b><span>Farm RPG Price Check snapshot; <code>/k</code> means per 1,000</span></li><li><b>Personal measurements</b><span>Your Acorn Pie samples and account-specific production rates</span></li><li><b>Community rates</b><span>Archived outcome logs; unknowns remain visible</span></li></ol></section>
-      <section class="source-list"><h2>Read-only collection kit</h2><p>Collect account pages or measured explore/fishing runs without automating gameplay.</p><ol><li><b>Visible page exporter</b><span><a href="collectors/collect-visible-page.js">Open the script</a> and follow <a href="collectors/README.md">the instructions</a></span></li><li><b>Account format</b><span><a href="collectors/account-snapshot.template.json">Open the account template</a>; unknown values can stay blank</span></li><li><b>Field runs</b><span><a href="collectors/field-runs.template.json">Open the run template</a> for exploration, Acorn Pie and fishing samples</span></li></ol></section>
+      <section class="library-grid"><article class="source-list"><h2>Route exceptions worth knowing</h2><p>Habits an experienced player has that the cheapest-price maths would miss. They steer the plan, but none of them pretend to be a measured drop rate.</p><div id="strategyRules" class="strategy-rules"></div></article><article class="source-list"><h2>What each meal actually does</h2><p>Meals that only save clicks are labelled as saving clicks — they don't change how much material you need.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
+      <section class="source-list"><h2>Where the numbers come from, most trusted first</h2><ol><li><b>The game itself</b><span>Farm RPG's own Library, Farm Supply and item descriptions</span></li><li><b>Items and recipes</b><span>A full export of every item and every recipe</span></li><li><b>Buddy's Almanac</b><span>Item pages, production timings and meal effects</span></li><li><b>What the game will ask you for</b><span>Quest requirements and Tower mastery targets</span></li><li><b>Route exceptions</b><span>Habits like taking Glass Orb from Ember Lagoon — listed above so you can disagree with them</span></li><li><b>Trade prices</b><span>Farm RPG Price Check; <code>/k</code> means per 1,000</span></li><li><b>Your own measurements</b><span>Acorn Pie samples and your farm's real production rates</span></li><li><b>Community drop logs</b><span>Old shared outcome logs. Least reliable, and anything unmeasured stays marked unmeasured</span></li></ol></section>
+      <section class="source-list"><h2>Recording your own data</h2><p>Save your account pages, or your own explore and fishing runs, without automating anything in the game.</p><ol><li><b>Visible page exporter</b><span><a href="collectors/collect-visible-page.js">Open the script</a> and follow <a href="collectors/README.md">the instructions</a></span></li><li><b>Account format</b><span><a href="collectors/account-snapshot.template.json">Open the account template</a>; unknown values can stay blank</span></li><li><b>Field runs</b><span><a href="collectors/field-runs.template.json">Open the run template</a> for exploration, Acorn Pie and fishing samples</span></li></ol></section>
       <footer id="footer" class="footer">Lantern Ledger is fan-made and is not affiliated with Farm RPG.</footer>
     </section>
   </main>
 
   <script src="data/data.js?v=20260902-6"></script>
-  <script src="data/knowledge.js"></script>
+  <script src="data/knowledge.js?v=20260902-9"></script>
   <script src="data/personal-tower.js?v=20260902-1"></script>
   <script src="data/tower-floors.js?v=20260902-1"></script>
   <script src="data/main-quests.js?v=20260902-1"></script>
@@ -250,7 +250,7 @@
   <script src="collectors/account-importer/shared/schema.js"></script>
   <script src="collectors/account-importer/shared/merge.js"></script>
   <script src="engine.js"></script>
-  <script src="app.js?v=20260902-7"></script>
+  <script src="app.js?v=20260902-11"></script>
   <script src="new-items-page.js?v=20260901-2"></script>
   <script src="quests-page.js?v=20260902-2"></script>
 </body>

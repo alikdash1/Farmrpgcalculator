@@ -49,6 +49,26 @@
   // Filled in on every render; treeHtml reads it to label each leaf's real route.
   let leafRoutes = new Map();
   const capitalise = (text) => String(text || "").replace(/^./, (c) => c.toUpperCase());
+  const ASSUMPTION_LABELS = {
+    crop_qf_is_reduction: "Crop growth time saved by perks",
+    crop_dod_base_cut: "Extra crop time saved by Diary of O'Dynn",
+    craft_cost_cap: "Most the Workshop silver cost can be cut by",
+    net_fn_base_catch: "Items per Fishing Net",
+    net_ln_base_catch: "Items per Large Net",
+    cider_base_rolls: "Item rolls per Apple Cider",
+    lemonade_base_items: "Items per Lemonade",
+    ap_base_items: "Items per Arnold Palmer",
+    oj_stamina: "Stamina restored by one Orange Juice",
+    quandary_bonus: "Extra output from Quandary Chowder",
+    neigh_stamina_save: "Stamina saved by Neigh",
+    sea_pincher_bonus: "Net boost from Sea Pincher Special",
+    hickory_tick_bonus: "Sawmill boost per Hickory Omelette tick",
+    acorn_pie_actions: "Actions one Acorn Pie lasts",
+    explore_base_stamina: "Stamina per explore, before any perks",
+    explore_stamina_measured: "Stamina you really spend, as a fraction of normal (0 = use perks)",
+    plot_yield_default: "Crops harvested per seed planted",
+    rate_adjust_global: "Adjustment to the community drop rates",
+  };
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const imageUrl = (item) => item && item.img ? "https://farmrpg.com" + item.img : "";
   // Items the game has but this planner has no artwork for still need a tile.
@@ -265,7 +285,7 @@
     const playerFacing = K.rules.filter((rule) => !ENGINE_DIRECTIVE.test(rule.rule));
     const preferred = playerFacing.filter((rule) => /glass orb|acorn pie|leather|sawmill|stone|coal|ember|cider/i.test(rule.rule));
     const rules = (preferred.length ? preferred : playerFacing).slice(0, 4);
-    $("homeRules").innerHTML = rules.length ? rules.map((rule) => `<div><span>${rule.needsVerification ? "From player reports" : "Confirmed"}</span><p>${esc(rule.rule)}</p></div>`).join("") : `<p class="empty-samples">Strategy export is unavailable. Rebuild data/knowledge.js.</p>`;
+    $("homeRules").innerHTML = rules.length ? rules.map((rule) => `<div><span>${rule.needsVerification ? "Needs your own numbers" : "Confirmed"}</span><p>${esc(rule.rule)}</p></div>`).join("") : `<p class="empty-samples">No route notes to show yet.</p>`;
   }
 
   $("itemOptions").innerHTML = D.items.items.filter((item) => item.active).map((item) => `<option value="${esc(item.name)}"></option>`).join("");
@@ -669,7 +689,7 @@
     if (farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
     if (vendor) return vendor;
     if (trade) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
-    return { type: "unknown", label: "Review manually", detail: "No trusted acquisition route in the snapshot" };
+    return { type: "unknown", label: "Not known yet", detail: "No reliable way to get this one is recorded yet" };
   }
 
   function routeOptions(item, route, m) {
@@ -1046,7 +1066,10 @@
       if (sample.uses > 0 && sample.hides > 0) { state.acornTests.push(sample); save(); event.currentTarget.reset(); renderSetup(); render(); }
     };
 
-    $("assumptionGrid").innerHTML = Object.entries(BASE_CONSTS).filter(([, value]) => value && typeof value.v === "number").map(([key, value]) => `<label class="assumption-row ${value.verified ? "" : "unverified"}"><span><strong>${esc(key.replaceAll("_", " "))}</strong><small>${esc(value.why || "")}</small></span><input type="number" step="any" data-assumption="${esc(key)}" value="${clean(state.overrides[key] ?? value.v)}"></label>`).join("");
+    // These rows used to be titled with the raw storage key ("crop qf is
+    // reduction", "net ln base catch"), which is unreadable to anyone but the
+    // person who wrote it.
+    $("assumptionGrid").innerHTML = Object.entries(BASE_CONSTS).filter(([, value]) => value && typeof value.v === "number").map(([key, value]) => `<label class="assumption-row ${value.verified ? "" : "unverified"}"><span><strong>${esc(ASSUMPTION_LABELS[key] || key.replaceAll("_", " "))}</strong><small>${esc(value.why || "")}</small></span><input type="number" step="any" data-assumption="${esc(key)}" aria-label="${esc(ASSUMPTION_LABELS[key] || key.replaceAll("_", " "))}" value="${clean(state.overrides[key] ?? value.v)}"></label>`).join("");
     document.querySelectorAll("[data-assumption]").forEach((input) => { input.onchange = () => { state.overrides[input.dataset.assumption] = Number(input.value); save(); render(); }; });
   }
 
@@ -1408,7 +1431,7 @@
     const friendships = snapshot.friendships || [];
     const kitchen = snapshot.kitchenStats || {};
     $("accountSummary").innerHTML = [
-      ["Player", snapshot.player && snapshot.player.name || "Unknown", "local snapshot"],
+      ["Player", snapshot.player && snapshot.player.name || "Unknown", "from your import"],
       ["Tower", accountScalar(snapshot.levels.tower), "current floor"],
       ["Inventory", fmt(snapshot.inventoryStats && snapshot.inventoryStats.uniqueItems || inventory.length), snapshot.inventoryStats && snapshot.inventoryStats.totalItems ? `${fmt(snapshot.inventoryStats.totalItems)} total held` : "items captured"],
       ["Quests", fmt(questCount), "statuses captured"],
@@ -1419,7 +1442,7 @@
       ["Pets", fmt(pets.length), fmt(pets.filter((pet) => pet.species && pet.level !== null && pet.level !== undefined).length) + " identified with levels"],
       ["Friendships", fmt(friendships.length), "townsfolk levels captured"],
       ["Kitchen", kitchen.ovensOwned == null ? "Unknown" : fmt(kitchen.ovensOwned) + " ovens", kitchen.fruitPunchLeft == null ? "Fruit Punch unknown" : fmt(kitchen.fruitPunchLeft) + " Fruit Punch left"],
-      ["Unknown", fmt((snapshot.unknownFields || []).length), "fields still missing"],
+      ["Not captured", fmt((snapshot.unknownFields || []).length), "details the import could not find"],
     ].map(([label, value, note]) => `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`).join("");
     const questStats = snapshot.questStats || {};
     $("accountQuests").innerHTML = `<div class="account-kv">${questBuckets.map((key) => `<div><span>${esc(key)}</span><b>${fmt((q[key] || []).length)}</b></div>`).join("")}${questStats.requestsCompleted != null ? `<div><span>Lifetime completed</span><b>${fmt(Number(questStats.requestsCompleted))}</b></div>` : ""}${questStats.personalCompleted != null ? `<div><span>Personal completed</span><b>${fmt(Number(questStats.personalCompleted))}</b></div>` : ""}${questStats.completedListed != null ? `<div><span>Diary titles captured</span><b>${fmt(Number(questStats.completedCaptured || 0))} / ${fmt(Number(questStats.completedListed))}${questStats.completedHistoryTruncated ? " · partial" : ""}</b></div>` : ""}</div>${["active", "ready", "available"].map((key) => {
@@ -1450,7 +1473,7 @@
       return `<span class="account-item">${itemImg(item, "drop-art")}<span>${fmt(Number(reward.quantity))} ${esc(reward.name)}</span></span>`;
     }).join("") || "<span>No visible next-floor rewards.</span>"}</div>` : "<p>Tower details have not been captured yet.</p>";
     const warnings = [...(snapshot.warnings || []), ...(snapshot.unknownFields || []).map((field) => "Missing: " + field)];
-    $("accountWarnings").innerHTML = warnings.length ? warnings.slice(0, 30).map((warning) => `<p>${esc(warning)}</p>`).join("") : "<p>No warnings in this snapshot.</p>";
+    $("accountWarnings").innerHTML = warnings.length ? warnings.slice(0, 30).map((warning) => `<p>${esc(warning)}</p>`).join("") : "<p>Nothing looked wrong in what you imported.</p>";
     $("accountConsumables").innerHTML = (consumables.length || activeEffects.length) ? consumables.slice(0, 10).map(([name, entry]) => {
         const item = itemByName(name);
         return `<span>${itemImg(item, "drop-art")}<b>${fmt(Number(entry.quantity || 0))}</b><small>${esc(name)}</small></span>`;
@@ -1670,17 +1693,20 @@
   const marketCount = Object.keys(D.market.items || {}).length;
   const progressionCount = Object.keys(P.items || {}).length;
   const strategyRuleCount = Object.keys(P.routeRules || {}).length;
-  $("dataSummary").innerHTML = [["Active items", itemCount], ["Recipe rows", recipeCount], ["Gathering zones", locCount], ["Market entries", marketCount], ["Progression profiles", progressionCount], ["Experienced-player rules", strategyRuleCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
+  // Was a row of build counters (recipe rows, progression profiles, source
+  // parse status). Players don't need the shape of the database — they need to
+  // know how much of the game is covered.
+  $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
   $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser.";
 
   function renderLibrary() {
-    const counts = K.meta.counts || {};
-    const sourceStatus = K.meta.sourceStatus || {};
-    const parsed = Number(sourceStatus.parsed || 0);
-    const incomplete = Object.entries(sourceStatus).filter(([status]) => status !== "parsed").reduce((sum, [, count]) => sum + Number(count || 0), 0);
-    $("knowledgeStatus").innerHTML = `<div><span class="status-light good"></span><strong>Database integrity</strong><b>${esc(K.meta.integrity || "unknown")}</b></div><div><span class="status-light ${counts.unmatched_names ? "warn" : "good"}"></span><strong>Unresolved names</strong><b>${fmt(counts.unmatched_names || 0)}</b></div><div><span class="status-light ${counts.conflicts > 2 ? "warn" : "good"}"></span><strong>Comparable conflicts</strong><b>${fmt(counts.conflicts || 0)}</b></div><div><span class="status-light warn"></span><strong>Source coverage</strong><b>${parsed} parsed · ${incomplete} incomplete</b></div><p>${esc(K.meta.warning || "Coverage information unavailable.")}</p>`;
+    // This used to print build diagnostics — database integrity, unresolved
+    // names, "21 parsed · 24 incomplete". None of that is a player's problem.
+    // What is worth saying plainly: not every part of the game is covered.
+    const status = $("knowledgeStatus");
+    if (status) status.innerHTML = `<p>Not everything in Farm RPG is in here yet. Where a drop rate or a price has never been measured, the planner says so rather than guessing — the notes below say so and ask for your own numbers instead.</p>`;
 
-    $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs measurement</b>` : `<b class="supported">Supported</b>`}</div><p>${esc(rule.rule)}</p>${rule.confirmedBy ? `<small>Evidence: ${esc(rule.confirmedBy)}</small>` : ""}</article>`).join("") : `<div class="empty-samples">No strategy rules exported.</div>`;
+    $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs your own numbers</b>` : `<b class="supported">Confirmed</b>`}</div><p>${esc(rule.rule)}</p></article>`).join("") : `<div class="empty-samples">No route rules yet.</div>`;
 
     const mealByName = new Map(K.meals.map((meal) => [meal.name.toLowerCase(), meal]));
     $("mechanicsIndex").innerHTML = MEALS.map((meal) => {
