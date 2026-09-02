@@ -340,8 +340,9 @@
       const uses = Number(test.uses), hides = Number(test.hides);
       if (!(uses > 0 && hides > 0)) continue;
       const requiredUses = need * uses / hides;
-      const bulk = test.method === "ap" && state.meals.lemoncream ? 5
-        : test.method === "cider" && state.meals.cabbage ? 5 : 1;
+      const bulkMeal = test.method === "ap" && state.meals.lemoncream ? "Lemon Cream Pie"
+        : test.method === "cider" && state.meals.cabbage ? "Cabbage Stew" : null;
+      const bulk = bulkMeal ? 5 : 1;
       const actions = requiredUses / bulk;
       const pies = Math.ceil(actions / c("acorn_pie_actions", 150));
       let fullRouteGoldEq = null;
@@ -368,10 +369,10 @@
       const incrementalGoldEq = pieQuote && pieQuote.best.goldEq != null ? pieQuote.best.goldEq : null;
       plans.push({
         type: "acorn", method: test.method, location: test.location, uses: requiredUses,
-        actions, pies, goldEq: incrementalGoldEq, fullRouteGoldEq, extra, overlay: true,
+        actions, pies, bulk, bulkMeal, goldEq: incrementalGoldEq, fullRouteGoldEq, extra, overlay: true,
         confidence: { label: "Your measured sample", level: 3 }, progressionScore: 20,
         reason: "Run Acorn Pie during exploration you already need; charge Hide only for the pies, not for the underlying AP/Cider twice.",
-        detail: `Piggyback ${fmt(actions)} actions · ${fmt(pies)} Acorn Pies${incrementalGoldEq != null ? ` ≈ ${fmt(incrementalGoldEq)}g incremental` : ""}`,
+        detail: `Piggyback ${fmt(actions)} actions · ${fmt(pies)} Acorn Pies${bulkMeal ? ` · ${bulkMeal} makes 5 uses cost 1 action` : ""}${incrementalGoldEq != null ? ` ≈ ${fmt(incrementalGoldEq)} gold incremental` : ""}`,
       });
     }
     return plans.filter((plan) => plan.goldEq != null).sort((a, b) => a.goldEq - b.goldEq)[0] || plans[0] || null;
@@ -389,7 +390,9 @@
   }
 
   function decisionLabel(value) {
-    return ({ trade: "Buy/trade", farm: "Farm directly", craft: "Craft it", building: "Passive supply" })[value] || value;
+    return ({ trade: "Buy/trade", farm: "Farm directly", craft: "Craft it", building: "Passive supply",
+      acorn: "Acorn Pie overlay", explore: "Explore for it", fish: "Fish for it", crop: "Grow it",
+      vendor: "Country Store", inventory: "Use inventory" })[value] || value;
   }
 
   function winnerSentence(decision) {
@@ -729,6 +732,7 @@
     let craftSilver = E.treeCraftSilver(tree, m);
     let vendorSilver = 0, tradeGoldEq = 0, farmGoldEq = 0, rawSellValue = 0;
     let explores = 0, stamina = 0, ciders = 0, aps = 0, oj = 0, largeNets = 0, plants = 0, passiveHours = 0;
+    let acornPies = 0, acornActions = 0, acornUses = 0, acornBulk = 1, acornBulkMeal = null;
     let independentExplores = 0;
     const tradeCurrency = { gold: 0, ap: 0, oj: 0 };
     const exploreBundles = new Map();
@@ -747,6 +751,12 @@
         if (!previous || (route.explores || 0) > (previous.explores || 0)) exploreBundles.set(route.location, route);
       } else {
         if (["fish", "acorn"].includes(route.type)) farmGoldEq += route.goldEq || 0;
+        if (route.type === "acorn") {
+          acornPies += route.pies || 0;
+          acornActions += route.actions || 0;
+          acornUses += route.uses || 0;
+          if ((route.bulk || 1) > acornBulk) { acornBulk = route.bulk; acornBulkMeal = route.bulkMeal; }
+        }
         stamina += route.stamina || 0;
         ciders += route.method === "cider" ? route.ciders || route.uses || 0 : 0;
         aps += route.method === "ap" ? route.aps || route.uses || 0 : 0;
@@ -796,7 +806,7 @@
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
     $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">Buying is cheapest for ${fmt(cashBuyCount)} craftable inputs. Farming may be worth it for ${fmt(progressionFarmCount)} inputs because the same run also helps masteries, quests, or useful drops.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
-    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("OJ-equivalent", fmt(oj))}${metric("Large Nets", fmt(largeNets))}${metric("Crop plants", fmt(plants))}<p class="route-note">Routes at the same location share one exploration run; the largest requirement covers the smaller co-drops. Consumables remain valued at their current trade opportunity.</p>`;
+    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${metric("Explores / stamina", `${fmt(explores)} / ${fmt(stamina)}`)}${metric("Cider / AP", `${fmt(ciders)} / ${fmt(aps)}`)}${metric("OJ-equivalent", fmt(oj))}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${metric("Large Nets", fmt(largeNets))}${metric("Crop plants", fmt(plants))}<p class="route-note">Routes at the same location share one exploration run; the largest requirement covers the smaller co-drops. Consumables remain valued at their current trade opportunity.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
     $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Direct acquisition</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("Gold-equivalent", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
 
     if (coveredRows.length) {

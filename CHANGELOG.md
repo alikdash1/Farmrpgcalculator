@@ -57,3 +57,20 @@ entirely.
   decision before merging.
 - Archived the original Codex transcript to `docs/history/` so no future
   session ever re-fetches the ChatGPT share link.
+- Added an **Exploring drink** control (Auto / Apple Cider / Arnold Palmer).
+  The engine had been auto-picking whichever was cheaper in gold, so an AP
+  player could never see their own numbers, and the volatile AP price made
+  the pick flip between runs. Persisted as `frpg_drink_path_v1`.
+- **Acorn Pie is now a visible cost.** The pie count shows as a line item
+  next to Explores/stamina and Cider/AP, and the note spells out uses →
+  action charges → pies, including the ÷5 when Cabbage Stew or Lemon Cream
+  Pie is active. Verified: Hide ×100k on a 100-uses→250-Hide sample gives
+  40k uses = 40k charges = 267 pies; with Cabbage Stew, 8k charges = 54 pies.
+- Turning Acorn Pie on with no saved samples used to change nothing and say
+  nothing, because `acornPlan()` bails without a measured sample. It now
+  explains that and links to the Field lab.
+- Route labels no longer leak internal type names ("acorn" → "Acorn Pie
+  overlay"; also explore/fish/crop/vendor/inventory).
+- Added `build/bundle.py`, which inlines the whole site into one file so it
+  can be rendered and driven headlessly. Both bugs above were found this way,
+  not by reading source.
