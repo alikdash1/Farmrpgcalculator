@@ -203,3 +203,33 @@ Everything below was driven by the user watching the live site and reacting.
 - Tower floors annotated `itemsAre: "rewards"`; the 2× silver discrepancy at
   T276 is recorded, not applied — one data point does not justify rewriting 40
   rows if the multiplier turns out to be band-dependent.
+
+## 2026-09-03 (later) — Threw out the dark theme; built the almanac
+
+The indigo/copper dark theme still read as an AI dark-mode template — the user
+rejected both it and the fonts outright ("looks soooo vibe coded even the
+fonts"). Rather than guess a fourth palette, I put three real directions on one
+style board (graph-paper worksheet / phosphor terminal / printed almanac) and,
+when asked to decide, committed to the **almanac**: the one that reads as
+actually being about farming instead of another dark app.
+
+- **Light, warm-paper theme.** The whole app was dark-first; the tokens in
+  `style.css :root` now define a printed-almanac palette — warm paper ground,
+  ink text, rust figures (`--gold` #a63a20), forest-green state. A stray second
+  `:root` in `v3.css` was still redefining the palette dark and overriding the
+  theme; removed it. All the dark panel and hairline tints across the five
+  stylesheets were remapped to kraft, and the white-on-dark hover washes to
+  ink-on-paper.
+- **Item tiles stay dark on purpose.** Farm RPG sprites are drawn for dark
+  grounds, so the tiles became dark "specimen wells" pressed into the paper —
+  the sprites read, and it suits the almanac.
+- **New type, one job each:** Bevan (woodtype) for the big headings only,
+  Bitter (serif) for reading and for the chrome, Courier Prime (typewriter) for
+  every figure and label. The woodtype is a feature, not the body face.
+- **Corrections live in `system.css`** in one clearly-commented block so the
+  five underlying stylesheets stay dark-authored and the theme stays in one
+  place — masthead kraft band, dark stamp panels (goal ticket, data cards) with
+  cream inputs so typed values stay readable, notice slip, focus ring.
+- Verified on Home, Calculate (Giant Squid ×1m), Mining (Highland Hollow
+  opened), Setup and mobile: no console errors, no horizontal overflow, tests
+  40/40.
