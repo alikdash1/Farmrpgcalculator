@@ -124,3 +124,19 @@ Specific items:
 - Update `CHANGELOG.md` and this file at the end of any real work session so
   the next session (any AI) doesn't have to re-read the whole chat history
   to know what happened.
+
+## Still open after 2026-09-03
+
+- **`publish/` has none of the 2026-09-03 work** — player-chosen routes, the
+  Mining page, the new palette and typefaces all live only in the root copy.
+- **59 workbook drops and 2 locations** (Gary's Crushroom, Sinking Swamp) are
+  in `data/workbook-rates.js` but not in `data/data.js`.
+- **Large Net base catch: 400 in our data, 500 in the workbook.** 250 base +
+  150 Reinforced Netting + 100 Trigon Knot = 500, which matches the workbook
+  exactly, so the workbook figure is fully-perked. Changing
+  `net_ln_base_catch` moves every fishing number — needs a decision.
+- **Tower silver may be 2× low.** T276 is the only confirmed data point.
+- **Mining items dead-end in the calculator** — the planner's route index has
+  no mining locations, so a mine drop cannot be costed yet.
+- **No `hashchange` listener.** `showTab` uses `replaceState`, so the browser
+  Back button leaves the site instead of returning to the previous tab.
