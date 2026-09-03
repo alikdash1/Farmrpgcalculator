@@ -310,3 +310,16 @@ neutral dark cards, green for the next floor / active state / progress fill,
 `var(--text)` for figures, muted for the "X left" amounts and labels. Dropped the
 tilt and offset shadows and calmed the oversized "Your Road to T340" heading to
 the site's scale. Quests was already on-theme.
+
+## 2026-09-03 (tower requirements) — Real floor requirements from the wiki
+
+The Tower cost section used to show each floor's reward items and a silver price
+(buddy figures we already suspected were 2x off), which the user had said were
+rewards, not requirements. Replaced it with the actual requirements from the
+official Tower MM wiki (farmrpg.com/#!/wiki.php?page=Tower+MM): for T300–T340,
+the Grand Masteries and Mega Masteries you must already hold, each with its
+picture pulled straight from the wiki so it shows regardless of local data.
+Silver is gone. The wiki's table ends at T340, so there is no T341–T350 to show.
+`data/tower-floors.js` is now `[floor, gms[], mms[]]`; the render groups the two
+and drops the silver/AK/reward lines; headings updated ("Every Floor, and What
+It Needs").

@@ -119,8 +119,12 @@
 .tower-cost-mark span,
 .tower-cost-mark small { display: block; color: var(--muted); }
 .tower-cost-mark strong { display: block; margin: 3px 0; font-size: 1.45rem; }
-.tower-cost-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; }
-.tower-cost-item { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.tower-need { padding: 12px; display: grid; gap: 10px; }
+.tower-need-grp { display: grid; gap: 6px; }
+.tower-need-grp .tower-reward-label { display: block; }
+.tower-cost-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.tower-need .tower-cost-items { padding: 0; }
+.tower-cost-item { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 3px 8px 3px 4px; border: 1px solid var(--line); border-radius: 6px; }
 .tower-cost-item img { flex: none; object-fit: contain; }
 .tower-cost-item span { min-width: 0; }
 .tower-cost-item b,

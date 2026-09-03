@@ -1,61 +1,66 @@
-// Per floor: [floor, silverB, minMM, rewards[]].
+// Per floor: [floor, gms[], mms[]] — the masteries you must ALREADY HOLD to
+// unlock that floor. gms are the Grand Masteries required, mms the Mega
+// Masteries required. Each entry is [name, image URL].
 //
-// The item list is what a floor PAYS OUT, not what it asks for. The game shows
-// it under "Level Rewards:" and buddy.farm lists Silver among those items on
-// some floors, which only makes sense as a reward. What a floor actually costs
-// is the Silver, 100 Ascension Knowledge, and holding that floor's named Mega
-// Masteries.
+// Source: the official Farm RPG "Tower MM" wiki
+// (https://farmrpg.com/#!/wiki.php?page=Tower+MM), read 2026-09-03. The wiki's
+// floor table ends at T340, so there is no T341–T350 data to show. Silver cost
+// is intentionally not listed here — this file is about what a floor requires,
+// not what it costs in silver.
 //
-// silverB is buddy.farm's figure. The player's own Tower capture of
-// 2026-08-26 read "Level 276 - Cost: 100 AK - 82.80 B Silver" where buddy.farm
-// says 41.4B for the same level: exactly 2x. If that holds, every figure here
-// is half the live cost. Left as captured, and flagged, rather than doubled on
-// one data point - confirm against a second floor before scaling.
+// Floor 300 comes from the wiki's 201–300 table (a single "Mega Masteries
+// Needed" column); 301–340 come from its 301–340 table, which splits the
+// requirement into "GMs Required" and "MMs Required".
 window.FRPG_TOWER_FLOORS = {
-  updated: "2026-09-02",
-  source: "https://buddy.farm/tower/",
-  itemsAre: "rewards",
-  silverNote: "buddy.farm figures; player's 2026-08-26 game capture read 2x this at T276",
+  updated: "2026-09-03",
+  source: "https://farmrpg.com/#!/wiki.php?page=Tower+MM",
+  itemsAre: "requirements",
+  note: "Masteries you must already hold to unlock each floor. From the official Tower MM wiki, which lists floors up to T340. Silver cost omitted on purpose.",
   floors: [
-    [301,60.2,51,[['Arnold Palmer',3010],['Cranberry Juice',3],['Gold',300]]],
-    [302,60.4,51,[['Large Net',3020],['Treasure Key',3020],['Large Chest 01',3020]]],
-    [303,60.6,51,[['Runestone 11',3030],['Runestone 12',3030],['Runestone 13',3030]]],
-    [304,60.8,51,[['Mega Beet Seeds',304],['Mega Cotton Seeds',304],['Mega Sunflower Seeds',304]]],
-    [305,61.0,52,[['Apple Cider',3050],['Acorn Pie',30],['Lemon Cream Pie',30]]],
-    [306,61.2,52,[['Travel Voucher',3],['Prune Juice',3],['Cranberry Juice',3]]],
-    [307,61.4,52,[['Caterpillar',3070],['Spider',3070],['Machine Press',3070]]],
-    [308,61.6,52,[['Grapes',3080],['Wine',3080],['Grape Juice',308]]],
-    [309,61.8,53,[['Mystical Chest 01',3090],['Jade',3090],['Spooky Pie',3]]],
-    [310,62.0,53,[['Arnold Palmer',3100],['Apple Cider',3100],['Heart-shaped Gem',3]]],
-    [311,62.2,53,[['Cranberry Juice',3],['Black Dye',3110],['White Dye',3110]]],
-    [312,62.4,53,[['Gold Leaf',3120],['Gold Feather',3120],['Large Net',3120]]],
-    [313,62.6,54,[['Runestone 13',3130],['Runestone 14',3130],['Runestone 15',3130]]],
-    [314,62.8,54,[['Void Bag 01',314],['Arnold Palmer',3140],['Apple Pie',3]]],
-    [315,63.0,54,[['Apple Cider',3150],['Orange Juice',3150],['Small Chest 01',3150]]],
-    [316,63.2,54,[['Acorn Pie',31],['Lemon Seltzer',15],['Small Chest 02',3160]]],
-    [317,63.4,55,[['Cranberry Juice',3],['Buddy Doll',31],['Bananas',3]]],
-    [318,63.6,55,[['Silk',3180],['Machine Press',3180],["Re'taw",3180]]],
-    [319,63.8,55,[['Large Chest 02',3190],['Medium Chest 02',3190],['Small Chest 02',3190]]],
-    [320,64.0,55,[['Arnold Palmer',3200],['Apple Cider',3200],['Time Egg',3]]],
-    [321,64.2,56,[['Apple',3210],['Orange',3210],['Lemon',3210]]],
-    [322,64.4,56,[['Bacon',3220],['Borgen Buck',32],['Glacierstone',3220]]],
-    [323,64.6,56,[['Runestone 16',3230],['Runestone 17',3230],['Runestone 18',3230]]],
-    [324,64.8,56,[['Arnold Palmer',3240],['Prune Juice',3],['Cabbage Stew',32]]],
-    [325,65.0,57,[['Birthday Surprise Box 03',1],['Birthday Surprise Box 04',1],['Maverick Chip',3]]],
-    [326,65.2,57,[['Apple Cider',3260],['Cranberry Juice',3],['Large Chest 03',3260]]],
-    [327,65.4,57,[['Small Key',3270],['Square Key',3270],['Treasure Key',3270]]],
-    [328,65.6,57,[['Arnold Palmer',3280],['Grab Bag 06',328],['Apple Turnover',3]]],
-    [329,65.8,58,[['Mega Beet Seeds',329],['Mega Cotton Seeds',329],['Mega Sunflower Seeds',329]]],
-    [330,66.0,58,[['Heart Container',3],['Apple Cider',3300],['Heart-shaped Gem',3]]],
-    [331,66.2,58,[['Travel Voucher',3],['Apple Pie',3],['Spooky Pie',3]]],
-    [332,66.4,58,[['Lovely Cookies',33],['Spooky Cookies',33],['Happy Cookies',33]]],
-    [333,66.6,59,[['Runestone 19',3333],['Runestone 20',3333],['Runestone 01',3333]]],
-    [334,66.8,59,[['Apple Cider',3340],['Gold Carrot Seeds',3340],['Gold Pepper Seeds',3340]]],
-    [335,67.0,59,[['Arnold Palmer',3350],['Lava Sphere',3350],['Inferno Sphere',3350]]],
-    [336,67.2,59,[['Medium Chest 03',3360],['Rubber Duckie',3360],['Spring Seeds',3360]]],
-    [337,67.4,60,[['Crunchy Omelette',33],['Flywheel',3370],['Small Screw',3370]]],
-    [338,67.6,60,[['4-leaf Clover',3380],['Large Net',3380],['Cheese',3380]]],
-    [339,67.8,60,[['Arnold Palmer',3390],['Cranberry Juice',3],['Acorn Pie',33]]],
-    [340,68.0,60,[['Apple Cider',3400],['Orange Juice',3400],['Orange Gecko',3400]]]
-  ].map(([floor,silverB,minMM,items]) => ({floor,silverB,minMM,ak:100,items:items.map(([name,quantity]) => ({name,quantity}))}))
+    [300,[],[['Wizard Hat','https://farmrpg.com/img/items/4798.png'],['Sewing Needle','https://farmrpg.com/img/items/needle.png'],['Water Lily','https://farmrpg.com/img/items/3258.png']]],
+    [301,[['Corn Oil','https://farmrpg.com/img/items/cornoil.png'],['Cotton','https://farmrpg.com/img/items/8311.png'],['Basic Pillow','https://farmrpg.com/img/items/basicpillow.png']],[]],
+    [302,[],[['Slimeback','https://farmrpg.com/img/items/slimeback.png'],['Splatfish','https://farmrpg.com/img/items/splatterfish.png'],['Magenta Growth','https://farmrpg.com/img/items/afk_8827.png']]],
+    [303,[],[['Boghead Snapper','https://farmrpg.com/img/items/afk_8800.png'],['Bog Barnacle','https://farmrpg.com/img/items/382.png'],['Slime Egg Shell','https://farmrpg.com/img/items/afk_8847.png']]],
+    [304,[['Leather Belt','https://farmrpg.com/img/items/finp_705.png'],['Brown Dye','https://farmrpg.com/img/items/browndye.png'],['Oak Table','https://farmrpg.com/img/items/Oak_table_.png']],[]],
+    [305,[['Yellow Dye','https://farmrpg.com/img/items/yellowdye.png'],['Canoe','https://farmrpg.com/img/items/554.png'],['Gold Ruby Ring','https://farmrpg.com/img/items/goldrubyring.png']],[]],
+    [306,[['Crown of Clover','https://farmrpg.com/img/items/Crownofclover.png'],['Cloth','https://farmrpg.com/img/items/690.png'],['Yellow Shirt','https://farmrpg.com/img/items/yellowshirt.png']],[]],
+    [307,[['Orange Scarf','https://farmrpg.com/img/items/orangescarf.png'],['Crab Claw','https://farmrpg.com/img/items/crabclaw.png'],['White Dye','https://farmrpg.com/img/items/whitedye.png']],[]],
+    [308,[['Veggie Juice','https://farmrpg.com/img/items/8879.png'],['Bamboo Rope','https://farmrpg.com/img/items/rope_t_01.png']],[['Glass Eye Urchin','https://farmrpg.com/img/items/afk_8843.png']]],
+    [309,[['Tin Scraps','https://farmrpg.com/img/items/tinscraps.png'],['Bamboo Trellis','https://farmrpg.com/img/items/bambootrellis.png'],['Silk','https://farmrpg.com/img/items/silk.png']],[]],
+    [310,[['Tie Dye Scarf','https://farmrpg.com/img/items/tiedyescarf2.png'],['Gazebo','https://farmrpg.com/img/items/Gazebo.png'],['Gold Garnet Ring','https://farmrpg.com/img/items/goldgarnetring.png']],[]],
+    [311,[['Bamboo Chair','https://farmrpg.com/img/items/bamboochair.png'],['Barbed Wire','https://farmrpg.com/img/items/barbedwire.png']],[]],
+    [312,[['Yellow Scarf','https://farmrpg.com/img/items/yellowscarf.png'],['Fire Ant Farm','https://farmrpg.com/img/items/antfarm.png?1']],[]],
+    [313,[['Step Ladder','https://farmrpg.com/img/items/211.png'],['Orange Shirt','https://farmrpg.com/img/items/orangeshirt.png']],[]],
+    [314,[['Energy Coil','https://farmrpg.com/img/items/9379b.png'],['Black Dye','https://farmrpg.com/img/items/blackdye.png']],[]],
+    [315,[['Reinforced Helmet','https://farmrpg.com/img/items/9096.png'],['Gold Lemon Quartz Ring','https://farmrpg.com/img/items/goldlqring.png'],['Steel Vise','https://farmrpg.com/img/items/199.png']],[]],
+    [316,[['Yellow Bag','https://farmrpg.com/img/items/yellowbag.png'],['Leather Helmet','https://farmrpg.com/img/items/afk_9140.png']],[]],
+    [317,[['Gold Aquamarine Ring','https://farmrpg.com/img/items/goldaqring.png'],['Handsaw','https://farmrpg.com/img/items/3149.png']],[]],
+    [318,[['Yellow Butterfly','https://farmrpg.com/img/items/yellowbutterfly.png'],['Acorn Butter','https://farmrpg.com/img/items/Acorn_butter.png']],[]],
+    [319,[['Strong Paste','https://farmrpg.com/img/items/strongpaste.png']],[['Spoon','https://farmrpg.com/img/items/2473.png']]],
+    [320,[['Corn Husk Doll','https://farmrpg.com/img/items/856.png']],[['Blubberfish','https://farmrpg.com/img/items/finp_415.png'],['Reaver Claw','https://farmrpg.com/img/items/293.png']]],
+    [321,[],[['Green Diary','https://farmrpg.com/img/items/greenbook.png'],['Sturdy Bow','https://farmrpg.com/img/items/4765.png']]],
+    [322,[['Power Monitor','https://farmrpg.com/img/items/9314.png'],['Bamboo Fence','https://farmrpg.com/img/items/bamboofence.png']],[]],
+    [323,[['Spiked Shell','https://farmrpg.com/img/items/spikey.png'],['Black Scarf','https://farmrpg.com/img/items/blackscarf.png']],[]],
+    [324,[['Spool of Copper','https://farmrpg.com/img/items/9324.png']],[['Red Twine','https://farmrpg.com/img/items/1621.png']]],
+    [325,[],[['Cloth','https://farmrpg.com/img/items/690.png'],['Gold Ring','https://farmrpg.com/img/items/goldring.png'],['Tin Scraps','https://farmrpg.com/img/items/tinscraps.png']]],
+    [326,[['Red Shirt','https://farmrpg.com/img/items/redshirt.png'],['Black Shirt','https://farmrpg.com/img/items/blackshirt.png']],[]],
+    [327,[['Propeller Hat','https://farmrpg.com/img/items/Propeller_hat.png']],[['Blue Twine','https://farmrpg.com/img/items/bluetwine.png']]],
+    [328,[['Wine','https://farmrpg.com/img/items/wine.png']],[['Sunflower','https://farmrpg.com/img/items/sunflower.png']]],
+    [329,[['Pair of Boots','https://farmrpg.com/img/items/pboot2.png'],['Black Twine','https://farmrpg.com/img/items/blacktwine.png']],[]],
+    [330,[['Red Diary','https://farmrpg.com/img/items/reddiary.png'],['White Twine','https://farmrpg.com/img/items/whitetwine.png'],['Magus Hat','https://farmrpg.com/img/items/5404.png']],[]],
+    [331,[['Runestone 04','https://farmrpg.com/img/items/rs4.png'],['Orange Twine','https://farmrpg.com/img/items/orangetwine.png']],[]],
+    [332,[['Kill Switch','https://farmrpg.com/img/items/9311.png']],[['Linked Lantern','https://farmrpg.com/img/items/mlantern.png?1']]],
+    [333,[['Brown Cloak','https://farmrpg.com/img/items/browncloak.png'],['Glowing Lantern','https://farmrpg.com/img/items/glowinglantern.png']],[]],
+    [334,[['Grand Piano','https://farmrpg.com/img/items/piano.png']],[['Oak Table','https://farmrpg.com/img/items/Oak_table_.png']]],
+    [335,[['Red Brick','https://farmrpg.com/img/items/redbrick2.png']],[['Iced Tea','https://farmrpg.com/img/items/tea.png'],['Leather Belt','https://farmrpg.com/img/items/finp_705.png']]],
+    [336,[['Yellow Twine','https://farmrpg.com/img/items/yellowtwine.png'],['Black Bag','https://farmrpg.com/img/items/blackbag.png']],[['Seaweed','https://farmrpg.com/img/items/fishing_75_t.png']]],
+    [337,[['White Scarf','https://farmrpg.com/img/items/whitescarf.png'],['Orange Dye','https://farmrpg.com/img/items/orangedye.png']],[['Purple Twine','https://farmrpg.com/img/items/purpletwine.png']]],
+    [338,[['Frost Shield','https://farmrpg.com/img/items/frostshield.png?1'],['Mayonnaise','https://farmrpg.com/img/items/mayo.png']],[['Orange Scarf','https://farmrpg.com/img/items/orangescarf.png']]],
+    [339,[['Black Purse','https://farmrpg.com/img/items/blackpurse.png'],['Fancy Violin','https://farmrpg.com/img/items/finp_618.png?1'],['Brown Bag','https://farmrpg.com/img/items/brownbag.png']],[]],
+    [340,[['White Purse','https://farmrpg.com/img/items/whitepurse.png']],[['Yellow Dye','https://farmrpg.com/img/items/yellowdye.png'],['Purple Diary','https://farmrpg.com/img/items/purplebook.png']]]
+  ].map(([floor, gms, mms]) => ({
+    floor,
+    gms: gms.map(([name, img]) => ({ name, img })),
+    mms: mms.map(([name, img]) => ({ name, img })),
+  })),
 };

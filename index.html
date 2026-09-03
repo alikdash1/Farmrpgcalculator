@@ -10,9 +10,9 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="style.css?v=20260903-40">
   <link rel="stylesheet" href="v3.css?v=20260903-60">
-  <link rel="stylesheet" href="tower.css?v=20260903-40">
+  <link rel="stylesheet" href="tower.css?v=20260903-41">
   <link rel="stylesheet" href="mining.css?v=20260903-42">
-  <link rel="stylesheet" href="quests.css?v=20260902-30">
+  <link rel="stylesheet" href="quests.css?v=20260902-40">
   <link rel="stylesheet" href="system.css?v=20260903-40">
 </head>
 <body>
@@ -53,7 +53,7 @@
       <section class="desk-drawers" aria-label="Planner work areas">
         <button class="desk-drawer featured" data-open-view="planner"><span class="drawer-code">CALC</span><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
         <button class="desk-drawer" data-open-view="setup"><span class="drawer-code">FARM</span><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
-        <button class="desk-drawer" data-open-view="tower"><span class="drawer-code">T340</span><strong>Tower ledger</strong><p>Your Mega Masteries and every floor cost through T340.</p><span class="drawer-action">Open Tower ledger →</span></button>
+        <button class="desk-drawer" data-open-view="tower"><span class="drawer-code">T340</span><strong>Tower ledger</strong><p>Your Mega Masteries, and what every floor from T300 to T340 requires.</p><span class="drawer-action">Open Tower ledger →</span></button>
         <button class="desk-drawer" data-open-view="quests"><span class="drawer-code">QUEST</span><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="mining"><span class="drawer-code">MINE</span><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
       </section>
@@ -144,7 +144,7 @@
         <div class="tower-ledger-copy">
           <span class="eyebrow">Personal Tower ledger</span>
           <h1>Your Road to T340.</h1>
-          <p>See your named Mega Mastery goals first, then the exact cost of every floor from T301 to T340.</p>
+          <p>See your named Mega Mastery goals first, then the masteries every floor from T300 to T340 requires.</p>
         </div>
         <div class="tower-next-stamp"><span>Next floor</span><strong id="towerNextFloor">T277</strong><small id="towerCaptureAge">Saved account data</small></div>
       </section>
@@ -157,7 +157,7 @@
       <section class="tower-legend"><span><i class="tower-dot next"></i>Next blocker</span><span><i class="tower-dot work"></i>Still needed</span><span><i class="tower-dot done"></i>MM complete</span><b>MM = 1,000,000</b></section>
       <section id="towerRail" class="tower-rail"></section>
       <section class="tower-costs">
-        <div class="tower-costs-head"><div><span class="eyebrow">T301–T340</span><h2>Every Floor, and What It Pays</h2><p>To unlock a floor you pay its Silver and 100 Ascension Knowledge, and you must already hold that floor’s named Mega Masteries. The items are what the floor hands back when you unlock it — you do not need to bring them.</p></div><small class="tower-data-note">Updated September 2026</small></div>
+        <div class="tower-costs-head"><div><span class="eyebrow">T300–T340</span><h2>Every Floor, and What It Needs</h2><p>To unlock a floor you must already hold these masteries — the Grand Masteries and Mega Masteries shown for it. Straight from the official Tower MM wiki, which lists floors up to T340.</p></div><small class="tower-data-note">Tower MM wiki · September 2026</small></div>
         <section id="towerCostGrid" class="tower-cost-grid"></section>
       </section>
     </section>
@@ -224,7 +224,7 @@
   <script src="data/data.js?v=20260903-2"></script>
   <script src="data/knowledge.js?v=20260902-9"></script>
   <script src="data/personal-tower.js?v=20260902-1"></script>
-  <script src="data/tower-floors.js?v=20260902-1"></script>
+  <script src="data/tower-floors.js?v=20260903-2"></script>
   <script src="data/main-quests.js?v=20260902-1"></script>
   <script src="data/location-intel.js?v=20260901-2"></script>
   <script src="data/new-items.js?v=20260831-1"></script>
@@ -237,7 +237,7 @@
   <script src="collectors/account-importer/shared/schema.js"></script>
   <script src="collectors/account-importer/shared/merge.js"></script>
   <script src="engine.js"></script>
-  <script src="app.js?v=20260903-21"></script>
+  <script src="app.js?v=20260903-50"></script>
   <script src="mining-page.js?v=20260903-7"></script>
   <script src="quests-page.js?v=20260903-1"></script>
 </body>

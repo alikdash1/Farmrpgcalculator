@@ -1913,7 +1913,7 @@
     const namedTop = rows.length ? rows[rows.length - 1].floor : start;
     $("towerSummary").innerHTML = [
       ["Masteries still to finish", `${unfinished.length} / ${rows.length}`, `named goals up to T${namedTop}`],
-      ["Floors priced", String(TOWER_FLOORS.floors.length), "T301 through T340"],
+      ["Floor requirements", String(TOWER_FLOORS.floors.length), "T300 through T340"],
       ["Still to make or catch", fmt(remaining), "items across every unfinished mastery"],
       ["Already at Mega Mastery", String(rows.length - unfinished.length), `of ${rows.length} in this range`],
     ].map(([label, value, note]) => `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`).join("");
@@ -1935,11 +1935,14 @@
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
-    const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(301, start) && row.floor <= goal);
+    const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(300, start) && row.floor <= goal);
     const costGrid = $("towerCostGrid");
-    // Silver + AK + the named Mega Masteries are what a floor costs. The item
-    // list is what it pays out — the game prints it under "Level Rewards:".
-    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small class="tower-pay">You pay</small><small>${fmt(row.silverB)}b Silver</small><small>${fmt(row.ak)} AK</small><small>${fmt(row.minMM)} Mega Masteries held</small></div><div class="tower-cost-items"><span class="tower-reward-label">You get</span>${row.items.map((entry) => { const item = itemByName(entry.name); return `<div class="tower-cost-item">${itemImg(item, "tower-art", entry.name)}<span><b>${esc(entry.name)}</b><small>${fmt(entry.quantity)}</small></span></div>`; }).join("")}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T301–T340 floors in this filter.</strong><span>Set “Start at floor” to 301 or lower.</span></div>`;
+    // What a floor REQUIRES: the Grand and Mega Masteries you must already hold,
+    // straight from the official Tower MM wiki. Pictures come from the wiki so
+    // they show even for items the planner has no data for. Silver is not shown.
+    const reqPic = (entry) => `<div class="tower-cost-item"><span class="item-art tower-art"><img loading="lazy" width="46" height="46" referrerpolicy="no-referrer" src="${esc(entry.img)}" alt="${esc(entry.name)}"></span><span><b>${esc(entry.name)}</b></span></div>`;
+    const reqGroup = (label, list) => list && list.length ? `<div class="tower-need-grp"><span class="tower-reward-label">${label}</span><div class="tower-cost-items">${list.map(reqPic).join("")}</div></div>` : "";
+    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small class="tower-pay">Must hold</small></div><div class="tower-need">${reqGroup("Grand Masteries", row.gms)}${reqGroup("Mega Masteries", row.mms)}${row.gms.length || row.mms.length ? "" : `<span class="tower-noplan">No requirement listed</span>`}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T300–T340 floors in this filter.</strong><span>Set “Start at floor” to 300 or lower.</span></div>`;
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
