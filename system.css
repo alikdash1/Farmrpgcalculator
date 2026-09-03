@@ -32,12 +32,13 @@
   --s5: 24px;
   --s6: 32px;
 
-  /* state, promoted from the existing palette rather than invented */
-  --on: #4d6d38;
-  --on-dim: rgba(77, 109, 56, .55);
-  --on-wash: rgba(77, 109, 56, .12);
+  /* state = the green accent */
+  --on: var(--green);
+  --on-dim: rgba(92, 192, 141, .5);
+  --on-wash: rgba(92, 192, 141, .12);
 
-  --rule: rgba(60, 48, 20, .16);
+  /* hairline that reads on a dark ground */
+  --rule: rgba(255, 255, 255, .09);
 
   /* three voices, one job each */
   --display: var(--ui);
@@ -171,7 +172,7 @@
 .mine-craft-head b { color: var(--text); font-weight: 600; }
 .mine-onward-craft { border-left-color: var(--rule); }
 .mine-card-kit { font-size: .62rem; }
-.mine-item { background: #fff; }
+.mine-item { background: var(--ink2); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -269,7 +270,7 @@ h3 { font-size: 18px; }
 
 /* Masthead: white, ruled off the page. */
 .masthead {
-  background: rgba(255, 255, 255, .92) !important;
+  background: rgba(21, 22, 25, .9) !important;
   border-bottom: 1px solid var(--line) !important;
 }
 .brand-mark { background: var(--green); color: #fff; box-shadow: none; transform: none; }
@@ -282,7 +283,7 @@ h3 { font-size: 18px; }
 .goal-controls .field > span, .data-card span, .sample-form label { color: var(--muted); }
 .goal-controls input, .sample-form input, .sample-form select,
 .mini-field input, .owned, .suggest, .sg, .field input {
-  background: #fff;
+  background: var(--field);
   color: var(--text);
   border-color: var(--line);
 }
@@ -328,7 +329,7 @@ h3 { font-size: 18px; }
 .meal-chip.on, .gather-method.on, .path-pick.on,
 .quest-filters button.active, .mine-row[open] {
   border-color: var(--green) !important;
-  background: rgba(47, 125, 85, .06) !important;
+  background: rgba(92, 192, 141, .12) !important;
   box-shadow: inset 2px 0 0 var(--green);
 }
 .tab.active { border-color: var(--green); color: var(--text); }
@@ -336,7 +337,7 @@ h3 { font-size: 18px; }
 /* Hovers are the faintest neutral wash. */
 tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
 .recipe-node:hover, .sample-row:hover, .mine-item:hover {
-  background: rgba(20, 30, 20, .035) !important;
+  background: rgba(255, 255, 255, .04) !important;
 }
 .mine-row:hover, .recent-button:hover, .quest-item:hover { border-color: var(--green); }
 
@@ -344,7 +345,7 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
 .route-choice { font-weight: 600; }
 
 /* Notice slip. */
-.notice { background: #fdeceb; color: #8a2a20; border-left-color: var(--red); }
+.notice { background: rgba(224,119,106,.12); color: #f0b3aa; border-left-color: var(--red); }
 
 /* Focus ring. */
 :where(a, button, select, input, textarea, summary, label, [tabindex]):focus-visible {

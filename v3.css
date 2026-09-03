@@ -141,7 +141,7 @@
   padding: .8rem 1rem;
   border: 1px solid var(--line);
   color: var(--text);
-  background: #fff;
+  background: var(--ink2);
   text-align: left;
 }
 .recent-button > span { grid-column: 1 / -1; color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; }

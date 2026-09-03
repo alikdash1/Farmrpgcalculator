@@ -282,3 +282,20 @@ Applied the principle rather than copying the site:
   link, green rule on the featured one).
 
 No horizontal overflow, tests 40/40.
+
+## 2026-09-03 (dark + mining) — Dark theme, and mining recipes go sideways
+
+- **Dark theme, keeping the calm rules.** Flipped the tokens to a near-black
+  ground (#151619) with light text, soft hairlines and the same single green
+  accent — not a return to the old busy dark. The hard-coded whites (masthead,
+  inputs, cards) became variables (`--field`, `--ink2`) so the whole app actually
+  goes dark. Item pictures are still transparent, which now reads even better —
+  Farm RPG sprites are drawn for dark grounds.
+- **Mining recipes flow sideways.** Each ingredient was a full-width row with a
+  source sub-line, so a craft like Stained Glass Art (17 parts) became an endless
+  column, made worse by every drop also showing what its craft "goes into" with
+  its full recipe. Ingredients are now compact chips (icon · qty×name · source)
+  that wrap horizontally, and each drop is a full-width band so the chips have
+  room to flow. The drop itself is marked with a green chip.
+
+Tests 40/40, no console errors.
