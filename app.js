@@ -70,6 +70,23 @@
     rate_adjust_global: "Adjustment to the community drop rates",
   };
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
+  // The 2023 item export has no artwork for newer items, but the release
+  // catalogue in data/new-items.js often does. Look there before giving up and
+  // drawing a letter tile.
+  const catalogueArt = (() => {
+    const map = new Map();
+    const cat = window.FRPG_NEW_ITEMS;
+    if (!cat) return map;
+    const conn = cat.connected ? (Array.isArray(cat.connected) ? cat.connected : Object.values(cat.connected)) : [];
+    for (const row of [...(cat.items || []), ...conn]) {
+      if (row && row.name && row.image) map.set(String(row.name).toLowerCase(), row.image);
+    }
+    return map;
+  })();
+  const artFallback = (item, fallbackName) => {
+    const name = String((item && item.name) || fallbackName || "").toLowerCase();
+    return name ? catalogueArt.get(name) || "" : "";
+  };
   const imageUrl = (item) => item && item.img ? "https://farmrpg.com" + item.img : "";
   // Items the game has but this planner has no artwork for still need a tile.
   // A bare "?" reads as a broken image, so fall back to the item's initial.
@@ -77,9 +94,23 @@
     const name = String((item && item.name) || fallbackName || "").trim();
     return name ? name[0].toUpperCase() : "·";
   };
-  const itemImg = (item, cls, fallbackName) => item && item.img
-    ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="48" height="48" referrerpolicy="no-referrer" src="${esc(imageUrl(item))}" alt=""></span>`
-    : `<span class="item-art missing-art ${cls || ""}" aria-hidden="true">${esc(artInitial(item, fallbackName))}</span>`;
+  // Every tile size declared its image as 48x48 regardless of the class it was
+  // going into, so a 23px tree tile and a 78px goal tile both claimed 48px.
+  // That is what made the art jump around and sit wrong. Declare the real box.
+  const ART_PX = { "": 42, "small": 30, "goal-art": 78, "table-art": 38, "tree-art": 23, "meal-art": 52, "drop-art": 32, "tower-art": 50, "haul-art": 26, "meal-chip-art": 24 };
+  const artPx = (cls) => {
+    for (const key of String(cls || "").split(/\s+/)) {
+      if (key && ART_PX[key]) return ART_PX[key];
+    }
+    return ART_PX[""];
+  };
+  const itemImg = (item, cls, fallbackName) => {
+    const px = artPx(cls);
+    const src = item && item.img ? imageUrl(item) : artFallback(item, fallbackName);
+    return src
+      ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="${px}" height="${px}" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(fallbackName || (item && item.name) || "")}"></span>`
+      : `<span class="item-art missing-art ${cls || ""}" aria-hidden="true">${esc(artInitial(item, fallbackName))}</span>`;
+  };
   const read = (key, fallback) => {
     try {
       const raw = localStorage.getItem(key);
@@ -109,7 +140,7 @@
     { id: "acorn", name: "Acorn Pie", img: "/img/items/acorn_pie.png", area: "Exploring special", effect: "Adds Hide outside Forest for 150 actions", calc: "Uses your own measured samples because the Hide rate changes by location and bulk method." },
     { id: "seapincher", name: "Sea Pincher Special", area: "Fishing economy", effect: "Nets and Large Nets are more effective", calc: "Uses the editable 10% community estimate for Net requirements." },
     { id: "shrimp", name: "Shrimp-a-Plenty", area: "Selling", effect: "+10% silver at Market for 5 minutes", calc: "Included in final sell value and raw-material opportunity value." },
-    { id: "mushroom", name: "Mushroom Stew", area: "Mastery only", effect: "+10% Mastery for 5 minutes", calc: "Shown for planning, but does not change material quantities." },
+    { id: "mushroom", name: "Mushroom Stew", area: "Mastery", effect: "+10% Mastery for 5 minutes", calc: "Each item counts 1.1x toward a mastery, so a 1m Mega Mastery lands at about 909.09k items." },
   ];
   const MEAL_DEFAULTS = Object.fromEntries(MEALS.map((meal) => [meal.id, false]));
 
@@ -124,6 +155,9 @@
     sourceChoices: read("frpg_sources_v2", {}),
     farmLocations: read("frpg_farm_locations_v1", {}),
     fishMethods: read("frpg_fish_methods_v1", {}),
+    drinkChoices: read("frpg_drink_choices_v1", {}),
+    buyRates: read("frpg_buy_rates_v1", {}),
+    mealStripHidden: read("frpg_meal_strip_hidden_v1", false),
     includeEvents: read("frpg_include_events_v1", false) === true,
     drinkPath: read("frpg_drink_path_v1", "auto"),
     makeChoices: read("frpg_make_v2", {}),
@@ -174,6 +208,9 @@
     localStorage.setItem("frpg_sources_v2", JSON.stringify(state.sourceChoices));
     localStorage.setItem("frpg_farm_locations_v1", JSON.stringify(state.farmLocations));
     localStorage.setItem("frpg_fish_methods_v1", JSON.stringify(state.fishMethods));
+    localStorage.setItem("frpg_drink_choices_v1", JSON.stringify(state.drinkChoices));
+    localStorage.setItem("frpg_buy_rates_v1", JSON.stringify(state.buyRates));
+    localStorage.setItem("frpg_meal_strip_hidden_v1", JSON.stringify(state.mealStripHidden));
     localStorage.setItem("frpg_include_events_v1", JSON.stringify(state.includeEvents));
     localStorage.setItem("frpg_drink_path_v1", JSON.stringify(state.drinkPath));
     localStorage.setItem("frpg_make_v2", JSON.stringify(state.makeChoices));
@@ -450,6 +487,11 @@
   }
 
   function farmPlan(item, need, m, consts) {
+    // Some items technically drop somewhere but nobody sane gathers them —
+    // Glass Bottle off Crystal River at ~1 per 68 casts, for instance. A rule
+    // with never:"farm" keeps them out of the routing entirely.
+    const noFarm = routeRule(item.name);
+    if (noFarm && noFarm.never === "farm") return null;
     if (!item || need <= 0) return null;
     const sources = E.sourcesFor(index, item.id, need, m, consts);
     if (item.name === "Hide") {
@@ -489,10 +531,10 @@
       const ojUnit = E.currencyGoldEach(index, "oj");
       const ciderGold = ciderUnit == null || ojUnit == null ? null : ciderUses * ciderUnit + oj * ojUnit;
       const apGold = apUnit == null || apUses == null ? null : apUses * apUnit;
-      const cheaperIsAp = apGold != null && (ciderGold == null || apGold < ciderGold);
-      const useAp = state.drinkPath === "ap" ? apGold != null
-        : state.drinkPath === "cider" ? false
-        : cheaperIsAp;
+      // The player picks the drink. Cider spends stamina and an Arnold Palmer
+      // does not, so there is no honest "cheaper" to pick for them.
+      const pick = state.drinkChoices[item.id];
+      const useAp = pick === "ap" ? apUses != null : false;
       const coDrops = E.coDropsFor(index, drop.location, drop.explores, item.name, P, 20);
       const prized = (P.locationNotes[drop.location] || {}).prizedCoDrops || [];
       coDrops.sort((a, b) => {
@@ -555,10 +597,19 @@
       const detailBy = method === "large" ? `${fmt(largeNets)} Large Nets`
         : method === "net" ? `${fmt(fishingNets)} Fishing Nets`
         : `${fmt(fish.catches)} casts by hand`;
+      // 250 base + 150 Reinforced Netting + 100 Trigon Knot = 500 per Large Net,
+      // which is exactly what the shared workbook quotes. Sea Pincher then adds
+      // 10% on top (community estimate, sea_pincher_bonus is verified:false).
+      const netNotes = [
+        state.enabled.has("reinforced_ln") && "Reinforced Netting",
+        state.enabled.has("trigonn") && "Trigon Knot",
+        state.meals.seapincher && "Sea Pincher",
+      ].filter(Boolean);
       return {
         type: "fish",
         location: fish.location,
         catches: fish.catches,
+        netNotes,
         method,
         largeNets,
         fishingNets,
@@ -744,6 +795,108 @@
     return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
   }
 
+  // The game will not let you mail some items, so there is no trade route for
+  // them at any price. Absence from the list means unknown, not tradeable.
+  const CANNOT_MAIL = new Set(((window.FRPG_TRADEABLE || {}).cannotMail || []).map((n) => String(n).toLowerCase()));
+  const canTrade = (item) => !!item && !CANNOT_MAIL.has(String(item.name || "").toLowerCase());
+
+  // Meals that genuinely move the numbers for this kind of run, toggleable
+  // wherever the run is shown. The Hide control collapses the row only — it
+  // never changes whether a meal is on.
+  function mealStripFor(kind) {
+    const meals = [
+      kind === "fish" && { id: "seapincher", label: "Sea Pincher Special", note: "nets catch 10% more" },
+      kind !== "fish" && { id: "quandary", label: "Quandary Chowder", note: "10% more per Arnold Palmer" },
+      kind !== "fish" && { id: "neigh", label: "Neigh", note: "Cider uses 20% less stamina" },
+      { id: "mushroom", label: "Mushroom Stew", note: "each item counts 1.1x toward a mastery" },
+    ].filter(Boolean);
+    const activeCount = meals.filter((meal) => state.meals[meal.id]).length;
+    const hidden = !!state.mealStripHidden;
+    return `<div class="gather-path meal-strip">` +
+      `<span class="meal-strip-head">Meals in these numbers<small>${activeCount} on</small>` +
+      `<button type="button" class="meal-strip-toggle" data-meal-strip aria-expanded="${!hidden}">${hidden ? "Show" : "Hide"}</button></span>` +
+      `<div class="meal-chips"${hidden ? " hidden" : ""}>` +
+      meals.map((meal) => `<label class="meal-chip${state.meals[meal.id] ? " on" : ""}" title="${esc(meal.label)} — ${esc(meal.note)}">` +
+        `<input type="checkbox" data-gather-meal="${meal.id}" ${state.meals[meal.id] ? "checked" : ""}>` +
+        `${itemImg(itemByName(meal.label), "meal-chip-art", meal.label)}` +
+        `<span class="meal-chip-name">${esc(meal.label)}</span></label>`).join("") +
+      `</div></div>`;
+  }
+
+  // What you actually pay, at your own rate. Trade prices move constantly and
+  // every player buys at a different number, so the quote is only a starting
+  // suggestion — type over it and the plan uses your figure.
+  const BUY_CURRENCIES = [["ap", "Arnold Palmer"], ["ac", "Apple Cider"], ["oj", "Orange Juice"], ["gold", "Gold"]];
+  function buyRate(item) {
+    const saved = state.buyRates[item.id];
+    if (saved && saved.perK > 0) return saved;
+    const quote = E.marketQuote(index, item.id, 1000);
+    if (quote && quote.best) {
+      const cur = quote.best.currency === "gold" ? "gold" : quote.best.currency;
+      return { perK: quote.best.rate, currency: BUY_CURRENCIES.some(([k]) => k === cur) ? cur : "ap", suggested: true };
+    }
+    return null;
+  }
+  function buyRateBlock(item, missing) {
+    if (!canTrade(item)) {
+      return `<div class="path-buy muted"><b>Or buy it</b> <small>${esc(item.name)} cannot be mailed, so there is no trade route for it.</small></div>`;
+    }
+    const rate = buyRate(item);
+    const perK = rate ? rate.perK : "";
+    const cur = rate ? rate.currency : "ap";
+    const units = rate && rate.perK > 0 ? (Math.max(1, missing) / 1000) * rate.perK : null;
+    const curName = (BUY_CURRENCIES.find(([k]) => k === cur) || [, "Arnold Palmer"])[1];
+    return `<div class="path-buy">
+      <b>Or buy it</b>
+      <span class="buy-rate">
+        <input class="buy-per-k" type="number" min="0" step="0.1" inputmode="decimal"
+               value="${perK === "" ? "" : esc(String(round2(perK)))}" placeholder="rate"
+               data-buy-id="${item.id}" aria-label="What you pay per 1,000 ${esc(item.name)}">
+        <select class="buy-cur" data-buy-cur="${item.id}" aria-label="What you pay in">
+          ${BUY_CURRENCIES.map(([k, label]) => `<option value="${k}" ${cur === k ? "selected" : ""}>${label}</option>`).join("")}
+        </select>
+        <small>per 1,000</small>
+      </span>
+      ${units != null ? `<small class="buy-total">${fmt(missing)} costs about <b>${fmt(units)} ${esc(curName)}</b>${rate.suggested ? " — quoted rate, change it to yours" : ""}</small>` : `<small class="buy-total muted">Enter what you pay and I'll total it.</small>`}
+    </div>`;
+  }
+
+  // Every way to get this one ingredient, side by side with real numbers, so
+  // the choice is the player's and nothing is hidden behind a verdict.
+  function pathChoices(item, route, missing, m) {
+    if (!route) return "";
+    // On a bought row the only thing worth showing is what you pay for it.
+    if (["trade", "vendor"].includes(route.type)) return `<div class="path-choices">${buyRateBlock(item, missing)}</div>`;
+    if (!["explore", "acorn"].includes(route.type)) return "";
+    const chosen = state.drinkChoices[item.id] === "ap" ? "ap" : "cider";
+    const perks = [
+      state.enabled.has("wanderer") && "Wanderer",
+      state.meals.neigh && "Neigh",
+    ].filter(Boolean);
+    const staminaNote = perks.length ? `${perks.join(" + ")} applied` : "no stamina perks on";
+    const apNote = state.meals.quandary ? "Quandary Chowder applied" : "without Quandary Chowder";
+
+    const cider = route.ciders != null ? `
+      <label class="path-pick${chosen === "cider" ? " on" : ""}">
+        <input type="radio" name="drink-${item.id}" value="cider" ${chosen === "cider" ? "checked" : ""} data-drink-id="${item.id}">
+        <span><b>Explore with Apple Cider</b>
+          <small>${fmt(route.ciders)} Cider · ${fmt(route.stamina)} stamina — ${esc(staminaNote)}</small></span>
+      </label>` : "";
+
+    const ap = route.aps != null ? `
+      <label class="path-pick${chosen === "ap" ? " on" : ""}">
+        <input type="radio" name="drink-${item.id}" value="ap" ${chosen === "ap" ? "checked" : ""} data-drink-id="${item.id}">
+        <span><b>Use Arnold Palmers</b>
+          <small>${fmt(route.aps)} Arnold Palmer — ${esc(apNote)}</small></span>
+      </label>` : `
+      <div class="path-pick muted"><span><b>Use Arnold Palmers</b>
+        <small>no measured per-AP rate for this one</small></span></div>`;
+
+    const buy = buyRateBlock(item, missing);
+
+    return `<div class="path-choices"><span class="path-head">${fmt(route.explores)} explores at ${esc(route.location)}</span>${cider}${ap}${mealStripFor("explore")}${buy}</div>`;
+  }
+
   function routeEvidence(item, route) {
     const fact = itemFact(item.name);
     const lines = [];
@@ -842,7 +995,14 @@
     // burns stamina and Arnold Palmer does not, so they are listed side by side
     // and never totalled against each other or converted to gold — which of the
     // two is "cheaper" depends on a farm's own stamina production.
+    // Mushroom Stew makes each item count 1.1x toward a mastery, so the same run
+    // yields more mastery than items. Show both rather than one blended number.
+    const masteryMult = state.meals.mushroom ? 1 + c("mushroom_mastery_bonus", 0.1) : 1;
     const runLines = [];
+    runLines.push(["Items you get", fmt(state.qty), "what lands in your inventory"]);
+    if (masteryMult > 1) {
+      runLines.push(["Mastery earned", fmt(Math.round(state.qty * masteryMult)), `Mushroom Stew — each item counts ${round2(masteryMult)}×`]);
+    }
     if (best) runLines.push([words.actTitle, fmt(best.actions), best.denom != null ? `${fmt(round2(best.denom))} per ${esc(goal.name)}` : "rate not measured yet"]);
     // The shared workbook quotes the same drops per Arnold Palmer / per Large
     // Net. Shown as-is beside our own figure, never converted into it — the two
@@ -854,8 +1014,9 @@
       if (quoted) runLines.push(["Workbook rate", fmt(round2(quoted)), plan.type === "fish" ? "drops per Large Net" : "drops per Arnold Palmer"]);
     }
     if (plan.type === "fish") {
-      if (plan.method === "large" && plan.largeNets != null) runLines.push(["Large Nets", fmt(plan.largeNets), `${fmt(plan.lnCatch)} catches per net`]);
-      if (plan.method === "net" && plan.fishingNets != null) runLines.push(["Fishing Nets", fmt(plan.fishingNets), `${fmt(plan.fnCatch)} catches per net`]);
+      const netWith = plan.netNotes && plan.netNotes.length ? ` · ${plan.netNotes.join(" + ")} applied` : " · no net perks or meals on";
+      if (plan.method === "large" && plan.largeNets != null) runLines.push(["Large Nets", fmt(plan.largeNets), `${fmt(plan.lnCatch)} catches per net${netWith}`]);
+      if (plan.method === "net" && plan.fishingNets != null) runLines.push(["Fishing Nets", fmt(plan.fishingNets), `${fmt(plan.fnCatch)} catches per net${netWith}`]);
       if (plan.method === "hand") runLines.push(["Casts by hand", fmt(plan.catches), "stamina per cast is not recorded yet"]);
     }
     if (plan.type === "crop" && plan.plants) runLines.push(["Plants", fmt(plan.plants), plan.minutesEach ? `${fmt(plan.minutesEach)} min each` : ""]);
@@ -866,7 +1027,7 @@
       ["Stamina", fmt(plan.stamina), "Cider spends stamina — it does not give any"],
     ]]);
     if (plan.aps) drinkPaths.push(["Or use Arnold Palmers instead", [
-      ["Arnold Palmer", fmt(plan.aps), "finds items without exploring — no stamina at all"],
+      ["Arnold Palmer", fmt(plan.aps), "finds items without exploring"],
     ]]);
 
     const canBuy = !isFish(goal);
@@ -879,7 +1040,7 @@
     const vendorEach = goal.buy != null && goal.buy > 0 ? goal.buy : null;
     if (canBuy && vendorEach) buyLines.push(["Country Store", fmt(vendorEach * need) + " silver", `${fmt(vendorEach)} each`]);
 
-    const coDrops = best ? E.coDropsFor(index, best.location, best.actions, goal.name, P, 6) : [];
+    const coDrops = best ? E.coDropsFor(index, best.location, best.actions, goal.name, P, 40) : [];
     const placeChoices = places.map((row) =>
       `<option value="${esc(row.location)}" ${row === best ? "selected" : ""}>${esc(row.location)}${row.denom != null ? ` · ${fmt(round2(row.denom))} ${esc(words.act)} each` : ""}</option>`).join("");
 
@@ -897,11 +1058,32 @@
         Object.entries(FISH_METHODS).map(([key, meta]) => {
           const amount = key === "large" ? plan.largeNets : key === "net" ? plan.fishingNets : plan.catches;
           const unit = key === "hand" ? "casts" : "nets";
+          const per = key === "large" ? plan.lnCatch : key === "net" ? plan.fnCatch : null;
           return `<label class="gather-method${plan.method === key ? " on" : ""}">` +
             `<input type="radio" name="fishMethod" value="${key}" ${plan.method === key ? "checked" : ""}>` +
-            `<span><b>${esc(meta.label)}</b><small>${amount != null ? `${fmt(amount)} ${unit}` : "not recorded"}${meta.note ? ` · ${esc(meta.note)}` : ""}</small></span></label>`;
+            `<span><b>${esc(meta.label)}</b><small>${amount != null ? `${fmt(amount)} ${unit}` : "not recorded"}${per ? ` · ${fmt(per)} catches each` : ""}${meta.note ? ` · ${esc(meta.note)}` : ""}</small></span></label>`;
         }).join("") + `</div></div>`
       : "";
+
+    // Meals that genuinely change this item's numbers, toggleable right here so
+    // the total in front of you is the total for how you actually play.
+    const relevantMeals = [
+      plan.type === "fish" && { id: "seapincher", label: "Sea Pincher Special", note: "nets catch 10% more — community estimate" },
+      { id: "mushroom", label: "Mushroom Stew", note: "each item counts 1.1× toward a mastery" },
+    ].filter(Boolean);
+    const activeCount = relevantMeals.filter((meal) => state.meals[meal.id]).length;
+    const hidden = !!state.mealStripHidden;
+    const mealStrip = `<div class="gather-path meal-strip">` +
+      `<span class="meal-strip-head">Meals in these numbers` +
+        `<small>${activeCount} on</small>` +
+        `<button type="button" class="meal-strip-toggle" data-meal-strip aria-expanded="${!hidden}">${hidden ? "Show" : "Hide"}</button>` +
+      `</span>` +
+      `<div class="meal-chips"${hidden ? " hidden" : ""}>` +
+      relevantMeals.map((meal) => `<label class="meal-chip${state.meals[meal.id] ? " on" : ""}" title="${esc(meal.label)} — ${esc(meal.note)}">` +
+        `<input type="checkbox" data-gather-meal="${meal.id}" ${state.meals[meal.id] ? "checked" : ""}>` +
+        `${itemImg(itemByName(meal.label), "meal-chip-art", meal.label)}` +
+        `<span class="meal-chip-name">${esc(meal.label)}</span></label>`).join("") +
+      `</div>${hidden ? "" : ""}${state.meals.mushroom ? `<p class="gather-mastery">Chasing the mastery only? <b>${fmt(Math.ceil(state.qty / (1 + c("mushroom_mastery_bonus", 0.1))))}</b> items reaches ${fmt(state.qty)} mastery.</p>` : ""}</div>`;
 
     const acornRelevant = plan.type !== "fish" && plan.type !== "crop";
     const acornBox = acornRelevant
@@ -919,15 +1101,23 @@
         ? `<label class="gather-where"><span>${esc(words.place)}</span><select data-location-id="${goal.id}">${placeChoices}</select></label>`
         : best ? `<p class="gather-where-fixed"><span>${esc(words.place)}</span> <b>${esc(best.location)}</b></p>` : "") +
       `<div class="gather-grid">` +
-        col(plan.type === "fish" ? "Fish for it" : plan.type === "crop" ? "Grow it" : "Explore for it", runLines, fishBox + drinkBlocks + acornBox) +
+        col(plan.type === "fish" ? "Fish for it" : plan.type === "crop" ? "Grow it" : "Explore for it", runLines, fishBox + drinkBlocks + acornBox + mealStrip) +
         (canBuy ? col("Or buy it", buyLines) : "") +
       `</div>` +
-      (coDrops.length ? `<p class="gather-others"><b>${esc(words.also)}:</b> ` +
-        coDrops.map((drop) => `${fmt(drop.expected)} ${esc(drop.name)}`).join(" · ") + `</p>` : "");
+      (coDrops.length ? `<div class="gather-haul"><span class="gather-haul-head">${esc(words.also)} — ${plural(coDrops.length, "other item", "other items")} from the same run</span>` +
+        `<div class="haul-grid">${coDrops.map((drop) => {
+          const dropItem = itemByName(drop.name);
+          return `<span class="haul-chip">${itemImg(dropItem, "haul-art", drop.name)}<span><b>${fmt(drop.expected)}</b><small>${esc(drop.name)}</small></span></span>`;
+        }).join("")}</div></div>` : "");
     panel.classList.remove("hidden");
 
     panel.querySelectorAll('input[name="fishMethod"]').forEach((radio) => {
       radio.onchange = () => { if (radio.checked) { state.fishMethods[goal.id] = radio.value; save(); render(); } };
+    });
+    const stripToggle = panel.querySelector("[data-meal-strip]");
+    if (stripToggle) stripToggle.onclick = () => { state.mealStripHidden = !state.mealStripHidden; save(); render(); };
+    panel.querySelectorAll("[data-gather-meal]").forEach((box) => {
+      box.onchange = () => { state.meals[box.dataset.gatherMeal] = box.checked; save(); renderSetup(); render(); };
     });
     const acornToggle = $("gatherAcorn");
     if (acornToggle) acornToggle.onchange = () => { state.meals.acorn = acornToggle.checked; save(); renderSetup(); render(); };
@@ -1119,7 +1309,7 @@
         const costText = decision.auto === "farm" ? farmText : decision.auto === "trade" ? directText : decision.auto === "building" ? infraText : materialText;
         const codrops = decision.farm ? coDropSentence(decision.farm) : "";
         const autoLabel = decision.auto === "building" ? "building" : decision.auto;
-        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}</select>${decision.farm ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
+        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}</select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
       }).join("")}</div>`;
       el.makeBuy.querySelectorAll("[data-make-id]").forEach((select) => {
         select.onchange = () => { state.makeChoices[select.dataset.makeId] = select.value; save(); render(); };
@@ -1129,7 +1319,7 @@
     }
 
     $("ingCount").textContent = `${visibleRows.length} shown · ${rows.length} active`;
-    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
+    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${pathChoices(row.item, row.route, row.missing, m)}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
     el.ingBody.querySelectorAll(".owned").forEach((input) => {
       input.onchange = () => {
         const value = parseInt(input.value.replace(/\D/g, ""), 10);
@@ -1139,6 +1329,34 @@
     });
     el.ingBody.querySelectorAll("[data-source-id]").forEach((select) => {
       select.onchange = () => { state.sourceChoices[select.dataset.sourceId] = select.value; save(); render(); };
+    });
+    document.querySelectorAll("[data-meal-strip]").forEach((button) => {
+      button.onclick = () => { state.mealStripHidden = !state.mealStripHidden; save(); render(); };
+    });
+    document.querySelectorAll("[data-gather-meal]").forEach((box) => {
+      box.onchange = () => { state.meals[box.dataset.gatherMeal] = box.checked; save(); renderSetup(); render(); };
+    });
+    document.querySelectorAll("[data-buy-id]").forEach((input) => {
+      input.onchange = () => {
+        const id = input.dataset.buyId;
+        const perK = Number(input.value);
+        const cur = (document.querySelector(`[data-buy-cur="${id}"]`) || {}).value || "ap";
+        if (Number.isFinite(perK) && perK > 0) state.buyRates[id] = { perK, currency: cur };
+        else delete state.buyRates[id];
+        save(); render();
+      };
+    });
+    document.querySelectorAll("[data-buy-cur]").forEach((select) => {
+      select.onchange = () => {
+        const id = select.dataset.buyCur;
+        const existing = state.buyRates[id];
+        const input = document.querySelector(`[data-buy-id="${id}"]`);
+        const perK = existing ? existing.perK : Number(input && input.value);
+        if (Number.isFinite(perK) && perK > 0) { state.buyRates[id] = { perK, currency: select.value }; save(); render(); }
+      };
+    });
+    document.querySelectorAll("[data-drink-id]").forEach((radio) => {
+      radio.onchange = () => { if (radio.checked) { state.drinkChoices[radio.dataset.drinkId] = radio.value; save(); render(); } };
     });
     document.querySelectorAll("[data-location-id]").forEach((select) => {
       select.onchange = () => { state.farmLocations[select.dataset.locationId] = select.value; save(); render(); };

@@ -139,3 +139,67 @@ entirely.
 - Added `build/bundle.py`, which inlines the whole site into one file so it
   can be rendered and driven headlessly. Both bugs above were found this way,
   not by reading source.
+
+## 2026-09-03 — Player-chosen routes, Mining page, and a real visual identity
+
+Everything below was driven by the user watching the live site and reacting.
+
+### The calculator stopped deciding for the player
+- Removed the "cheapest route" verdict. Every ingredient row now shows the
+  paths side by side and the player picks: buy it (at **their own** typed rate
+  per 1k, in AP / AC / OJ / gold), explore with Apple Cider (with the stamina
+  it burns, Wanderer/Neigh applied), or use Arnold Palmer (with Quandary
+  Chowder applied). Stamina is never priced as gold — an endgame farm makes
+  roughly a million of it, so quoting it in Orange Juice was meaningless.
+- **Arnold Palmer is not exploring.** Exploring spends stamina; AP is its own
+  action with its own drop rate. AP counts now come from the shared workbook's
+  drops-per-AP table instead of being derived from explore counts, which had
+  been off by roughly 10×.
+- Items that cannot be mailed say so instead of offering a trade route.
+- Route rules gained `never`, so "nobody fishes Crystal River for Glass
+  Bottle" is a data statement rather than a special case in the UI.
+
+### Fishing is fishing, not crafting
+- Fish get their own plan: by hand / Fishing Nets / Large Nets, with the net
+  perks and Sea Pincher Special named in the note. No production tree, no buy
+  price — fish cannot be bought.
+- Mushroom Stew now reports two separate figures: items that land in your
+  inventory, and mastery earned. It never changed the item count.
+
+### Mining page
+- Replaced the "New items" page. The six mines stack vertically; opening one
+  shows its drops inline with art, each craft's full ingredient list with art
+  and where each ingredient comes from, and what the craft itself feeds into.
+  Inverting the release catalogue's own recipes lifted craft links from 9/59
+  to 38/59 items.
+
+### Art sizing
+- `itemImg` had been emitting `width="48" height="48"` for every tile size, so
+  small tiles rendered a 48px image inside a 30px box. Each variant now
+  declares its own box (`ART_PX`). Same bug fixed in the Mining page.
+- `.item-art.small` was the one variant painting a cream tile behind the
+  sprite; Farm RPG art is drawn for dark grounds, so pale items washed out.
+
+### Visual identity (`system.css`)
+- Gold had been doing six jobs — labels, links, hover, focus, state and data —
+  which is why nothing read as important. One job per colour now: figures take
+  the accent, state is a 2px rule down the left edge, labels are muted, links
+  underline on hover.
+- **New palette, taken from the game's own materials** rather than the generic
+  dark-mode gold: indigo rock ground, copper for figures, malachite for state,
+  amethyst for trade, iron blue for fish, quartz-bone paper panels.
+- **New typefaces, three distinct voices:** Bricolage Grotesque for anything
+  you scan (headings, tabs, buttons), Newsreader for anything you read (prose,
+  item names, notes), Spline Sans Mono for anything you count.
+- Deliberate unevenness instead of a uniform grid: section eyebrows hang in a
+  ruled left margin like a ledger annotation, the home hero is the one
+  oversized headline on the site, the goal column of the summary strip is
+  wider than the ones supporting it, and padding follows a card's role.
+
+### Data
+- `data/tradeable.js` — 201 mailable / 586 not, from the knowledge pack.
+- `data/workbook-rates.js` — 337 rates in the workbook's own units, labelled
+  as such because they are not the same denominator as `data/data.js`.
+- Tower floors annotated `itemsAre: "rewards"`; the 2× silver discrepancy at
+  T276 is recorded, not applied — one data point does not justify rewriting 40
+  rows if the multiplier turns out to be band-dependent.

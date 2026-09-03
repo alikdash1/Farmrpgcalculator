@@ -127,11 +127,15 @@
   // underneath it and pushes the remaining mines down, rather than sending the
   // player to a separate panel further down the page.
 
+  // Each tile size has to declare its own box; a single hard-coded 28 made the
+  // 34px drop tiles and 22px ingredient tiles both claim the wrong size.
+  const ART_PX = { drop: 34, craft: 28, part: 22 };
   function itemImg(name, cls) {
     const src = artFor(name);
+    const px = ART_PX[cls] || 28;
     const label = esc(name);
     if (!src) return `<span class="mine-art ${cls} missing" aria-hidden="true">${label.slice(0, 1)}</span>`;
-    return `<span class="mine-art ${cls}"><img src="${esc(src)}" alt="" width="28" height="28" loading="lazy"></span>`;
+    return `<span class="mine-art ${cls}"><img src="${esc(src)}" alt="${label}" width="${px}" height="${px}" loading="lazy"></span>`;
   }
 
   function itemsMarkup(mine) {
@@ -152,6 +156,24 @@
               return `<li class="${mine_ ? "is-this" : ""}">${itemImg(part.name, "part")}
                 <span><b>${part.quantity ? `${part.quantity}× ` : ""}${esc(part.name)}</b>${from ? `<small>${esc(from)}</small>` : `<small class="unknown">source not recorded</small>`}</span></li>`;
             }).join("")}</ul>` : `<p class="mine-recipe-none">Recipe not recorded yet.</p>`}
+            ${(() => {
+              // Where the craft itself goes next, with its recipe, so a chain like
+              // Unpolished Peridot -> Peridot -> Ancient Pickaxe reads in one place.
+              const onward = craftsFrom(craft).filter((next) => next !== craft && next !== name);
+              if (!onward.length) return "";
+              return `<div class="mine-onward"><span class="mine-onward-head">${esc(craft)} goes into</span>${onward.map((next) => {
+                const nextParts = recipeFor(next);
+                const nextLevel = craftLevel(next);
+                return `<div class="mine-onward-craft">
+                  <div class="mine-craft-head">${itemImg(next, "craft")}<span><b>${esc(next)}</b>${nextLevel ? `<small>${esc(nextLevel)}</small>` : ""}</span></div>
+                  ${nextParts.length ? `<ul class="mine-recipe">${nextParts.map((part) => {
+                    const from = whereFrom(part.name);
+                    return `<li class="${part.name === craft ? "is-this" : ""}">${itemImg(part.name, "part")}
+                      <span><b>${part.quantity ? `${part.quantity}× ` : ""}${esc(part.name)}</b>${from ? `<small>${esc(from)}</small>` : `<small class="unknown">source not recorded</small>`}</span></li>`;
+                  }).join("")}</ul>` : `<p class="mine-recipe-none">Recipe not recorded yet.</p>`}
+                </div>`;
+              }).join("")}</div>`;
+            })()}
           </div>`;
         }).join("")}
       </article>`;
