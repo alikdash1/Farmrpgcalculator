@@ -323,3 +323,15 @@ Silver is gone. The wiki's table ends at T340, so there is no T341–T350 to sho
 `data/tower-floors.js` is now `[floor, gms[], mms[]]`; the render groups the two
 and drops the silver/AK/reward lines; headings updated ("Every Floor, and What
 It Needs").
+
+## 2026-09-03 (cohesion pass) — One accent across every screen
+
+Audited Home, Calculate, Setup, Tower, Quests and Mining together and pulled the
+last of the rainbow onto the single-accent system. The three route cards no
+longer each carry a different-coloured spine — green marks the recommended card,
+the others a neutral hairline. Route-type tags collapse from violet/amber/blue/
+gold to muted, with green for "you've got it" and red kept only for an unknown
+route. Trail figures are plain ink with one green lead; the trail connector is
+muted. The "your farm covers this" strip flattened from a green gradient box to a
+quiet green-marked note. Compact headings inside cards no longer draw a section
+rule. Green now means exactly one thing everywhere: recommended, or handled.

@@ -368,3 +368,48 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
     transition-duration: .001ms !important;
   }
 }
+
+/* ============================================================================
+   Cohesion pass — one accent, everywhere
+   ----------------------------------------------------------------------------
+   Several older components still coded meaning as a rainbow: the three route
+   cards each had a differently-coloured spine, the route-type tags ran through
+   violet/amber/blue/gold, and the trail figures were tinted. Green is the only
+   accent this product uses — it marks the recommended option and anything you
+   have handled — so colour is spent only where it carries that meaning. Red is
+   kept for a genuine warning (an unknown route); everything else is ink.
+   ========================================================================== */
+
+/* Route cards: the spine marks the pick, not the category. */
+.route-card::before { background: var(--line) !important; }
+.verdict-route::before { background: var(--green) !important; }
+
+/* Route-type tags: muted by default, green when you've got it, red if unknown. */
+.route-choice { color: var(--muted) !important; }
+.route-choice.covered, .route-choice.crop { color: var(--green) !important; }
+.route-choice.unknown { color: var(--red) !important; }
+
+/* Trail figures are data, not decoration — one ink colour, one green lead. */
+.trail-stop.violet strong, .trail-stop.amber strong { color: var(--text) !important; }
+.trail-stop::after { color: var(--muted) !important; background: var(--ink) !important; }
+
+/* "Your farm covers this" is a settled state: a quiet green-marked note. */
+.covered-strip {
+  background: rgba(92, 192, 141, .06) !important;
+  border: 1px solid var(--line) !important;
+  border-left: 2px solid var(--green) !important;
+}
+
+/* A section heading's rule belongs under a page-level heading, never inside a
+   card, so compact headers (which sit within cards) stay rule-less. */
+.section-heading.compact { border-bottom: 0; padding-bottom: 0; }
+
+/* One consistent hover for anything that reveals or opens. */
+.route-evidence > summary:hover,
+.text-action:hover,
+.drawer-action:hover { color: var(--green); }
+.route-evidence > summary { color: var(--green); }
+
+/* Verdict/route labels and the "you pay" style stamps read as small captions. */
+.verdict b, .route-metric b, .buy-total b, .gather-line strong,
+.haul-chip b, .gather-mastery b { color: var(--text); }
