@@ -259,3 +259,26 @@ Rebuilt the theme to that discipline:
 
 Verified on Home, Calculate and Mining: system font active, item art
 transparent and loading (naturalWidth 256), no console errors, tests 40/40.
+
+## 2026-09-03 (eye-comfort pass) — Understood buddy, applied it
+
+The point was never buddy's exact colours or font — it was that buddy is a
+reference document (content in aligned rows, almost no boxes, generous white)
+while this had been dressed as a marketed app (a grey field of bordered,
+shadowed boxes, shouty UPPERCASE eyebrows over every block, tiny low-contrast
+text on a very wide measure). That is what made it "hard for the eye."
+
+Applied the principle rather than copying the site:
+- **Pure white ground**, not grey with cards floating on it.
+- **Borders mean "interactive."** Reading blocks lost their border and shadow
+  entirely; only inputs, grouped toggles and small chips keep one light hairline.
+  A single hairline under each section heading gives the page its spine.
+- **Bigger, higher-contrast text** (16px base, darker `--muted`) in a
+  **narrower, comfortable column** (max 1120px, was 1480).
+- **Eyebrows calmed** to normal-case, small, muted — labels, not stamps.
+- Removed the last decorative leftovers: the copper offset drop-shadows and page
+  tilts, the dark masthead, the cream inputs.
+- Home shortcuts are now a clean hairline grid (muted code, dark title, green
+  link, green rule on the featured one).
+
+No horizontal overflow, tests 40/40.

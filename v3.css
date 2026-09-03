@@ -58,7 +58,7 @@
 
 .hoard-note {
   padding-left: .58rem;
-  border-left: 2px solid rgba(224,146,94,.58);
+  border-left: 2px solid rgba(47,125,85,.58);
   color: #ddd2bd;
 }
 
@@ -94,8 +94,8 @@
   padding: 1.15rem 1.15rem 1rem;
   color: var(--ink);
   background: var(--paper);
-  box-shadow: 12px 12px 0 rgba(224,146,94,.2);
-  transform: rotate(.35deg);
+  box-shadow:none;
+  
 }
 
 .dispatch-ticket::after {
@@ -141,7 +141,7 @@
   padding: .8rem 1rem;
   border: 1px solid var(--line);
   color: var(--text);
-  background: rgba(255,255,255,.78);
+  background: #fff;
   text-align: left;
 }
 .recent-button > span { grid-column: 1 / -1; color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; }
@@ -180,12 +180,12 @@
   background: var(--ink2);
   text-align: left;
 }
-.desk-drawer.featured { box-shadow: inset 0 3px var(--gold); }
-.desk-drawer:hover { background: var(--ink3); }
-.drawer-code { color: var(--gold); font: 500 .58rem var(--ui), monospace; letter-spacing: .13em; }
-.desk-drawer strong { margin-top: 1.6rem; font: 650 1.35rem var(--ui), serif; }
-.desk-drawer p { margin-top: .65rem; font-size: .72rem; }
-.drawer-action { margin-top: auto; padding-top: 1.25rem; color: var(--gold); font-size: .68rem; font-weight: 700; }
+.desk-drawer.featured { box-shadow: inset 0 2px var(--green); }
+.desk-drawer:hover { background: var(--paper2); }
+.drawer-code { color: var(--muted); font: 600 .62rem var(--ui), sans-serif; letter-spacing: .04em; }
+.desk-drawer strong { margin-top: 1.1rem; font: 700 1.2rem var(--ui), sans-serif; letter-spacing: -.01em; }
+.desk-drawer p { margin-top: .5rem; font-size: .85rem; color: var(--muted); line-height: 1.5; }
+.drawer-action { margin-top: auto; padding-top: 1.1rem; color: var(--green); font-size: .82rem; font-weight: 600; }
 
 .desk-lower { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; }
 .readiness-card, .rule-card { padding: 1.4rem; border: 1px solid var(--line); background: rgba(255,255,255,.82); }
@@ -271,7 +271,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .tabs { order: 3; width: calc(100vw - 24px); height: 42px; }
   .tab { padding: 0 .75rem; }
   .dispatch-board { padding-top: 2.5rem; gap: 2rem; }
-  .dispatch-ticket { grid-template-columns: 1fr; box-shadow: 6px 6px 0 rgba(224,146,94,.2); }
+  .dispatch-ticket { grid-template-columns: 1fr; box-shadow:none; }
   .dispatch-ticket::after { display: none; }
   .ticket-stub, .dispatch-ticket .primary-action, .dispatch-ticket > small { grid-column: 1; }
   .desk-drawers, .knowledge-status { grid-template-columns: 1fr; }
@@ -446,7 +446,7 @@ body {
   padding: .55rem .65rem;
   border-left: 2px solid var(--amber);
   color: #ecd7bc;
-  background: rgba(224,146,94,.07);
+  background: rgba(47,125,85,.07);
 }
 
 .route-choice.trade,
@@ -653,7 +653,7 @@ body {
 .gather-path .gather-line:first-of-type { border-top: 0; }
 .gather-methods { display: grid; gap: .3rem; margin-top: .2rem; }
 .gather-method { display: flex; gap: .5rem; align-items: flex-start; padding: .3rem .45rem; border: 1px solid transparent; cursor: pointer; }
-.gather-method.on { border-color: rgba(224,146,94,.45); background: rgba(224,146,94,.06); }
+.gather-method.on { border-color: rgba(47,125,85,.45); background: rgba(47,125,85,.06); }
 .gather-method b { font-size: .82rem; font-weight: 500; }
 .gather-method small { display: block; color: var(--muted); font-size: .7rem; }
 .gather-none { margin: 0; color: var(--muted); font-size: .78rem; }
@@ -696,7 +696,7 @@ html, body { overflow-x: hidden; }
   display: grid; grid-template-columns: 16px 1fr; gap: .45rem; align-items: start;
   padding: .35rem .45rem; border: 1px solid transparent; cursor: pointer;
 }
-.path-pick.on { border-color: rgba(224,146,94,.45); background: rgba(224,146,94,.06); }
+.path-pick.on { border-color: rgba(47,125,85,.45); background: rgba(47,125,85,.06); }
 .path-pick.muted { cursor: default; opacity: .6; grid-template-columns: 1fr; }
 .path-pick b { font-size: .76rem; font-weight: 600; }
 .path-pick small { display: block; color: var(--muted); font-size: .68rem; line-height: 1.45; }

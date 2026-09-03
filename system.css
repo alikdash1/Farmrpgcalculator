@@ -62,8 +62,8 @@
 .mine-card-kit,
 .tower-pay {
   color: var(--muted) !important;
-  font-weight: 500;
-  letter-spacing: .08em;
+  font-weight: 600;
+  letter-spacing: .02em;
 }
 
 /* --- data keeps the ink -------------------------------------------------- */
@@ -191,7 +191,7 @@
    tables and read as data.
    ========================================================================== */
 
-body { font-family: var(--prose); font-size: 15px; line-height: 1.6; color: var(--text); }
+body { font-family: var(--prose); font-size: 16px; line-height: 1.65; color: var(--text); }
 
 h1, h2, h3,
 .brand strong, .goal-yield strong, .covered-strip strong,
@@ -224,7 +224,7 @@ h1 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
 .goal-copy h1 { font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
 h2 { font-size: clamp(21px, 2vw, 27px); line-height: 1.12; }
 h3 { font-size: 18px; }
-.eyebrow { font-size: 10.5px; letter-spacing: .06em; font-weight: 600; opacity: .9; }
+.eyebrow { font-size: 11px; letter-spacing: .02em; font-weight: 600; text-transform: none; }
 
 /* ============================================================================
    Clean white theme — the calm ground
@@ -235,19 +235,36 @@ h3 { font-size: 18px; }
    eye rests. Item tiles are soft light wells, not dark boxes.
    ========================================================================== */
 
-/* One card idiom: white, soft border, gentle lift. No tilts, no coloured fills. */
-.route-card, .gather-col, .gather-panel, .mine-row, .mine-item, .haul-chip,
-.decision-row, .tower-cost-card, .quest-line, .readiness-card, .rule-card,
-.make-buy, .workbench, .tree-card, .assumption-card, .source-list, .acorn-lab,
-.perk-group, .infra-card, .meal-card, .data-card, .goal-controls, .sample-form {
+/* Fewer boxes. Reading blocks — the ones you look *at* — carry no border and no
+   shadow; they're just white with room around them, separated by whitespace and
+   the hairline under each section heading. Only things you act *on* (inputs,
+   grouped toggles, small chips) get an outline, so borders mean "interactive"
+   instead of decorating every block. This is what stops the page reading as a
+   grid of competing edges. */
+.route-card, .gather-col, .gather-panel, .mine-item, .haul-chip,
+.tower-cost-card, .make-buy, .workbench, .tree-card, .assumption-card,
+.source-list, .acorn-lab, .readiness-card, .rule-card {
+  background: var(--ink2);
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Grouped, interactive surfaces keep one light hairline (no shadow). */
+.perk-group, .infra-card, .meal-card, .data-card, .goal-controls, .sample-form,
+.mine-row, .decision-row, .quest-line {
   background: var(--ink2);
   border: 1px solid var(--line);
+  border-radius: 10px;
   box-shadow: none;
 }
-.route-card, .workbench, .tree-card, .make-buy, .assumption-card,
-.source-list, .acorn-lab, .readiness-card, .rule-card, .perk-group, .infra-card {
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+
+/* A hairline under every section heading gives the page its horizontal spine. */
+.section-heading, .setup-heading, .page-intro, .tower-costs-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
 }
 
 /* Masthead: white, ruled off the page. */
