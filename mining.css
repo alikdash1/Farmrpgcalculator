@@ -2,7 +2,7 @@
 
 .mine-list { display: grid; gap: .5rem; margin-top: 1.4rem; }
 
-.mine-row { border: 1px solid var(--line); background: rgba(226,214,186,.55); }
+.mine-row { border: 1px solid var(--line); background: rgba(255,255,255,.55); }
 .mine-row[open] { border-color: var(--gold); background: rgba(224, 146, 94, .05); }
 .mine-row > summary {
   display: grid;
@@ -26,15 +26,15 @@
   width: 56px;
   height: 56px;
   border: 1px solid rgba(60,48,20,.16);
-  background: radial-gradient(circle at 38% 26%, #2b2f3d, #0f1119);
+  background: linear-gradient(160deg, var(--tile), var(--tile2));
   border-radius: 8px;
   overflow: hidden;
 }
 .mine-card-art img { max-width: 92%; max-height: 92%; object-fit: contain; }
 .mine-card-body { display: grid; gap: .12rem; min-width: 0; }
-.mine-card-body strong { font-family: Bevan, serif; font-size: 1.05rem; }
+.mine-card-body strong { font-family: var(--ui), serif; font-size: 1.05rem; }
 .mine-card-body small { color: var(--muted); font-size: .72rem; }
-.mine-card-kit { color: var(--gold) !important; font: 500 .6rem 'Courier Prime', monospace; letter-spacing: .04em; }
+.mine-card-kit { color: var(--gold) !important; font: 500 .6rem var(--ui), monospace; letter-spacing: .04em; }
 
 .mine-items {
   display: grid;
@@ -47,7 +47,7 @@
 .mine-item {
   padding: .6rem .7rem .65rem;
   border: 1px solid var(--line);
-  background: rgba(215,202,172,.5);
+  background: rgba(246,246,244,.5);
 }
 .mine-item-head {
   display: grid;
@@ -62,7 +62,7 @@
   display: grid;
   place-items: center;
   border: 1px solid rgba(60,48,20,.16);
-  background: radial-gradient(circle at 38% 26%, #2b2f3d, #0f1119);
+  background: linear-gradient(160deg, var(--tile), var(--tile2));
   border-radius: 6px;
   overflow: hidden;
 }
@@ -70,7 +70,7 @@
 .mine-art.drop { width: 34px; height: 34px; }
 .mine-art.craft { width: 28px; height: 28px; }
 .mine-art.part { width: 22px; height: 22px; border-radius: 4px; }
-.mine-art.missing { font: 700 11px 'Courier Prime', monospace; color: var(--muted); }
+.mine-art.missing { font: 700 11px var(--ui), monospace; color: var(--muted); }
 
 .mine-craft {
   margin-top: .5rem;
@@ -90,7 +90,7 @@
 .mine-recipe-none { margin: .4rem 0 0; color: var(--muted); font-size: .7rem; font-style: italic; }
 
 .mine-onward { margin: .45rem 0 0; padding-top: .4rem; border-top: 1px dashed rgba(60,48,20,.12); }
-.mine-onward-head { display: block; color: var(--muted); font: 500 .6rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
+.mine-onward-head { display: block; color: var(--muted); font: 500 .6rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
 .mine-onward-craft { margin-top: .35rem; padding-left: .5rem; border-left: 2px solid rgba(224,146,94,.25); }
 
 @media (max-width: 620px) {

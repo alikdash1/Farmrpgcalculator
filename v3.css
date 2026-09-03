@@ -46,7 +46,7 @@
   padding: .13rem .38rem;
   border: 1px solid rgba(60,48,20,.12);
   border-radius: 999px;
-  font-family: 'Courier Prime', monospace;
+  font-family: var(--ui), monospace;
   font-size: .64rem;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -112,7 +112,7 @@
   justify-content: space-between;
   padding-bottom: .75rem;
   border-bottom: 1px solid rgba(60,48,20,.25);
-  font: 500 .62rem 'Courier Prime', monospace;
+  font: 500 .62rem var(--ui), monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
@@ -141,11 +141,11 @@
   padding: .8rem 1rem;
   border: 1px solid var(--line);
   color: var(--text);
-  background: rgba(226,214,186,.78);
+  background: rgba(255,255,255,.78);
   text-align: left;
 }
-.recent-button > span { grid-column: 1 / -1; color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .1em; }
-.recent-button strong { display: flex; align-items: center; gap: .65rem; font-family: Bevan, serif; font-size: 1.05rem; }
+.recent-button > span { grid-column: 1 / -1; color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; }
+.recent-button strong { display: flex; align-items: center; gap: .65rem; font-family: var(--ui), serif; font-size: 1.05rem; }
 /* The 30px tile hangs ~8px below the letter baseline, so a geometric centre
    reads low next to the smaller type. Lift it optically without moving layout. */
 
@@ -182,22 +182,22 @@
 }
 .desk-drawer.featured { box-shadow: inset 0 3px var(--gold); }
 .desk-drawer:hover { background: var(--ink3); }
-.drawer-code { color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; letter-spacing: .13em; }
-.desk-drawer strong { margin-top: 1.6rem; font: 650 1.35rem Bevan, serif; }
+.drawer-code { color: var(--gold); font: 500 .58rem var(--ui), monospace; letter-spacing: .13em; }
+.desk-drawer strong { margin-top: 1.6rem; font: 650 1.35rem var(--ui), serif; }
 .desk-drawer p { margin-top: .65rem; font-size: .72rem; }
 .drawer-action { margin-top: auto; padding-top: 1.25rem; color: var(--gold); font-size: .68rem; font-weight: 700; }
 
 .desk-lower { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; }
-.readiness-card, .rule-card { padding: 1.4rem; border: 1px solid var(--line); background: rgba(226,214,186,.82); }
-.readiness-score { color: var(--gold); font: 500 .68rem 'Courier Prime', monospace; }
+.readiness-card, .rule-card { padding: 1.4rem; border: 1px solid var(--line); background: rgba(255,255,255,.82); }
+.readiness-score { color: var(--gold); font: 500 .68rem var(--ui), monospace; }
 .readiness-rows > div { display: grid; grid-template-columns: 12px 1fr auto; gap: .7rem; align-items: center; padding: .8rem 0; border-top: 1px solid var(--line); font-size: .75rem; }
-.readiness-rows b { color: var(--muted); font-family: 'Courier Prime', monospace; font-size: .65rem; }
+.readiness-rows b { color: var(--muted); font-family: var(--ui), monospace; font-size: .65rem; }
 .readiness-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(217,133,63,.12); }
 .readiness-dot.ready { background: var(--green); box-shadow: 0 0 0 3px rgba(86,184,148,.12); }
 .rule-card h2 { max-width: 470px; }
 .rule-stack { margin: 1rem 0; }
 .rule-stack > div { padding: .75rem 0; border-top: 1px solid var(--line); }
-.rule-stack span { color: var(--gold); font: 500 .55rem 'Courier Prime', monospace; text-transform: uppercase; }
+.rule-stack span { color: var(--gold); font: 500 .55rem var(--ui), monospace; text-transform: uppercase; }
 .rule-stack p { margin-top: .3rem; font-size: .72rem; }
 .text-action { padding: 0; border: 0; color: var(--gold); background: transparent; font-weight: 700; font-size: .7rem; }
 
@@ -211,20 +211,20 @@
   border: 1px solid rgba(217,133,63,.42);
   background: rgba(217,133,63,.07);
 }
-.account-import-callout strong { font-family: Bevan, serif; font-size: 1.15rem; }
+.account-import-callout strong { font-family: var(--ui), serif; font-size: 1.15rem; }
 .account-import-callout p { margin-top: .25rem; font-size: .68rem; }
 .account-import-callout a { flex: 0 0 auto; text-decoration: none; }
 
 .lab-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 1.5rem 0; background: var(--line); border: 1px solid var(--line); }
 .lab-principles article { padding: 1.15rem; background: var(--ink2); }
-.lab-principles span { color: var(--gold); font: 500 .62rem 'Courier Prime', monospace; }
-.lab-principles strong { display: block; margin-top: .75rem; font-family: Bevan, serif; font-size: 1.1rem; }
+.lab-principles span { color: var(--gold); font: 500 .62rem var(--ui), monospace; }
+.lab-principles strong { display: block; margin-top: .75rem; font-family: var(--ui), serif; font-size: 1.1rem; }
 .lab-principles p { margin-top: .35rem; font-size: .68rem; }
 
 .knowledge-status { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 1.5rem 0 1rem; border: 1px solid var(--line); background: var(--line); }
 .knowledge-status > div { display: grid; grid-template-columns: 10px 1fr; gap: .35rem .65rem; align-items: center; padding: 1rem; background: var(--ink2); }
 .knowledge-status strong { font-size: .7rem; }
-.knowledge-status b { grid-column: 2; color: var(--gold); font: 500 .68rem 'Courier Prime', monospace; }
+.knowledge-status b { grid-column: 2; color: var(--gold); font: 500 .68rem var(--ui), monospace; }
 .knowledge-status > p { grid-column: 1 / -1; padding: .75rem 1rem; background: rgba(217,133,63,.08); font-size: .68rem; }
 .status-light { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
 .status-light.good { background: var(--green); }
@@ -233,7 +233,7 @@
 .source-list > p { margin: -.6rem 0 1rem; font-size: .7rem; }
 .strategy-rules article, .mechanics-index article { padding: .9rem 0; border-top: 1px solid var(--line); }
 .strategy-rules article > div { display: flex; justify-content: space-between; gap: 1rem; }
-.strategy-rules span, .strategy-rules b { font: 500 .56rem 'Courier Prime', monospace; text-transform: uppercase; }
+.strategy-rules span, .strategy-rules b { font: 500 .56rem var(--ui), monospace; text-transform: uppercase; }
 .strategy-rules span { color: var(--gold); }
 .strategy-rules b { color: var(--amber); }
 .strategy-rules b.supported { color: var(--green); }
@@ -241,7 +241,7 @@
 .strategy-rules small { display: block; margin-top: .35rem; color: var(--muted); font-size: .58rem; }
 .mechanics-index article > div { display: flex; gap: .75rem; align-items: center; }
 .mechanics-index strong, .mechanics-index small { display: block; }
-.mechanics-index small { color: var(--gold); font: 500 .55rem 'Courier Prime', monospace; text-transform: uppercase; }
+.mechanics-index small { color: var(--gold); font: 500 .55rem var(--ui), monospace; text-transform: uppercase; }
 .mechanics-index p { margin: .55rem 0 .25rem; font-size: .72rem; }
 .mechanics-index > article > b { color: var(--muted); font-size: .62rem; font-weight: 500; }
 
@@ -391,7 +391,7 @@ body {
 
 .location-choice > span {
   color: var(--muted);
-  font: 500 .55rem 'Courier Prime', monospace;
+  font: 500 .55rem var(--ui), monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -542,8 +542,8 @@ body {
   font-size: .58rem;
 }
 
-.account-summary span { font-family: 'Courier Prime', monospace; text-transform: uppercase; }
-.account-summary strong { font: 650 1.3rem Bevan, serif; }
+.account-summary span { font-family: var(--ui), monospace; text-transform: uppercase; }
+.account-summary strong { font: 650 1.3rem var(--ui), serif; }
 
 .account-consumables {
   display: flex;
@@ -607,7 +607,7 @@ body {
 
 .account-kv span { color: var(--muted); text-transform: capitalize; }
 .account-list { display: grid; gap: .45rem; margin-top: .9rem; }
-.account-list > strong { color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; }
+.account-list > strong { color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; }
 .account-list > span { color: var(--muted); font-size: .68rem; }
 .account-warnings { margin-top: 1rem; }
 .account-warnings p { padding: .38rem 0; border-top: 1px solid var(--line); font-size: .65rem; }
@@ -634,22 +634,22 @@ body {
 
 /* Gathered goals (fish / explore / grow) — the Craft page's answer for
    something with no recipe: two plain options, no computed winner. */
-.gather-panel { margin: 1.6rem 0 .4rem; padding: 1.1rem 1.2rem 1rem; border: 1px solid var(--line); background: rgba(226,214,186,.55); }
-.gather-head h2 { margin: .15rem 0 0; font-family: Bevan, serif; font-size: 1.35rem; line-height: 1.25; }
+.gather-panel { margin: 1.6rem 0 .4rem; padding: 1.1rem 1.2rem 1rem; border: 1px solid var(--line); background: rgba(255,255,255,.55); }
+.gather-head h2 { margin: .15rem 0 0; font-family: var(--ui), serif; font-size: 1.35rem; line-height: 1.25; }
 .gather-sub { margin: .35rem 0 0; color: var(--muted); font-size: .8rem; }
 .gather-where, .gather-where-fixed { display: flex; align-items: center; gap: .6rem; margin: .95rem 0 0; font-size: .78rem; }
-.gather-where > span, .gather-where-fixed > span { color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .1em; }
+.gather-where > span, .gather-where-fixed > span { color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; }
 .gather-where select { flex: 1 1 auto; max-width: 420px; }
 .gather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: .9rem; margin-top: .8rem; }
-.gather-col { padding: .8rem .9rem; border: 1px solid var(--line); background: rgba(215,202,172,.5); }
-.gather-col > span { display: block; color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
+.gather-col { padding: .8rem .9rem; border: 1px solid var(--line); background: rgba(246,246,244,.5); }
+.gather-col > span { display: block; color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .5rem; }
 .gather-line { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: .1rem .7rem; padding: .3rem 0; border-top: 1px solid rgba(60,48,20,.07); }
 .gather-line:first-of-type { border-top: 0; }
 .gather-line b { font-weight: 500; font-size: .82rem; }
-.gather-line strong { font-family: Bevan, serif; font-size: 1rem; }
+.gather-line strong { font-family: var(--ui), serif; font-size: 1rem; }
 .gather-line small { grid-column: 1 / -1; color: var(--muted); font-size: .7rem; }
 .gather-path { margin-top: .65rem; padding-top: .55rem; border-top: 1px solid rgba(60,48,20,.07); }
-.gather-path > span { display: block; color: var(--muted); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
+.gather-path > span { display: block; color: var(--muted); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
 .gather-path .gather-line:first-of-type { border-top: 0; }
 .gather-methods { display: grid; gap: .3rem; margin-top: .2rem; }
 .gather-method { display: flex; gap: .5rem; align-items: flex-start; padding: .3rem .45rem; border: 1px solid transparent; cursor: pointer; }
@@ -691,7 +691,7 @@ html, body { overflow-x: hidden; }
 /* Every way to get one ingredient, laid out on its row. The player picks;
    nothing is decided for them on price. */
 .path-choices { display: grid; gap: .3rem; margin-top: .45rem; }
-.path-head { color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .08em; }
+.path-head { color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .08em; }
 .path-pick {
   display: grid; grid-template-columns: 16px 1fr; gap: .45rem; align-items: start;
   padding: .35rem .45rem; border: 1px solid transparent; cursor: pointer;
@@ -706,7 +706,7 @@ html, body { overflow-x: hidden; }
 .path-buy.muted { opacity: .6; }
 
 .buy-rate { display: inline-flex; align-items: center; gap: .3rem; margin-left: .4rem; }
-.buy-rate .buy-per-k { width: 62px; padding: .12rem .3rem; font: 500 .72rem 'Courier Prime', monospace; }
+.buy-rate .buy-per-k { width: 62px; padding: .12rem .3rem; font: 500 .72rem var(--ui), monospace; }
 .buy-rate .buy-cur { padding: .12rem .2rem; font-size: .68rem; }
 .buy-rate small { color: var(--muted); font-size: .66rem; }
 .buy-total { display: block; margin-top: .2rem; color: var(--muted); font-size: .68rem; }
@@ -716,9 +716,9 @@ html, body { overflow-x: hidden; }
 /* What else the run brings in. Small chips so a 20-item haul stays scannable
    without competing with the item you actually came for. */
 .gather-haul { margin: .8rem 0 0; padding-top: .6rem; border-top: 1px solid rgba(60,48,20,.08); }
-.gather-haul-head { display: block; color: var(--gold); font: 500 .58rem 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .45rem; }
+.gather-haul-head { display: block; color: var(--gold); font: 500 .58rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .45rem; }
 .haul-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: .3rem; }
-.haul-chip { display: grid; grid-template-columns: 26px 1fr; gap: .35rem; align-items: center; padding: .25rem .35rem; border: 1px solid rgba(60,48,20,.08); background: rgba(215,202,172,.4); }
+.haul-chip { display: grid; grid-template-columns: 26px 1fr; gap: .35rem; align-items: center; padding: .25rem .35rem; border: 1px solid rgba(60,48,20,.08); background: rgba(246,246,244,.4); }
 .haul-chip .item-art.haul-art { width: 26px; height: 26px; border-radius: 5px; }
 .haul-chip b { display: block; font-size: .74rem; font-weight: 600; }
 .haul-chip small { display: block; color: var(--muted); font-size: .64rem; line-height: 1.25; }
@@ -728,10 +728,10 @@ html, body { overflow-x: hidden; }
    tile with a check, not a block of amber — that read as an alert, not a
    setting. The Hide control only collapses the row; it never changes a meal. */
 .meal-strip-head { display: flex; align-items: center; gap: .5rem; }
-.meal-strip-head small { color: var(--muted); font: 500 .58rem 'Courier Prime', monospace; text-transform: none; letter-spacing: 0; }
+.meal-strip-head small { color: var(--muted); font: 500 .58rem var(--ui), monospace; text-transform: none; letter-spacing: 0; }
 .meal-strip-toggle {
   margin-left: auto; padding: .1rem .4rem; border: 1px solid var(--line);
-  background: none; color: var(--muted); font: 500 .6rem 'Courier Prime', monospace;
+  background: none; color: var(--muted); font: 500 .6rem var(--ui), monospace;
   text-transform: uppercase; letter-spacing: .06em; cursor: pointer; border-radius: 3px;
 }
 .meal-strip-toggle:hover { color: var(--text); border-color: var(--muted); }
@@ -741,7 +741,7 @@ html, body { overflow-x: hidden; }
   position: relative; display: grid; grid-template-columns: 24px auto; gap: .35rem;
   align-items: center; padding: .3rem .5rem .3rem .35rem;
   border: 1px solid var(--line); border-radius: 4px;
-  background: rgba(215,202,172,.55); cursor: pointer;
+  background: rgba(246,246,244,.55); cursor: pointer;
   opacity: .55; transition: opacity .12s ease, border-color .12s ease, background .12s ease;
 }
 .meal-chip:hover { opacity: .85; }

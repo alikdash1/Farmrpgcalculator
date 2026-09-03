@@ -233,3 +233,29 @@ actually being about farming instead of another dark app.
 - Verified on Home, Calculate (Giant Squid ×1m), Mining (Highland Hollow
   opened), Setup and mobile: no console errors, no horizontal overflow, tests
   40/40.
+
+## 2026-09-03 (later still) — Matched buddy.farm's plainness
+
+The almanac and every earlier theme still read as "designed at" the page. The
+user pointed at buddy.farm as the one that looks like everything is "in its
+place" and asked what the difference was. Studied it directly: buddy uses the
+plain **system font**, pure white, and — the key thing — shows item pictures
+**directly on the surface with no tile box behind them**, small and inline with
+their labels, rows separated by hairlines, one accent colour.
+
+Rebuilt the theme to that discipline:
+- **System font everywhere** (`--ui`, the native system-ui stack). Dropped the
+  Google Fonts import entirely — no web fonts load now.
+- **Item pictures have no tile.** `.item-art`/`.mine-art` are transparent, the
+  sprite sits on the card the way buddy shows them. Only the single large goal
+  picture keeps a soft plate to anchor the header.
+- **Near-white ground, white cards, one green accent** (#2f7d55) for the primary
+  figure, the active state and the primary button; every other figure is dark
+  ink. Route/category colours desaturated to quiet tags.
+- Calmer type scale (h1 ~40px, weight 700, not an oversized woodtype hero) and
+  quieter eyebrows.
+- Removed the leftover kraft tints and a stray dark `:root` in v3.css that had
+  been fighting the theme.
+
+Verified on Home, Calculate and Mining: system font active, item art
+transparent and loading (naturalWidth 256), no console errors, tests 40/40.

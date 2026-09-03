@@ -40,9 +40,9 @@
   --rule: rgba(60, 48, 20, .16);
 
   /* three voices, one job each */
-  --display: Bevan, 'Rockwell', Georgia, serif;
-  --prose: Bitter, Georgia, serif;
-  --data: 'Courier Prime', ui-monospace, monospace;
+  --display: var(--ui);
+  --prose: var(--ui);
+  --data: var(--ui);
 }
 
 /* --- labels are labels ---------------------------------------------------- */
@@ -171,7 +171,7 @@
 .mine-craft-head b { color: var(--text); font-weight: 600; }
 .mine-onward-craft { border-left-color: var(--rule); }
 .mine-card-kit { font-size: .62rem; }
-.mine-item { background: rgba(20, 18, 28, .38); }
+.mine-item { background: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -181,198 +181,172 @@
   }
 }
 
-
 /* ============================================================================
-   Type: three voices, not three weights of one
+   Type — one clean voice, plus a mono for numbers
    ----------------------------------------------------------------------------
-   Bevan sets anything you scan — headings, tabs, buttons, table
-   cells. Bitter sets anything you read — prose, item names, notes. Spline
-   Sans Mono sets anything you count — figures, rates, labels, codes. A serif
-   for the reading and a grotesque for the chrome keeps the two apart at a
-   glance, which is the whole point of having two.
+   Earlier passes paired a display face with a body face and it never cohered.
+   A single well-made sans across the whole UI, separated only by weight and
+   size, is what reads as "put together". Hanken Grotesk is warm and highly
+   legible; JetBrains Mono handles figures and labels so numbers align in
+   tables and read as data.
    ========================================================================== */
 
-body { font-family: var(--prose); font-size: 15.5px; line-height: 1.6; }
-h1, h2,
-.brand strong, .brand-mark,
-.goal-yield strong, .covered-strip strong,
+body { font-family: var(--prose); font-size: 15px; line-height: 1.6; color: var(--text); }
+
+h1, h2, h3,
+.brand strong, .goal-yield strong, .covered-strip strong,
 .data-card strong, .empty-state strong, .perk-group h2,
-.trail-stop:first-child strong {
+.mine-card-body strong, .trail-stop strong {
   font-family: var(--display);
-  font-weight: 400;
-  letter-spacing: .005em;
+  letter-spacing: -.02em;
 }
-/* chrome is set in the body face, bold — the woodtype is saved for headings */
-.tab, .quiet-button, .presets button, button, select, th,
-.route-choice, .gather-method, .path-pick, .meal-chip, .quest-filters button,
-.brand small, .mine-card-body strong, h3 {
+h1 { font-weight: 700; }
+h2, h3 { font-weight: 700; }
+
+/* Chrome uses the same face, medium-bold. */
+.tab, .quiet-button, .presets button, button, select,
+.route-choice, .gather-method, .path-pick, .meal-chip, .quest-filters button {
   font-family: var(--prose);
-  font-weight: 700;
+  font-weight: 600;
 }
-h3 { letter-spacing: 0; }
+
+/* Numbers, rates, codes and the small uppercase labels are the mono's job. */
 .num, .owned, code, .decision-cost, .route-metric b, .gold-eq,
-.eyebrow, .field > span, .mini-field, .trail-stop span, .goal-title p {
+th, .eyebrow, .field > span, .mini-field, .trail-stop span, .goal-title p,
+.drawer-code, .path-head, .gather-haul-head, .meal-strip-head {
   font-family: var(--data);
   font-variant-numeric: tabular-nums;
 }
 
-/* Not one uniform scale. The page's own hierarchy decides the jumps. */
-h1 { font-size: clamp(34px, 4.4vw, 58px); line-height: .96; letter-spacing: -.035em; }
-/* The home hero is the thesis, so it is the one oversized thing on the site.
-   Section titles below it deliberately do not match it. */
-.dispatch-copy h1 { font-size: clamp(42px, 6.2vw, 86px); line-height: .9; letter-spacing: -.045em; }
-.goal-copy h1 { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.02; letter-spacing: -.028em; }
-h2 { font-size: clamp(25px, 2.4vw, 34px); line-height: 1.04; }
-h3 { font-size: 20px; letter-spacing: -.015em; }
-p  { font-family: var(--prose); }
+/* A calm, even scale — no oversized hero shouting over the rest. */
+h1 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
+.dispatch-copy h1 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.06; }
+.goal-copy h1 { font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
+h2 { font-size: clamp(21px, 2vw, 27px); line-height: 1.12; }
+h3 { font-size: 18px; }
+.eyebrow { font-size: 10.5px; letter-spacing: .06em; font-weight: 600; opacity: .9; }
 
 /* ============================================================================
-   Rhythm: deliberately uneven
+   Clean white theme — the calm ground
    ----------------------------------------------------------------------------
-   Everything used to sit on one padding value and one equal-column grid, which
-   is what made it read as generated. Weight now follows importance: the thing
-   you came for is oversized, the metadata hangs outside the text column as
-   marginalia, and the supporting columns are narrower than the headline one.
+   Cards are white on a near-white page, separated by one soft hairline and a
+   very light shadow rather than by colour. Green is the only accent: the
+   primary figure, links, and the "on" state. Everything else is neutral so the
+   eye rests. Item tiles are soft light wells, not dark boxes.
    ========================================================================== */
 
-/* Eyebrows are metadata about the section, so they sit in a ruled left margin
-   rather than stacked above the heading — the way a ledger annotates a column.
-   The rule is what earns the indent; without it the offset is just drift. */
-@media (min-width: 1180px) {
-  .page-intro,
-  .dispatch-copy {
-    padding-left: 9.5rem;
-    border-left: 1px solid var(--rule);
-  }
-  .page-intro > .eyebrow,
-  .dispatch-copy > .eyebrow {
-    margin-left: -9.5rem;
-    width: 8rem;
-    text-align: right;
-    position: relative;
-    top: 1.1rem;
-    margin-bottom: -1.1rem;
-    opacity: .8;
-  }
+/* One card idiom: white, soft border, gentle lift. No tilts, no coloured fills. */
+.route-card, .gather-col, .gather-panel, .mine-row, .mine-item, .haul-chip,
+.decision-row, .tower-cost-card, .quest-line, .readiness-card, .rule-card,
+.make-buy, .workbench, .tree-card, .assumption-card, .source-list, .acorn-lab,
+.perk-group, .infra-card, .meal-card, .data-card, .goal-controls, .sample-form {
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.route-card, .workbench, .tree-card, .make-buy, .assumption-card,
+.source-list, .acorn-lab, .readiness-card, .rule-card, .perk-group, .infra-card {
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
-/* The figure you came for, against a label that stays out of its way. */
-.goal-yield strong { font-size: clamp(34px, 4.6vw, 62px); line-height: .9; }
-.goal-yield span { font-size: 9px; letter-spacing: .14em; opacity: .75; }
-
-/* First stop is the headline number; the rest support it. */
-.resource-trail { grid-template-columns: 1.45fr repeat(3, minmax(0, 1fr)); }
-.trail-stop { padding: 20px 16px 22px; }
-.trail-stop:first-child { padding: 24px 20px 26px; }
-.trail-stop:first-child strong { font-size: 30px; }
-@media (max-width: 860px) { .resource-trail { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 420px) { .resource-trail { grid-template-columns: minmax(0, 1fr); } }
-
-/* Section headings: an unequal pair, both left-set. */
-.section-heading { align-items: baseline; }
-.section-heading > p {
-  text-align: left;
-  max-width: 34ch;
-  font-size: 12.5px;
-  padding-bottom: .2rem;
-}
-
-/* Padding by role, not one global value. */
-.route-card { padding: 26px 24px 22px; }
-.route-card:first-child { padding-top: 30px; }
-.workbench { padding: 26px 24px; }
-.gather-panel { padding: 22px 22px 26px; }
-.mine-item { padding: .55rem .65rem .7rem; }
-.tree-card { padding: 18px 22px 24px; }
-
-/* The paper panels are pinned notes, not slabs: let them sit off-square. */
-.goal-controls { transform: rotate(-.55deg); box-shadow: 12px 13px 0 rgba(224, 146, 94, .18); }
-.data-card:nth-child(2n) { transform: translateY(6px); }
-.sample-form { transform: rotate(.3deg); }
-
-/* Brand mark: hand-drawn, so it should not sit dead straight either. */
-.brand-mark { transform: rotate(-5deg); box-shadow: inset 0 -5px 0 var(--gold); }
-
-@media (max-width: 820px) {
-  .goal-controls, .sample-form { transform: none; }
-  .data-card:nth-child(2n) { transform: none; }
-  .section-heading > p { max-width: none; }
-}
-
-/* ============================================================================
-   Almanac light theme — corrections
-   ----------------------------------------------------------------------------
-   The whole app was built dark-first. Flipping the tokens to warm paper leaves
-   a handful of places that hard-wired a dark ground: white hover washes that
-   vanish on paper, dark panels that assumed light text, and inputs whose text
-   colour tracked the (now light) --ink. Those are set right here, in one place,
-   rather than editing five stylesheets. The item tiles stay dark on purpose —
-   Farm RPG sprites are drawn for dark grounds — so they read as specimen wells
-   pressed into the page.
-   ========================================================================== */
-
-/* Masthead: a kraft band ruled off the page, not a dark bar. */
+/* Masthead: white, ruled off the page. */
 .masthead {
-  background: rgba(240, 233, 217, .9) !important;
+  background: rgba(255, 255, 255, .92) !important;
   border-bottom: 1px solid var(--line) !important;
 }
-.brand-mark { background: var(--paper); color: var(--ink); }
+.brand-mark { background: var(--green); color: #fff; box-shadow: none; transform: none; }
 
-/* Hover/again washes were white-on-dark; on paper they must be ink-on-light. */
-tr:hover td,
-.tree summary:hover,
-.perk-row:hover,
-.meal-card:hover,
-.recipe-node:hover,
-.sample-row:hover { background: rgba(60, 48, 20, .05) !important; }
-
-/* The item wells keep a dark interior; drop the white inset that lit their rim. */
-.item-art,
-.mine-art,
-.mine-card-art {
-  background: radial-gradient(circle at 38% 26%, #2b2f3d, #0f1119);
-  border-color: rgba(40, 32, 12, .28);
-}
-.item-art.goal-art {
-  background: radial-gradient(circle at 38% 26%, #333849, #0f1119);
-  box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .18);
-}
-
-/* The dark "stamp" panels (goal ticket, data cards, sample form) now sit on
-   paper. Their own text was var(--ink), which is paper-coloured now — flip the
-   text to paper and keep their inputs dark-on-cream so you can read what you
-   type. */
-
+/* The goal ticket is the one place the accent leads: white card, green action. */
 .goal-controls, .data-card, .sample-form {
-  background: var(--paper);
-  color: #f2ecdd;
-  border: 1px solid #4a4436;
-}
-.goal-controls .field > span,
-.data-card span, .sample-form label { color: #cabf9f; }
-.goal-controls input, .sample-form input, .sample-form select,
-.mini-field input, .owned, .suggest, .sg {
-  background: #fffdf6;
   color: var(--text);
-  border-color: #b8ad98;
+  border-radius: 12px;
 }
-.presets button { color: #f2ecdd; border-color: #6a6250; }
-.presets button:hover { background: #f2ecdd; color: var(--paper); }
-.data-card strong { color: #e9b98f; }
+.goal-controls .field > span, .data-card span, .sample-form label { color: var(--muted); }
+.goal-controls input, .sample-form input, .sample-form select,
+.mini-field input, .owned, .suggest, .sg, .field input {
+  background: #fff;
+  color: var(--text);
+  border-color: var(--line);
+}
+.data-card strong { color: var(--text); }
 
-/* Notice: a stamped errata slip, dark red ink on a tinted paper. */
-.notice { background: #f3e2d8; color: #7a2417; border-left-color: var(--red); }
+/* Primary buttons carry the accent; quiet ones stay outlined. */
+#homeGoal button[type="submit"] {
+  background: var(--green); color: #fff; border: 1px solid var(--green);
+}
+.presets button {
+  background: #fff; color: var(--text); border: 1px solid var(--line);
+}
+.presets button:hover { border-color: var(--green); color: var(--green); }
+#homeGoal button[type="submit"]:hover { filter: brightness(1.06); }
+.quiet-button:hover { border-color: var(--green); color: var(--green); }
 
-/* Tabs: the active one is underlined in rust, not gold. */
-.tab.active { border-color: var(--gold); }
-.brand-mark { box-shadow: inset 0 -5px 0 var(--gold); }
+/* Item pictures sit directly on the surface — no tile boxes — the way
+   buddy.farm shows them, so they read as "in place" beside their labels. */
+.item-art, .mine-art, .mine-card-art {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+.item-art img, .mine-art img, .mine-card-art img { max-width: 100%; max-height: 100%; }
+/* The goal picture is the one that gets a soft plate to anchor the header. */
+.item-art.goal-art {
+  background: var(--paper2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: none;
+}
 
-/* Focus ring reads on paper. */
+/* The one accent: the primary figure and the active state are green. */
+.goal-yield strong, .trail-stop:first-child strong,
+.route-metric.is-primary b { color: var(--green); }
+.eyebrow, .field > span, .gather-col > span, .path-head, .gather-haul-head,
+.meal-strip-head, .mine-onward-head, .tower-reward-label, .drawer-code {
+  color: var(--muted) !important;
+}
+
+/* State = a soft green tint and a left rule. Nothing shouts. */
+.meal-chip.on, .gather-method.on, .path-pick.on,
+.quest-filters button.active, .mine-row[open] {
+  border-color: var(--green) !important;
+  background: rgba(47, 125, 85, .06) !important;
+  box-shadow: inset 2px 0 0 var(--green);
+}
+.tab.active { border-color: var(--green); color: var(--text); }
+
+/* Hovers are the faintest neutral wash. */
+tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
+.recipe-node:hover, .sample-row:hover, .mine-item:hover {
+  background: rgba(20, 30, 20, .035) !important;
+}
+.mine-row:hover, .recent-button:hover, .quest-item:hover { border-color: var(--green); }
+
+/* Route tags: quiet outlined chips, muted category colours. */
+.route-choice { font-weight: 600; }
+
+/* Notice slip. */
+.notice { background: #fdeceb; color: #8a2a20; border-left-color: var(--red); }
+
+/* Focus ring. */
 :where(a, button, select, input, textarea, summary, label, [tabindex]):focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
 }
 
-/* Woodtype wants a touch more line height at display sizes so it breathes. */
-h1 { line-height: .98; }
-.dispatch-copy h1 { line-height: .96; }
+/* First trail stop leads, the rest support — but calmly, one scale. */
+.resource-trail { grid-template-columns: 1.3fr repeat(3, minmax(0, 1fr)); }
+.trail-stop:first-child strong { font-size: 26px; }
+@media (max-width: 860px) { .resource-trail { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .resource-trail { grid-template-columns: minmax(0, 1fr); } }
+
+.section-heading { align-items: baseline; }
+.section-heading > p { text-align: left; max-width: 40ch; font-size: 12.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
