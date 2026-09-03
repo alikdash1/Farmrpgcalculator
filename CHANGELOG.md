@@ -299,3 +299,14 @@ No horizontal overflow, tests 40/40.
   room to flow. The drop itself is marked with a green chip.
 
 Tests 40/40, no console errors.
+
+## 2026-09-03 (tower colours) — Tower page brought onto the theme
+
+The Tower page had never been migrated: purple/indigo panels, a copper "next
+floor" stamp with a tilt and drop-shadow, orange progress bars — and, worse, its
+big numbers used `var(--paper)`, which is dark in the dark theme, so several
+figures were dark-on-dark and invisible. Rebuilt tower.css on the shared tokens:
+neutral dark cards, green for the next floor / active state / progress fill,
+`var(--text)` for figures, muted for the "X left" amounts and labels. Dropped the
+tilt and offset shadows and calmed the oversized "Your Road to T340" heading to
+the site's scale. Quests was already on-theme.
