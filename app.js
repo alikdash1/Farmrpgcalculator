@@ -9,6 +9,9 @@
   const PERSONAL = window.FRPG_PERSONAL_TOWER || { startFloor: 277, goalFloor: 340, masteries: {} };
   const TOWER_FLOORS = window.FRPG_TOWER_FLOORS || { floors: [] };
   const index = E.buildIndex(D);
+  // Shared so the gather lists can say where an item comes from without
+  // building a second copy of this index.
+  window.FRPG_INDEX = index;
   const EVENT_LOCATIONS = new Set(["Haunted House", "Santa's Workshop"]);
   const EXACT_AP_RATES = {
     "Mount Banon": {
@@ -69,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.10";
+  const FRPG_BUILD = "2026-09-05.12";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.

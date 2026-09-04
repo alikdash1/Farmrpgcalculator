@@ -183,3 +183,6 @@
 .inventory-diag { display: block; margin-top: 6px; color: var(--muted); font-size: .78rem; }
 
 .inventory-show-tracker { margin-top: 8px; padding: 5px 11px; font-size: .78rem; }
+
+/* Where the item comes from, under its name. */
+.inventory-source { color: var(--muted); font-size: .68rem; }

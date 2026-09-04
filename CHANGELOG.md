@@ -722,3 +722,16 @@ round. 190 lines for the pirate saga, verified.
 Also checked, and rejected: grouping the list by item type. 924 of the 1,138
 items are typed simply "item", so the grouping would have been mostly one
 bucket labelled Other — worse than no grouping.
+
+## 2026-09-05 — Where each item comes from, and a list you can take in
+
+- **The gather lists now say how to get each item** — Craft, Cook, Grow,
+  Fish <place>, Explore <place>, Buy, Trade — from the engine index `app.js`
+  already builds. 155 of the pirate saga's 189 items resolve a source. Shown
+  under the name on the Inventory tab, and on hover in the tracker.
+  A trap worth recording: for a meal, `growMin` is the **cooking** time, not a
+  growth time, so Cabbage Stew would have read "Grow". Meals are tested first.
+- **The expanded list is denser**: 18px rows, 16px art, 11px text. All 189
+  items still fit without scrolling and read as a list rather than a wall.
+- **A filter in the expanded view.** Typing "ring" narrows 189 items to the 6
+  rings, and the heading says how many matched.

@@ -43,12 +43,16 @@
       // Every other list in the app opens an item in the calculator on click;
       // this one was the exception. Currency has nothing to open.
       const openable = !row.currency && ART.itemFor(row.name);
+      const where = GATHER.whereFor ? GATHER.whereFor(row.name) : "";
+      const hint = [where, now ? "Also needed for the step you are on" : ""].filter(Boolean).join(" — ");
       const attrs = openable
-        ? ` data-open-item="${esc(row.name)}" data-open-qty="${row.short}" role="button" tabindex="0" title="Work out how to get ${esc(row.name)}"`
-        : (now ? ' title="Also needed for the step you are on"' : "");
+        ? ` data-open-item="${esc(row.name)}" data-open-qty="${row.short}" role="button" tabindex="0" title="${esc(hint || ("Work out how to get " + row.name))}"`
+        : (hint ? ` title="${esc(hint)}"` : "");
       return `<li${cls ? ` class="${cls}${openable ? " is-openable" : ""}"` : (openable ? ' class="is-openable"' : "")}${attrs}>${art(row.name)}<span>${esc(row.name)}</span><b>${short(row.short)}</b></li>`;
     }).join("");
   }
+
+  let filter = "";
 
   function draw(which, { title, subtitle, rows, mark, collapsed, big, canExpand }) {
     const panel = panels[which];
@@ -62,7 +66,8 @@
         ${canExpand && !collapsed ? `<button type="button" class="tracker-toggle" data-size aria-pressed="${!!big}" title="${big ? "Back to the corner" : "Open across the page"}">${big ? "⤡" : "⤢"}</button>` : ""}
         <button type="button" class="tracker-toggle" data-close title="Hide until you track something again">✕</button>
       </header>
-      ${collapsed ? "" : `<ul class="tracker-list">${rowsHtml(rows, mark)}</ul>
+      ${collapsed ? "" : `${big ? `<div class="tracker-filter"><input type="search" data-filter value="${esc(filter)}" placeholder="Filter these ${rows.length} items…" autocomplete="off"></div>` : ""}
+        <ul class="tracker-list">${rowsHtml(rows, mark)}</ul>
         <footer class="tracker-foot">${rows.length} still short<span class="tracker-foot-actions">${canExpand ? `<button type="button" data-copy title="Copy as tab-separated rows, ready to paste into a spreadsheet">Copy list</button>` : ""}<button type="button" data-open>Open</button></span></footer>`}
     `;
   }
@@ -89,14 +94,16 @@
       collapsed: read("frpg_tracker_next_collapsed", "") === "1",
       canExpand: false,
     });
+    const big = read("frpg_tracker_big", "") === "1";
+    const needle = filter.trim().toLowerCase();
     draw("whole", {
       title: plan.lineName,
-      subtitle: steps,
-      rows: wholeRows,
+      subtitle: steps + (big && needle ? ` · ${wholeRows.filter((row) => row.name.toLowerCase().includes(needle)).length} matching` : ""),
+      rows: big && needle ? wholeRows.filter((row) => row.name.toLowerCase().includes(needle)) : wholeRows,
       // The items this step also needs, so they stay findable in a long list.
       mark: new Set(nextRows.map((row) => row.name)),
       collapsed: read("frpg_tracker_whole_collapsed", "") === "1",
-      big: read("frpg_tracker_big", "") === "1",
+      big,
       canExpand: true,
     });
   }
@@ -114,6 +121,14 @@
       return render();
     }
     if ((event.key === "Enter" || event.key === " ") && openItem(event.target)) event.preventDefault();
+  });
+
+  document.addEventListener("input", (event) => {
+    if (!event.target.matches(".quest-tracker [data-filter]")) return;
+    filter = event.target.value;
+    render();
+    const field = panels.whole.querySelector("[data-filter]");
+    if (field) { field.focus(); field.setSelectionRange(field.value.length, field.value.length); }
   });
 
   document.addEventListener("click", (event) => {

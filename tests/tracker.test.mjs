@@ -125,3 +125,29 @@ test("the whole-line list can be copied into a spreadsheet", () => {
   // Only on the whole-line panel; copying one step's list has little use.
   assert.match(js, /canExpand \? `<button type="button" data-copy/);
 });
+
+test("the expanded list is dense and filterable", () => {
+  const js = read("tracker.js");
+  const css = read("tracker.css");
+  // 189 rows at panel size reads as a wall; smaller rows and a filter make it
+  // something you can take in.
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?font-size: 11px/);
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list img \{ width: 16px/);
+  assert.match(js, /data-filter/);
+  assert.match(js, /matching/);
+  // The filter belongs to the expanded view only.
+  assert.match(js, /\$\{big \? `<div class="tracker-filter">/);
+});
+
+test("gather lists say where an item comes from", () => {
+  const gather = read("gather-model.js");
+  const page = read("inventory-page.js");
+  assert.match(gather, /function whereFor\(name\)/);
+  // For a meal, growMin is the cooking time. Labelling meals "Grow" would be
+  // an invented mechanic, so the meal test has to come first.
+  assert.match(gather, /if \(item\.type === "meal" \|\| item\.cookLevel != null\) bits\.push\("Cook"\);/);
+  assert.match(gather, /else if \(item\.growMin > 0\) bits\.push\("Grow"\);/);
+  // Built on the index app.js already made, not a second copy.
+  assert.match(read("app.js"), /window\.FRPG_INDEX = index;/);
+  assert.match(page, /function sourceHint\(name\)/);
+});

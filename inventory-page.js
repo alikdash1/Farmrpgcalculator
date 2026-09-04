@@ -34,9 +34,16 @@
     return `<span class="inventory-item-link is-static">${content}</span>`;
   }
 
+  // Where the item comes from, from the data already loaded. Knowing you need
+  // 84,000 Cannons matters less than knowing they are crafted.
+  function sourceHint(name) {
+    const where = typeof GATHER.whereFor === "function" ? GATHER.whereFor(name) : "";
+    return where ? `<small class="inventory-source">${esc(where)}</small>` : "";
+  }
+
   function tableMarkup(rows, emptyCopy) {
     if (!rows.length) return `<div class="inventory-empty"><strong>${esc(emptyCopy)}</strong></div>`;
-    return `<div class="inventory-requirements" role="table"><div class="inventory-row inventory-row-head" role="row"><span role="columnheader">Item</span><span role="columnheader">Needed</span><span role="columnheader">You have</span><span role="columnheader">Still short</span></div>${rows.map((row) => `<div class="inventory-row${row.short > 0 ? " is-short" : " is-covered"}" role="row"><span role="cell">${itemControl(row.name, row.quantity, row.currency ? `<small>Currency</small>` : "")}</span><b role="cell">${fmt.format(row.quantity)}</b><span role="cell">${row.owned == null ? "—" : fmt.format(row.owned)}</span><strong role="cell">${fmt.format(row.short)}</strong></div>`).join("")}</div>`;
+    return `<div class="inventory-requirements" role="table"><div class="inventory-row inventory-row-head" role="row"><span role="columnheader">Item</span><span role="columnheader">Needed</span><span role="columnheader">You have</span><span role="columnheader">Still short</span></div>${rows.map((row) => `<div class="inventory-row${row.short > 0 ? " is-short" : " is-covered"}" role="row"><span role="cell">${itemControl(row.name, row.quantity, row.currency ? `<small>Currency</small>` : sourceHint(row.name))}</span><b role="cell">${fmt.format(row.quantity)}</b><span role="cell">${row.owned == null ? "—" : fmt.format(row.owned)}</span><strong role="cell">${fmt.format(row.short)}</strong></div>`).join("")}</div>`;
   }
 
   function renderOwned(rows) {

@@ -138,5 +138,33 @@
     };
   }
 
-  window.FRPG_GATHER = { plan, inventoryRows, ignoredCount, trackedLine, hasStoredChoice, busiestLine, keyFor };
+  // Where an item comes from, in the player's terms, from the data already
+  // loaded — no rates, no invention. Beware: for a meal, growMin is the
+  // cooking time, not a growth time, so meals must never read as "Grow".
+  function whereFor(name) {
+    const index = window.FRPG_INDEX;
+    if (!index) return "";
+    const id = index.idByName.get(keyFor(name));
+    const item = id ? index.itemsById.get(id) : null;
+    if (!item) return "";
+
+    const bits = [];
+    if (item.craftPrice != null) bits.push("Craft");
+    if (item.type === "meal" || item.cookLevel != null) bits.push("Cook");
+    else if (item.growMin > 0) bits.push("Grow");
+
+    const sources = index.locsByItem.get(keyFor(item.name)) || [];
+    const fishing = [...new Set(sources.filter((row) => row.mode === "fishes").map((row) => row.loc))];
+    const exploring = [...new Set(sources.filter((row) => row.mode !== "fishes").map((row) => row.loc))];
+    if (fishing.length) bits.push("Fish " + fishing[0] + (fishing.length > 1 ? " +" + (fishing.length - 1) : ""));
+    if (exploring.length) bits.push("Explore " + exploring[0] + (exploring.length > 1 ? " +" + (exploring.length - 1) : ""));
+
+    if (item.buy != null && item.buy > 0) bits.push("Buy " + item.buy.toLocaleString() + "g");
+    const market = index.marketByName.get(keyFor(item.name));
+    if (market && (market.gold || market.ap || market.oj)) bits.push("Trade");
+    return bits.join(" · ");
+  }
+
+  window.FRPG_GATHER = {
+    whereFor, plan, inventoryRows, ignoredCount, trackedLine, hasStoredChoice, busiestLine, keyFor };
 })();
