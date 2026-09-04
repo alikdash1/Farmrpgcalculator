@@ -1573,6 +1573,22 @@
       warnings.push("Extraction is provisional (generic label/table/text parsing). Verify values against the page before relying on them.");
     }
 
+  // Farm RPG draws every item with its own picture, so a page you are already
+  // reading knows the artwork for items the planner has never heard of. Harvest
+  // it here — the planner has no other way to learn art for a new item, and
+  // this costs nothing beyond what is on screen.
+  function harvestItemArt() {
+    const art = {};
+    document.querySelectorAll("img[alt]").forEach((img) => {
+      const name = cleanWhitespace(img.getAttribute("alt") || "");
+      const src = String(img.getAttribute("src") || "").split(/[?#]/)[0];
+      if (!name || name.length > 60 || !src) return;
+      if (!/\/img\/items\//i.test(src)) return;
+      if (!art[name]) art[name] = src.replace(/^https?:\/\/[^/]+/i, "");
+    });
+    return art;
+  }
+
     const payload = {
       schema: CAPTURE_SCHEMA,
       collectorVersion: COLLECTOR_VERSION,
@@ -1583,6 +1599,7 @@
       title: cleanWhitespace(title),
       url,
       fields,
+      itemArt: harvestItemArt(),
       visibleText,
       warnings,
     };

@@ -22,11 +22,12 @@ Claim a task by adding a row before you start. Clear it when merged.
   it into one, in prerequisite order. 33 steps, 2 done, **31 left — a third of
   everything the player has remaining.** Step XXIX is known only from a
   community sheet and is flagged `pending`.
-- **Inventory tab.** Opens on the questline you have the most left to do on,
-  with no picking required; **Track** on any questline in Quests pins a
-  different one. Next quest bottom-left, whole remaining line bottom-right,
-  both netted against `frpg_owned`. With no inventory imported it says so
-  above the table rather than showing a column of zeroes.
+- **Gather planning.** `gather-model.js` owns the arithmetic; the Inventory
+  tab and the floating tracker both read it so they cannot disagree. The
+  tracker (`tracker.js`) is appended to the body, so it shows on every tab:
+  this quest on the left, the whole line on the right, collapsible, and a size
+  toggle for reading both properly. Tracking is set with **Track** on the
+  Quests tab; nothing is tracked yet means the line with the most left to do.
 - **Item art.** One lookup for the whole app in `item-art.js`. It reads every
   source that carries artwork — `data/items.js`, `data/item-art.js`,
   `data/new-items.js` (mining catalogue) and `data/tower-floors.js` — because
@@ -37,12 +38,12 @@ Claim a task by adding a row before you start. Clear it when merged.
 - **Tower.** Requirements for T300–T340 from the wiki. Grand Mastery floors
   score against 100,000 and Mega Mastery against 1,000,000 — not everything is
   1m. Masteries are the 2026-09-04 CSV, 514 items.
-- **Extension.** v1.4.0, read-only. Pages capture themselves on load; one
-  capture per page type, newest wins. The popup is a plain list — section,
-  how much it holds, how long ago — with **Capture this Farm RPG page** as the
-  only primary action. No per-section Open buttons (they inherited the global
-  full-width button rule and printed over the labels). Downloading a snapshot
-  file is opt-in; captures go to storage and straight to Lantern Ledger.
+- **Extension.** v1.6.0, read-only, and it **only captures when asked**. The
+  90-second timer and the route-change capture were reading whatever screen
+  was open — an inventory page showing just gold and silver was overwriting a
+  full inventory. A capture far smaller than the one it would replace is now
+  refused as well. Captures also harvest item artwork off the page, which is
+  how the planner learns pictures for items its data files have never seen.
 
 ## Known gaps
 

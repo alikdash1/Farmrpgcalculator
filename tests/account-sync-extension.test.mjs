@@ -74,3 +74,19 @@ test("the popup lists sections without controls that overlap the labels", () => 
   // The list refreshes itself when a capture lands, rather than only on reopen.
   assert.match(js, /chrome\.storage\.onChanged\.addListener/);
 });
+
+test("nothing captures on its own, and a half-loaded page cannot overwrite a full one", () => {
+  const content = fs.readFileSync(path.join(ext, "farm-content.js"), "utf8");
+  const background = fs.readFileSync(path.join(ext, "background.js"), "utf8");
+
+  // A 90-second timer and a route-change capture were reading whatever screen
+  // happened to be open, and an inventory page showing only gold and silver
+  // replaced a full inventory capture.
+  assert.doesNotMatch(content, /setInterval/);
+  assert.doesNotMatch(content, /queueCapture\("periodic"/);
+  assert.doesNotMatch(content, /queueCapture\("route"/);
+  assert.match(content, /queueCapture\("manual"/);
+
+  // Backstop: a capture far smaller than the one it would replace is refused.
+  assert.match(background, /oldCount >= 20 && nextCount < oldCount \/ 4/);
+});

@@ -36,6 +36,28 @@
     for (const row of [...(floor.gms || []), ...(floor.mms || [])]) learn(row.name, row.img);
   }
 
+  // Last, and the reason an item the planner has never heard of can still show
+  // a picture: artwork the account capture read off the player's own Farm RPG
+  // pages. Only /img/items/ paths survive the extension's sanitiser.
+  function learnFromCapture() {
+    let snapshot = null;
+    try { snapshot = JSON.parse(localStorage.getItem("frpg_account_snapshot_v1") || "null"); }
+    catch (_) { return; }
+    for (const [name, path] of Object.entries((snapshot && snapshot.itemArt) || {})) {
+      if (typeof path === "string" && /^\/img\/items\//.test(path)) learn(name, path);
+    }
+  }
+  learnFromCapture();
+  // A capture arriving mid-session brings art with it. Guarded because this
+  // file is also loaded outside a browser by the tests.
+  if (typeof W.addEventListener === "function") W.addEventListener("message", (event) => {
+    if (event.data && event.data.source === "farmrpg-account-sync" && event.data.type === "snapshot") {
+      for (const [name, path] of Object.entries((event.data.snapshot && event.data.snapshot.itemArt) || {})) {
+        if (typeof path === "string" && /^\/img\/items\//.test(path)) learn(name, path);
+      }
+    }
+  });
+
   // Silver is the game's currency, not an item. It gets no picture anywhere.
   function isCurrency(name) {
     return String(name || "").trim().toLowerCase() === "silver";
@@ -50,5 +72,5 @@
     return art.get(String(name || "").trim().toLowerCase()) || "";
   }
 
-  W.FRPG_ITEM_ART_HELPER = { itemFor, urlFor, isCurrency, known: art.size };
+  W.FRPG_ITEM_ART_HELPER = { itemFor, urlFor, isCurrency, get known() { return art.size; } };
 })();

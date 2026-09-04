@@ -67,8 +67,8 @@ test("Inventory is a separate responsive page with both live refresh paths and t
   assert.match(html, /data-tab="inventory"/);
   assert.match(html, /id="inventoryNext"/);
   assert.match(html, /id="inventoryWhole"/);
-  assert.match(source, /frpg_owned/);
-  assert.match(source, /frpg_tracked_line/);
+  assert.match(read("gather-model.js"), /frpg_owned/);
+  assert.match(read("gather-model.js"), /frpg_tracked_line/);
   assert.match(source, /window\.addEventListener\("storage", render\)/);
   assert.match(source, /source === "farmrpg-account-sync"/);
   assert.match(read("quests-page.js"), /data-track-line/);
@@ -110,7 +110,9 @@ test("the whole questline can be opened across the full screen", () => {
 });
 
 test("a freshly captured inventory shows without pressing Apply", () => {
-  const source = read("inventory-page.js");
+  // The arithmetic lives in gather-model.js so the Inventory tab and the
+  // floating tracker cannot disagree about what is left.
+  const source = read("gather-model.js");
   // frpg_owned exists as {} from the app's first save, so a truthiness check
   // alone made a captured inventory look empty until Apply was pressed.
   assert.match(source, /Object\.keys\(saved\)\.length/);

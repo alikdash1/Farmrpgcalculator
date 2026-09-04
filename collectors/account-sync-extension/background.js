@@ -88,14 +88,26 @@ function protectUsefulCapture(oldCapture, nextCapture) {
   if (!oldCapture) return null;
   const oldCount = detailCount(oldCapture);
   const nextCount = detailCount(nextCapture);
-  if (oldCount <= 0 || nextCount > 0 || isExplicitlyEmpty(nextCapture)) return null;
+  if (oldCount <= 0 || isExplicitlyEmpty(nextCapture)) return null;
   const protectedTypes = new Set([
     "profile", "inventory", "tower", "mastery", "quests-completed",
     "perks", "farm-supply", "pets", "kitchen", "friendships", "artifacts"
   ]);
   if (!protectedTypes.has(nextCapture.pageType)) return null;
-  return "This page has not finished loading its account details. The previous complete " +
-    nextCapture.pageLabel + " capture was kept.";
+  if (nextCount === 0) {
+    return "This page has not finished loading its account details. The previous complete " +
+      nextCapture.pageLabel + " capture was kept.";
+  }
+  // A half-drawn page can still yield a few rows — an inventory showing only
+  // gold and silver, say — and replacing hundreds of rows with three loses
+  // real data. A shrink that severe is a half-loaded page, not an account that
+  // changed, so keep what is already known and say so.
+  if (oldCount >= 20 && nextCount < oldCount / 4) {
+    return "That read only found " + nextCount + " of the " + oldCount + " rows already saved, " +
+      "so the page had probably not finished loading. The fuller " + nextCapture.pageLabel +
+      " capture was kept — open the page, let it finish, then capture again.";
+  }
+  return null;
 }
 
 function normalizeStoredCaptures(raw) {

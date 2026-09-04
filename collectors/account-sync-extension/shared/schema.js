@@ -91,6 +91,9 @@
       supplyStats: { maxMailbox: null, activeMealEffects: null },
       kitchenStats: { ovensOwned: null, emptyOvens: null, maximumOvensAvailable: null, nextOvenCookingLevel: null, fruitPunchLeft: null },
       consumables: {},
+      // Item name to /img/items/… path, collected from the pages themselves so
+      // the planner can draw items its own data has never seen.
+      itemArt: {},
       inventory: [],
       masteries: [],
       quests: { available: [], active: [], ready: [], completed: [], locked: [] },
@@ -185,6 +188,24 @@
    * Legacy farmrpg-visible-page-v1 exports are accepted as raw-text-only
    * captures with pageType "unknown".
    */
+  // Names to same-origin /img/items/ paths only. Anything else is discarded
+  // rather than trusted: this ends up as an <img src> on the planner's pages.
+  function sanitizeItemArt(value) {
+    const out = {};
+    if (!value || typeof value !== "object") return out;
+    let kept = 0;
+    for (const name of Object.keys(value)) {
+      if (kept >= 4000) break;
+      const path = value[name];
+      if (typeof name !== "string" || typeof path !== "string") continue;
+      if (!name.trim() || name.length > 60) continue;
+      if (!/^\/img\/items\/[A-Za-z0-9_.\-]{1,120}$/.test(path)) continue;
+      out[name.trim()] = path;
+      kept += 1;
+    }
+    return out;
+  }
+
   function validateCapture(parsed, rawBytes) {
     const errors = [];
     const warnings = [];
@@ -247,6 +268,9 @@
       title: typeof parsed.title === "string" ? parsed.title : "",
       url: deps.sanitize.sanitizeUrl(typeof parsed.url === "string" ? parsed.url : ""),
       fields: fields,
+      // Item artwork read off the page itself. It is how the planner learns
+      // pictures for items its own data files have never heard of.
+      itemArt: sanitizeItemArt(parsed.itemArt),
       visibleText: visibleText,
       warnings: Array.isArray(parsed.warnings) ? parsed.warnings.filter(function (w) { return typeof w === "string"; }) : [],
       legacy: isLegacy,

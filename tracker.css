@@ -1,0 +1,114 @@
+/* The tracked questline, readable from any tab. Deliberately small and out of
+   the way: it is a glance, not a page. */
+.quest-tracker {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 70;
+  width: 340px;
+  max-height: min(58vh, 520px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .45);
+  font-size: 12px;
+}
+.quest-tracker[hidden] { display: none; }
+
+.tracker-head {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 9px;
+  border-bottom: 1px solid var(--line);
+}
+.quest-tracker.is-collapsed .tracker-head { border-bottom: 0; }
+.tracker-title { min-width: 0; display: grid; }
+.tracker-title b { font-size: 12px; line-height: 1.25; overflow-wrap: anywhere; }
+.tracker-title small { margin-top: 1px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-toggle {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.tracker-toggle:hover { color: var(--green); border-color: var(--green); }
+
+/* Both lists at once: what this step needs, and what the rest of the line
+   needs. Side by side is the whole point — one is a subset of the other. */
+.tracker-cols {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.tracker-col { display: flex; flex-direction: column; min-height: 0; background: var(--ink2); }
+.tracker-col > header { padding: 6px 8px 5px; border-bottom: 1px solid var(--line); }
+.tracker-col > header b { display: block; color: var(--green); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.tracker-col > header small { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-col > ul { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 3px 3px 3px 8px; }
+
+.tracker-col li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 3px 5px 3px 0;
+}
+.tracker-col li + li { border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.tracker-col img { display: block; width: 20px; height: 20px; object-fit: contain; }
+.tracker-noart { display: block; width: 20px; height: 1px; background: var(--line); }
+.tracker-col li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-col li b { font-size: 11px; font-variant-numeric: tabular-nums; }
+.tracker-col li.is-currency span, .tracker-col li.is-currency b { color: var(--muted); }
+.tracker-done { color: var(--green); padding: 8px 0; }
+
+.tracker-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10.5px;
+}
+.tracker-foot button {
+  padding: 3px 9px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+.tracker-foot button:hover { color: var(--green); border-color: var(--green); }
+
+@media (max-width: 620px) {
+  .quest-tracker { right: 8px; bottom: 8px; width: calc(100vw - 16px); max-height: 46vh; }
+}
+
+/* Bigger, for reading both lists properly rather than glancing at them. */
+/* No width transition: the browser will not interpolate from a px width to a
+   min() expression, and the panel gets stuck at whichever size it started at. */
+.quest-tracker.is-big { width: min(760px, calc(100vw - 28px)); max-height: min(82vh, 900px); }
+.quest-tracker.is-big .tracker-col li { padding-top: 4px; padding-bottom: 4px; }
+.quest-tracker.is-collapsed { width: 260px; }
+
+@media (max-width: 760px) {
+  .quest-tracker, .quest-tracker.is-big { width: calc(100vw - 16px); }
+}

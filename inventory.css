@@ -1,5 +1,5 @@
 .inventory-page { padding-bottom: 4rem; }
-.inventory-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 420px); gap: 2rem; align-items: end; padding: 2.3rem 0 1.6rem; border-bottom: 1px solid var(--line); }
+.inventory-intro { display: block; padding: 2.3rem 0 1.6rem; border-bottom: 1px solid var(--line); }
 .inventory-intro h1 { margin-top: .25rem; }
 .inventory-intro p { max-width: 680px; margin-top: .8rem; color: var(--muted); }
 .inventory-line-picker { display: grid; gap: .45rem; }

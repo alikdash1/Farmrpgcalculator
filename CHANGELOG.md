@@ -551,3 +551,21 @@ snapshot when there are no hand-entered amounts.
 
 Verified by posting a snapshot the way the extension does: Spoon 8,000 needed
 against 4,200 held reads 3,800 short, with nothing applied by hand.
+
+## 2026-09-04 — A tracker on every tab, and captures that stop overwriting
+
+- `gather-model.js` now owns "what is still needed", read by both the Inventory
+  tab and a new floating tracker, so the two cannot drift apart.
+- `tracker.js` pins the tracked questline to the corner of every tab: this
+  quest on the left, the whole line on the right, collapsible, dismissible, and
+  a size toggle for reading both lists properly. No width transition — the
+  browser will not interpolate a px width to a `min()` value and the panel got
+  stuck at whichever size it started at.
+- The Inventory tab's questline picker is gone; **Track** on the Quests tab is
+  the one way to choose, and both panels already say what is being shown.
+- **The extension no longer captures on its own.** A 90-second timer and a
+  route-change capture were reading whatever screen was open, and an inventory
+  page showing only gold and silver was replacing a full inventory capture. A
+  capture with under a quarter of the rows it would replace is refused too.
+- Captures harvest item artwork from the page they read, so a single Inventory
+  capture teaches the planner pictures for everything the player owns.

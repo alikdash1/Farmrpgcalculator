@@ -52,9 +52,9 @@
     retries = 0;
     busy = false;
     clearTimeout(watchdog);
-    // Farm RPG swaps the page body after the hash changes. Give the new
-    // account view time to render before reading it.
-    queueCapture("route", 2600);
+    // Navigation only resets the retry state. Reading the new screen is the
+    // player's call, not ours.
+    setStatus("Ready — press Sync to read this page");
   }
 
   panel.querySelector("button").addEventListener("click", () => {
@@ -100,9 +100,10 @@
     reply({ ok: true, queued: true });
   });
 
-  setInterval(() => {
-    if (!document.hidden && !busy) queueCapture("periodic", 500);
-  }, 90000);
-  setInterval(routeCheck, 1200);
+  // Nothing captures on its own any more. A timed capture, or one fired by a
+  // route change, reads whatever screen happens to be open — and a page that
+  // only shows gold and silver was overwriting a real inventory capture with
+  // almost nothing. Captures now happen only when asked for: the panel button
+  // on the page, or Capture in the extension popup.
   routeCheck();
 })();

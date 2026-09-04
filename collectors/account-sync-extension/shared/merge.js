@@ -297,6 +297,9 @@
       for (const w of c.warnings || []) {
         warnings.push("[" + c.pageType + " @ " + c.capturedAt + "] " + w);
       }
+      // Artwork accumulates across every page visited; the newest capture for a
+      // name wins, and captures are already sorted oldest first.
+      for (const name of Object.keys(c.itemArt || {})) snapshot.itemArt[name] = c.itemArt[name];
       const f = c.fields || {};
 
       for (const section of Object.keys(SCALAR_SECTIONS)) {
