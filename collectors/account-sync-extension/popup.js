@@ -50,15 +50,16 @@ $("#open").onclick = async () => {
 };
 
 $("#export").onclick = async () => {
-  const result = await chrome.runtime.sendMessage({ type: "farmrpg-account-export" });
-  if (!result || !result.snapshot) return say("Capture at least one Farm RPG page before exporting.", true);
-  const blob = new Blob([JSON.stringify(result.snapshot, null, 2)], { type: "application/json" });
-  const anchor = document.createElement("a");
-  anchor.href = URL.createObjectURL(blob);
-  anchor.download = "lantern-ledger-account-snapshot.json";
-  anchor.click();
-  setTimeout(() => URL.revokeObjectURL(anchor.href), 1000);
-  say("Complete account snapshot exported.");
+  const saved = await chrome.runtime.sendMessage({ type: "farmrpg-account-save-file" });
+  if (!saved || !saved.ok) return say(saved && saved.error || "Capture at least one Farm RPG page before exporting.", true);
+  say("Saved to Downloads as " + saved.filename + " (replaces the previous copy).");
+};
+
+$("#autoSave").onchange = async (event) => {
+  await chrome.storage.local.set({ autoSaveFile: !!event.target.checked });
+  say(event.target.checked
+    ? "Each capture now updates that one file automatically."
+    : "Automatic saving off; use the button above when you want the file.");
 };
 
 $("#saveUrl").onclick = async () => {
@@ -79,5 +80,11 @@ $("#clear").onclick = async () => {
   say("Local account memory cleared.");
   refresh();
 };
+
+(async () => {
+  const prefs = await chrome.storage.local.get(["autoSaveFile"]);
+  const box = $("#autoSave");
+  if (box) box.checked = prefs.autoSaveFile !== false;
+})();
 
 refresh();

@@ -146,6 +146,29 @@ async function status() {
   };
 }
 
+
+/* ---------------- local snapshot file ----------------
+   One file, overwritten. The old export used a blob <a download>, so Brave
+   kept the previous copy and added "(1)", "(2)"… to every new one. The
+   downloads API with conflictAction "overwrite" keeps exactly one current
+   snapshot on disk instead of a pile of near-identical files. */
+const SNAPSHOT_FILE = "lantern-ledger-account-snapshot.json";
+
+async function saveSnapshotFile(snapshot) {
+  if (!snapshot) return { ok: false, error: "Nothing captured yet." };
+  if (!chrome.downloads || !chrome.downloads.download) {
+    return { ok: false, error: "Downloads permission unavailable; reload the extension." };
+  }
+  // A service worker has no URL.createObjectURL, so hand the bytes over inline.
+  const url = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snapshot, null, 2));
+  try {
+    const id = await chrome.downloads.download({ url, filename: SNAPSHOT_FILE, conflictAction: "overwrite", saveAs: false });
+    return { ok: true, id, filename: SNAPSHOT_FILE };
+  } catch (error) {
+    return { ok: false, error: String(error && error.message || error) };
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     if (!message || !message.type) return sendResponse({ ok: false, error: "Missing message type" });
@@ -191,6 +214,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const snapshot = await rebuild(captures);
       const syncedAt = new Date().toISOString();
       await chrome.storage.local.set({ captures, snapshot, syncedAt });
+      const prefs = await chrome.storage.local.get(["autoSaveFile"]);
+      if (prefs.autoSaveFile !== false) await saveSnapshotFile(snapshot);
       return sendResponse({
         ok: true,
         pageType: checked.capture.pageType,
@@ -205,6 +230,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "farmrpg-account-export") {
       const data = await readState();
       return sendResponse({ ok: true, snapshot: data.snapshot || null, syncedAt: data.syncedAt || null });
+    }
+
+    if (message.type === "farmrpg-account-save-file") {
+      const data = await readState();
+      const saved = await saveSnapshotFile(data.snapshot);
+      return sendResponse(saved);
     }
 
     if (message.type === "farmrpg-account-clear") {

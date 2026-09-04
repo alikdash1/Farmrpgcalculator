@@ -387,3 +387,28 @@ of 2,479, and "A Safer Big Boom" shows as running.
 
 Note: `data/main-quests.js` is now 1.2 MB (was 96 KB). It still loads as a plain
 script with no fetch, so opening from disk is unaffected.
+
+## 2026-09-04 (completed quests) — The player's own list, applied
+
+The player pasted their Completed Help Requests list (1,952 entries). Matched it
+against the 2,479-quest database: **1,934 matched exactly, and the remaining 18
+matched once spacing was ignored** — Farm RPG prints a few titles with a space
+missing ("MisconstruedRelational", "Round,Buddy,", "Make Life TakeThe Lemons
+Back!"), and the joke "ribbet…" quests differ only in whitespace. Final result:
+**1,952 of 1,952, nothing unmatched.**
+
+Stored in `data/personal-quests.js` using the canonical spellings from
+`data/main-quests.js`, so matching is exact at runtime. The Quests page treats it
+as an authoritative source that needs no extension: completed steps show as Done,
+everything else as still to do. That leaves **92 quests actually outstanding**.
+An account capture still adds "Available Now", which a completed list cannot know.
+
+Also in this pass, on the extension:
+- The snapshot now writes to **one file that gets overwritten**
+  (`chrome.downloads` + `conflictAction: "overwrite"`), instead of the old blob
+  link that made Brave keep every copy as "(1)", "(2)", … A popup toggle keeps
+  that file updated after each capture. Needed the `downloads` permission; the
+  scope-guard tests were updated deliberately rather than loosened.
+- A capture is only labelled **provisional** when it really fell back to generic
+  text parsing. It used to say that about every page, including ones a dedicated
+  parser handled, which made good captures look untrustworthy.

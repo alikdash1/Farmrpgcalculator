@@ -29,15 +29,25 @@
     catch { return null; }
   }
 
+  // The player's own completed list, saved straight from Farm RPG's Completed
+  // Help Requests page. It is authoritative and needs no extension, so it is
+  // merged on top of whatever an account capture happens to know.
+  const PERSONAL = window.FRPG_PERSONAL_QUESTS || null;
+  const personalDone = new Set(((PERSONAL && PERSONAL.completed) || []).map((title) => normalize(title)));
+
   function statusSets(snapshot) {
     const quests = (snapshot && snapshot.quests) || {};
     const make = (key) => new Set((quests[key] || []).map((q) => normalize(q.title)));
-    return { completed: make("completed"), active: make("active"), ready: make("ready"), available: make("available"), locked: make("locked") };
+    const completed = make("completed");
+    for (const title of personalDone) completed.add(title);
+    return { completed, active: make("active"), ready: make("ready"), available: make("available"), locked: make("locked") };
   }
 
   function statusFor(title, sets, hasAccount) {
     const key = normalize(title);
     if (sets.completed.has(key)) return "completed";
+    // With a personal list loaded, "not in it" means not done — not "unknown".
+    if (personalDone.size && !hasAccount) return "untracked";
     if (sets.ready.has(key)) return "ready";
     if (sets.active.has(key)) return "active";
     if (sets.available.has(key)) return "available";
@@ -82,6 +92,7 @@
     const snapshot = account();
     const sets = statusSets(snapshot);
     const query = normalize(search.value);
+    const tracking = !!snapshot || personalDone.size > 0;
     const quests = DATA.quests.map((quest) => ({ ...quest, status: statusFor(quest.title, sets, !!snapshot) }));
     const visible = quests.filter((quest) => matchesFilter(quest.status, quest) && (!query || normalize(`${quest.title} ${quest.line} ${quest.giver} ${(quest.requirements || []).map((r) => r.item).join(" ")}`).includes(query)));
     const completed = quests.filter((quest) => quest.status === "completed").length;
@@ -89,10 +100,36 @@
 
     const mainCount = DATA.quests.filter((q) => q.category === "main").length;
     const eventCount = DATA.quests.filter(isEvent).length;
-    summary.innerHTML = `<article><span>Quests</span><strong>${DATA.quests.length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${snapshot ? completed : "—"}</strong><small>${snapshot ? "found in your capture" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to track"}</small></article>`;
-    note.innerHTML = snapshot
-      ? `<strong>Using your saved account.</strong><span>${snapshot.questStats && snapshot.questStats.completedHistoryTruncated ? "Older completed quests may be missing from the capture, so some finished steps can appear untracked." : "Quest status is matched from your latest imported capture."}</span>`
-      : `<strong>No account imported.</strong><span>You can still browse every main quest. Import your account to mark completed and available steps.</span>`;
+    summary.innerHTML = `<article><span>Quests</span><strong>${DATA.quests.length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${tracking ? completed : "—"}</strong><small>${tracking ? "of every quest listed" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to see this"}</small></article>`;
+    // Say plainly how much of the capture actually lined up. A title the
+    // capture has but this list does not is the one failure mode that would
+    // otherwise silently under-report progress, so name it and show examples.
+    if (!snapshot && personalDone.size) {
+      note.innerHTML = `<strong>Using your completed-quest list.</strong><span>`
+        + `<b>${personalDone.size.toLocaleString()}</b> finished quests loaded from your own Farm RPG list`
+        + `${PERSONAL && PERSONAL.capturedAt ? ` (${esc(PERSONAL.capturedAt)})` : ""}. `
+        + `Everything else is shown as still to do. Import an account capture as well if you want "Available Now" filled in.</span>`;
+    } else if (snapshot) {
+      const known = new Set(DATA.quests.map((quest) => normalize(quest.title)));
+      const captured = [...sets.completed];
+      const unmatched = captured.filter((title) => !known.has(title));
+      const matched = captured.length - unmatched.length;
+      const truncated = snapshot.questStats && snapshot.questStats.completedHistoryTruncated;
+      const bits = [];
+      if (captured.length) {
+        bits.push(`Matched <b>${matched.toLocaleString()}</b> of <b>${captured.length.toLocaleString()}</b> completed quests in your capture.`);
+        if (unmatched.length) {
+          const sample = unmatched.slice(0, 3).map((t) => esc(t)).join(", ");
+          bits.push(`${unmatched.length.toLocaleString()} title${unmatched.length === 1 ? "" : "s"} not in this quest list (${sample}${unmatched.length > 3 ? ", …" : ""}).`);
+        }
+      } else {
+        bits.push("Your capture has no completed quests in it — open Farm RPG’s Completed Help Requests page, let it finish loading, then press Sync.");
+      }
+      if (truncated) bits.push("Farm RPG truncated the older history, so some finished steps stay untracked.");
+      note.innerHTML = `<strong>Using your saved account.</strong><span>${bits.join(" ")}</span>`;
+    } else {
+      note.innerHTML = `<strong>No account imported.</strong><span>You can still browse every quest. Import your account to mark completed and available steps.</span>`;
+    }
     count.textContent = `${visible.length} quest${visible.length === 1 ? "" : "s"}`;
 
     const grouped = DATA.lines.map((line) => {
@@ -104,7 +141,7 @@
       const ran = line.category === "event" && line.lastEnd
         ? ` · ${Date.parse(line.lastEnd) < NOW ? "ended" : "running"} ${dateLabel(line.lastEnd)}`
         : "";
-      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small></span><span class="quest-line-progress">${snapshot ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
+      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small></span><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
     }).join("");
     root.innerHTML = grouped || `<div class="quest-empty"><strong>No matching main quests.</strong><span>Try another name, item, or filter.</span></div>`;
 

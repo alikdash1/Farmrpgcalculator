@@ -101,11 +101,31 @@ test("old unknown captures migrate back to their real account page type", async 
 
 test("manifest stays narrowly scoped and popup supports complete export", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
-  assert.deepEqual(manifest.permissions.sort(), ["storage", "tabs"]);
+  assert.deepEqual(manifest.permissions.sort(), ["downloads", "storage", "tabs"]);
   assert.ok(manifest.host_permissions.every((value) => /farmrpg|127\.0\.0\.1|localhost/.test(value)));
   assert.equal(manifest.optional_host_permissions, undefined);
   const popup = fs.readFileSync(path.join(root, "popup.js"), "utf8");
-  assert.match(popup, /farmrpg-account-export/);
-  assert.match(popup, /lantern-ledger-account-snapshot\.json/);
+  assert.match(popup, /farmrpg-account-save-file/);
+  // The filename now lives in the service worker, which does the writing;
+  // the popup only reports back whatever was saved.
+  const background = fs.readFileSync(path.join(root, "background.js"), "utf8");
+  assert.match(background, /lantern-ledger-account-snapshot\.json/);
+  assert.match(popup, /saved\.filename/);
 });
 
+
+test("snapshot is saved to a single overwritten file, never a growing pile", () => {
+  const background = fs.readFileSync(path.join(root, "background.js"), "utf8");
+  // One stable name plus conflictAction overwrite is what stops Brave from
+  // keeping the old copy and appending "(1)", "(2)" to each new export.
+  assert.match(background, /lantern-ledger-account-snapshot\.json/);
+  assert.match(background, /conflictAction:\s*"overwrite"/);
+  assert.match(background, /saveAs:\s*false/);
+  const popup = fs.readFileSync(path.join(root, "popup.js"), "utf8");
+  assert.doesNotMatch(popup, /createObjectURL/);
+});
+
+test("a capture is only called provisional when it really fell back", () => {
+  const capture = fs.readFileSync(path.join(root, "capture-page.js"), "utf8");
+  assert.match(capture, /parserStatus: structuredCount \? "parsed" : "provisional"/);
+});

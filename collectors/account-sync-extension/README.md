@@ -1,5 +1,16 @@
 # Lantern Ledger Account Sync
 
+## Saving to disk (v1.3)
+
+The snapshot is written to **one** file, `lantern-ledger-account-snapshot.json`
+in your Downloads folder, and each save **overwrites** it. The old export used a
+blob link, so the browser kept every previous copy and added `(1)`, `(2)`, … —
+that is what produced the pile of near-identical files.
+
+Leave **"Keep that file updated after every capture"** ticked and the file always
+matches what the extension has captured, with no duplicates. Untick it to save
+only when you press the button.
+
 This Brave/Chrome extension keeps Lantern Ledger updated from the Farm RPG account pages you actually visit. It is read-only: it does not click, navigate, craft, sell, explore, fish, trade, or send account data to a server.
 
 ## Install or update in Brave
@@ -40,7 +51,7 @@ Automatic live sync is intentionally limited to Farm RPG and your local Lantern 
 
 - Default local calculator: `http://127.0.0.1:8772/index.html`
 - Change the local port/address from the popup under **Local calculator and data controls**.
-- For a hosted calculator, choose **Export complete account snapshot**, then load that single JSON file from Lantern Ledger’s **Account** tab.
+- For a hosted calculator, choose **Save account snapshot to Downloads**, then load that single JSON file from Lantern Ledger’s **Account** tab.
 - After the final public domain is chosen, that one exact domain can be added for automatic sync without granting access to every website.
 
 If you open Lantern Ledger through a `file:///` address, enable **Allow access to file URLs** on the extension’s Details page.

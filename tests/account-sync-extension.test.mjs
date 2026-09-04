@@ -11,7 +11,9 @@ const read = (name) => fs.readFileSync(path.join(ext, name), 'utf8');
 test('extension is read-only and locally scoped', () => {
   const manifest = JSON.parse(read('manifest.json'));
   assert.equal(manifest.manifest_version, 3);
-  assert.deepEqual(manifest.permissions.sort(), ['storage', 'tabs']);
+  // 'downloads' is deliberate: the snapshot is written to one file that gets
+  // overwritten, instead of a blob link that piles up '(1)', '(2)' copies.
+  assert.deepEqual(manifest.permissions.sort(), ['downloads', 'storage', 'tabs']);
   assert.ok(manifest.host_permissions.every((url) => /farmrpg|127\.0\.0\.1|localhost/.test(url)));
   assert.ok(!manifest.permissions.includes('scripting'));
   assert.ok(!manifest.permissions.includes('webRequest'));

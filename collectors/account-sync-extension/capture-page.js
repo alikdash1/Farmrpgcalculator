@@ -1566,12 +1566,17 @@
     if (!structuredCount) {
       warnings.push("No structured fields recognized on this page; only fallback visibleText was stored.");
     }
-    warnings.push("Extraction is provisional (generic label/table/text parsing). Verify values against the page before relying on them.");
+    // Only call a capture provisional when it really fell back to generic text
+    // parsing. Saying it about every page made pages that were parsed properly
+    // look untrustworthy, which is worse than saying nothing.
+    if (!structuredCount) {
+      warnings.push("Extraction is provisional (generic label/table/text parsing). Verify values against the page before relying on them.");
+    }
 
     const payload = {
       schema: CAPTURE_SCHEMA,
       collectorVersion: COLLECTOR_VERSION,
-      parserStatus: "provisional",
+      parserStatus: structuredCount ? "parsed" : "provisional",
       capturedAt,
       pageType,
       pageLabel,
