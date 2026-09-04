@@ -29,8 +29,12 @@
   }
 
   function inventoryRows() {
+    // frpg_owned exists as an empty object from the moment the app first saves
+    // anything, so "present" is not the same as "has amounts in it". Treating
+    // it as authoritative when empty hid a freshly captured inventory behind
+    // the Apply button on the Account tab.
     const saved = readJson("frpg_owned");
-    if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+    if (saved && typeof saved === "object" && !Array.isArray(saved) && Object.keys(saved).length) {
       return Object.entries(saved).map(([id, quantity]) => {
         const item = byId.get(String(id));
         return item && Number(quantity) > 0 ? { name: item.name, quantity: Number(quantity), item } : null;

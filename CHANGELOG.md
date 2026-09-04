@@ -540,3 +540,14 @@ nine rows, and item names were clipped to "Amethyst …".
   controls and the Lantern Ledger link moved into a collapsed section so
   Capture is the only button in the main flow.
 - The in-site setup guide was updated to match.
+
+## 2026-09-04 — A captured inventory shows straight away
+
+The Inventory tab read `frpg_owned` and treated it as authoritative whenever it
+existed. It exists as an empty object from the app's first save, so a snapshot
+that had just arrived from the extension showed as "nothing in your inventory"
+until Apply was pressed on the Account tab. It now falls through to the
+snapshot when there are no hand-entered amounts.
+
+Verified by posting a snapshot the way the extension does: Spoon 8,000 needed
+against 4,200 held reads 3,800 short, with nothing applied by hand.

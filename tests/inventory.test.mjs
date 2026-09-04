@@ -108,3 +108,13 @@ test("the whole questline can be opened across the full screen", () => {
   const z = css.match(/\.inventory-overlay \{[\s\S]*?z-index: (\d+)/);
   assert.ok(z && Number(z[1]) > 80, "the overlay sits above the sticky masthead");
 });
+
+test("a freshly captured inventory shows without pressing Apply", () => {
+  const source = read("inventory-page.js");
+  // frpg_owned exists as {} from the app's first save, so a truthiness check
+  // alone made a captured inventory look empty until Apply was pressed.
+  assert.match(source, /Object\.keys\(saved\)\.length/);
+  const owned = source.indexOf('readJson("frpg_owned")');
+  const snapshot = source.indexOf('readJson("frpg_account_snapshot_v1")');
+  assert.ok(owned > 0 && snapshot > owned, "it still prefers hand-entered amounts when there are any");
+});
