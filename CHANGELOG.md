@@ -741,3 +741,20 @@ bucket labelled Other — worse than no grouping.
 Both panels floated over the one page that already shows the same two lists in
 full, covering it. They hide there now, unless the expanded view is open on
 purpose. Every other tab keeps them.
+
+## 2026-09-05 — Two capture bugs with real causes
+
+- **Re-capturing masteries did nothing, by construction.**
+  `data/personal-tower.js` carries `authoritativeMasteries: true`, and
+  `towerMasteryMap()` read that as "skip captured masteries entirely" — the
+  loop ran over an empty array. The imported file is still the base, because it
+  is complete, but a capture taken *after* it now updates the items it covers.
+  An older capture is still ignored, so a stale one cannot walk numbers back.
+- **The farm page was being saved as your inventory.** `looksLikeInventoryPage`
+  accepted any page whose text contained both "meals" and "items", which the
+  farm page does. A capture there held nothing but the top-bar Silver and Gold
+  and replaced hundreds of real rows. It now requires a sentence only the
+  inventory page says, and a backstop refuses to store anything as the
+  inventory with fewer than ten items, saying so rather than failing quietly.
+
+Extension is v1.8.0. Nothing auto-captures — that went in 1.6.0.

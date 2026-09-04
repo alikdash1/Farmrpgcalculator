@@ -104,3 +104,24 @@ test("item descriptions are not recorded as inventory items", () => {
   // And says what it dropped rather than dropping it silently.
   assert.match(capture, /read as item descriptions rather than items/);
 });
+
+test("only the real inventory page can be saved as the inventory", () => {
+  const capture = fs.readFileSync(path.join(ext, "capture-page.js"), "utf8");
+  // "Meals" and "Items" appear on the farm page too, so that pair alone was
+  // labelling it Inventory and a capture holding only the top-bar Silver and
+  // Gold replaced hundreds of real rows.
+  assert.ok(capture.includes("inventory contains"), "it looks for a sentence only the inventory page says");
+  assert.match(capture, /your crafting level is/i);
+  // And a backstop that does not depend on recognising the page at all.
+  assert.match(capture, /pageType === "inventory" && fields\.inventory\.length < 10/);
+  assert.match(capture, /it was not saved as your inventory/);
+});
+
+test("a mastery capture newer than the imported file is allowed to update it", () => {
+  const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
+  // authoritativeMasteries made the code skip captured masteries entirely, so
+  // re-capturing them silently did nothing at all.
+  assert.match(app, /function masteryRowsToApply\(\)/);
+  assert.match(app, /captureAt > fileAt \? rows : \[\]/);
+  assert.doesNotMatch(app, /PERSONAL\.authoritativeMasteries \? \[\] :/);
+});

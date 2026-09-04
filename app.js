@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.13";
+  const FRPG_BUILD = "2026-09-05.14";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -1862,9 +1862,24 @@
 
   const PUMPKIN_JUICE_MMS = new Set(["Pitchfork", "Salt", "Fancy Pan Flute", "Wrench", "Red Trunk", "Water Lily", "Wizard Hat", "Jade Charm", "Fancy Guitar"]);
 
+  // The imported mastery file is the base, because it is complete. A capture
+  // taken AFTER it should still update the items it covers — treating the file
+  // as absolute meant re-capturing masteries could never change anything, and
+  // it silently did nothing. An older capture is ignored, so a stale one can
+  // never walk the numbers backwards.
+  function masteryRowsToApply() {
+    const rows = (state.account && state.account.masteries) || [];
+    if (!rows.length) return [];
+    if (!PERSONAL.authoritativeMasteries) return rows;
+    const fileAt = Date.parse(PERSONAL.capturedAt || "");
+    const captureAt = Date.parse((state.account && (state.account.generatedAt || state.account.syncedAt)) || "");
+    if (!Number.isFinite(fileAt) || !Number.isFinite(captureAt)) return [];
+    return captureAt > fileAt ? rows : [];
+  }
+
   function towerMasteryMap() {
     const values = new Map(Object.entries(PERSONAL.masteries || {}).map(([name, value]) => [name.toLowerCase(), Number(value) || 0]));
-    for (const row of PERSONAL.authoritativeMasteries ? [] : state.account && state.account.masteries || []) {
+    for (const row of masteryRowsToApply()) {
       const name = String(row.itemName || "").trim();
       if (!name) continue;
       let value = Number(row.masteryCount ?? row.progressCurrent);

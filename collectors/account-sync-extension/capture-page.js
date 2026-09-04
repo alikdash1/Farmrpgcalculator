@@ -1248,10 +1248,15 @@
     return NAME_RE.test(l) && !isNoise(l) && !isPlainQty(l);
   }
 
+  // The words "meals" and "items" appear on other screens too — the farm page
+  // among them — and treating any of those as the inventory meant a capture
+  // holding nothing but the top-bar Silver and Gold replaced a real one.
+  // Require something only the inventory page actually says.
   function looksLikeInventoryPage(lines, text) {
-    const hasCapacitySentence = /cannot have more than\s*[\d,]+\s*of any single thing/i.test(text);
+    if (/cannot have more than\s*[\d,]+\s*of any single thing/i.test(text)) return true;
+    if (/inventory contains\s*[\d,]+\s*unique items/i.test(text)) return true;
     const lower = lines.map((l) => l.trim().toLowerCase());
-    return hasCapacitySentence || (lower.includes("meals") && lower.includes("items"));
+    return lower.includes("meals") && lower.includes("items") && /your crafting level is/i.test(text);
   }
 
   /** Parse the real "My Inventory" layout: craftable list + capacity
@@ -1574,6 +1579,19 @@
         );
       }
     }
+    // Last line of defence: whatever the page claimed to be, a capture calling
+    // itself the inventory while holding a couple of rows is a misread, and
+    // storing it under that name would overwrite hundreds of real ones.
+    if (pageType === "inventory" && fields.inventory.length < 10) {
+      fields.warnings.push(
+        "This page looked like the inventory but only " + fields.inventory.length +
+        " item" + (fields.inventory.length === 1 ? "" : "s") +
+        " could be read, so it was not saved as your inventory. Open My Inventory, let it finish loading, then capture."
+      );
+      pageType = "other";
+      pageLabel = "Other page";
+    }
+
     if (pageType === "perks") applyPerkPage(fields, parsePerkPage(lines, visibleText));
     if (pageType === "farm-supply") {
       applyFarmSupplyOverview(fields, parseFarmSupplyOverview(lines, visibleText));
