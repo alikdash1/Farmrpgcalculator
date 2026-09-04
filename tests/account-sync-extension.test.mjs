@@ -40,10 +40,13 @@ test('personal Tower page uses the authoritative mastery-history snapshot', () =
   assert.equal(payload.goalFloor, 340);
   assert.equal(payload.source, 'Farm RPG Mastery History.csv');
   assert.equal(payload.authoritativeMasteries, true);
-  assert.equal(Object.keys(payload.masteries).length, 439);
+  assert.equal(Object.keys(payload.masteries).length, 514);
   assert.equal(payload.masteries['Butter Churn'], 1000000);
   assert.equal(payload.masteries.Crossbow, 1000000);
-  assert.equal(payload.masteries['Looking Glass'], 930930);
+  // Snapshot of 2026-09-04: Looking Glass finished its Mega Mastery, Wizard
+  // Hat is still short. Values are clamped at 1m because that is the cap.
+  assert.equal(payload.masteries['Looking Glass'], 1000000);
+  assert.equal(payload.masteries['Wizard Hat'], 832170);
   assert.equal(payload.masteries['Mulberry Snapper'], 1000000);
   assert.match(index, /id="towerRail"/);
   // Assert the manual-import control exists, not the wording around it —

@@ -335,3 +335,21 @@ route. Trail figures are plain ink with one green lead; the trail connector is
 muted. The "your farm covers this" strip flattened from a green gradient box to a
 quiet green-marked note. Compact headings inside cards no longer draw a section
 rule. Green now means exactly one thing everywhere: recommended, or handled.
+
+## 2026-09-04 — Mastery import, and floors 300–340 folded into the rail
+
+- **Imported the 2026-09-04 mastery export.** `data/personal-tower.js` regenerated
+  from the newest column of the player's Mastery History CSV (514 items, up from
+  439). Names keep the same base-name rule: a trailing three-digit floor tag is
+  stripped ("Looking Glass 278" → "Looking Glass") while two-digit name numbers
+  ("Bone 02", "Runestone 04") are left alone. Values are clamped at 1m, the cap.
+  Next blocker moved T278 → T282 because Looking Glass finished.
+- **T300–T340 now live in the main rail**, in floor order after 299, instead of a
+  separate section underneath. The separate grid and its listeners are gone.
+- **Fixed a real overstatement:** the rail scored every requirement against 1m,
+  but the wiki shows many floors only need a **Grand Mastery** (100,000). Rows now
+  carry their tier and are measured against the right goal — Cotton at 237k is
+  done for T301 rather than "762k left". Legend and summary updated; Pumpkin Juice
+  hint only applies to Mega Masteries now.
+- Requirement rows use the planner's own art where it has the item and the wiki
+  picture otherwise, so every row shows a picture.

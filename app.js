@@ -1877,15 +1877,47 @@
     return values;
   }
 
+  const MM_GOAL = 1000000;
+  const GM_GOAL = 100000;
+
+  // Every floor's requirement, in one list. Floors the Tower MM wiki covers
+  // (T300–T340) come from it, because it is the only source that says which
+  // masteries a floor wants at GRAND level rather than Mega — scoring those
+  // against 1m overstates what is actually left. Earlier floors keep the
+  // planner's own named Mega Mastery goals.
   function towerRequirements() {
     const progress = towerMasteryMap();
-    return Object.entries(P.items || {}).map(([name, row]) => {
-      if (!row.mastery || row.mastery.towerRequirement == null) return null;
+    const wikiFloors = new Set((TOWER_FLOORS.floors || []).map((row) => row.floor));
+    const rows = [];
+    const push = (name, floor, tier, img, methods) => {
+      const goal = tier === "gm" ? GM_GOAL : MM_GOAL;
+      const current = progress.get(String(name).toLowerCase()) || 0;
+      rows.push({
+        name, floor, tier, goal, current,
+        remaining: Math.max(0, goal - current),
+        complete: current >= goal,
+        methods: methods || [],
+        img: img || null,
+      });
+    };
+    for (const [name, row] of Object.entries(P.items || {})) {
+      if (!row.mastery || row.mastery.towerRequirement == null) continue;
       const floor = Number(row.mastery.towerRequirement);
-      if (!Number.isFinite(floor)) return null;
-      const current = progress.get(name.toLowerCase()) || 0;
-      return { name, floor, current, remaining: Math.max(0, 1000000 - current), complete: current >= 1000000, methods: row.mastery.methods || [] };
-    }).filter(Boolean).sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
+      if (!Number.isFinite(floor) || wikiFloors.has(floor)) continue;
+      push(name, floor, "mm", null, row.mastery.methods);
+    }
+    for (const floorRow of TOWER_FLOORS.floors || []) {
+      const known = (name) => (P.items || {})[name];
+      for (const entry of floorRow.gms || []) {
+        const item = known(entry.name);
+        push(entry.name, floorRow.floor, "gm", entry.img, item && item.mastery && item.mastery.methods);
+      }
+      for (const entry of floorRow.mms || []) {
+        const item = known(entry.name);
+        push(entry.name, floorRow.floor, "mm", entry.img, item && item.mastery && item.mastery.methods);
+      }
+    }
+    return rows.sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
   }
 
   function renderTower() {
@@ -1912,10 +1944,10 @@
     // claim a floor range the rows can't back up.
     const namedTop = rows.length ? rows[rows.length - 1].floor : start;
     $("towerSummary").innerHTML = [
-      ["Masteries still to finish", `${unfinished.length} / ${rows.length}`, `named goals up to T${namedTop}`],
-      ["Floor requirements", String(TOWER_FLOORS.floors.length), "T300 through T340"],
+      ["Masteries still to finish", `${unfinished.length} / ${rows.length}`, `requirements up to T${namedTop}`],
+      ["Floors still blocked", String(blocked.length), `of ${floors.size} in this range`],
       ["Still to make or catch", fmt(remaining), "items across every unfinished mastery"],
-      ["Already at Mega Mastery", String(rows.length - unfinished.length), `of ${rows.length} in this range`],
+      ["Already done", String(rows.length - unfinished.length), `${rows.filter((r) => r.tier === "gm").length} of these only need a Grand Mastery`],
     ].map(([label, value, note]) => `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`).join("");
     const visibleFloors = [...floors].filter(([, items]) => state.towerShowDone || items.some((row) => !row.complete));
     $("towerRail").innerHTML = visibleFloors.length ? visibleFloors.map(([floor, items]) => {
@@ -1923,26 +1955,28 @@
       const isNext = floor === nextFloor;
       return `<article class="tower-floor ${complete ? "is-done" : "is-work"} ${isNext ? "is-next" : ""}"><div class="tower-floor-mark"><span>Floor</span><strong>T${floor}</strong><small>${complete ? "Gate cleared" : `${items.filter((row) => !row.complete).length} left`}</small></div><div class="tower-floor-items">${items.map((row) => {
         const item = itemByName(row.name);
-        const percent = Math.min(100, row.current / 10000);
-        const method = row.methods.join(" / ") || "item";
-        const pjGap = PUMPKIN_JUICE_MMS.has(row.name) && !row.complete ? Math.max(0, 909091 - row.current) : null;
+        const percent = Math.min(100, (row.current / row.goal) * 100);
+        const tierLabel = row.tier === "gm" ? "Grand Mastery" : "Mega Mastery";
+        const method = [row.methods.join(" / "), tierLabel].filter(Boolean).join(" · ");
+        const goalLabel = row.tier === "gm" ? "100k" : "1m";
+        // Pumpkin Juice only shortens a Mega Mastery.
+        const pjGap = row.tier === "mm" && PUMPKIN_JUICE_MMS.has(row.name) && !row.complete ? Math.max(0, 909091 - row.current) : null;
         // Only offer the "open in the planner" click when the planner actually
         // knows the item. Otherwise it looked like a button and did nothing.
         const plannable = !!item;
         const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the calculator"`;
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${itemImg(item, "tower-art", row.name)}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / 1m</b><span>${row.complete ? "MM complete" : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
+        // Use the planner's own art where it knows the item, and the wiki
+        // picture for the newer requirements it has no entry for.
+        const art = item
+          ? itemImg(item, "tower-art", row.name)
+          : row.img
+            ? `<span class="item-art tower-art"><img loading="lazy" width="46" height="46" referrerpolicy="no-referrer" src="${esc(row.img)}" alt="${esc(row.name)}"></span>`
+            : itemImg(null, "tower-art", row.name);
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
-    const floorRows = (TOWER_FLOORS.floors || []).filter((row) => row.floor >= Math.max(300, start) && row.floor <= goal);
-    const costGrid = $("towerCostGrid");
-    // What a floor REQUIRES: the Grand and Mega Masteries you must already hold,
-    // straight from the official Tower MM wiki. Pictures come from the wiki so
-    // they show even for items the planner has no data for. Silver is not shown.
-    const reqPic = (entry) => `<div class="tower-cost-item"><span class="item-art tower-art"><img loading="lazy" width="46" height="46" referrerpolicy="no-referrer" src="${esc(entry.img)}" alt="${esc(entry.name)}"></span><span><b>${esc(entry.name)}</b></span></div>`;
-    const reqGroup = (label, list) => list && list.length ? `<div class="tower-need-grp"><span class="tower-reward-label">${label}</span><div class="tower-cost-items">${list.map(reqPic).join("")}</div></div>` : "";
-    if (costGrid) costGrid.innerHTML = floorRows.map((row) => `<article class="tower-cost-card"><div class="tower-cost-mark"><span>Floor</span><strong>T${row.floor}</strong><small class="tower-pay">Must hold</small></div><div class="tower-need">${reqGroup("Grand Masteries", row.gms)}${reqGroup("Mega Masteries", row.mms)}${row.gms.length || row.mms.length ? "" : `<span class="tower-noplan">No requirement listed</span>`}</div></article>`).join("") || `<div class="tower-all-clear"><strong>No T300–T340 floors in this filter.</strong><span>Set “Start at floor” to 300 or lower.</span></div>`;
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
@@ -1961,8 +1995,6 @@
   }
   $("towerRail").addEventListener("click", (event) => openTowerItem(event.target));
   $("towerRail").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTowerItem(event.target); } });
-  $("towerCostGrid").addEventListener("click", (event) => openTowerItem(event.target));
-  $("towerCostGrid").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTowerItem(event.target); } });
 
   function applyAccountSnapshot() {
     if (!state.account) return;
