@@ -28,6 +28,10 @@
   for (const item of items) learn(item.name, item.img);
   for (const [name, path] of Object.entries((W.FRPG_ITEM_ART && W.FRPG_ITEM_ART.art) || {})) learn(name, path);
 
+  // The complete item list. Everything else above is more specific, so it wins;
+  // this is what stops the planner discovering missing pictures one at a time.
+  for (const [name, path] of Object.entries((W.FRPG_ITEM_LIBRARY && W.FRPG_ITEM_LIBRARY.art) || {})) learn(name, path);
+
   const catalog = W.FRPG_NEW_ITEMS || {};
   const connected = Array.isArray(catalog.connected) ? catalog.connected : Object.values(catalog.connected || {});
   for (const row of [...(catalog.items || []), ...connected]) learn(row && row.name, row && (row.image || row.img));
@@ -72,5 +76,13 @@
     return art.get(String(name || "").trim().toLowerCase()) || "";
   }
 
-  W.FRPG_ITEM_ART_HELPER = { itemFor, urlFor, isCurrency, get known() { return art.size; } };
+  // Does Farm RPG have an item by this name at all? The complete library makes
+  // this answerable, which is what tells a real item from a line of prose a
+  // capture picked up.
+  function isKnownItem(name) {
+    const key = String(name || "").trim().toLowerCase();
+    return byName.has(key) || art.has(key);
+  }
+
+  W.FRPG_ITEM_ART_HELPER = { itemFor, urlFor, isCurrency, isKnownItem, get known() { return art.size; } };
 })();

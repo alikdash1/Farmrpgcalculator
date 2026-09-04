@@ -47,8 +47,15 @@
   function isDescription(name) {
     const text = String(name || "").trim();
     if (!text) return true;
-    if (ART.itemFor(text) || ART.urlFor(text)) return false;
-    return /^(a|an|the)\s+[a-z]/i.test(text) || text.split(/\s+/).length >= 5;
+    // With the full item library loaded, "is this a real item?" has an actual
+    // answer, so prose is what the game has no item for.
+    if (ART.isKnownItem ? ART.isKnownItem(text) : (ART.itemFor(text) || ART.urlFor(text))) return false;
+    // Unknown to every source. It could still be an item added to the game
+    // since the library was built, so only reject it if it reads like a
+    // sentence: a lowercase start, or a lowercase word that is not a joiner.
+    if (/^[a-z]/.test(text)) return true;
+    const joiners = new Set(["a", "an", "the", "of", "and", "or", "in", "on", "for", "to", "with", "at", "from", "by"]);
+    return text.split(/\s+/).slice(1).some((word) => /^[a-z]/.test(word) && !joiners.has(word.toLowerCase()));
   }
 
   function ignoredCount() {

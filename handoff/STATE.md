@@ -28,13 +28,14 @@ Claim a task by adding a row before you start. Clear it when merged.
   this quest on the left, the whole line on the right, collapsible, and a size
   toggle for reading both properly. Tracking is set with **Track** on the
   Quests tab; nothing is tracked yet means the line with the most left to do.
-- **Item art.** One lookup for the whole app in `item-art.js`. It reads every
-  source that carries artwork — `data/items.js`, `data/item-art.js`,
-  `data/new-items.js` (mining catalogue) and `data/tower-floors.js` — because
-  a lookup that read only the first silently dropped the other three. 1,356
-  names resolve; Silver is currency and deliberately has none. Verified on
-  screen: Tower, Mining, Quests, Inventory and Calculate all show zero
-  placeholders and zero broken images.
+- **Item art.** `data/item-library.js` holds the **complete** Farm RPG item
+  list, 1,449 names with artwork, taken from buddy.farm's own search index
+  (`https://buddy.farm/search.json`). `item-art.js` merges it under the more
+  specific sources. That is what ended the run of "another picture is
+  missing" — and, because it answers "does the game have an item by this
+  name?", it is also what separates real items from the description text older
+  captures stored as items. 1,550 names resolve; Silver is currency and has
+  none.
 - **Tower.** Requirements for T300–T340 from the wiki. Grand Mastery floors
   score against 100,000 and Mega Mastery against 1,000,000 — not everything is
   1m. Masteries are the 2026-09-04 CSV, 514 items.

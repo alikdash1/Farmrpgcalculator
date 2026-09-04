@@ -129,7 +129,7 @@ test("description rows in an already-saved snapshot are filtered at the point of
   // A row is only prose if nothing can identify it, so a genuinely new item —
   // one the data files have never seen but the capture found artwork for —
   // is never dropped.
-  assert.match(gather, /if \(ART\.itemFor\(text\) \|\| ART\.urlFor\(text\)\) return false;/);
+  assert.match(gather, /ART\.isKnownItem/);
   assert.match(gather, /function ignoredCount\(\)/);
   // And the count is shown rather than the total silently shrinking.
   assert.match(read("inventory-page.js"), /description rows ignored/);

@@ -617,3 +617,20 @@ but the capture found a picture for is still kept.
 
 Verified with a seeded snapshot: 9 real items kept with art, 10 description
 rows ignored, and the summary says so.
+
+## 2026-09-05 — The whole item list, so this stops recurring
+
+Missing pictures had been fixed four times, each time for one more group.
+`data/item-library.js` now holds **every** item Farm RPG has — 1,449 names with
+artwork, from buddy.farm's own search index, which is where that site draws the
+same pictures. `item-art.js` merges it beneath the more specific sources.
+
+That also settles the description problem properly. With a complete list, "does
+the game have an item by this name?" has a real answer, so prose no longer
+needs guessing at. "Almost transparent" and "and it gets everywhere" — which
+slipped past the earlier heuristic — are now correctly ignored, while
+"Amber Mire Bloom" and "Apple Ant Buddy Doll" are kept and drawn.
+
+Checked on the player's own list: 18 items, every one with a picture, 4
+description rows ignored. Tower, Mining, Quests and Inventory all report zero
+placeholders. Eight sampled library URLs return HTTP 200.
