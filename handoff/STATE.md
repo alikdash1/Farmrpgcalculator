@@ -38,12 +38,15 @@ Claim a task by adding a row before you start. Clear it when merged.
 - **Tower.** Requirements for T300–T340 from the wiki. Grand Mastery floors
   score against 100,000 and Mega Mastery against 1,000,000 — not everything is
   1m. Masteries are the 2026-09-04 CSV, 514 items.
-- **Extension.** v1.6.0, read-only, and it **only captures when asked**. The
+- **Extension.** v1.7.0, read-only, and it **only captures when asked**. The
   90-second timer and the route-change capture were reading whatever screen
   was open — an inventory page showing just gold and silver was overwriting a
   full inventory. A capture far smaller than the one it would replace is now
-  refused as well. Captures also harvest item artwork off the page, which is
-  how the planner learns pictures for items its data files have never seen.
+  refused. Captures harvest item artwork off the page, and use that same
+  artwork to tell items from Farm RPG's per-item descriptions, which the text
+  parser had been recording as items of their own ("A blinger for your
+  finger"). Anything skipped is named in the capture's warnings.
+
 
 ## Known gaps
 

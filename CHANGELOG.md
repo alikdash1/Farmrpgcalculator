@@ -587,3 +587,19 @@ A quests page that parsed no requests still reported success, which is why
 "it captured but nothing happened" had nothing to go on. The capture now
 records what the page actually looked like — the first lines it read — and the
 extension hands those warnings back to the popup.
+
+## 2026-09-05 — Descriptions were being stored as items, and panels hugged their own background
+
+Two things the player reported, both real.
+
+- **Inventory captures contained Farm RPG's item descriptions as if they were
+  items** — "A blinger for your finger", "A bottom-feeder you'll want to keep
+  for later" — each with a quantity. They had no picture, could not match
+  anything, and corrupted every gather list built on top. Every real item on
+  that page is drawn with its picture, so the capture now uses the artwork it
+  already harvests to tell the two apart, and names whatever it skipped.
+- **Panels showed their tint flush against the text.** `.route-card`,
+  `.gather-col`, `.source-list` and the rest had their side padding zeroed back
+  when the theme was light and the panel colour matched the page. On the dark
+  theme that tint is visible, so every heading sat on the edge of its own
+  background. They have 20px/22px again.

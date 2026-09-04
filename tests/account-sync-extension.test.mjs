@@ -90,3 +90,17 @@ test("nothing captures on its own, and a half-loaded page cannot overwrite a ful
   // Backstop: a capture far smaller than the one it would replace is refused.
   assert.match(background, /oldCount >= 20 && nextCount < oldCount \/ 4/);
 });
+
+test("item descriptions are not recorded as inventory items", () => {
+  const capture = fs.readFileSync(path.join(ext, "capture-page.js"), "utf8");
+  // Farm RPG prints a description under each item name, and the text parser was
+  // reading those as items of their own. Every real item is drawn with its
+  // picture, so that is the signal used to tell them apart.
+  assert.match(capture, /const pictured = new Set\(Object\.keys\(harvestItemArt\(\)\)/);
+  assert.match(capture, /looksLikeProse/);
+  // Only filters when artwork was actually harvested, so a page without images
+  // still captures everything it finds.
+  assert.match(capture, /pictured\.size && !pictured\.has\(key\) && looksLikeProse/);
+  // And says what it dropped rather than dropping it silently.
+  assert.match(capture, /read as item descriptions rather than items/);
+});

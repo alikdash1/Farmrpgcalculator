@@ -1373,6 +1373,22 @@
   }
 
   /** Fold parseInventoryPage output into capture fields with typed scalars. */
+  // Farm RPG draws every item with its own picture, so a page you are already
+  // reading knows the artwork for items the planner has never heard of. Harvest
+  // it here — the planner has no other way to learn art for a new item, and
+  // this costs nothing beyond what is on screen.
+  function harvestItemArt() {
+    const art = {};
+    document.querySelectorAll("img[alt]").forEach((img) => {
+      const name = cleanWhitespace(img.getAttribute("alt") || "");
+      const src = String(img.getAttribute("src") || "").split(/[?#]/)[0];
+      if (!name || name.length > 60 || !src) return;
+      if (!/\/img\/items\//i.test(src)) return;
+      if (!art[name]) art[name] = src.replace(/^https?:\/\/[^/]+/i, "");
+    });
+    return art;
+  }
+
   function applyInventoryPage(fields, parsed) {
     if (parsed.capacityMax && !fields.capacity.inventoryMaximum) {
       fields.capacity.inventoryMaximum = qtyScalar(parsed.capacityMax, "visible-label");
@@ -1384,9 +1400,24 @@
     if (parsed.inventoryStats.totalItems) fields.inventoryStats.totalItems = qtyScalar(parsed.inventoryStats.totalItems, "visible-label");
     const capScalar = parsed.capacityMax ? qtyScalar(parsed.capacityMax, "visible-label") : null;
     const existing = new Set(fields.inventory.map((i) => i.name.trim().toLowerCase()));
+
+    // Farm RPG prints each item's description under its name, and the text
+    // parser was reading those descriptions as items of their own — "A blinger
+    // for your finger" instead of the ring. Every real item on the page is
+    // drawn with its picture, so a row with no picture and a sentence for a
+    // name is the description, not an item. Named here rather than dropped
+    // silently, because a wrong inventory quietly corrupts every gather list.
+    const pictured = new Set(Object.keys(harvestItemArt()).map((name) => name.trim().toLowerCase()));
+    const looksLikeProse = (name) => /^(a|an|the)\s+[a-z]/i.test(name) || name.split(/\s+/).length >= 5;
+    const skipped = [];
+
     for (const item of parsed.inventory) {
       const key = item.name.trim().toLowerCase();
       if (existing.has(key)) continue;
+      if (pictured.size && !pictured.has(key) && looksLikeProse(item.name)) {
+        skipped.push(item.name);
+        continue;
+      }
       existing.add(key);
       fields.inventory.push({
         name: item.name,
@@ -1397,6 +1428,15 @@
         confidence: item.confidence,
       });
     }
+
+    if (skipped.length) {
+      fields.warnings.push(
+        "Ignored " + skipped.length + " row" + (skipped.length === 1 ? "" : "s") +
+        " that read as item descriptions rather than items, for example: " +
+        skipped.slice(0, 3).join(" / ")
+      );
+    }
+
     const existingCons = new Set(fields.consumables.map((c) => c.name.trim().toLowerCase()));
     for (const c of parsed.consumables) {
       const key = c.name.trim().toLowerCase();
@@ -1582,21 +1622,6 @@
       warnings.push("Extraction is provisional (generic label/table/text parsing). Verify values against the page before relying on them.");
     }
 
-  // Farm RPG draws every item with its own picture, so a page you are already
-  // reading knows the artwork for items the planner has never heard of. Harvest
-  // it here — the planner has no other way to learn art for a new item, and
-  // this costs nothing beyond what is on screen.
-  function harvestItemArt() {
-    const art = {};
-    document.querySelectorAll("img[alt]").forEach((img) => {
-      const name = cleanWhitespace(img.getAttribute("alt") || "");
-      const src = String(img.getAttribute("src") || "").split(/[?#]/)[0];
-      if (!name || name.length > 60 || !src) return;
-      if (!/\/img\/items\//i.test(src)) return;
-      if (!art[name]) art[name] = src.replace(/^https?:\/\/[^/]+/i, "");
-    });
-    return art;
-  }
 
     const payload = {
       schema: CAPTURE_SCHEMA,

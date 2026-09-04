@@ -249,9 +249,18 @@ h3 { font-size: 18px; }
   border: 0;
   box-shadow: none;
   border-radius: 0;
-  padding-left: 0;
-  padding-right: 0;
 }
+
+/* Those panels dropped their side padding back when this theme was light and
+   they sat on the same colour as the page — nothing showed. On the dark theme
+   var(--ink2) is a visible tint, so zero padding left every heading and
+   sentence flush against the edge of its own background. Give them room. */
+.route-card, .gather-col, .gather-panel, .mine-item,
+.tower-cost-card, .make-buy, .workbench, .tree-card, .assumption-card,
+.source-list, .acorn-lab {
+  padding: 20px 22px;
+}
+.haul-chip { padding: 6px 10px 6px 7px; }
 
 /* Grouped, interactive surfaces keep one light hairline (no shadow). */
 .perk-group, .infra-card, .meal-card, .data-card, .goal-controls, .sample-form,
