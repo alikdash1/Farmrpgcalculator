@@ -3,12 +3,16 @@
   const ART = window.FRPG_ITEM_ART_HELPER;
   const picker = document.getElementById("inventoryQuestline");
   const trackingNote = document.getElementById("inventoryTracking");
+  const overlay = document.getElementById("inventoryOverlay");
+  const overlayTitle = document.getElementById("inventoryOverlayTitle");
+  const overlayMeta = document.getElementById("inventoryOverlayMeta");
+  const overlayBody = document.getElementById("inventoryOverlayBody");
   const search = document.getElementById("inventorySearch");
   const summary = document.getElementById("inventorySummary");
   const ownedRoot = document.getElementById("inventoryOwned");
   const nextRoot = document.getElementById("inventoryNext");
   const wholeRoot = document.getElementById("inventoryWhole");
-  if (!MODEL || !ART || !picker || !search || !summary || !ownedRoot || !nextRoot || !wholeRoot || !trackingNote) return;
+  if (!MODEL || !ART || !picker || !search || !summary || !ownedRoot || !nextRoot || !wholeRoot || !trackingNote || !overlay || !overlayTitle || !overlayMeta || !overlayBody) return;
 
   const itemRows = ((((window.FRPG_DATA || {}).items || {}).items) || []);
   const byId = new Map(itemRows.map((item) => [String(item.id), item]));
@@ -128,6 +132,26 @@
     ownedRoot.innerHTML = visible.map((row) => `<div class="inventory-owned-item">${itemControl(row.name, row.quantity, `<small>${fmt.format(row.quantity)} held</small>`)}</div>`).join("");
   }
 
+  let expanded = { title: "", meta: "", rows: [] };
+
+  function openExpanded() {
+    overlayTitle.textContent = expanded.title;
+    overlayMeta.textContent = expanded.meta;
+    // A shared column header cannot line up once the list wraps into three
+    // columns, so each row carries its own labels here instead.
+    overlayBody.innerHTML = expanded.rows.length
+      ? `<div class="inventory-wide">${expanded.rows.map((row) => `<div class="inventory-wide-row${row.short > 0 ? " is-short" : " is-covered"}">${itemControl(row.name, row.quantity, row.currency ? `<small>Currency</small>` : "")}<span class="inventory-wide-nums"><span><i>Need</i><b>${fmt.format(row.quantity)}</b></span><span><i>Have</i><b>${row.owned == null ? "—" : fmt.format(row.owned)}</b></span><span><i>Short</i><b>${fmt.format(row.short)}</b></span></span></div>`).join("")}</div>`
+      : `<div class="inventory-empty"><strong>No remaining item requirements are recorded.</strong></div>`;
+    overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    document.getElementById("inventoryOverlayClose").focus();
+  }
+
+  function closeExpanded() {
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+  }
+
   function renderPlan(rows) {
     const chosen = trackedLine();
     const known = (name) => MODEL.lines.some((line) => line.name === name);
@@ -172,7 +196,9 @@
     const nextLabel = next.pending ? "Planning estimate · title not available in game yet" : `Step ${next.sagaStep || next.sequence || 1}`;
 
     nextRoot.innerHTML = `<header class="inventory-panel-heading"><span>${esc(nextLabel)}</span><h2>${esc(next.title)}</h2></header>${noInventory}${tableMarkup(nextRows, "No item requirement is recorded for this quest.")}`;
-    wholeRoot.innerHTML = `<header class="inventory-panel-heading"><span>${remaining.length} step${remaining.length === 1 ? "" : "s"} left</span><h2>${esc(lineName)}</h2></header>${tableMarkup(wholeRows, "No remaining item requirements are recorded.")}<footer class="inventory-total"><b>${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"}</b><span>${covered} fully covered</span><span>${short} still short</span></footer>`;
+    const wholeMeta = `${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"} · ${covered} fully covered · ${short} still short`;
+    expanded = { title: lineName, meta: wholeMeta, rows: wholeRows };
+    wholeRoot.innerHTML = `<header class="inventory-panel-heading"><span>${remaining.length} step${remaining.length === 1 ? "" : "s"} left</span><h2>${esc(lineName)}</h2><button type="button" class="inventory-expand" data-expand-whole>Expand</button></header>${noInventory}${tableMarkup(wholeRows, "No remaining item requirements are recorded.")}<footer class="inventory-total"><b>${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"}</b><span>${covered} fully covered</span><span>${short} still short</span></footer>`;
   }
 
   function render() {
@@ -190,8 +216,13 @@
   });
   search.addEventListener("input", render);
   document.getElementById("inventory")?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-expand-whole]")) return openExpanded();
     const button = event.target.closest("[data-open-item]");
     if (button) window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty);
+  });
+  document.getElementById("inventoryOverlayClose").addEventListener("click", closeExpanded);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !overlay.hidden) closeExpanded();
   });
   document.querySelector('[data-tab="inventory"]')?.addEventListener("click", render);
   window.addEventListener("frpg:tracked-line", render);

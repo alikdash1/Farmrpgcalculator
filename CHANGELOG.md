@@ -514,3 +514,14 @@ page looked broken until you found the Track button on another tab.
   picker is a change control now, not the way in.
 - With no inventory imported, the panels say so above the table instead of
   letting a column of zeroes imply you own nothing in the game.
+
+## 2026-09-04 — The gather lists show everything
+
+Both panels were 62vh inner scroll boxes, so a 189-item questline showed about
+nine rows, and item names were clipped to "Amethyst …".
+
+- The lists run their full length; the page scrolls instead of each panel.
+- Names wrap rather than truncate; row art is 28px and sits on the name.
+- The whole questline has an **Expand** control that opens the complete list
+  across the full screen, three columns wide, each row labelling its own
+  Need / Have / Short so nothing depends on a column header lining up.

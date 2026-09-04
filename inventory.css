@@ -20,8 +20,8 @@
 .inventory-item-link:hover { border-color: var(--green); background: var(--ink3); }
 .inventory-item-link.is-static { border-color: transparent; cursor: default; }
 .inventory-item-link.is-static:hover { border-color: transparent; background: var(--ink2); }
-.inventory-item-link b, .inventory-item-link small { display: block; overflow: hidden; text-overflow: ellipsis; }
-.inventory-item-link b { white-space: nowrap; font-size: .78rem; }
+.inventory-item-link b, .inventory-item-link small { display: block; }
+.inventory-item-link b { font-size: .78rem; line-height: 1.25; overflow-wrap: anywhere; }
 .inventory-item-link small { margin-top: .2rem; color: var(--muted); font-size: .68rem; }
 .inventory-art { display: grid; place-items: center; width: 36px; height: 36px; color: var(--muted); font-weight: 800; }
 .inventory-art img { display: block; width: 36px; height: 36px; object-fit: contain; }
@@ -34,15 +34,16 @@
 .inventory-panel-heading { min-height: 76px; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
 .inventory-panel-heading span { color: var(--green); font: 700 .68rem var(--ui), sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .inventory-panel-heading h2 { margin-top: .3rem; font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.15; }
-.inventory-requirements { max-height: 62vh; overflow: auto; scrollbar-color: var(--line) var(--ink2); }
-.inventory-row { display: grid; grid-template-columns: minmax(130px, 1fr) 108px 108px 112px; gap: .45rem; align-items: center; min-height: 52px; padding: .38rem .35rem; }
+.inventory-requirements { overflow: visible; }
+.inventory-row { display: grid; grid-template-columns: minmax(150px, 1fr) 96px 96px 104px; gap: .45rem; align-items: center; min-height: 46px; padding: .3rem .35rem; }
 .inventory-row:nth-child(odd):not(.inventory-row-head) { background: var(--ink3); }
 .inventory-row > :not(:first-child) { text-align: right; font: 700 .74rem var(--ui), sans-serif; }
 .inventory-row.is-short > strong { color: var(--text); }
 .inventory-row.is-covered > strong { color: var(--green); }
 .inventory-row-head { position: sticky; z-index: 2; top: 0; min-height: 34px; color: var(--muted); background: var(--ink2); border-bottom: 1px solid var(--line); }
 .inventory-row-head > span { font: 700 .61rem var(--ui), sans-serif; letter-spacing: .06em; text-transform: uppercase; }
-.inventory-row .inventory-item-link { padding: .3rem .38rem; background: transparent; }
+.inventory-row .inventory-item-link { grid-template-columns: 30px minmax(0, 1fr); gap: .55rem; align-items: center; padding: .28rem .34rem; background: transparent; }
+.inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
 .inventory-row .inventory-item-link.is-static:hover { background: transparent; }
 .inventory-total { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .9rem; margin-top: .65rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
 .inventory-total b { color: var(--text); margin-right: auto; }
@@ -87,3 +88,89 @@
   font-size: .86rem;
 }
 .inventory-caveat b { color: var(--text); }
+
+
+/* ---- Expanded list ------------------------------------------------------
+   A 189-item questline does not fit in half a column. The panel keeps the
+   readable two-column layout; this shows the same rows across the whole
+   screen, several columns wide, for when you are actually shopping. */
+.inventory-panel-heading { position: relative; }
+.inventory-expand {
+  position: absolute;
+  right: 0;
+  bottom: .8rem;
+  padding: .32rem .6rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: 700 .66rem var(--ui), sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.inventory-expand:hover { color: var(--green); border-color: var(--green); }
+
+.inventory-overlay {
+  position: fixed;
+  inset: 0;
+  /* The masthead is sticky at z-index 80, so a full-screen list has to sit
+     above it or the site chrome prints straight through the title. */
+  z-index: 90;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--ink);
+}
+.inventory-overlay[hidden] { display: none; }
+.inventory-overlay-head {
+  display: flex;
+  gap: 1rem 1.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 1.4rem clamp(1rem, 4vw, 3rem) 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.inventory-overlay-head h2 { font-size: clamp(1.3rem, 2.4vw, 2rem); }
+.inventory-overlay-head p { color: var(--muted); font-size: .8rem; }
+.inventory-overlay-close {
+  margin-left: auto;
+  padding: .45rem .9rem;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.inventory-overlay-close:hover { border-color: var(--green); color: var(--green); }
+.inventory-overlay-body { overflow: auto; padding: 1rem clamp(1rem, 4vw, 3rem) 3rem; }
+.inventory-wide {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 0 2.4rem;
+  align-content: start;
+}
+/* A floor on the name column: without it a long value squeezes the name until
+   it wraps one letter per line. */
+.inventory-wide-row {
+  display: grid;
+  grid-template-columns: minmax(132px, 1fr) auto;
+  gap: .6rem;
+  align-items: center;
+  padding: .3rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.inventory-wide-nums { display: flex; gap: 1rem; text-align: right; }
+.inventory-wide-nums span { display: grid; min-width: 62px; }
+.inventory-wide-nums i {
+  color: var(--muted);
+  font: 700 .56rem var(--ui), sans-serif;
+  font-style: normal;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.inventory-wide-nums b { font: 700 .78rem var(--ui), sans-serif; }
+.inventory-wide-row.is-covered .inventory-wide-nums span:last-child b { color: var(--green); }
+
+@media (max-width: 620px) {
+  .inventory-wide { grid-template-columns: 1fr; }
+}
