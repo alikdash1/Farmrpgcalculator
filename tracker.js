@@ -73,6 +73,13 @@
   }
 
   function render() {
+    // The Inventory tab already shows both lists in full, at a size you can
+    // read. Floating the same two panels over it only covers the page.
+    const onInventory = document.getElementById("inventory")?.classList.contains("active");
+    if (onInventory && !panels.whole.classList.contains("is-big")) {
+      for (const panel of Object.values(panels)) panel.hidden = true;
+      return;
+    }
     if (read("frpg_tracker_hidden", "") === "1") {
       for (const panel of Object.values(panels)) panel.hidden = true;
       return;

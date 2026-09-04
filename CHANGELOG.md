@@ -735,3 +735,9 @@ bucket labelled Other — worse than no grouping.
   items still fit without scrolling and read as a list rather than a wall.
 - **A filter in the expanded view.** Typing "ring" narrows 189 items to the 6
   rings, and the heading says how many matched.
+
+## 2026-09-05 — The tracker steps aside on the Inventory tab
+
+Both panels floated over the one page that already shows the same two lists in
+full, covering it. They hide there now, unless the expanded view is open on
+purpose. Every other tab keeps them.

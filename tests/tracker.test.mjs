@@ -151,3 +151,11 @@ test("gather lists say where an item comes from", () => {
   assert.match(read("app.js"), /window\.FRPG_INDEX = index;/);
   assert.match(page, /function sourceHint\(name\)/);
 });
+
+test("the tracker steps aside on the tab that already shows both lists", () => {
+  const js = read("tracker.js");
+  // Floating the same two panels over the Inventory tab only covers the page
+  // it duplicates — unless the expanded view is deliberately open.
+  assert.match(js, /getElementById\("inventory"\)\?\.classList\.contains\("active"\)/);
+  assert.match(js, /onInventory && !panels\.whole\.classList\.contains\("is-big"\)/);
+});
