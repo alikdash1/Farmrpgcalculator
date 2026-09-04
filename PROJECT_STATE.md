@@ -42,6 +42,8 @@ in that transcript and in this repo's files — there is no other record.
   account) plus floor-by-floor T301–T340 cost data (silver/AK/min-MM/items).
 - **Quests** — main-questline browser (202 quests / 19 questlines). Event
   quests intentionally excluded per the user's request.
+- **Inventory** — searchable saved inventory plus next-step and whole-questline
+  gathering lists for one tracked, saga-aware questline.
 - **New items** — Mining-skill items and other recently-added items not yet
   folded into the main planner, with sources/recipes/connected crafts.
 

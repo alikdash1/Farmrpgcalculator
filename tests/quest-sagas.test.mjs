@@ -6,24 +6,18 @@ import vm from "node:vm";
 const root = new URL("../", import.meta.url);
 const read = (p) => readFileSync(new URL(p, root), "utf8");
 
-// Load the real data files and the real applySagas out of quests-page.js, so
-// this exercises what ships rather than a copy of it.
+// Load the real data files and the shared quest model used by both pages.
 function load() {
-  const context = { window: {} };
+  const context = { window: {}, localStorage: { getItem: () => null } };
   vm.createContext(context);
   vm.runInContext(read("data/main-quests.js"), context);
   vm.runInContext(read("data/quest-sagas.js"), context);
-
-  const source = read("quests-page.js");
-  const start = source.indexOf("  function applySagas");
-  const end = source.indexOf("\n  const DATA = applySagas");
-  assert.ok(start > 0 && end > start, "applySagas still lives in quests-page.js");
-  vm.runInContext(source.slice(start, end) + "\nglobalThis.applySagas = applySagas;", context);
+  vm.runInContext(read("quest-model.js"), context);
 
   return {
     raw: context.window.FRPG_MAIN_QUESTS,
     config: context.window.FRPG_QUEST_SAGAS,
-    applySagas: context.applySagas,
+    applySagas: context.window.FRPG_QUEST_MODEL.applySagas,
   };
 }
 

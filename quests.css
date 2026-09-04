@@ -154,6 +154,18 @@
   .tower-cost-items { grid-template-columns: 1fr; }
 }
 
+.quest-line-actions { display: flex; align-items: center; gap: .75rem; }
+.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 .67rem var(--ui), sans-serif; cursor: pointer; }
+.quest-track:hover, .quest-track.is-tracked { color: var(--green); border-color: var(--green); }
+.quest-item.is-currency { cursor: default; }
+.quest-item.is-static { cursor: default; border-color: transparent; }
+.quest-item-currency { display: block; width: 24px; height: 1px; background: var(--muted); }
+.quest-pending { color: var(--muted); font-weight: 500; }
+
+@media (max-width: 620px) {
+  .quest-line-actions { align-items: flex-end; flex-direction: column; gap: .4rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .quest-line > summary { scroll-behavior: auto; }
 }

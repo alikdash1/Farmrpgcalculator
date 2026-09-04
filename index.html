@@ -6,13 +6,14 @@
   <meta name="theme-color" content="#101c1c">
   <meta name="description" content="Plan Farm RPG crafting, Tower masteries, Mining, fishing, and account-aware routes in one fan-made desk.">
   <title>Lantern Ledger - Farm RPG Planner</title>
-  <link rel="icon" href="assets/lantern-ledger-mark.svg" type="image/svg+xml">
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260904-1" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest?v=20260904-1">
   <link rel="stylesheet" href="style.css?v=20260903-40">
   <link rel="stylesheet" href="v3.css?v=20260903-60">
   <link rel="stylesheet" href="tower.css?v=20260903-41">
   <link rel="stylesheet" href="mining.css?v=20260903-42">
-  <link rel="stylesheet" href="quests.css?v=20260904-2">
+  <link rel="stylesheet" href="quests.css?v=20260904-4">
+  <link rel="stylesheet" href="inventory.css?v=20260904-2">
   <link rel="stylesheet" href="system.css?v=20260904-3">
 </head>
 <body>
@@ -26,6 +27,7 @@
       <button class="tab" data-tab="account">Account</button>
       <button class="tab" data-tab="tower">Tower</button>
       <button class="tab" data-tab="quests">Quests</button>
+      <button class="tab" data-tab="inventory">Inventory</button>
       <button class="tab" data-tab="mining">Mining</button>
           </nav>
     <button id="exportPlan" class="quiet-button">Export plan</button>
@@ -236,6 +238,23 @@
       <section id="questLines" class="quest-lines"></section>
     </section>
 
+    <section id="inventory" class="view inventory-page">
+      <section class="inventory-intro">
+        <div><span class="eyebrow">Inventory</span><h1>Gather for what comes next.</h1><p>Choose one questline and compare its remaining requirements with what you already hold.</p></div>
+        <label class="inventory-line-picker"><span>Questline to track</span><select id="inventoryQuestline" name="inventory-questline"></select></label>
+      </section>
+      <section class="inventory-owned-section">
+        <header class="inventory-section-heading"><div><h2>Your inventory</h2><p>Search the items currently saved in Lantern Ledger.</p></div><div id="inventorySummary" class="inventory-summary" aria-live="polite"></div></header>
+        <div class="inventory-toolbar"><label class="inventory-search"><span>Find an item</span><input id="inventorySearch" name="inventory-search" type="search" autocomplete="off" placeholder="Item name…"></label></div>
+        <div id="inventoryOwned" class="inventory-owned"></div>
+      </section>
+      <header class="inventory-plan-heading"><h2>What to gather</h2><p>The next step stays focused; the full list shows the entire remaining commitment.</p></header>
+      <section class="inventory-panels">
+        <article class="inventory-panel" aria-label="Next quest"><div class="eyebrow">Next quest</div><div id="inventoryNext"></div></article>
+        <article class="inventory-panel" aria-label="Whole questline"><div class="eyebrow">Whole questline</div><div id="inventoryWhole"></div></article>
+      </section>
+    </section>
+
     <section id="mining" class="view">
       <section class="page-intro">
         <span class="eyebrow">Mining</span>
@@ -283,20 +302,24 @@
   <script src="data/main-quests.js?v=20260904-1"></script>
   <script src="data/personal-quests.js?v=20260904-1"></script>
   <script src="data/quest-sagas.js?v=20260904-2"></script>
+  <script src="data/item-art.js?v=20260904-2"></script>
   <script src="data/location-intel.js?v=20260901-2"></script>
   <script src="data/new-items.js?v=20260831-1"></script>
   <script src="data/mining-capture-items.js?v=20260901-3"></script>
   <script src="data/workbook-rates.js?v=20260903-1"></script>
   <script src="data/tradeable.js?v=20260903-1"></script>
-  <script src="collectors/account-importer/shared/numbers.js"></script>
-  <script src="collectors/account-importer/shared/sanitize.js"></script>
-  <script src="collectors/account-importer/shared/textparse.js"></script>
-  <script src="collectors/account-importer/shared/schema.js"></script>
-  <script src="collectors/account-importer/shared/merge.js"></script>
-  <script src="engine.js"></script>
-  <script src="app.js?v=20260904-1"></script>
-  <script src="mining-page.js?v=20260903-7"></script>
-  <script src="quests-page.js?v=20260904-3"></script>
+  <script src="collectors/account-importer/shared/numbers.js?v=20260904-1"></script>
+  <script src="collectors/account-importer/shared/sanitize.js?v=20260904-1"></script>
+  <script src="collectors/account-importer/shared/textparse.js?v=20260904-1"></script>
+  <script src="collectors/account-importer/shared/schema.js?v=20260904-1"></script>
+  <script src="collectors/account-importer/shared/merge.js?v=20260904-1"></script>
+  <script src="engine.js?v=20260904-1"></script>
+  <script src="item-art.js?v=20260904-1"></script>
+  <script src="quest-model.js?v=20260904-1"></script>
+  <script src="app.js?v=20260904-2"></script>
+  <script src="mining-page.js?v=20260904-1"></script>
+  <script src="quests-page.js?v=20260904-5"></script>
+  <script src="inventory-page.js?v=20260904-1"></script>
   <script src="sync-guide.js?v=20260904-1"></script>
 </body>
 </html>

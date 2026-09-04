@@ -7,8 +7,9 @@
   const INTEL = window.FRPG_LOCATION_INTEL;
   const CATALOG = window.FRPG_NEW_ITEMS;
   const DATA = window.FRPG_DATA;
+  const ART = window.FRPG_ITEM_ART_HELPER;
   const grid = document.getElementById("mineGrid");
-  if (!INTEL || !grid) return;
+  if (!INTEL || !ART || !grid) return;
 
   const mines = (INTEL.mining && INTEL.mining.mines) || [];
   const esc = (value) => String(value == null ? "" : value)
@@ -30,15 +31,7 @@
   connected.forEach(remember);
 
   const baseByName = new Map(baseItems.map((item) => [item.name.toLowerCase(), item]));
-
-  function artFor(name) {
-    const key = String(name || "").toLowerCase();
-    const rich = byName.get(key);
-    if (rich && rich.image) return rich.image;
-    const base = baseByName.get(key);
-    if (base && base.img) return base.img.startsWith("http") ? base.img : `https://farmrpg.com${base.img}`;
-    return null;
-  }
+  const artFor = (name) => ART.urlFor(name);
 
   // ---- craft links ---------------------------------------------------------
   // Prefer the release catalogue's own usedIn/recipe, and fall back to the full

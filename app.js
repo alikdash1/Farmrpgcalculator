@@ -70,24 +70,7 @@
     rate_adjust_global: "Adjustment to the community drop rates",
   };
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
-  // The 2023 item export has no artwork for newer items, but the release
-  // catalogue in data/new-items.js often does. Look there before giving up and
-  // drawing a letter tile.
-  const catalogueArt = (() => {
-    const map = new Map();
-    const cat = window.FRPG_NEW_ITEMS;
-    if (!cat) return map;
-    const conn = cat.connected ? (Array.isArray(cat.connected) ? cat.connected : Object.values(cat.connected)) : [];
-    for (const row of [...(cat.items || []), ...conn]) {
-      if (row && row.name && row.image) map.set(String(row.name).toLowerCase(), row.image);
-    }
-    return map;
-  })();
-  const artFallback = (item, fallbackName) => {
-    const name = String((item && item.name) || fallbackName || "").toLowerCase();
-    return name ? catalogueArt.get(name) || "" : "";
-  };
-  const imageUrl = (item) => item && item.img ? "https://farmrpg.com" + item.img : "";
+  const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
   // A bare "?" reads as a broken image, so fall back to the item's initial.
   const artInitial = (item, fallbackName) => {
@@ -106,9 +89,10 @@
   };
   const itemImg = (item, cls, fallbackName) => {
     const px = artPx(cls);
-    const src = item && item.img ? imageUrl(item) : artFallback(item, fallbackName);
+    const name = fallbackName || (item && item.name) || "";
+    const src = ART ? ART.urlFor(name) : "";
     return src
-      ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="${px}" height="${px}" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(fallbackName || (item && item.name) || "")}"></span>`
+      ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="${px}" height="${px}" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(name)}"></span>`
       : `<span class="item-art missing-art ${cls || ""}" aria-hidden="true">${esc(artInitial(item, fallbackName))}</span>`;
   };
   const read = (key, fallback) => {
@@ -1966,13 +1950,7 @@
         const plannable = !!item;
         const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the calculator"`;
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
-        // Use the planner's own art where it knows the item, and the wiki
-        // picture for the newer requirements it has no entry for.
-        const art = item
-          ? itemImg(item, "tower-art", row.name)
-          : row.img
-            ? `<span class="item-art tower-art"><img loading="lazy" width="46" height="46" referrerpolicy="no-referrer" src="${esc(row.img)}" alt="${esc(row.name)}"></span>`
-            : itemImg(null, "tower-art", row.name);
+        const art = itemImg(item, "tower-art", row.name);
         return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;

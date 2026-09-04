@@ -5,6 +5,23 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-04 — Inventory questline planner and shared item art
+
+- Added a dedicated Inventory tab with a searchable owned-item list, questline
+  picker, next-quest requirements, and a scrollable full-line total. Shortages
+  sort first, completed quest steps are excluded, pending saga steps remain
+  visible, and the two planning panels stack below 900px.
+- Added Track controls to every questline. Quests and Inventory now share one
+  saga-aware quest model and one completed-title normalizer, including the
+  personal list plus imported account captures.
+- Added a single shared art lookup used by the calculator, Tower, Quests,
+  Mining, and Inventory. Added 106 verified missing quest-item pictures plus
+  13 existing Mining pictures to `data/item-art.js`; all 119 URLs returned HTTP
+  200. Silver stays art-free and is labelled as currency.
+- Added Inventory/model/art regression coverage. All 52 tests pass, every
+  edited script passes `node --check`, and the self-contained preview bundle
+  was checked at desktop and mobile widths with no browser-console errors.
+
 ## 2026-09-02 (later) — Player-facing correctness pass
 
 The user: *"continue with this build there's still too many wrong things in

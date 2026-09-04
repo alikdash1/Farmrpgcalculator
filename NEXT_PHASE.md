@@ -1,5 +1,26 @@
 # Next Phase
 
+## Completed 2026-09-04 — Inventory planning
+
+The root app now has an Inventory tab that compares the saved `frpg_owned`
+inventory with the next unfinished quest and the sum of every unfinished step
+in one tracked questline. Tracking can start from either Quests or Inventory.
+Quest completion and saga stitching live in `quest-model.js`, so the two pages
+cannot drift. Item pictures now use one shared lookup, backed by 119 verified
+fallback paths in `data/item-art.js` (106 missing quest items and 13 Mining
+items); Silver remains currency with no item picture.
+
+The checked-in personal list currently marks only Problems Start Arising I and
+II complete. Following the required "not completed" rule therefore makes III
+the next step and produces 31 unfinished steps with 189 distinct requirement
+names. The original task brief described the same account as 30 steps and 192
+items; update the personal completion capture or quest requirement source if
+those newer figures are authoritative.
+
+**Still open:** `publish/` does not contain this tab, shared model, or art file.
+That copy remains intentionally untouched while the two-front-end merge below
+is unresolved.
+
 ## ⚠ BIGGEST OPEN ISSUE: two divergent front-ends (found 2026-09-02)
 
 There are **two different versions of the app** in this repo and they have
@@ -56,9 +77,10 @@ view). What that pass left open:
 - **43 items the game has are missing from the planner's item index** —
   Basic Pillow, Brown Dye, Oak Table, Gold Ring, Magus Hat and the rest of the
   T301+ list. They exist in `knowledge-pack/farmrpg.db` but with no recipe, no
-  price and (for all but 7) no image, so merging them in would fix almost
-  nothing. They now render honestly as "No route data for this one yet"
-  instead of as dead buttons. Real fix = getting the data, not the merge.
+  price, so merging them in would not create usable routes. Shared fallback art
+  now covers the known quest and Mining pictures, while these rows still render
+  honestly as "No route data for this one yet" instead of as dead buttons.
+  Real fix = getting the route data, not merely merging names.
 - **The user has not reviewed any of this yet.** Their words: "finish
   everything first then i will go through it." Expect a list.
 
