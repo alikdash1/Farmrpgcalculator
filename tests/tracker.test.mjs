@@ -113,3 +113,15 @@ test("tracker rows open the item, and Escape closes the expanded list", () => {
   // Keyboard users get the same row action as mouse users.
   assert.match(js, /event\.key === "Enter" \|\| event\.key === " "/);
 });
+
+test("the whole-line list can be copied into a spreadsheet", () => {
+  const js = read("tracker.js");
+  // The player keeps a sheet for this questline, so tab-separated rows paste
+  // straight in. navigator.clipboard needs a secure context and this app opens
+  // from disk, so the textarea path is the one that actually runs.
+  assert.ok(js.includes('"Item\\tNeeded\\tYou have\\tStill short"'));
+  assert.match(js, /document\.execCommand\("copy"\)/);
+  assert.match(js, /navigator\.clipboard/);
+  // Only on the whole-line panel; copying one step's list has little use.
+  assert.match(js, /canExpand \? `<button type="button" data-copy/);
+});

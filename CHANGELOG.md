@@ -709,3 +709,16 @@ stack, with the current step on top.
   reaches DOMContentLoaded in 102 ms with everything parsed. Splitting event
   quests out was on the list as a performance fix; it is not one. Recorded in
   `handoff/STATE.md` so nobody spends a risky refactor on it.
+
+## 2026-09-05 — Copy the gather list
+
+The whole-line panel has a **Copy list** button. It writes tab-separated rows —
+item, needed, you have, still short — which paste straight into a spreadsheet;
+the player already keeps one for this questline. `navigator.clipboard` needs a
+secure context and this app opens from disk, so the copy goes through a
+textarea with the clipboard API as the fallback rather than the other way
+round. 190 lines for the pirate saga, verified.
+
+Also checked, and rejected: grouping the list by item type. 924 of the 1,138
+items are typed simply "item", so the grouping would have been mostly one
+bucket labelled Other — worse than no grouping.

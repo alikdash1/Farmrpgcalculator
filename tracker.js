@@ -63,7 +63,7 @@
         <button type="button" class="tracker-toggle" data-close title="Hide until you track something again">✕</button>
       </header>
       ${collapsed ? "" : `<ul class="tracker-list">${rowsHtml(rows, mark)}</ul>
-        <footer class="tracker-foot">${rows.length} still short<button type="button" data-open>Open</button></footer>`}
+        <footer class="tracker-foot">${rows.length} still short<span class="tracker-foot-actions">${canExpand ? `<button type="button" data-copy title="Copy as tab-separated rows, ready to paste into a spreadsheet">Copy list</button>` : ""}<button type="button" data-open>Open</button></span></footer>`}
     `;
   }
 
@@ -132,10 +132,46 @@
       write("frpg_tracker_hidden", "1");
       return render();
     }
+    if (button.dataset.copy !== undefined) {
+      copyList(button);
+      return;
+    }
     if (button.dataset.open !== undefined) {
       document.querySelector('[data-tab="inventory"]')?.click();
     }
   });
+
+  // Tab-separated, so it pastes straight into a spreadsheet — the player keeps
+  // one for this questline already. navigator.clipboard needs a secure context
+  // and this app is opened from disk, so the textarea fallback is the path
+  // that actually runs.
+  function copyList(button) {
+    const plan = GATHER.plan();
+    const rows = plan.wholeRows.filter((row) => row.short > 0);
+    if (!rows.length) return;
+    const text = ["Item\tNeeded\tYou have\tStill short"]
+      .concat(rows.map((row) => [row.name, row.quantity, row.owned == null ? "" : row.owned, row.short].join("\t")))
+      .join("\n");
+    const done = (ok) => {
+      button.textContent = ok ? "Copied" : "Press Ctrl+C";
+      setTimeout(() => { button.textContent = "Copy list"; }, 1800);
+    };
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.append(field);
+    field.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+    field.remove();
+    if (ok) return done(true);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true), () => done(false));
+      return;
+    }
+    done(false);
+  }
 
   window.addEventListener("frpg:tracked-line", render);
   window.addEventListener("storage", render);
