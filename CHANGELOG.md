@@ -353,3 +353,12 @@ rule. Green now means exactly one thing everywhere: recommended, or handled.
   hint only applies to Mega Masteries now.
 - Requirement rows use the planner's own art where it has the item and the wiki
   picture otherwise, so every row shows a picture.
+
+## 2026-09-04 (home panels) — Give the two home cards room
+
+The cohesion pass had zeroed the side padding on `.readiness-card` and
+`.rule-card` along with the other "reading blocks", but those two keep a visible
+background, so text sat on the card edge and the surface stopped on the final
+word. Restored padding (24/26/34, deeper at the bottom) so the background carries
+past the last line, and set `.desk-lower` to `align-items: start` so each panel is
+its own height rather than being stretched to match its neighbour.

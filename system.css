@@ -413,3 +413,15 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
 /* Verdict/route labels and the "you pay" style stamps read as small captions. */
 .verdict b, .route-metric b, .buy-total b, .gather-line strong,
 .haul-chip b, .gather-mastery b { color: var(--text); }
+
+/* The two panels on the home page are real surfaces, not borderless reading
+   blocks, so the earlier padding reset does not suit them: text was sitting on
+   the card edge and the background stopped on the final word. Give them room,
+   and a deeper bottom so the surface carries past the last line. Their heights
+   are free to differ — matching them is not worth cramping either one. */
+.readiness-card,
+.rule-card {
+  padding: 24px 26px 34px !important;
+  border-radius: 12px;
+}
+.desk-lower { align-items: start; }
