@@ -88,7 +88,13 @@
       const bits = captured.length
         ? [`Matched <b>${matched.toLocaleString()}</b> of <b>${captured.length.toLocaleString()}</b> completed quests in your capture.`]
         : ["Your capture has no completed quests in it — open Farm RPG’s Completed Help Requests page, let it finish loading, then press Sync."];
-      if (unmatched.length) bits.push(`${unmatched.length.toLocaleString()} title${unmatched.length === 1 ? "" : "s"} did not match this quest list.`);
+      // Name the titles that missed. "2 did not match" gives nothing to act on;
+      // seeing what they are usually shows at a glance whether the capture read
+      // quest names or something else entirely.
+      if (unmatched.length) {
+        const sample = unmatched.slice(0, 3).map((title) => `“${esc(title)}”`).join(", ");
+        bits.push(`${unmatched.length.toLocaleString()} title${unmatched.length === 1 ? "" : "s"} did not match this quest list: ${sample}${unmatched.length > 3 ? ", …" : ""}`);
+      }
       if (truncated) bits.push("Farm RPG truncated the older history, so some finished steps stay untracked.");
       note.innerHTML = `<strong>Using your saved account.</strong><span>${bits.join(" ")}</span>`;
     } else {
