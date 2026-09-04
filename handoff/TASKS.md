@@ -9,6 +9,7 @@ matter.
 
 | # | Task | Agent | Why it is worth doing |
 |---|---|---|---|
+| 0 | **Extension: quests and masteries captures do not land** | either | Reported repeatedly; see the note below — this is the top item |
 | 1 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
 | 2 | Split event quests out of `data/main-quests.js` into a lazily-loaded file | codex | 1.2 MB parsed on every load, for quests that mostly ended |
 | 3 | Add a `hashchange` listener | either | Back currently leaves the site instead of changing tab |
@@ -30,3 +31,30 @@ is whether the engine can fill the gap, not whether new data is needed.
 quest import and the inventory tab. Resyncing it is not a merge — it is a
 copy-and-verify. Ask the user whether it is still wanted at all before doing
 either.
+
+
+## Notes for whoever takes #0 — the capture bugs
+
+Two symptoms, possibly one cause:
+
+- **Completed quests**: the page holds roughly 1,950 entries; a capture yields
+  **2**, and neither matches a real quest title.
+- **Available quests**: nothing usable, so "Available Now" reads 0.
+- **Masteries**: re-capturing does not change what the site shows.
+
+Do **not** guess at the page layouts. Everything needed to see the real ones is
+already in place:
+
+- `capture-page.js` pushes a warning naming the **first six lines it actually
+  read** when a quests page parses nothing, and `background.js` returns those
+  warnings to the popup.
+- `quests-page.js` prints the completed titles that failed to match.
+- The popup lists each section with **how many rows it holds and how old it
+  is**, so "did this capture land at all?" is answerable at a glance.
+
+Ask the player to capture the page, then read those back. For masteries,
+compare the popup's row count for `mastery` against `data/personal-tower.js`
+(514 items from the 2026-09-04 CSV) — if the capture holds far fewer, the
+protection in `protectUsefulCapture` may be refusing it, and the popup message
+says so. If it holds a healthy count but the Tower page has not changed, the
+fault is downstream in the merge or in `towerMasteryMap()`, not in the capture.

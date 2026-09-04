@@ -14,7 +14,9 @@ test("the tracker is on every tab, not only the Inventory page", () => {
   // Two docked panels, not one corner holding both.
   assert.match(js, /id: "questTrackerNext"/);
   assert.match(js, /id: "questTrackerWhole"/);
-  assert.doesNotMatch(js, /getElementById\("inventory"\)/);
+  // It may read the Inventory view to know when to step aside, but it must
+  // never render into it — that is what would tie it to one tab.
+  assert.doesNotMatch(js, /getElementById\("inventory"\)\.(?:innerHTML|append)/);
   assert.match(html, /<script src="tracker\.js/);
   assert.match(html, /<link rel="stylesheet" href="tracker\.css/);
   // It can be collapsed and dismissed, and the choice is remembered.
