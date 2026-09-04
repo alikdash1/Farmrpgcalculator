@@ -135,7 +135,9 @@ async function status() {
   const captured = Object.keys(data.captures || {}).filter((name) => name !== "other" && name !== "unknown").sort();
   const details = {};
   for (const [type, capture] of Object.entries(data.captures || {})) {
-    details[type] = { capturedAt: capture.capturedAt, count: detailCount(capture), label: capture.pageLabel || type };
+    // Keep the URL the capture came from: it is the one address guaranteed to
+    // be right for refreshing that section, so the popup can link straight back.
+    details[type] = { capturedAt: capture.capturedAt, count: detailCount(capture), label: capture.pageLabel || type, url: capture.url || "" };
   }
   return {
     snapshot: data.snapshot || null,

@@ -63,3 +63,17 @@ If you open Lantern Ledger through a `file:///` address, enable **Allow access t
 - **Old Tower/Mastery values:** open that exact Farm RPG page and press **Sync**. The newest complete capture wins.
 - **Duplicate or missing sections:** reload version 1.2, open the popup once to run migration, then revisit any section still listed as missing.
 - **Hosted site does not update live:** export the complete snapshot and import it manually until the final domain is added.
+
+## Keeping it current (v1.3)
+
+The popup now lists all twelve sections with **how old each capture is** and an
+**Open** button that reopens the exact Farm RPG page that section came from. A
+page captures itself once it finishes loading, so refreshing everything is a few
+clicks — no remembering which screen feeds which numbers.
+
+The extension deliberately does **not** navigate the game for you. It only reads
+pages you open yourself, which is why anything you have not visited recently
+shows its real age rather than pretending to be up to date.
+
+Live sync while you play: leave Lantern Ledger open in a tab. Every capture is
+pushed to it immediately, so the Tower and Quests pages update as you browse.

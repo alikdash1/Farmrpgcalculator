@@ -16,6 +16,58 @@ function formatMissing(rows) {
   return rows.map((name) => LABELS[name] || name).join(", ");
 }
 
+
+const FALLBACK_URL = {
+  profile: "https://farmrpg.com/#!/profile.php",
+  inventory: "https://farmrpg.com/#!/inventory.php",
+  tower: "https://farmrpg.com/#!/tower.php",
+  mastery: "https://farmrpg.com/#!/mastery.php",
+  "quests-available": "https://farmrpg.com/#!/quests.php",
+  "quests-completed": "https://farmrpg.com/#!/questscomp.php",
+};
+
+function ageText(iso) {
+  if (!iso) return "never";
+  const ms = Date.now() - Date.parse(iso);
+  if (!Number.isFinite(ms)) return "never";
+  const mins = Math.round(ms / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return mins + " min ago";
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return hours + " h ago";
+  return Math.round(hours / 24) + " d ago";
+}
+
+// One row per section: how old it is, and a link that reopens the exact page it
+// came from. Refreshing everything is then a few clicks instead of remembering
+// which Farm RPG screens feed which numbers.
+function renderSections(result) {
+  const list = document.querySelector("#sections");
+  if (!list) return;
+  const details = result.details || {};
+  list.innerHTML = "";
+  for (const [key, label] of Object.entries(LABELS)) {
+    const row = details[key];
+    const url = (row && row.url) || FALLBACK_URL[key] || "";
+    const item = document.createElement("li");
+    item.className = row ? "has" : "missing";
+    const name = document.createElement("span");
+    name.textContent = label;
+    const age = document.createElement("b");
+    age.textContent = row ? ageText(row.capturedAt) : "not captured";
+    item.append(name, age);
+    if (url) {
+      const open = document.createElement("button");
+      open.type = "button";
+      open.textContent = "Open";
+      open.title = "Open this Farm RPG page; it captures itself once it loads";
+      open.onclick = () => chrome.tabs.create({ url });
+      item.append(open);
+    }
+    list.append(item);
+  }
+}
+
 async function refresh() {
   try {
     const [result, local] = await Promise.all([
@@ -28,6 +80,7 @@ async function refresh() {
     $("#status").textContent = count ? "Account memory ready" : "No pages captured";
     $("#updated").textContent = result.syncedAt ? "Updated " + new Date(result.syncedAt).toLocaleString() : "Open Farm RPG and visit an account page";
     $("#missing").textContent = result.missing && result.missing.length ? "Still visit: " + formatMissing(result.missing) : "All core account sections learned.";
+    renderSections(result);
     if (document.activeElement !== $("#calculatorUrl")) $("#calculatorUrl").value = local.calculatorUrl || DEFAULT_CALCULATOR;
   } catch (error) {
     $("#status").textContent = "Extension error";
