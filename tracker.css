@@ -2,10 +2,11 @@
    the way: it is a glance, not a page. */
 .quest-tracker {
   position: fixed;
-  right: 14px;
   bottom: 14px;
   z-index: 70;
   width: 300px;
+  /* Docked corners: the step you are on to the left, the whole line to the
+     right, so the two never sit on top of one another. */
   max-height: min(58vh, 520px);
   display: flex;
   flex-direction: column;
@@ -87,6 +88,9 @@
 }
 
 /* Bigger, for reading both lists properly rather than glancing at them. */
+.quest-tracker.is-next { left: 14px; }
+.quest-tracker.is-whole { right: 14px; }
+
 /* Big: the whole line, laid sideways across the page. Columns are as many as
    fit, so the list is read across rather than scrolled down. No width
    transition — the browser will not interpolate a px width to a min() value
@@ -113,12 +117,20 @@
 }
 .quest-tracker.is-big .tracker-list li { padding: 2px 4px 2px 0; border-top: 0; }
 .quest-tracker.is-big .tracker-list li + li { border-top: 0; }
-/* The items the step you are on needs, kept findable in a list of two hundred. */
+/* The items the step you are on also needs, kept findable in a long list. */
 .quest-tracker.is-big .tracker-list li.is-now { padding-left: 5px; border-left: 2px solid var(--green); }
 .quest-tracker.is-big .tracker-list li.is-now span { color: var(--text); }
 .quest-tracker.is-collapsed { width: 260px; }
 
-@media (max-width: 760px) {
-  .quest-tracker { width: calc(100vw - 16px); }
+/* Two panels cannot both take the full width, so on a narrow screen they
+   stack: the step you are on stays on top, where it is most useful. */
+@media (max-width: 820px) {
+  .quest-tracker { width: calc(50vw - 20px); }
+  .quest-tracker.is-collapsed { width: calc(50vw - 20px); }
   .quest-tracker.is-big .tracker-list { grid-auto-flow: row; grid-template-rows: none; }
+}
+@media (max-width: 560px) {
+  .quest-tracker.is-next { left: 8px; right: 8px; width: auto; bottom: auto; top: 64px; max-height: 34vh; }
+  .quest-tracker.is-whole { left: 8px; right: 8px; width: auto; bottom: 8px; max-height: 34vh; }
+  .quest-tracker.is-collapsed { width: auto; }
 }

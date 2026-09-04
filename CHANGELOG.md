@@ -685,3 +685,13 @@ appeared to do nothing at all.
 Worth noting alongside it: "A Fool And Their Money" really does have exactly
 one requirement, 5 trillion Silver, so that questline showing a single currency
 row is correct rather than a failure.
+
+## 2026-09-05 — The tracker is two docked panels
+
+The player asked for this in their first message about the feature and several
+times after: **this quest bottom-left, the whole questline bottom-right.** Both
+lists had been sharing one panel in the right-hand corner the whole time.
+
+They are now separate panels docked to opposite corners, each collapsible on
+its own; only the whole-line panel opens across the page. Below 560px they
+stack, with the current step on top.

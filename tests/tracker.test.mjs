@@ -11,11 +11,14 @@ test("the tracker is on every tab, not only the Inventory page", () => {
   // It appends itself to the body rather than living inside one view, which is
   // what makes it survive a tab change.
   assert.match(js, /document\.body\.append\(panel\)/);
+  // Two docked panels, not one corner holding both.
+  assert.match(js, /id: "questTrackerNext"/);
+  assert.match(js, /id: "questTrackerWhole"/);
   assert.doesNotMatch(js, /getElementById\("inventory"\)/);
   assert.match(html, /<script src="tracker\.js/);
   assert.match(html, /<link rel="stylesheet" href="tracker\.css/);
   // It can be collapsed and dismissed, and the choice is remembered.
-  for (const key of ["frpg_tracker_collapsed", "frpg_tracker_hidden", "frpg_tracker_big"]) {
+  for (const key of ["frpg_tracker_next_collapsed", "frpg_tracker_whole_collapsed", "frpg_tracker_hidden", "frpg_tracker_big"]) {
     assert.ok(js.includes(key), `${key} is remembered`);
   }
 });
@@ -52,21 +55,23 @@ test("a capture teaches the planner artwork it does not have", () => {
   assert.match(helper, /function learnFromCapture/);
 });
 
-test("small shows this quest; big spreads the whole line across the page", () => {
+test("this quest docks bottom-left, the whole line bottom-right", () => {
   const js = read("tracker.js");
   const css = read("tracker.css");
-  // Small is the step you are on; big is everything the line still needs.
-  assert.match(js, /const rows = big \? wholeRows : nextRows/);
-  // Read across in columns rather than scrolled down.
+  // The player asked for this layout from the first message; both lists lived
+  // in one corner on the right for far too long.
+  assert.match(css, /\.quest-tracker\.is-next \{ left: 14px; \}/);
+  assert.match(css, /\.quest-tracker\.is-whole \{ right: 14px; \}/);
+  assert.match(js, /draw\("next", \{/);
+  assert.match(js, /draw\("whole", \{/);
+  // Only the whole-line panel opens across the page.
+  assert.match(js, /canExpand: false/);
   assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?grid-auto-flow: column/);
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?z-index: 90/);
-  // This step's items stay findable in a list of two hundred.
-  assert.match(js, /is-now/);
   // A width transition cannot interpolate to a min() value and leaves the
   // panel stuck at whichever size it started at.
   assert.doesNotMatch(css, /^\s*transition:[^;]*width/m);
 });
-
 test("Track toggles off, and an explicit none is not auto-filled again", () => {
   const quests = read("quests-page.js");
   const gather = read("gather-model.js");
