@@ -35,3 +35,13 @@ test("fresh profiles do not assume ownership or active meals", () => {
   assert.match(app, /sawmillWood: false/);
   assert.match(app, /quarryStone: false/);
 });
+
+test("the Back button moves between tabs instead of leaving the site", () => {
+  const source = readFileSync(new URL("app.js", root), "utf8");
+  // Every tab change used replaceState, so the browser kept no history at all.
+  assert.match(source, /history\.pushState\(null, "", target\)/);
+  assert.match(source, /addEventListener\("popstate"/);
+  assert.match(source, /addEventListener\("hashchange"/);
+  // Going Back must not push another entry, or Back could never escape.
+  assert.match(source, /if \(fromHistory\) history\.replaceState/);
+});

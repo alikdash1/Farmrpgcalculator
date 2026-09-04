@@ -54,12 +54,12 @@ Claim a task by adding a row before you start. Clear it when merged.
 
 - `publish/` is a divergent copy with **none** of this work. Do not deploy it
   without reading `NEXT_PHASE.md` first.
-- No `hashchange` listener, so the browser Back button leaves the site.
 - Large Net base 400 vs the workbook's 500 — unresolved, do not silently pick.
 - 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp) not
   imported.
-- `data/main-quests.js` is 1.2 MB because event quests are inlined; splitting
-  them into a lazily-loaded file is still open.
+- `data/main-quests.js` is 1.2 MB, but that is **not** a load problem: measured
+  102 ms to DOMContentLoaded with everything parsed. Do not spend a refactor on
+  splitting it without measuring again first.
 
 ## Unverified
 

@@ -40,7 +40,13 @@
     return rows.map((row) => {
       const now = mark && mark.has(row.name);
       const cls = [row.currency ? "is-currency" : "", now ? "is-now" : ""].filter(Boolean).join(" ");
-      return `<li${cls ? ` class="${cls}"` : ""}${now ? ' title="Also needed for the step you are on"' : ""}>${art(row.name)}<span>${esc(row.name)}</span><b>${short(row.short)}</b></li>`;
+      // Every other list in the app opens an item in the calculator on click;
+      // this one was the exception. Currency has nothing to open.
+      const openable = !row.currency && ART.itemFor(row.name);
+      const attrs = openable
+        ? ` data-open-item="${esc(row.name)}" data-open-qty="${row.short}" role="button" tabindex="0" title="Work out how to get ${esc(row.name)}"`
+        : (now ? ' title="Also needed for the step you are on"' : "");
+      return `<li${cls ? ` class="${cls}${openable ? " is-openable" : ""}"` : (openable ? ' class="is-openable"' : "")}${attrs}>${art(row.name)}<span>${esc(row.name)}</span><b>${short(row.short)}</b></li>`;
     }).join("");
   }
 
@@ -95,9 +101,24 @@
     });
   }
 
+  function openItem(node) {
+    const row = node && node.closest(".quest-tracker [data-open-item]");
+    if (!row) return false;
+    window.FRPG_openItem && window.FRPG_openItem(row.dataset.openItem, row.dataset.openQty);
+    return true;
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && panels.whole.classList.contains("is-big")) {
+      write("frpg_tracker_big", "0");
+      return render();
+    }
+    if ((event.key === "Enter" || event.key === " ") && openItem(event.target)) event.preventDefault();
+  });
+
   document.addEventListener("click", (event) => {
     const button = event.target.closest(".quest-tracker button");
-    if (!button) return;
+    if (!button) return openItem(event.target), undefined;
     if (button.dataset.collapse) {
       const key = button.dataset.collapse === "next" ? "frpg_tracker_next_collapsed" : "frpg_tracker_whole_collapsed";
       write(key, read(key, "") === "1" ? "0" : "1");

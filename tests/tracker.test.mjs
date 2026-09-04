@@ -103,3 +103,13 @@ test("dismissing the tracker is never a dead end", () => {
   assert.match(page, /data-show-tracker/);
   assert.match(page, /FRPG_showTracker/);
 });
+
+test("tracker rows open the item, and Escape closes the expanded list", () => {
+  const js = read("tracker.js");
+  // Every other list in the app opens an item on click; this one did not.
+  assert.match(js, /data-open-item="\$\{esc\(row\.name\)\}"/);
+  assert.match(js, /const openable = !row\.currency && ART\.itemFor\(row\.name\)/);
+  assert.match(js, /event\.key === "Escape"/);
+  // Keyboard users get the same row action as mouse users.
+  assert.match(js, /event\.key === "Enter" \|\| event\.key === " "/);
+});

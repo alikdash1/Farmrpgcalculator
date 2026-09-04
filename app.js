@@ -69,7 +69,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.8";
+  const FRPG_BUILD = "2026-09-05.9";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -213,7 +213,11 @@
     }
   }
 
-  function showTab(id) {
+  // Every tab change replaced the hash instead of pushing it, so the browser
+  // kept no history and Back left the site entirely. Tab changes push; going
+  // Back or Forward calls this again with fromHistory set, which must not
+  // push another entry or Back would never escape.
+  function showTab(id, fromHistory) {
     document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === id));
     document.querySelectorAll(".tab").forEach((tab) => {
       const selected = tab.dataset.tab === id;
@@ -225,7 +229,11 @@
     if (id === "tower") renderTower();
     if (id === "home") renderHome();
     if (id === "library") renderLibrary();
-    if (history && history.replaceState) history.replaceState(null, "", "#" + id);
+    if (history && history.pushState) {
+      const target = "#" + id;
+      if (fromHistory) history.replaceState(null, "", target);
+      else if (location.hash !== target) history.pushState(null, "", target);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   document.querySelectorAll(".tab").forEach((tab) => { tab.onclick = () => showTab(tab.dataset.tab); });
@@ -2123,8 +2131,13 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
     if (redTrunk) pick(redTrunk);
   }
   renderHome();
-  const requestedView = location.hash.replace(/^#/, "");
-  showTab(document.getElementById(requestedView)?.classList.contains("view") ? requestedView : "home");
+  const viewFromHash = () => {
+    const id = location.hash.replace(/^#/, "");
+    return document.getElementById(id)?.classList.contains("view") ? id : "home";
+  };
+  window.addEventListener("popstate", () => showTab(viewFromHash(), true));
+  window.addEventListener("hashchange", () => showTab(viewFromHash(), true));
+  showTab(viewFromHash(), true);
 })();
 
 

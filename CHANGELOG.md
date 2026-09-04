@@ -695,3 +695,17 @@ lists had been sharing one panel in the right-hand corner the whole time.
 They are now separate panels docked to opposite corners, each collapsible on
 its own; only the whole-line panel opens across the page. Below 560px they
 stack, with the current step on top.
+
+## 2026-09-05 — Back button, clickable tracker rows, and a measurement
+
+- **The browser Back button left the site.** Every tab change used
+  `replaceState`, so no history was ever recorded. Tab changes push now, and
+  Back/Forward move between tabs. Going back must not push again or Back could
+  never escape, so history-driven changes replace instead.
+- **Tracker rows open the item in the calculator**, like every other list in
+  the app. Currency has nothing to open and stays inert. Enter and Space work
+  too, and Escape closes the expanded whole-line view.
+- **Measured before optimising:** `data/main-quests.js` is 1.2 MB, but the page
+  reaches DOMContentLoaded in 102 ms with everything parsed. Splitting event
+  quests out was on the list as a performance fix; it is not one. Recorded in
+  `handoff/STATE.md` so nobody spends a risky refactor on it.
