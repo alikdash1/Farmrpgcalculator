@@ -460,3 +460,23 @@ and what the extension will not do.
   the page's own buttons are stripped.
 - A test asserts the site list matches the extension manifest exactly, so the
   guide cannot claim permissions that were added or dropped.
+
+## 2026-09-04 — Two agents, one repo
+
+Codex and Claude Code both work on this project and both run out of usage
+quickly, mostly by re-deriving what the other already knew.
+
+- `AGENTS.md` (read automatically by Codex) sets the working agreement: read
+  order, who does what, branch rules, and which files are the shared spine that
+  only one agent edits per task.
+- `handoff/STATE.md` and `handoff/TASKS.md` carry current state and the queue,
+  deliberately short.
+- `tools/handoff.mjs check` is the objective gate both agents run before
+  handing over: missing `?v=` bumps, listeners bound to elements that no longer
+  exist, `fetch`/ES modules that cannot work from `file://`, and text painted
+  in a surface colour.
+
+Writing that check immediately found a live bug: the quantity preset buttons on
+Calculate rendered near-white on white (contrast 1.05:1, invisible). A leftover
+`background: #fff` from the light theme. Now 6.31:1. Two latent dark-on-dark
+buttons fixed at the same time.

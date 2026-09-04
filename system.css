@@ -294,7 +294,7 @@ h3 { font-size: 18px; }
   background: var(--green); color: #fff; border: 1px solid var(--green);
 }
 .presets button {
-  background: #fff; color: var(--text); border: 1px solid var(--line);
+  background: transparent; color: var(--muted); border: 1px solid var(--line);
 }
 .presets button:hover { border-color: var(--green); color: var(--green); }
 #homeGoal button[type="submit"]:hover { filter: brightness(1.06); }

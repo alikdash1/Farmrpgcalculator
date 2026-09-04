@@ -123,8 +123,8 @@
   justify-content: space-between;
   border: 0;
   padding: .9rem 1rem;
-  color: var(--paper);
-  background: var(--ink);
+  color: #fff;
+  background: var(--green);
   font-weight: 700;
 }
 
