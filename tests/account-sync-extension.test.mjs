@@ -55,3 +55,22 @@ test('personal Tower page uses the authoritative mastery-history snapshot', () =
   // player-facing copy is rewritten often and shouldn't break the suite.
   assert.match(index, /id="accountFile"[^>]*type="file"/);
 });
+
+test("the popup lists sections without controls that overlap the labels", () => {
+  const js = fs.readFileSync(path.join(ext, "popup.js"), "utf8");
+  const css = fs.readFileSync(path.join(ext, "popup.css"), "utf8");
+  const html = fs.readFileSync(path.join(ext, "popup.html"), "utf8");
+
+  // A button in the section list inherited the global `button{width:100%}` and
+  // printed straight over the section name.
+  assert.doesNotMatch(js, /createElement\("button"\)/);
+  assert.doesNotMatch(js, /FALLBACK_URL/);
+  assert.match(css, /\.sections li \{[\s\S]*?grid-template-columns/);
+
+  // Downloading a copy of every capture is opt-in; the player asked for that.
+  assert.match(js, /prefs\.autoSaveFile === true/);
+  assert.doesNotMatch(html, /id="autoSave" type="checkbox" checked/);
+
+  // The list refreshes itself when a capture lands, rather than only on reopen.
+  assert.match(js, /chrome\.storage\.onChanged\.addListener/);
+});

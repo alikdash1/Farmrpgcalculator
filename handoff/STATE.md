@@ -37,9 +37,12 @@ Claim a task by adding a row before you start. Clear it when merged.
 - **Tower.** Requirements for T300–T340 from the wiki. Grand Mastery floors
   score against 100,000 and Mega Mastery against 1,000,000 — not everything is
   1m. Masteries are the 2026-09-04 CSV, 514 items.
-- **Extension.** v1.3.0, read-only. Pages capture themselves on load; one
-  capture per page type, newest wins. Setup guide is on the Account tab and
-  downloadable.
+- **Extension.** v1.4.0, read-only. Pages capture themselves on load; one
+  capture per page type, newest wins. The popup is a plain list — section,
+  how much it holds, how long ago — with **Capture this Farm RPG page** as the
+  only primary action. No per-section Open buttons (they inherited the global
+  full-width button rule and printed over the labels). Downloading a snapshot
+  file is opt-in; captures go to storage and straight to Lantern Ledger.
 
 ## Known gaps
 

@@ -17,14 +17,6 @@ function formatMissing(rows) {
 }
 
 
-const FALLBACK_URL = {
-  profile: "https://farmrpg.com/#!/profile.php",
-  inventory: "https://farmrpg.com/#!/inventory.php",
-  tower: "https://farmrpg.com/#!/tower.php",
-  mastery: "https://farmrpg.com/#!/mastery.php",
-  "quests-available": "https://farmrpg.com/#!/quests.php",
-  "quests-completed": "https://farmrpg.com/#!/questscomp.php",
-};
 
 function ageText(iso) {
   if (!iso) return "never";
@@ -38,9 +30,9 @@ function ageText(iso) {
   return Math.round(hours / 24) + " d ago";
 }
 
-// One row per section: how old it is, and a link that reopens the exact page it
-// came from. Refreshing everything is then a few clicks instead of remembering
-// which Farm RPG screens feed which numbers.
+// One row per section: what it holds and how long ago it was read. No buttons
+// here — the extension does not open Farm RPG pages for you, and a row of
+// controls made the list unreadable.
 function renderSections(result) {
   const list = document.querySelector("#sections");
   if (!list) return;
@@ -48,22 +40,21 @@ function renderSections(result) {
   list.innerHTML = "";
   for (const [key, label] of Object.entries(LABELS)) {
     const row = details[key];
-    const url = (row && row.url) || FALLBACK_URL[key] || "";
     const item = document.createElement("li");
     item.className = row ? "has" : "missing";
+
     const name = document.createElement("span");
     name.textContent = label;
-    const age = document.createElement("b");
-    age.textContent = row ? ageText(row.capturedAt) : "not captured";
-    item.append(name, age);
-    if (url) {
-      const open = document.createElement("button");
-      open.type = "button";
-      open.textContent = "Open";
-      open.title = "Open this Farm RPG page; it captures itself once it loads";
-      open.onclick = () => chrome.tabs.create({ url });
-      item.append(open);
+
+    const state = document.createElement("b");
+    if (row) {
+      const count = Number(row.count || 0);
+      state.textContent = (count ? count.toLocaleString() + " · " : "") + ageText(row.capturedAt);
+    } else {
+      state.textContent = "not captured";
     }
+
+    item.append(name, state);
     list.append(item);
   }
 }
@@ -91,8 +82,10 @@ async function refresh() {
 $("#capture").onclick = async () => {
   say("Capture queued…");
   const result = await chrome.runtime.sendMessage({ type: "farmrpg-capture-active" });
-  say(result && result.ok ? "Reading the open Farm RPG page…" : result && result.error || "Could not capture this page", !(result && result.ok));
-  setTimeout(refresh, 1800);
+  say(result && result.ok
+    ? "Reading this page… it is saved here and sent straight to Lantern Ledger if you have it open."
+    : result && result.error || "Could not capture this page", !(result && result.ok));
+  setTimeout(refresh, 1200);
 };
 
 $("#open").onclick = async () => {
@@ -131,13 +124,19 @@ $("#clear").onclick = async () => {
   if (!confirm("Clear all locally saved Farm RPG captures?")) return;
   await chrome.runtime.sendMessage({ type: "farmrpg-account-clear" });
   say("Local account memory cleared.");
-  refresh();
+  // A capture arriving from a page you are looking at changes storage, so the
+// list updates itself instead of waiting for the popup to be reopened.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && (changes.captures || changes.snapshot || changes.syncedAt)) refresh();
+});
+
+refresh();
 };
 
 (async () => {
   const prefs = await chrome.storage.local.get(["autoSaveFile"]);
   const box = $("#autoSave");
-  if (box) box.checked = prefs.autoSaveFile !== false;
+  if (box) box.checked = prefs.autoSaveFile === true;
 })();
 
 refresh();

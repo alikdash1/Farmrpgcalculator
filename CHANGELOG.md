@@ -525,3 +525,18 @@ nine rows, and item names were clipped to "Amethyst …".
 - The whole questline has an **Expand** control that opens the complete list
   across the full screen, three columns wide, each row labelling its own
   Need / Have / Short so nothing depends on a column header lining up.
+
+## 2026-09-04 — Extension popup back to one job
+
+- The section list is a plain two-column list again. The per-section **Open**
+  buttons are gone: they inherited the global `button { width: 100% }` rule and
+  rendered on top of the labels.
+- Each captured section shows how much it holds and how long ago it was read,
+  so an inaccurate capture is visible rather than guessed at.
+- The list refreshes itself the moment a capture lands, instead of only when
+  the popup is reopened.
+- **Saving a file is opt-in now.** Captures are kept in the extension and
+  pushed to Lantern Ledger; nothing is downloaded unless asked for. The file
+  controls and the Lantern Ledger link moved into a collapsed section so
+  Capture is the only button in the main flow.
+- The in-site setup guide was updated to match.

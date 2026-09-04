@@ -217,7 +217,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const syncedAt = new Date().toISOString();
       await chrome.storage.local.set({ captures, snapshot, syncedAt });
       const prefs = await chrome.storage.local.get(["autoSaveFile"]);
-      if (prefs.autoSaveFile !== false) await saveSnapshotFile(snapshot);
+      // Opt-in: the player asked not to keep collecting downloaded copies.
+      // A capture is already saved here and pushed to Lantern Ledger; the file
+      // is only for moving it somewhere this extension cannot reach.
+      if (prefs.autoSaveFile === true) await saveSnapshotFile(snapshot);
       return sendResponse({
         ok: true,
         pageType: checked.capture.pageType,

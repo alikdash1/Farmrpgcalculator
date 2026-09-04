@@ -17,11 +17,12 @@
     <section class="coverage"><div><span>Account sections learned</span><b id="count">0 / 12</b></div><p id="missing"></p></section>
     <ul id="sections" class="sections"></ul>
     <button id="capture" class="primary">Capture this Farm RPG page</button>
-    <button id="open">Open Lantern Ledger Tower</button>
-    <button id="export">Save account snapshot to Downloads</button>
-    <label class="auto-save"><input id="autoSave" type="checkbox" checked> Keep that file updated after every capture</label>
+    <p class="hint">Captures are saved here and sent to Lantern Ledger while it is open. Nothing is downloaded unless you ask.</p>
     <details>
-      <summary>Local calculator and data controls</summary>
+      <summary>Open Lantern Ledger, save a file, other controls</summary>
+      <button id="open">Open Lantern Ledger Tower</button>
+      <button id="export">Save account snapshot to Downloads</button>
+      <label class="auto-save"><input id="autoSave" type="checkbox"> Keep that file updated after every capture</label>
       <label for="calculatorUrl">Local calculator address</label>
       <div class="url-row"><input id="calculatorUrl" type="url" spellcheck="false" value="http://127.0.0.1:8772/index.html"><button id="saveUrl">Save</button></div>
       <p>Automatic sync stays limited to localhost or a local file. For a hosted copy, export the snapshot and load it from the Account tab.</p>
