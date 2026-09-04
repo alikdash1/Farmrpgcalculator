@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.14";
+  const FRPG_BUILD = "2026-09-05.16";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -1937,7 +1937,11 @@
   function renderTower() {
     const start = Math.max(1, Math.min(340, Number(state.towerStart) || 277));
     const goal = 340;
-    const rows = towerRequirements().filter((row) => row.floor >= start && row.floor <= goal);
+    // Published so the gather lists can point out the items that serve a Tower
+    // mastery as well as the questline being tracked. Rebuilt on every Tower
+    // render, which is also when the mastery numbers can have changed.
+    window.FRPG_TOWER_NEEDS = towerRequirements();
+    const rows = window.FRPG_TOWER_NEEDS.filter((row) => row.floor >= start && row.floor <= goal);
     const floors = new Map();
     for (const row of rows) {
       if (!floors.has(row.floor)) floors.set(row.floor, []);
@@ -2155,6 +2159,9 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
   };
   window.addEventListener("popstate", () => showTab(viewFromHash(), true));
   window.addEventListener("hashchange", () => showTab(viewFromHash(), true));
+  // The Tower tab may never be opened, but the gather lists still want to know
+  // which items double as Tower masteries.
+  try { window.FRPG_TOWER_NEEDS = towerRequirements(); } catch (_) { /* data not ready */ }
   showTab(viewFromHash(), true);
 })();
 

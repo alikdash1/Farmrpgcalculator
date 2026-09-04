@@ -24,14 +24,14 @@ Claim a task by adding a row before you start. Clear it when merged.
   community sheet and is flagged `pending`.
 - **Gather planning.** `gather-model.js` owns the arithmetic; the Inventory
   tab and the tracker both read it. `whereFor()` says how an item is obtained
-  (Craft / Cook / Grow / Fish <loc> / Explore <loc> / Buy / Trade) from the
-  engine index `app.js` exposes as `window.FRPG_INDEX` — **for a meal,
-  `growMin` is the cooking time, so meals must test before crops or they read
-  as "Grow"**. 155 of the saga's 189 items resolve a source. The tracker is two
-  docked panels, current step bottom-left, whole line bottom-right; the right
-  one opens across the page, dense, filterable, with Copy list. Tracking is set
-  with **Track** on the Quests tab and toggles off. No stored value means
-  auto-pick; an empty stored value means the player chose none.
+  from the engine index `app.js` publishes as `window.FRPG_INDEX` — **for a
+  meal, `growMin` is the cooking time, so meals must test before crops**.
+  `towerOverlap()` finds the items a tracked questline needs that also finish
+  an unfinished Tower mastery, off `window.FRPG_TOWER_NEEDS`; that is the
+  "Counts twice" section, and for the pirate saga it is 39 items, 18 of them
+  needing only Grand Mastery. The tracker is two docked panels, current step
+  bottom-left, whole line bottom-right; the right one opens across the page,
+  dense, filterable, with Copy list, and steps aside on the Inventory tab.
 - **Item art.** `data/item-library.js` holds the **complete** Farm RPG item
   list, 1,449 names with artwork, taken from buddy.farm's own search index
   (`https://buddy.farm/search.json`). `item-art.js` merges it under the more

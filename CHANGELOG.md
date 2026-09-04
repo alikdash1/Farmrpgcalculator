@@ -758,3 +758,19 @@ purpose. Every other tab keeps them.
   inventory with fewer than ten items, saying so rather than failing quietly.
 
 Extension is v1.8.0. Nothing auto-captures — that went in 1.6.0.
+
+## 2026-09-05 — Counts twice
+
+The most useful thing this app can tell an endgame player is not what an item
+costs — it is which of the items they already have to gather **also** finish a
+Tower mastery. Both numbers were on the site already; the overlap was not.
+
+The Inventory tab now shows, for the tracked questline, every required item
+that is also an unfinished Tower requirement, with what the quest needs beside
+what the mastery still needs and how far along it is. For the pirate saga that
+is **39 of 183 items, 18 of which only need Grand Mastery (100k) rather than
+Mega (1m)** — the cheap wins, which is exactly what is hard to spot by hand.
+
+Sorted by the lowest unfinished floor, so the top of the list is what helps
+reach the next floor. Finished masteries are excluded; currency cannot be
+mastered and is excluded too. Hidden entirely when there is no overlap.

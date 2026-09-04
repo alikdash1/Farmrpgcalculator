@@ -186,3 +186,42 @@
 
 /* Where the item comes from, under its name. */
 .inventory-source { color: var(--muted); font-size: .68rem; }
+
+/* Items that serve the tracked questline and an unfinished Tower mastery at
+   the same time. The single most useful thing this app can tell an endgame
+   player, because their scarce resource is hours, not knowledge. */
+.inventory-double { margin-top: 2.4rem; }
+.inventory-double[hidden] { display: none; }
+.inventory-double-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: .5rem 1.6rem;
+  margin-top: 1rem;
+}
+/* The name needs a floor of its own: without one the two number columns
+   squeezed it until it wrapped a letter at a time. */
+.inventory-double-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 88px 116px;
+  gap: .7rem;
+  align-items: center;
+  padding: .4rem .2rem;
+  border-bottom: 1px solid var(--line);
+}
+.inventory-double-need { position: relative; min-width: 0; text-align: right; }
+.inventory-double-need span { display: block; color: var(--muted); font-size: .6rem; white-space: nowrap; letter-spacing: .04em; text-transform: uppercase; }
+.inventory-double-need b { display: block; font-size: .82rem; font-variant-numeric: tabular-nums; }
+/* How far the mastery already is, drawn under its number rather than as a
+   separate bar that would double the height of every row. */
+.inventory-double-need i {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--green);
+  opacity: .55;
+}
+
+@media (max-width: 620px) {
+  .inventory-double-rows { grid-template-columns: 1fr; }
+}

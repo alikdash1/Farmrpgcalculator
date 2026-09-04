@@ -165,6 +165,27 @@
     return bits.join(" · ");
   }
 
+  // Endgame currency is time, so the most useful thing this app can say is
+  // which of the items you already have to gather ALSO finish a Tower mastery.
+  // Both numbers are facts already on the page; the overlap is not.
+  function towerOverlap(rows) {
+    const needs = window.FRPG_TOWER_NEEDS || [];
+    if (!needs.length) return [];
+    const unfinished = new Map();
+    for (const need of needs) {
+      if (need.complete) continue;
+      const key = keyFor(need.name);
+      const seen = unfinished.get(key);
+      // Lowest floor first: that is the one it helps you reach next.
+      if (!seen || need.floor < seen.floor) unfinished.set(key, need);
+    }
+    return rows
+      .filter((row) => !row.currency && unfinished.has(keyFor(row.name)))
+      .map((row) => ({ ...row, tower: unfinished.get(keyFor(row.name)) }))
+      .sort((a, b) => a.tower.floor - b.tower.floor || b.short - a.short);
+  }
+
   window.FRPG_GATHER = {
+    towerOverlap,
     whereFor, plan, inventoryRows, ignoredCount, trackedLine, hasStoredChoice, busiestLine, keyFor };
 })();

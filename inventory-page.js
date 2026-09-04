@@ -12,6 +12,9 @@
   const ownedRoot = document.getElementById("inventoryOwned");
   const nextRoot = document.getElementById("inventoryNext");
   const wholeRoot = document.getElementById("inventoryWhole");
+  const doubleRoot = document.getElementById("inventoryDouble");
+  const doubleRows = document.getElementById("inventoryDoubleRows");
+  const doubleSummary = document.getElementById("inventoryDoubleSummary");
   if (!MODEL || !GATHER || !ART || !search || !summary || !ownedRoot || !nextRoot || !wholeRoot || !trackingNote || !overlay || !overlayTitle || !overlayMeta || !overlayBody) return;
 
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -123,6 +126,7 @@
       : "";
     const nextRows = plan.nextRows;
     const wholeRows = plan.wholeRows;
+    renderDouble(plan);
     const covered = wholeRows.filter((row) => row.short === 0).length;
     const short = wholeRows.length - covered;
     const nextLabel = next.pending ? "Planning estimate · title not available in game yet" : `Step ${next.sagaStep || next.sequence || 1}`;
@@ -136,6 +140,29 @@
     const wholeMeta = `${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"} · ${covered} fully covered · ${short} still short`;
     expanded = { title: lineName, meta: wholeMeta, rows: wholeRows };
     wholeRoot.innerHTML = `<header class="inventory-panel-heading"><span>${remaining.length} step${remaining.length === 1 ? "" : "s"} left</span><h2>${esc(lineName)}</h2><button type="button" class="inventory-expand" data-expand-whole>Expand</button></header>${noInventory}${tableMarkup(wholeRows, "No remaining item requirements are recorded.")}<footer class="inventory-total"><b>${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"}</b><span>${covered} fully covered</span><span>${short} still short</span></footer>`;
+  }
+
+  // The overlap between what this questline needs and what the Tower still
+  // wants. Endgame players are spending the same hours on both, and nothing
+  // else in the app puts the two lists side by side.
+  function renderDouble(plan) {
+    if (!doubleRoot || !doubleRows || typeof GATHER.towerOverlap !== "function") return;
+    const rows = GATHER.towerOverlap(plan.wholeRows.filter((row) => row.short > 0));
+    doubleRoot.hidden = rows.length === 0;
+    if (!rows.length) return;
+
+    const gm = rows.filter((row) => row.tower.tier === "gm").length;
+    doubleSummary.innerHTML = `<span><strong>${rows.length}</strong> of these serve both</span>`
+      + (gm ? `<span><strong>${gm}</strong> only need Grand Mastery</span>` : "");
+    doubleRows.innerHTML = rows.map((row) => {
+      const goal = row.tower.tier === "gm" ? "100k" : "1m";
+      const pct = Math.min(100, Math.round((row.tower.current / row.tower.goal) * 100));
+      return `<article class="inventory-double-row">
+        ${itemControl(row.name, row.short, sourceHint(row.name))}
+        <div class="inventory-double-need"><span>Quest</span><b>${fmt.format(row.short)}</b></div>
+        <div class="inventory-double-need"><span>T${row.tower.floor} · ${goal}</span><b>${fmt.format(row.tower.remaining)} left</b><i style="width:${pct}%"></i></div>
+      </article>`;
+    }).join("");
   }
 
   function render() {
