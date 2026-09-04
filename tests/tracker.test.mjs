@@ -88,3 +88,13 @@ test("the inventory filter trusts the item list instead of guessing at prose", (
   assert.doesNotMatch(gather, /looksLikeProse/);
   assert.doesNotMatch(gather, /joiners/);
 });
+
+test("dismissing the tracker is never a dead end", () => {
+  const quests = read("quests-page.js");
+  const page = read("inventory-page.js");
+  // ✕ set a flag with no way back, so a later Track press showed nothing
+  // anywhere and looked like tracking was broken.
+  assert.match(quests, /localStorage\.setItem\("frpg_tracker_hidden", "0"\)/);
+  assert.match(page, /data-show-tracker/);
+  assert.match(page, /FRPG_showTracker/);
+});

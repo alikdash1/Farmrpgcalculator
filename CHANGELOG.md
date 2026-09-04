@@ -671,3 +671,17 @@ app now reports enough to place the fault.
 - `inventory-page.js` no longer assumes `gather-model.js` is the matching
   version. A single missing helper threw and blanked the whole tab, which is
   indistinguishable from tracking being broken.
+
+## 2026-09-05 — Dismissing the tracker was a one-way door
+
+Pressing ✕ on the tracker set a flag with no way to clear it. After that,
+tracking a questline showed nothing anywhere the player was looking, so Track
+appeared to do nothing at all.
+
+- Tracking a questline always brings the tracker back.
+- The Inventory tab offers **Show the corner tracker** whenever it is hidden.
+- The ✕ now says what it does: hide until you track something again.
+
+Worth noting alongside it: "A Fool And Their Money" really does have exactly
+one requirement, 5 trillion Silver, so that questline showing a single currency
+row is correct rather than a failure.

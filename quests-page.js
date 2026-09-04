@@ -135,6 +135,10 @@
       // the latter still auto-picks the questline with the most left to do.
       const next = trackedLine() === tracker.dataset.trackLine ? "" : tracker.dataset.trackLine;
       localStorage.setItem("frpg_tracked_line", next);
+      // Tracking something has to show it. The tracker can be dismissed, and a
+      // dismissal that outlives the next Track press means pressing Track
+      // appears to do nothing at all.
+      if (next) { try { localStorage.setItem("frpg_tracker_hidden", "0"); } catch (_) { /* private mode */ } }
       window.dispatchEvent(new CustomEvent("frpg:tracked-line", { detail: next }));
       render();
       return;

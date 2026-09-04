@@ -120,6 +120,10 @@
     const short = wholeRows.length - covered;
     const nextLabel = next.pending ? "Planning estimate · title not available in game yet" : `Step ${next.sagaStep || next.sequence || 1}`;
 
+    const trackerHidden = (() => { try { return localStorage.getItem("frpg_tracker_hidden") === "1"; } catch (_) { return false; } })();
+    if (trackerHidden) {
+      trackingNote.innerHTML += ` <button type="button" class="quiet-button inventory-show-tracker" data-show-tracker>Show the corner tracker</button>`;
+    }
     trackingNote.innerHTML += ` <small class="inventory-diag">${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${plan.wholeRows.length} items · ${stock.length} in your inventory</small>`;
     nextRoot.innerHTML = `<header class="inventory-panel-heading"><span>${esc(nextLabel)}</span><h2>${esc(next.title)}</h2></header>${noInventory}${tableMarkup(nextRows, "No item requirement is recorded for this quest.")}`;
     const wholeMeta = `${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"} · ${covered} fully covered · ${short} still short`;
@@ -136,6 +140,10 @@
 
   search.addEventListener("input", render);
   document.getElementById("inventory")?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-show-tracker]")) {
+      window.FRPG_showTracker && window.FRPG_showTracker();
+      return render();
+    }
     if (event.target.closest("[data-expand-whole]")) return openExpanded();
     const button = event.target.closest("[data-open-item]");
     if (button) window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty);

@@ -66,7 +66,7 @@
         <button type="button" class="tracker-toggle" data-tracker-collapse aria-expanded="${!collapsed}" title="${collapsed ? "Show" : "Hide"} the list">${collapsed ? "▲" : "▼"}</button>
         <span class="tracker-title"><b>${esc(heading)}</b><small>${esc(sub)}</small></span>
         ${collapsed ? "" : `<button type="button" class="tracker-toggle" data-tracker-size aria-pressed="${big}" title="${big ? "Back to just this quest" : "Show the whole line across the page"}">${big ? "⤡" : "⤢"}</button>`}
-        <button type="button" class="tracker-toggle" data-tracker-close title="Hide the tracker">✕</button>
+        <button type="button" class="tracker-toggle" data-tracker-close title="Hide this until you track something again">✕</button>
       </header>
       ${collapsed ? "" : `<ul class="tracker-list">${rowsHtml(rows, thisStep)}</ul>
         <footer class="tracker-foot">${rows.length} still short<button type="button" data-tracker-open>Open</button></footer>`}
