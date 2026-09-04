@@ -603,3 +603,17 @@ Two things the player reported, both real.
   when the theme was light and the panel colour matched the page. On the dark
   theme that tint is visible, so every heading sat on the edge of its own
   background. They have 20px/22px again.
+
+## 2026-09-05 — Description rows filtered on the site too
+
+Fixing the description-as-item bug in the collector only helped future
+captures; every snapshot already saved in a browser still carried them, so
+nothing changed on screen. The site now filters them at the point of use as
+well, and says how many it ignored instead of the count quietly shrinking.
+
+A row counts as prose only when nothing can identify it — no artwork from any
+source and no item of that name — so an item the data files have never seen
+but the capture found a picture for is still kept.
+
+Verified with a seeded snapshot: 9 real items kept with art, 10 description
+rows ignored, and the summary says so.

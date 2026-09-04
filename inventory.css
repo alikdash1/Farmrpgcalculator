@@ -174,3 +174,7 @@
 @media (max-width: 620px) {
   .inventory-wide { grid-template-columns: 1fr; }
 }
+
+/* Rows an older capture stored from Farm RPG's per-item description text. */
+.inventory-ignored { color: var(--amber); }
+.inventory-ignored strong { color: var(--amber); }

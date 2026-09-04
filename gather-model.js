@@ -30,11 +30,33 @@
       }).filter(Boolean);
     }
     const snapshot = readJson("frpg_account_snapshot_v1");
-    return ((snapshot && snapshot.inventory) || []).map((row) => {
+    const rows = ((snapshot && snapshot.inventory) || []).map((row) => {
       const name = row.name || row.itemName || "";
       const item = byName.get(keyFor(name)) || null;
       return name && Number(row.quantity) > 0 ? { name, quantity: Number(row.quantity), item } : null;
     }).filter(Boolean);
+    return rows.filter((row) => !isDescription(row.name));
+  }
+
+  // Farm RPG prints a description under each item name, and older captures
+  // stored those as items: "A blinger for your finger", "A chill fish". The
+  // collector no longer does that, but snapshots already saved in this browser
+  // still carry them, so they are filtered at the point of use too. A row is
+  // prose only if nothing can identify it — no artwork from any source, and no
+  // item of that name — so a genuinely new item is never dropped.
+  function isDescription(name) {
+    const text = String(name || "").trim();
+    if (!text) return true;
+    if (ART.itemFor(text) || ART.urlFor(text)) return false;
+    return /^(a|an|the)\s+[a-z]/i.test(text) || text.split(/\s+/).length >= 5;
+  }
+
+  function ignoredCount() {
+    const snapshot = readJson("frpg_account_snapshot_v1");
+    const saved = readJson("frpg_owned");
+    if (saved && typeof saved === "object" && Object.keys(saved).length) return 0;
+    return ((snapshot && snapshot.inventory) || [])
+      .filter((row) => isDescription(row.name || row.itemName || "")).length;
   }
 
   function ownedMap(rows) {
@@ -106,5 +128,5 @@
     };
   }
 
-  window.FRPG_GATHER = { plan, inventoryRows, trackedLine, busiestLine, keyFor };
+  window.FRPG_GATHER = { plan, inventoryRows, ignoredCount, trackedLine, busiestLine, keyFor };
 })();

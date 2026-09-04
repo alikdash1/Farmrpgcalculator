@@ -120,3 +120,17 @@ test("a freshly captured inventory shows without pressing Apply", () => {
   const snapshot = source.indexOf('readJson("frpg_account_snapshot_v1")');
   assert.ok(owned > 0 && snapshot > owned, "it still prefers hand-entered amounts when there are any");
 });
+
+test("description rows in an already-saved snapshot are filtered at the point of use", () => {
+  const gather = read("gather-model.js");
+  // Fixing this only in the collector left every snapshot already sitting in
+  // a browser still full of prose, so the site filters them as well.
+  assert.match(gather, /function isDescription\(name\)/);
+  // A row is only prose if nothing can identify it, so a genuinely new item —
+  // one the data files have never seen but the capture found artwork for —
+  // is never dropped.
+  assert.match(gather, /if \(ART\.itemFor\(text\) \|\| ART\.urlFor\(text\)\) return false;/);
+  assert.match(gather, /function ignoredCount\(\)/);
+  // And the count is shown rather than the total silently shrinking.
+  assert.match(read("inventory-page.js"), /description rows ignored/);
+});

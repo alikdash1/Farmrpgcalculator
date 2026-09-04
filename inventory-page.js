@@ -43,7 +43,11 @@
     const query = keyFor(search.value);
     const visible = rows.filter((row) => !query || keyFor(row.name).includes(query)).sort((a, b) => a.name.localeCompare(b.name));
     const total = rows.reduce((sum, row) => sum + row.quantity, 0);
-    summary.innerHTML = `<span><strong>${fmt.format(rows.length)}</strong> distinct items</span><span><strong>${fmt.format(total)}</strong> held in total</span>`;
+    // Say plainly when rows were left out, rather than letting the count look
+    // wrong for no visible reason.
+    const ignored = GATHER.ignoredCount();
+    summary.innerHTML = `<span><strong>${fmt.format(rows.length)}</strong> distinct items</span><span><strong>${fmt.format(total)}</strong> held in total</span>`
+      + (ignored ? `<span class="inventory-ignored" title="Farm RPG prints a description under each item name; an older capture stored those as items."><strong>${fmt.format(ignored)}</strong> description rows ignored — capture again to clear them</span>` : "");
     if (!rows.length) {
       ownedRoot.innerHTML = `<div class="inventory-empty"><strong>Nothing in your inventory yet.</strong><span>Import an account capture or add owned amounts in the calculator.</span></div>`;
       return;
