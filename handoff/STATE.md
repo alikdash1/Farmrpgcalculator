@@ -22,9 +22,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   it into one, in prerequisite order. 33 steps, 2 done, **31 left — a third of
   everything the player has remaining.** Step XXIX is known only from a
   community sheet and is flagged `pending`.
-- **Inventory tab.** Tracks one questline; next quest bottom-left, whole-line
-  total bottom-right. Verified on screen with the saga tracked: 191 rows left,
-  178 right, 201 images, none broken.
+- **Inventory tab.** Opens on the questline you have the most left to do on,
+  with no picking required; **Track** on any questline in Quests pins a
+  different one. Next quest bottom-left, whole remaining line bottom-right,
+  both netted against `frpg_owned`. With no inventory imported it says so
+  above the table rather than showing a column of zeroes.
 - **Item art.** One lookup for the whole app in `item-art.js`. It reads every
   source that carries artwork — `data/items.js`, `data/item-art.js`,
   `data/new-items.js` (mining catalogue) and `data/tower-floors.js` — because

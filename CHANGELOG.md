@@ -500,3 +500,17 @@ data file's own artwork can never be dropped silently again.
 Verified on screen, not from source: Tower, Mining, Quests, Inventory and
 Calculate all report zero placeholders and zero broken images. Mining went from
 389 images with 132 placeholders to 521 with none.
+
+## 2026-09-04 — The Inventory tab opens on something
+
+It opened on a dropdown reading "Choose a questline…" and nothing else, so the
+page looked broken until you found the Track button on another tab.
+
+- It now works out which questline you are in the middle of — the one you have
+  started and have the most left to do on — and shows that straight away. For
+  this player that is the pirate saga: next quest Problems Start Arising III,
+  whole line 31 steps and 189 distinct items.
+- A sentence at the top says what is being shown and how to change it. The
+  picker is a change control now, not the way in.
+- With no inventory imported, the panels say so above the table instead of
+  letting a column of zeroes imply you own nothing in the game.

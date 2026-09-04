@@ -2,12 +2,13 @@
   const MODEL = window.FRPG_QUEST_MODEL;
   const ART = window.FRPG_ITEM_ART_HELPER;
   const picker = document.getElementById("inventoryQuestline");
+  const trackingNote = document.getElementById("inventoryTracking");
   const search = document.getElementById("inventorySearch");
   const summary = document.getElementById("inventorySummary");
   const ownedRoot = document.getElementById("inventoryOwned");
   const nextRoot = document.getElementById("inventoryNext");
   const wholeRoot = document.getElementById("inventoryWhole");
-  if (!MODEL || !ART || !picker || !search || !summary || !ownedRoot || !nextRoot || !wholeRoot) return;
+  if (!MODEL || !ART || !picker || !search || !summary || !ownedRoot || !nextRoot || !wholeRoot || !trackingNote) return;
 
   const itemRows = ((((window.FRPG_DATA || {}).items || {}).items) || []);
   const byId = new Map(itemRows.map((item) => [String(item.id), item]));
@@ -60,6 +61,25 @@
     catch (_) { return ""; }
   }
 
+  // Landing on a dropdown that says "Choose a questline…" is a dead page: the
+  // one thing the player wants to see is what they are in the middle of. So
+  // work it out — the line they have started and have the most left to do on —
+  // and show that until they pick something else.
+  function busiestLine() {
+    const completed = MODEL.completedSet();
+    let started = null;
+    let anything = null;
+    for (const line of MODEL.lines) {
+      const steps = MODEL.quests.filter((quest) => quest.line === line.name);
+      const left = steps.filter((quest) => !completed.has(MODEL.normalizeTitle(quest.title))).length;
+      if (!left) continue;
+      const done = steps.length - left;
+      if (!anything || left > anything.left) anything = { name: line.name, left };
+      if (done > 0 && (!started || left > started.left)) started = { name: line.name, left };
+    }
+    return (started || anything || {}).name || "";
+  }
+
   function ownedMap(rows) {
     const map = new Map();
     for (const row of rows) map.set(keyFor(row.name), (map.get(keyFor(row.name)) || 0) + Number(row.quantity || 0));
@@ -109,10 +129,20 @@
   }
 
   function renderPlan(rows) {
-    const lineName = trackedLine();
-    picker.value = MODEL.lines.some((line) => line.name === lineName) ? lineName : "";
+    const chosen = trackedLine();
+    const known = (name) => MODEL.lines.some((line) => line.name === name);
+    const auto = !known(chosen);
+    const lineName = auto ? busiestLine() : chosen;
+    picker.value = known(lineName) ? lineName : "";
+
+    trackingNote.innerHTML = lineName
+      ? (auto
+        ? `Showing <b>${esc(lineName)}</b> — the questline you have the most left to do on. Press <b>Track</b> on any questline in Quests to pin a different one.`
+        : `Tracking <b>${esc(lineName)}</b>. Press <b>Track</b> on another questline in Quests, or change it on the right.`)
+      : "Everything on your list is finished. Nothing left to gather for.";
+
     if (!lineName) {
-      const empty = `<div class="inventory-empty"><strong>Nothing tracked yet.</strong><span>Choose a questline above or press Track on the Quests tab.</span></div>`;
+      const empty = `<div class="inventory-empty is-finished"><strong>No questline left to gather for.</strong><span>Every questline in your list is complete.</span></div>`;
       nextRoot.innerHTML = empty;
       wholeRoot.innerHTML = empty;
       return;
@@ -128,6 +158,12 @@
     }
 
     const have = ownedMap(rows);
+    // Without an imported inventory every "still short" equals the full amount.
+    // Say so once, rather than letting a column of zeroes imply the player owns
+    // nothing in the game.
+    const noInventory = rows.length === 0
+      ? `<p class="inventory-caveat">No inventory imported yet, so <b>You have</b> reads nothing and <b>Still short</b> shows the full amount. Import your account on the Account tab to net these against what you hold.</p>`
+      : "";
     const next = remaining[0];
     const nextRows = requirementRows(summarizeRequirements([next]), have);
     const wholeRows = requirementRows(summarizeRequirements(remaining), have);
@@ -135,7 +171,7 @@
     const short = wholeRows.length - covered;
     const nextLabel = next.pending ? "Planning estimate · title not available in game yet" : `Step ${next.sagaStep || next.sequence || 1}`;
 
-    nextRoot.innerHTML = `<header class="inventory-panel-heading"><span>${esc(nextLabel)}</span><h2>${esc(next.title)}</h2></header>${tableMarkup(nextRows, "No item requirement is recorded for this quest.")}`;
+    nextRoot.innerHTML = `<header class="inventory-panel-heading"><span>${esc(nextLabel)}</span><h2>${esc(next.title)}</h2></header>${noInventory}${tableMarkup(nextRows, "No item requirement is recorded for this quest.")}`;
     wholeRoot.innerHTML = `<header class="inventory-panel-heading"><span>${remaining.length} step${remaining.length === 1 ? "" : "s"} left</span><h2>${esc(lineName)}</h2></header>${tableMarkup(wholeRows, "No remaining item requirements are recorded.")}<footer class="inventory-total"><b>${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"}</b><span>${covered} fully covered</span><span>${short} still short</span></footer>`;
   }
 
@@ -145,7 +181,7 @@
     renderPlan(rows);
   }
 
-  picker.innerHTML = `<option value="">Choose a questline…</option>${MODEL.lines.map((line) => `<option value="${esc(line.name)}">${esc(line.name)}</option>`).join("")}`;
+  picker.innerHTML = `<option value="">Pick automatically</option>${MODEL.lines.map((line) => `<option value="${esc(line.name)}">${esc(line.name)}</option>`).join("")}`;
   picker.addEventListener("change", () => {
     if (picker.value) localStorage.setItem("frpg_tracked_line", picker.value);
     else localStorage.removeItem("frpg_tracked_line");

@@ -71,3 +71,19 @@
   .inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
   .inventory-row > :not(:first-child) { font-size: .66rem; }
 }
+
+/* The Inventory tab used to open on an empty dropdown. It now names what it is
+   showing, so the sentence carries the state and the picker is just a change
+   control. */
+.inventory-tracking { max-width: 62ch; color: var(--muted); }
+.inventory-tracking b { color: var(--text); }
+
+/* Stated once, above the table, rather than implied by a column of zeroes. */
+.inventory-caveat {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: .86rem;
+}
+.inventory-caveat b { color: var(--text); }
