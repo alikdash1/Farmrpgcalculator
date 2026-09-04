@@ -5,7 +5,7 @@
   right: 14px;
   bottom: 14px;
   z-index: 70;
-  width: 340px;
+  width: 300px;
   max-height: min(58vh, 520px);
   display: flex;
   flex-direction: column;
@@ -45,36 +45,20 @@
 }
 .tracker-toggle:hover { color: var(--green); border-color: var(--green); }
 
-/* Both lists at once: what this step needs, and what the rest of the line
-   needs. Side by side is the whole point — one is a subset of the other. */
-.tracker-cols {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--line);
-  overflow: hidden;
-}
-.tracker-col { display: flex; flex-direction: column; min-height: 0; background: var(--ink2); }
-.tracker-col > header { padding: 6px 8px 5px; border-bottom: 1px solid var(--line); }
-.tracker-col > header b { display: block; color: var(--green); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
-.tracker-col > header small { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tracker-col > ul { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 3px 3px 3px 8px; }
-
-.tracker-col li {
+.tracker-list { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 4px 4px 4px 9px; }
+.tracker-list li {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr) auto;
   gap: 7px;
   align-items: center;
   padding: 3px 5px 3px 0;
 }
-.tracker-col li + li { border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
-.tracker-col img { display: block; width: 20px; height: 20px; object-fit: contain; }
+.tracker-list li + li { border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
+.tracker-list img { display: block; width: 20px; height: 20px; object-fit: contain; }
 .tracker-noart { display: block; width: 20px; height: 1px; background: var(--line); }
-.tracker-col li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tracker-col li b { font-size: 11px; font-variant-numeric: tabular-nums; }
-.tracker-col li.is-currency span, .tracker-col li.is-currency b { color: var(--muted); }
+.tracker-list li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tracker-list li b { font-size: 11px; font-variant-numeric: tabular-nums; }
+.tracker-list li.is-currency span, .tracker-list li.is-currency b { color: var(--muted); }
 .tracker-done { color: var(--green); padding: 8px 0; }
 
 .tracker-foot {
@@ -103,12 +87,38 @@
 }
 
 /* Bigger, for reading both lists properly rather than glancing at them. */
-/* No width transition: the browser will not interpolate from a px width to a
-   min() expression, and the panel gets stuck at whichever size it started at. */
-.quest-tracker.is-big { width: min(760px, calc(100vw - 28px)); max-height: min(82vh, 900px); }
-.quest-tracker.is-big .tracker-col li { padding-top: 4px; padding-bottom: 4px; }
+/* Big: the whole line, laid sideways across the page. Columns are as many as
+   fit, so the list is read across rather than scrolled down. No width
+   transition — the browser will not interpolate a px width to a min() value
+   and the panel gets stuck at whichever size it started at. */
+.quest-tracker.is-big {
+  /* Covering the page means clearing the sticky masthead at z-index 80 —
+     otherwise the site nav prints over the tracker's own close button. */
+  z-index: 90;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  top: 12px;
+  width: auto;
+  max-height: none;
+}
+.quest-tracker.is-big .tracker-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, minmax(21px, 1fr));
+  grid-auto-columns: minmax(210px, 1fr);
+  gap: 0 18px;
+  padding: 8px 12px;
+  overflow: auto;
+}
+.quest-tracker.is-big .tracker-list li { padding: 2px 4px 2px 0; border-top: 0; }
+.quest-tracker.is-big .tracker-list li + li { border-top: 0; }
+/* The items the step you are on needs, kept findable in a list of two hundred. */
+.quest-tracker.is-big .tracker-list li.is-now { padding-left: 5px; border-left: 2px solid var(--green); }
+.quest-tracker.is-big .tracker-list li.is-now span { color: var(--text); }
 .quest-tracker.is-collapsed { width: 260px; }
 
 @media (max-width: 760px) {
-  .quest-tracker, .quest-tracker.is-big { width: calc(100vw - 16px); }
+  .quest-tracker { width: calc(100vw - 16px); }
+  .quest-tracker.is-big .tracker-list { grid-auto-flow: row; grid-template-rows: none; }
 }

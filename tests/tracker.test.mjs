@@ -52,12 +52,16 @@ test("a capture teaches the planner artwork it does not have", () => {
   assert.match(helper, /function learnFromCapture/);
 });
 
-test("the tracker shows this quest and the whole line side by side", () => {
+test("small shows this quest; big spreads the whole line across the page", () => {
   const js = read("tracker.js");
   const css = read("tracker.css");
-  assert.match(js, /column\("This quest"/);
-  assert.match(js, /column\("Whole line"/);
-  assert.match(css, /\.tracker-cols \{[\s\S]*?grid-template-columns: 1fr 1fr/);
+  // Small is the step you are on; big is everything the line still needs.
+  assert.match(js, /const rows = big \? wholeRows : nextRows/);
+  // Read across in columns rather than scrolled down.
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?grid-auto-flow: column/);
+  assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?z-index: 90/);
+  // This step's items stay findable in a list of two hundred.
+  assert.match(js, /is-now/);
   // A width transition cannot interpolate to a min() value and leaves the
   // panel stuck at whichever size it started at.
   assert.doesNotMatch(css, /^\s*transition:[^;]*width/m);

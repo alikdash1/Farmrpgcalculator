@@ -238,6 +238,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         pageType: checked.capture.pageType,
         rowCount: detailCount(checked.capture),
         captured: Object.keys(captures).length,
+        // A capture that parsed nothing still succeeds; the warnings are the
+        // only place that says why, so they travel back to the popup.
+        warnings: (checked.capture.warnings || []).slice(0, 2),
         syncedAt
       });
     }

@@ -1524,6 +1524,15 @@
         if (dashboard.quests.length) applyQuestDashboard(fields, dashboard);
         else extractQuests(blocks, pageType, fields);
       }
+      // A quests page that yields nothing used to report success and leave the
+      // player wondering. Say what the page actually looked like instead, so
+      // the parser can be fixed against the real layout rather than a guess.
+      if (!(fields.quests || []).length) {
+        const sample = lines.map((line) => line.trim()).filter(Boolean).slice(0, 6).join(" | ").slice(0, 300);
+        fields.warnings.push(
+          "No requests were recognised on this " + pageLabel + " page. First lines seen: " + (sample || "(the page had no visible text)")
+        );
+      }
     }
     if (pageType === "perks") applyPerkPage(fields, parsePerkPage(lines, visibleText));
     if (pageType === "farm-supply") {

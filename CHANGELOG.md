@@ -569,3 +569,21 @@ against 4,200 held reads 3,800 short, with nothing applied by hand.
   capture with under a quarter of the rows it would replace is refused too.
 - Captures harvest item artwork from the page they read, so a single Inventory
   capture teaches the planner pictures for everything the player owns.
+
+## 2026-09-04 — Tracker: this step small, the whole line across the page
+
+- Small is the step you are on, nothing else. Pressing ⤢ spreads the whole
+  line across the entire page in as many columns as fit, so 189 items are read
+  across rather than scrolled down — verified at 1900×1000: 5 columns, no
+  scrollbar.
+- The 13 items the current step needs are marked in the big view, so they stay
+  findable in a list of two hundred.
+- Big mode clears the sticky masthead (z-index 90). At 70 the site nav printed
+  over the tracker's own header, which put its close button out of reach.
+
+## 2026-09-04 — A capture that finds nothing says so
+
+A quests page that parsed no requests still reported success, which is why
+"it captured but nothing happened" had nothing to go on. The capture now
+records what the page actually looked like — the first lines it read — and the
+extension hands those warnings back to the popup.
