@@ -157,3 +157,19 @@
 @media (prefers-reduced-motion: reduce) {
   .quest-line > summary { scroll-behavior: auto; }
 }
+
+/* Questline kind: story, an NPC's line, or a seasonal event. A small ruled tag
+   rather than a colour, so the list stays readable at 569 lines. */
+.quest-line-tag {
+  display: inline-block;
+  margin-right: .4rem;
+  padding: 0 .35rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: .62rem;
+  font-style: normal;
+  letter-spacing: .02em;
+  vertical-align: 1px;
+}
+.quest-line.is-main > summary .quest-line-tag { border-color: var(--green); color: var(--green); }

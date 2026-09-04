@@ -14,6 +14,15 @@
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const fmt = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 });
   const normalize = (value) => String(value || "").trim().toLowerCase();
+  const NOW = Date.now();
+  // A seasonal quest you can no longer start is history, not a to-do. It stays
+  // browsable under Events, but it never pads the "Not Done" list.
+  const isEvent = (quest) => quest.category === "event";
+  const hasEnded = (quest) => !!quest.end && Date.parse(quest.end) < NOW;
+  const isLive = (quest) => !!(quest.start || quest.end)
+    && (!quest.start || Date.parse(quest.start) <= NOW)
+    && (!quest.end || Date.parse(quest.end) >= NOW);
+  const dateLabel = (value) => value ? new Date(value).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "";
 
   function account() {
     try { return JSON.parse(localStorage.getItem("frpg_account_snapshot_v1") || "null"); }
@@ -51,13 +60,20 @@
   function questHtml(quest, status) {
     const labels = { completed: "Done", ready: "Ready", active: "In progress", available: "Available", locked: "Locked", unknown: "Not found in capture", untracked: "Import account to track" };
     const requirements = (quest.requirements || []).map(requirementHtml).join("");
-    const extra = [quest.prerequisite, quest.unlock].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
+    const window_ = isEvent(quest) && (quest.start || quest.end)
+      ? `${isLive(quest) ? "Running now" : "Ran"} ${dateLabel(quest.start)}${quest.end ? ` – ${dateLabel(quest.end)}` : ""}`
+      : "";
+    const extra = [quest.prerequisite, quest.unlock, window_].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
     return `<article class="quest-step is-${status}"><div class="quest-step-head"><div><strong>${esc(quest.title)}</strong>${quest.giver ? `<small>${esc(quest.giver)}</small>` : ""}</div><span>${labels[status]}</span></div>${requirements ? `<div class="quest-items">${requirements}</div>` : `<p class="quest-no-items">No item requirement recorded.</p>`}${extra ? `<div class="quest-extra">${extra}</div>` : ""}</article>`;
   }
 
-  function matchesFilter(status) {
+  function matchesFilter(status, quest) {
     if (filter === "all") return true;
+    if (filter === "events") return isEvent(quest);
     if (filter === "completed") return status === "completed";
+    // Everything else is about what you can still act on, so finished seasonal
+    // quests drop out — a closed event is not work you can pick up.
+    if (isEvent(quest) && hasEnded(quest)) return false;
     if (filter === "available") return ["ready", "active", "available"].includes(status);
     return status !== "completed";
   }
@@ -67,11 +83,13 @@
     const sets = statusSets(snapshot);
     const query = normalize(search.value);
     const quests = DATA.quests.map((quest) => ({ ...quest, status: statusFor(quest.title, sets, !!snapshot) }));
-    const visible = quests.filter((quest) => matchesFilter(quest.status) && (!query || normalize(`${quest.title} ${quest.line} ${quest.giver} ${(quest.requirements || []).map((r) => r.item).join(" ")}`).includes(query)));
+    const visible = quests.filter((quest) => matchesFilter(quest.status, quest) && (!query || normalize(`${quest.title} ${quest.line} ${quest.giver} ${(quest.requirements || []).map((r) => r.item).join(" ")}`).includes(query)));
     const completed = quests.filter((quest) => quest.status === "completed").length;
     const actionable = quests.filter((quest) => ["ready", "active", "available"].includes(quest.status)).length;
 
-    summary.innerHTML = `<article><span>Main Quests</span><strong>${DATA.quests.length}</strong><small>event quests excluded</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>permanent storylines</small></article><article><span>Completed</span><strong>${snapshot ? completed : "—"}</strong><small>${snapshot ? "found in your capture" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to track"}</small></article>`;
+    const mainCount = DATA.quests.filter((q) => q.category === "main").length;
+    const eventCount = DATA.quests.filter(isEvent).length;
+    summary.innerHTML = `<article><span>Quests</span><strong>${DATA.quests.length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${snapshot ? completed : "—"}</strong><small>${snapshot ? "found in your capture" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to track"}</small></article>`;
     note.innerHTML = snapshot
       ? `<strong>Using your saved account.</strong><span>${snapshot.questStats && snapshot.questStats.completedHistoryTruncated ? "Older completed quests may be missing from the capture, so some finished steps can appear untracked." : "Quest status is matched from your latest imported capture."}</span>`
       : `<strong>No account imported.</strong><span>You can still browse every main quest. Import your account to mark completed and available steps.</span>`;
@@ -82,7 +100,11 @@
       if (!all.length) return "";
       const done = quests.filter((quest) => quest.line === line.name && quest.status === "completed").length;
       const shouldOpen = expanded.has(line.name) || !!query;
-      return `<details class="quest-line" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small>${all.length} shown · ${line.count} total</small></span><span class="quest-line-progress">${snapshot ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
+      const tag = line.category === "main" ? "Story" : line.category === "event" ? "Event" : "NPC";
+      const ran = line.category === "event" && line.lastEnd
+        ? ` · ${Date.parse(line.lastEnd) < NOW ? "ended" : "running"} ${dateLabel(line.lastEnd)}`
+        : "";
+      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small></span><span class="quest-line-progress">${snapshot ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
     }).join("");
     root.innerHTML = grouped || `<div class="quest-empty"><strong>No matching main quests.</strong><span>Try another name, item, or filter.</span></div>`;
 

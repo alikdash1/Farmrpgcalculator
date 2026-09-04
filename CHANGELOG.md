@@ -362,3 +362,28 @@ background, so text sat on the card edge and the surface stopped on the final
 word. Restored padding (24/26/34, deeper at the bottom) so the background carries
 past the last line, and set `.desk-lower` to `align-items: start` so each panel is
 its own height rather than being stretched to match its neighbour.
+
+## 2026-09-04 (quests) — Every questline in the game
+
+Replaced the 202-quest main-story file with the full set from the community Quest
+Tracker (farm-rpg-quest-tracker.pages.dev, its `questlines.json`, data of
+2026-09-02): **2,479 quests across 569 questlines**. Verified the 202 story quests
+survived unchanged — same titles, same requirements, same order — before swapping.
+
+Sequels stay together, which was the point: each quest keeps its `line` and
+`sequence`, and the list is pre-sorted so a line reads first step to last
+("99 Bottles" runs I→XCIX in order). The tracker's `pred` graph also gives better
+prerequisites than we had ("levels farming 15, crafting 2; after 99 Bottles #1").
+
+Each line is tagged by `category` so the page stays usable at this size:
+- **main** — the 19 permanent story lines, listed first, green tag
+- **side** — 251 permanent NPC lines, alphabetical
+- **event** — 299 seasonal lines, newest first, showing when they ran
+
+Seasonal quests that have already closed are excluded from Not Done / Available —
+a finished event is not work you can pick up — but remain browsable under the new
+**Events** filter and under All. Right now that leaves 1,169 actionable quests out
+of 2,479, and "A Safer Big Boom" shows as running.
+
+Note: `data/main-quests.js` is now 1.2 MB (was 96 KB). It still loads as a plain
+script with no fetch, so opening from disk is unaffected.
