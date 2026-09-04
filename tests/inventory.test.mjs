@@ -134,3 +134,15 @@ test("description rows in an already-saved snapshot are filtered at the point of
   // And the count is shown rather than the total silently shrinking.
   assert.match(read("inventory-page.js"), /rows ignored — Farm RPG description text/);
 });
+
+test("a half-cached mix of files degrades instead of blanking the page", () => {
+  const page = read("inventory-page.js");
+  // One missing helper threw and took the whole tab with it, which looks
+  // exactly like "tracking does not work".
+  assert.match(page, /typeof GATHER\.hasStoredChoice === "function"/);
+  assert.match(page, /typeof GATHER\.ignoredCount === "function"/);
+  // And the page says what it computed, so an empty panel is explainable.
+  assert.match(page, /in your inventory/);
+  assert.match(read("app.js"), /const FRPG_BUILD = "/);
+  assert.match(read("app.js"), /build-stamp/);
+});

@@ -657,3 +657,17 @@ tracking again restores the list. And on a seeded inventory, "Adds 100
 Stamina", "Almost transparent", "and it gets everywhere" and "A chill fish"
 are ignored while "Orange Juice", "Amber Mire Bloom", "Apple Slice" and an
 invented brand-new item are all kept and drawn.
+
+## 2026-09-05 — Say which build is running, and what the page computed
+
+"It won't track no matter what I do" could not be diagnosed from here, so the
+app now reports enough to place the fault.
+
+- The footer carries a **build stamp**. A browser holding one old file looks
+  exactly like a bug that was never fixed, and there was no way to tell them
+  apart.
+- The Inventory tab prints what it worked out — steps left, items needed, and
+  how many items your inventory has — so an empty panel has a reason attached.
+- `inventory-page.js` no longer assumes `gather-model.js` is the matching
+  version. A single missing helper threw and blanked the whole tab, which is
+  indistinguishable from tracking being broken.

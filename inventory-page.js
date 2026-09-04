@@ -45,7 +45,7 @@
     const total = rows.reduce((sum, row) => sum + row.quantity, 0);
     // Say plainly when rows were left out, rather than letting the count look
     // wrong for no visible reason.
-    const ignored = GATHER.ignoredCount();
+    const ignored = typeof GATHER.ignoredCount === "function" ? GATHER.ignoredCount() : 0;
     summary.innerHTML = `<span><strong>${fmt.format(rows.length)}</strong> distinct items</span><span><strong>${fmt.format(total)}</strong> held in total</span>`
       + (ignored ? `<span class="inventory-ignored" title="Farm RPG prints a description under each item name. An older capture stored those as items; capturing again clears them."><strong>${fmt.format(ignored)}</strong> rows ignored — Farm RPG description text, not items</span>` : "");
     if (!rows.length) {
@@ -82,7 +82,8 @@
   function renderPlan(plan) {
     const { lineName, auto, stock, remaining, next } = plan;
 
-    trackingNote.innerHTML = !lineName && GATHER.hasStoredChoice() && !GATHER.trackedLine()
+    const chose = typeof GATHER.hasStoredChoice === "function" && GATHER.hasStoredChoice() && !GATHER.trackedLine();
+    trackingNote.innerHTML = !lineName && chose
       ? `Not tracking anything. Press <b>Track</b> on a questline in Quests to follow it here.`
       : lineName
       ? (auto
@@ -91,7 +92,7 @@
       : "Everything on your list is finished. Nothing left to gather for.";
 
     if (!lineName) {
-      const cleared = GATHER.hasStoredChoice() && !GATHER.trackedLine();
+      const cleared = chose;
       const empty = cleared
         ? `<div class="inventory-empty"><strong>Nothing tracked.</strong><span>Press <b>Track</b> on any questline in Quests and its remaining items appear here.</span></div>`
         : `<div class="inventory-empty is-finished"><strong>No questline left to gather for.</strong><span>Every questline in your list is complete.</span></div>`;
@@ -119,6 +120,7 @@
     const short = wholeRows.length - covered;
     const nextLabel = next.pending ? "Planning estimate · title not available in game yet" : `Step ${next.sagaStep || next.sequence || 1}`;
 
+    trackingNote.innerHTML += ` <small class="inventory-diag">${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${plan.wholeRows.length} items · ${stock.length} in your inventory</small>`;
     nextRoot.innerHTML = `<header class="inventory-panel-heading"><span>${esc(nextLabel)}</span><h2>${esc(next.title)}</h2></header>${noInventory}${tableMarkup(nextRows, "No item requirement is recorded for this quest.")}`;
     const wholeMeta = `${remaining.length} step${remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} distinct item${wholeRows.length === 1 ? "" : "s"} · ${covered} fully covered · ${short} still short`;
     expanded = { title: lineName, meta: wholeMeta, rows: wholeRows };

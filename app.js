@@ -69,6 +69,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
+  const FRPG_BUILD = "2026-09-05.5";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -2091,7 +2092,9 @@
   // parse status). Players don't need the shape of the database — they need to
   // know how much of the game is covered.
   if ($("dataSummary")) $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
-  if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser.";
+  // A visible build stamp. Half the "it still does the old thing" reports are a
+// browser holding an old copy of a file, and this is the only way to tell.
+if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
 
   function renderLibrary() {
     if (!$('strategyRules') || !$('mechanicsIndex')) return;

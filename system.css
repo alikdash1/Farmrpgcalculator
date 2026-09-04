@@ -484,3 +484,7 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
 @media (max-width: 900px) {
   .sync-guide-split { grid-template-columns: 1fr; }
 }
+
+/* Which copy of the app is actually running. Reported in the footer because a
+   browser holding an old file looks exactly like a bug that was never fixed. */
+.build-stamp { color: var(--muted); opacity: .7; }
