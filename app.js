@@ -87,10 +87,13 @@
     }
     return ART_PX[""];
   };
-  const itemImg = (item, cls, fallbackName) => {
+  // fallbackImg lets a data file that carries its own artwork — the Tower's
+  // wiki images, say — still draw when the item is not in the shared art map.
+  // Without it that artwork is silently dropped and the tile shows an initial.
+  const itemImg = (item, cls, fallbackName, fallbackImg) => {
     const px = artPx(cls);
     const name = fallbackName || (item && item.name) || "";
-    const src = ART ? ART.urlFor(name) : "";
+    const src = (ART ? ART.urlFor(name) : "") || fallbackImg || "";
     return src
       ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="${px}" height="${px}" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(name)}"></span>`
       : `<span class="item-art missing-art ${cls || ""}" aria-hidden="true">${esc(artInitial(item, fallbackName))}</span>`;
@@ -1950,7 +1953,7 @@
         const plannable = !!item;
         const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the calculator"`;
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
-        const art = itemImg(item, "tower-art", row.name);
+        const art = itemImg(item, "tower-art", row.name, row.img);
         return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;

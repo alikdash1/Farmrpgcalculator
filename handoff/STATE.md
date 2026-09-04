@@ -25,9 +25,13 @@ Claim a task by adding a row before you start. Clear it when merged.
 - **Inventory tab.** Tracks one questline; next quest bottom-left, whole-line
   total bottom-right. Verified on screen with the saga tracked: 191 rows left,
   178 right, 201 images, none broken.
-- **Item art.** `data/item-art.js` covers the 106 quest items missing from
-  `data/items.js`. Silver is currency and is deliberately excluded. Nine URLs
-  spot-checked, all HTTP 200.
+- **Item art.** One lookup for the whole app in `item-art.js`. It reads every
+  source that carries artwork — `data/items.js`, `data/item-art.js`,
+  `data/new-items.js` (mining catalogue) and `data/tower-floors.js` — because
+  a lookup that read only the first silently dropped the other three. 1,356
+  names resolve; Silver is currency and deliberately has none. Verified on
+  screen: Tower, Mining, Quests, Inventory and Calculate all show zero
+  placeholders and zero broken images.
 - **Tower.** Requirements for T300–T340 from the wiki. Grand Mastery floors
   score against 100,000 and Mega Mastery against 1,000,000 — not everything is
   1m. Masteries are the 2026-09-04 CSV, 514 items.

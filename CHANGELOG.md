@@ -480,3 +480,23 @@ Writing that check immediately found a live bug: the quantity preset buttons on
 Calculate rendered near-white on white (contrast 1.05:1, invisible). A leftover
 `background: #fff` from the light theme. Now 6.31:1. Two latent dark-on-dark
 buttons fixed at the same time.
+
+## 2026-09-04 — Every picture resolves again
+
+Centralising the art lookup had quietly broken two pages. Several data files
+ship their own artwork, and the new shared helper only read `data/items.js`, so
+a working URL sitting in the same file was ignored and the tile fell back to a
+bare letter.
+
+- Tower T300–T340: 45 requirements lost the wiki art from `data/tower-floors.js`
+  (Gold Lemon Quartz Ring, Yellow Bag, Strong Paste, Yellow Butterfly, …).
+- Mining: 132 tiles lost the release catalogue art from `data/new-items.js` —
+  every craft the mines feed, and their parts.
+
+`item-art.js` now builds its map from all four sources in order of how
+canonical they are, and `itemImg` takes an optional image from the caller so a
+data file's own artwork can never be dropped silently again.
+
+Verified on screen, not from source: Tower, Mining, Quests, Inventory and
+Calculate all report zero placeholders and zero broken images. Mining went from
+389 images with 132 placeholders to 521 with none.

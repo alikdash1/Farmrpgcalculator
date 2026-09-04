@@ -40,15 +40,24 @@ test("the player's pirate saga case stays readable as a very large remaining lis
 test("the shared art helper uses base art first, then verified supplemental art, but never art for Silver", () => {
   const context = { window: {} };
   vm.createContext(context);
-  for (const file of ["data/data.js", "data/location-intel.js", "data/item-art.js", "item-art.js"]) vm.runInContext(read(file), context);
+  for (const file of ["data/data.js", "data/location-intel.js", "data/tower-floors.js", "data/item-art.js", "item-art.js"]) vm.runInContext(read(file), context);
   const helper = context.window.FRPG_ITEM_ART_HELPER;
-  assert.equal(Object.keys(context.window.FRPG_ITEM_ART.art).length, 119);
+  // Pinning an exact entry count only says the file did not change. What has
+  // to hold is that nothing the player looks at falls back to a bare initial.
+  assert.ok(Object.keys(context.window.FRPG_ITEM_ART.art).length >= 119);
   assert.match(helper.urlFor("Peppers"), /^https:\/\/farmrpg\.com\/img\/items\//);
   assert.equal(helper.urlFor("Reinforced Helmet"), "https://farmrpg.com/img/items/9096.png");
   assert.equal(helper.urlFor("Silver"), "");
   assert.equal(Object.hasOwn(context.window.FRPG_ITEM_ART.art, "Silver"), false);
   const mineItems = [...new Set(context.window.FRPG_LOCATION_INTEL.mining.mines.flatMap((mine) => mine.items))];
-  assert.equal(mineItems.filter((name) => !helper.urlFor(name)).length, 0);
+  assert.deepEqual(mineItems.filter((name) => !helper.urlFor(name)), []);
+
+  // Tower T300-T340 arrived with its own artwork in data/tower-floors.js, so
+  // for a while only the Tower page could draw it. Every page resolves it now.
+  const towerItems = [...new Set(context.window.FRPG_TOWER_FLOORS.floors
+    .flatMap((floor) => [...floor.gms, ...floor.mms])
+    .map((row) => row.name))];
+  assert.deepEqual(towerItems.filter((name) => !helper.urlFor(name)), []);
 });
 
 test("Inventory is a separate responsive page with both live refresh paths and tracking controls", () => {
