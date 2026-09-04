@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="tower.css?v=20260903-41">
   <link rel="stylesheet" href="mining.css?v=20260903-42">
   <link rel="stylesheet" href="quests.css?v=20260904-2">
-  <link rel="stylesheet" href="system.css?v=20260904-2">
+  <link rel="stylesheet" href="system.css?v=20260904-3">
 </head>
 <body>
   <a class="skip-link" href="#home">Skip to planner</a>
@@ -125,9 +125,67 @@
     <section id="account" class="view">
       <section class="page-intro"><span class="eyebrow">Your Farm</span><h1>Import Your Account.</h1><p>Load one complete snapshot to fill inventory, Tower, masteries, quests, perks, pets, and other progress. Your data stays in this browser.</p></section>
       <section class="account-import-panel">
-        <div class="account-import-copy"><span class="eyebrow">Automatic</span><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><a class="primary-link" href="collectors/account-sync-extension/README.md">Install extension</a></div></div>
+        <div class="account-import-copy"><span class="eyebrow">Automatic</span><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><button class="primary-link" type="button" id="goGuide">How to install and connect it</button></div></div>
         <div class="account-import-copy"><span class="eyebrow">By hand</span><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button></div>
       </section>
+      <section id="syncGuide" class="sync-guide">
+        <div class="sync-guide-head">
+          <div>
+            <span class="eyebrow">Setup</span>
+            <h2>Installing and connecting the account sync</h2>
+            <p>Three short steps, done once. After that it keeps itself current while you play.</p>
+          </div>
+          <button id="saveGuide" class="quiet-button" type="button">Save this guide</button>
+        </div>
+
+        <ol class="sync-steps">
+          <li>
+            <h3>Install it</h3>
+            <p>Open <code>brave://extensions</code> and switch on <b>Developer mode</b> (top right). Choose <b>Load unpacked</b> and pick this folder:</p>
+            <p><code class="path">calculator\collectors\account-sync-extension</code></p>
+            <p class="sync-note">If it is already installed, press the reload arrow on its card instead — an older copy will not have the newest behaviour.</p>
+          </li>
+          <li>
+            <h3>Give it the two permissions it needs</h3>
+            <p>Open <b>Details</b> on the extension card. Under site access, these five addresses are the complete list — it asks for nothing beyond them:</p>
+            <ul class="sync-sites">
+              <li><code>https://farmrpg.com/*</code><span>the pages it reads</span></li>
+              <li><code>https://www.farmrpg.com/*</code><span>the same site, other spelling</span></li>
+              <li><code>file:///*</code><span>this planner, opened from your disk</span></li>
+              <li><code>http://localhost/*</code><span>this planner, if you serve it</span></li>
+              <li><code>http://127.0.0.1/*</code><span>the same, by number</span></li>
+            </ul>
+            <p>Then switch on <b>Allow access to file URLs</b>. This one is easy to miss and nothing works without it: you open this planner by double-clicking a file on your disk, and without that switch the extension is not allowed to speak to it.</p>
+          </li>
+          <li>
+            <h3>Connect it to this page</h3>
+            <p>Leave this planner open in a tab. The status panel above changes from <b>Waiting for extension</b> as soon as they find each other, and every later capture arrives here on its own.</p>
+            <p class="sync-note">Still waiting? Reload the extension, check the file URL switch, then reload this page.</p>
+          </li>
+        </ol>
+
+        <div class="sync-guide-split">
+          <article>
+            <h3>Using it day to day</h3>
+            <p><b>You do not press anything.</b> Every Farm RPG page reads itself once it finishes loading, so the pages you visit while playing are already saved.</p>
+            <p>It keeps <b>one capture per page</b> and the newest wins, so visiting your inventory fifty times leaves one record, not fifty.</p>
+            <p><b>Capture this Farm RPG page</b> is only for a page that changed after it loaded — you crafted something while sitting on your inventory and want the new number without refreshing.</p>
+            <p>Click the extension icon to see all twelve sections with how old each one is, and an <b>Open</b> button that takes you to that page, which then captures itself.</p>
+          </article>
+          <article>
+            <h3>Without leaving it running</h3>
+            <p>Press <b>Save account snapshot to Downloads</b> in the extension. You get one file, <code>lantern-ledger-account-snapshot.json</code>, which overwrites itself rather than piling up numbered copies.</p>
+            <p>Bring it back here with <b>Load a saved file instead</b> above, check what it found, then press <b>Apply confirmed values</b>.</p>
+            <p>Leave <b>Keep that file updated after every capture</b> ticked and the file stays current by itself.</p>
+          </article>
+          <article>
+            <h3>What it will not do</h3>
+            <p>It never clicks, plays, or navigates Farm RPG for you. It reads pages you open, and tells you which ones have gone stale — you stay the one deciding to go there.</p>
+            <p>Nothing is uploaded. Captures live in your browser and in the file you save yourself.</p>
+          </article>
+        </div>
+      </section>
+
       <section id="accountEmpty" class="account-empty"><strong>You haven't loaded your account yet.</strong><span>Everything still works — the planner just uses the settings you tick yourself on the Setup page instead of your real inventory and perks.</span></section>
       <section id="accountResult" class="hidden">
         <div id="accountSummary" class="account-summary"></div>
@@ -239,6 +297,7 @@
   <script src="app.js?v=20260904-1"></script>
   <script src="mining-page.js?v=20260903-7"></script>
   <script src="quests-page.js?v=20260904-3"></script>
+  <script src="sync-guide.js?v=20260904-1"></script>
 </body>
 </html>
 

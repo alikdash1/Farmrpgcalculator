@@ -429,3 +429,17 @@ its own questline, so a 29-step run showed up as eleven unrelated stubs.
 - Cross-checked all 32 known steps against that sheet: 30 identical. Two differ
   (Pirates Start Arriving IX Yarn, X Cyclops Spider vs Spider); the in-game
   data was kept.
+
+## 2026-09-04 — Setup guide moved into the site
+
+The Account tab's "Install extension" link opened a raw README.md in the
+browser. Replaced with a real guide on the page: three numbered setup steps,
+the five site addresses with what each one is for, the file-URL switch called
+out as the easy-to-miss one, and three columns on daily use, the file route,
+and what the extension will not do.
+
+- `sync-guide.js` builds the downloadable copy from the guide that is on
+  screen, so the saved file cannot drift from the page. Styles are inlined and
+  the page's own buttons are stripped.
+- A test asserts the site list matches the extension manifest exactly, so the
+  guide cannot claim permissions that were added or dropped.

@@ -425,3 +425,53 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
   border-radius: 12px;
 }
 .desk-lower { align-items: start; }
+
+/* ---- Account sync guide -------------------------------------------------
+   A reference block, not a marketing panel: ruled headings, one accent, and
+   a measure narrow enough to read straight through. */
+.sync-guide { margin-top: 34px; }
+.sync-guide-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.sync-guide-head h2 { margin: 4px 0 6px; }
+.sync-guide-head p { max-width: 62ch; color: var(--muted); }
+
+.sync-steps { list-style: none; counter-reset: sync; margin: 0; padding: 0; display: grid; gap: 26px; }
+.sync-steps > li { counter-increment: sync; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 0 16px; }
+.sync-steps > li::before {
+  content: counter(sync);
+  grid-row: 1 / span 99;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+.sync-steps h3 { margin: 3px 0 8px; font-size: 1.02rem; }
+.sync-steps p { max-width: 66ch; margin: 0 0 8px; }
+.sync-steps code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: .86em; }
+.sync-steps code.path { display: inline-block; padding: 5px 9px; overflow-wrap: anywhere; }
+.sync-note { color: var(--muted); }
+
+.sync-sites { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 5px; }
+.sync-sites li { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sync-sites span { color: var(--muted); font-size: .84rem; }
+
+.sync-guide-split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); }
+.sync-guide-split h3 { margin: 0 0 8px; font-size: .98rem; }
+.sync-guide-split p { margin: 0 0 8px; }
+.sync-guide-split code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: .86em; overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .sync-guide-split { grid-template-columns: 1fr; }
+}
