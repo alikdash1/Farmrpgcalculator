@@ -412,3 +412,20 @@ Also in this pass, on the extension:
 - A capture is only labelled **provisional** when it really fell back to generic
   text parsing. It used to say that about every page, including ones a dedicated
   parser handled, which made good captures look untrustworthy.
+
+## 2026-09-04 — The pirate saga is one questline again
+
+Farm RPG renames the "Problems Start Arising" chain as it goes: Pirates Start
+Arriving, Problems Still Abound, three different Masonry titles, You Must Build
+A Stealth Boat, Pirate Stealth Arrival. The quest database treated each name as
+its own questline, so a 29-step run showed up as eleven unrelated stubs.
+
+- `data/quest-sagas.js` (new) declares the saga: the member lines and the full
+  step order, read out of the in-game prerequisites rather than guessed.
+- `quests-page.js` stitches saga members into one line before rendering, and
+  shows the alternate names under the title.
+- Step XXIX is in the player-shared requirement sheet but not yet in the quest
+  database, so it is listed last, marked, with its item bill only.
+- Cross-checked all 32 known steps against that sheet: 30 identical. Two differ
+  (Pirates Start Arriving IX Yarn, X Cyclops Spider vs Spider); the in-game
+  data was kept.

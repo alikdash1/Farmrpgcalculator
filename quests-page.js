@@ -1,5 +1,55 @@
 (function () {
-  const DATA = window.FRPG_MAIN_QUESTS || { quests: [], lines: [] };
+  const RAW = window.FRPG_MAIN_QUESTS || { quests: [], lines: [] };
+
+  // Some questlines are one chain that Farm RPG renames partway through (see
+  // data/quest-sagas.js). Stitch those back together before anything else
+  // looks at the data, so the page only ever sees the real questline.
+  function applySagas(data, config) {
+    const sagas = (config && config.sagas) || [];
+    if (!sagas.length) return data;
+    let quests = data.quests.slice();
+    let lines = data.lines.slice();
+    for (const saga of sagas) {
+      const members = new Set(saga.lines || []);
+      const rank = new Map((saga.order || []).map((title, index) => [title, index]));
+      const inSaga = quests.filter((quest) => members.has(quest.line));
+      if (!inSaga.length) continue;
+      const steps = inSaga
+        .slice()
+        .sort((a, b) => (rank.has(a.title) ? rank.get(a.title) : 1e6) - (rank.has(b.title) ? rank.get(b.title) : 1e6))
+        .map((quest, index) => ({ ...quest, line: saga.name, sagaStep: index + 1 }));
+      // Steps the community sheet knows about but the quest database has not
+      // caught up with. Kept last and flagged, never silently mixed in.
+      for (const row of saga.pending || []) {
+        steps.push({
+          title: row.label,
+          line: saga.name,
+          category: saga.category || "side",
+          requirements: row.requirements || [],
+          prerequisite: row.sourceNote || "",
+          pending: true,
+          sagaStep: steps.length + 1,
+        });
+      }
+      let placed = false;
+      quests = quests.flatMap((quest) => {
+        if (!members.has(quest.line)) return [quest];
+        if (placed) return [];
+        placed = true;
+        return steps;
+      });
+      let linePlaced = false;
+      lines = lines.flatMap((line) => {
+        if (!members.has(line.name)) return [line];
+        if (linePlaced) return [];
+        linePlaced = true;
+        return [{ name: saga.name, count: steps.length, category: saga.category || "side", aka: saga.aka || [], note: saga.note || "" }];
+      });
+    }
+    return { ...data, quests, lines };
+  }
+
+  const DATA = applySagas(RAW, window.FRPG_QUEST_SAGAS);
   const itemRows = (((window.FRPG_DATA || {}).items || {}).items || []);
   const itemMap = new Map(itemRows.map((item) => [String(item.name).toLowerCase(), item]));
   const root = document.getElementById("questLines");
@@ -100,7 +150,7 @@
 
     const mainCount = DATA.quests.filter((q) => q.category === "main").length;
     const eventCount = DATA.quests.filter(isEvent).length;
-    summary.innerHTML = `<article><span>Quests</span><strong>${DATA.quests.length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${tracking ? completed : "—"}</strong><small>${tracking ? "of every quest listed" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to see this"}</small></article>`;
+    summary.innerHTML = `<article><span>Quests</span><strong>${DATA.quests.filter((q) => !q.pending).length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${DATA.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${tracking ? completed : "—"}</strong><small>${tracking ? "of every quest listed" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to see this"}</small></article>`;
     // Say plainly how much of the capture actually lined up. A title the
     // capture has but this list does not is the one failure mode that would
     // otherwise silently under-report progress, so name it and show examples.
@@ -141,7 +191,7 @@
       const ran = line.category === "event" && line.lastEnd
         ? ` · ${Date.parse(line.lastEnd) < NOW ? "ended" : "running"} ${dateLabel(line.lastEnd)}`
         : "";
-      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small></span><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
+      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small>${line.aka && line.aka.length ? `<small class="quest-line-aka">Also called ${esc(line.aka.join(" · "))}</small>` : ""}</span><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
     }).join("");
     root.innerHTML = grouped || `<div class="quest-empty"><strong>No matching main quests.</strong><span>Try another name, item, or filter.</span></div>`;
 
