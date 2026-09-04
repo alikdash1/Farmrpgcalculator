@@ -47,7 +47,7 @@
     // wrong for no visible reason.
     const ignored = GATHER.ignoredCount();
     summary.innerHTML = `<span><strong>${fmt.format(rows.length)}</strong> distinct items</span><span><strong>${fmt.format(total)}</strong> held in total</span>`
-      + (ignored ? `<span class="inventory-ignored" title="Farm RPG prints a description under each item name; an older capture stored those as items."><strong>${fmt.format(ignored)}</strong> description rows ignored — capture again to clear them</span>` : "");
+      + (ignored ? `<span class="inventory-ignored" title="Farm RPG prints a description under each item name. An older capture stored those as items; capturing again clears them."><strong>${fmt.format(ignored)}</strong> rows ignored — Farm RPG description text, not items</span>` : "");
     if (!rows.length) {
       ownedRoot.innerHTML = `<div class="inventory-empty"><strong>Nothing in your inventory yet.</strong><span>Import an account capture or add owned amounts in the calculator.</span></div>`;
       return;
@@ -82,14 +82,19 @@
   function renderPlan(plan) {
     const { lineName, auto, stock, remaining, next } = plan;
 
-    trackingNote.innerHTML = lineName
+    trackingNote.innerHTML = !lineName && GATHER.hasStoredChoice() && !GATHER.trackedLine()
+      ? `Not tracking anything. Press <b>Track</b> on a questline in Quests to follow it here.`
+      : lineName
       ? (auto
         ? `Showing <b>${esc(lineName)}</b> — the questline you have the most left to do on. Press <b>Track</b> on any questline in Quests to follow a different one.`
         : `Tracking <b>${esc(lineName)}</b>. Press <b>Track</b> on another questline in Quests to switch.`)
       : "Everything on your list is finished. Nothing left to gather for.";
 
     if (!lineName) {
-      const empty = `<div class="inventory-empty is-finished"><strong>No questline left to gather for.</strong><span>Every questline in your list is complete.</span></div>`;
+      const cleared = GATHER.hasStoredChoice() && !GATHER.trackedLine();
+      const empty = cleared
+        ? `<div class="inventory-empty"><strong>Nothing tracked.</strong><span>Press <b>Track</b> on any questline in Quests and its remaining items appear here.</span></div>`
+        : `<div class="inventory-empty is-finished"><strong>No questline left to gather for.</strong><span>Every questline in your list is complete.</span></div>`;
       nextRoot.innerHTML = empty;
       wholeRoot.innerHTML = empty;
       return;

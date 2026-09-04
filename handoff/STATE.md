@@ -23,11 +23,12 @@ Claim a task by adding a row before you start. Clear it when merged.
   everything the player has remaining.** Step XXIX is known only from a
   community sheet and is flagged `pending`.
 - **Gather planning.** `gather-model.js` owns the arithmetic; the Inventory
-  tab and the floating tracker both read it so they cannot disagree. The
-  tracker (`tracker.js`) is appended to the body, so it shows on every tab:
-  this quest on the left, the whole line on the right, collapsible, and a size
-  toggle for reading both properly. Tracking is set with **Track** on the
-  Quests tab; nothing is tracked yet means the line with the most left to do.
+  tab and the floating tracker both read it. Tracking is set with **Track** on
+  the Quests tab and toggles off when pressed again. No stored value means
+  auto-pick the questline with the most left to do; an empty stored value means
+  the player chose none, and is respected. Inventory rows are trusted only when
+  the complete item library knows the name or a capture found artwork — that
+  is what filters Farm RPG's per-item description text out of old captures.
 - **Item art.** `data/item-library.js` holds the **complete** Farm RPG item
   list, 1,449 names with artwork, taken from buddy.farm's own search index
   (`https://buddy.farm/search.json`). `item-art.js` merges it under the more

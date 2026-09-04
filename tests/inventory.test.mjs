@@ -132,5 +132,5 @@ test("description rows in an already-saved snapshot are filtered at the point of
   assert.match(gather, /ART\.isKnownItem/);
   assert.match(gather, /function ignoredCount\(\)/);
   // And the count is shown rather than the total silently shrinking.
-  assert.match(read("inventory-page.js"), /description rows ignored/);
+  assert.match(read("inventory-page.js"), /rows ignored — Farm RPG description text/);
 });

@@ -104,7 +104,7 @@
       const tag = line.category === "main" ? "Story" : line.category === "event" ? "Event" : "NPC";
       const ran = line.category === "event" && line.lastEnd ? ` · ${Date.parse(line.lastEnd) < NOW ? "ended" : "running"} ${dateLabel(line.lastEnd)}` : "";
       const isTracked = tracked === line.name;
-      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small>${line.aka && line.aka.length ? `<small class="quest-line-aka">Also called ${esc(line.aka.join(" · "))}</small>` : ""}</span><span class="quest-line-actions"><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span><button type="button" class="quest-track${isTracked ? " is-tracked" : ""}" data-track-line="${esc(line.name)}" aria-pressed="${isTracked}">${isTracked ? "Tracking" : "Track"}</button></span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
+      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small>${line.aka && line.aka.length ? `<small class="quest-line-aka">Also called ${esc(line.aka.join(" · "))}</small>` : ""}</span><span class="quest-line-actions"><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span><button type="button" class="quest-track${isTracked ? " is-tracked" : ""}" data-track-line="${esc(line.name)}" aria-pressed="${isTracked}" title="${isTracked ? "Stop tracking this questline" : "Follow this questline on the Inventory tab"}">${isTracked ? "Tracking ✕" : "Track"}</button></span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
     }).join("");
     root.innerHTML = grouped || `<div class="quest-empty"><strong>No matching quests.</strong><span>Try another name, item, or filter.</span></div>`;
 
@@ -130,8 +130,12 @@
     if (tracker) {
       event.preventDefault();
       event.stopPropagation();
-      localStorage.setItem("frpg_tracked_line", tracker.dataset.trackLine);
-      window.dispatchEvent(new CustomEvent("frpg:tracked-line", { detail: tracker.dataset.trackLine }));
+      // Press it again to stop tracking. Storing an empty string means "the
+      // player chose nothing", which is different from never having chosen —
+      // the latter still auto-picks the questline with the most left to do.
+      const next = trackedLine() === tracker.dataset.trackLine ? "" : tracker.dataset.trackLine;
+      localStorage.setItem("frpg_tracked_line", next);
+      window.dispatchEvent(new CustomEvent("frpg:tracked-line", { detail: next }));
       render();
       return;
     }

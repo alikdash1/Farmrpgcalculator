@@ -39,23 +39,18 @@
   }
 
   // Farm RPG prints a description under each item name, and older captures
-  // stored those as items: "A blinger for your finger", "A chill fish". The
-  // collector no longer does that, but snapshots already saved in this browser
-  // still carry them, so they are filtered at the point of use too. A row is
-  // prose only if nothing can identify it — no artwork from any source, and no
-  // item of that name — so a genuinely new item is never dropped.
+  // stored those as items: "A blinger for your finger", "Almost transparent",
+  // "Adds 100 Stamina". Guessing at their shape kept missing cases — the last
+  // one is Title Case with no lowercase word in it. The complete item library
+  // makes guessing unnecessary: if Farm RPG has no item by that name, and no
+  // artwork was found for it anywhere including the player's own captures,
+  // then it is not an item. An item added to the game after the library was
+  // built still passes, because a capture brings its picture along.
   function isDescription(name) {
     const text = String(name || "").trim();
     if (!text) return true;
-    // With the full item library loaded, "is this a real item?" has an actual
-    // answer, so prose is what the game has no item for.
-    if (ART.isKnownItem ? ART.isKnownItem(text) : (ART.itemFor(text) || ART.urlFor(text))) return false;
-    // Unknown to every source. It could still be an item added to the game
-    // since the library was built, so only reject it if it reads like a
-    // sentence: a lowercase start, or a lowercase word that is not a joiner.
-    if (/^[a-z]/.test(text)) return true;
-    const joiners = new Set(["a", "an", "the", "of", "and", "or", "in", "on", "for", "to", "with", "at", "from", "by"]);
-    return text.split(/\s+/).slice(1).some((word) => /^[a-z]/.test(word) && !joiners.has(word.toLowerCase()));
+    if (ART.isCurrency(text)) return false;
+    return !(ART.isKnownItem ? ART.isKnownItem(text) : (ART.itemFor(text) || ART.urlFor(text)));
   }
 
   function ignoredCount() {
@@ -98,6 +93,11 @@
     catch (_) { return ""; }
   }
 
+  function hasStoredChoice() {
+    try { return localStorage.getItem("frpg_tracked_line") !== null; }
+    catch (_) { return false; }
+  }
+
   // The questline the player has started and has the most left to do on. Used
   // when nothing is pinned, so neither view ever opens on an empty picker.
   function busiestLine() {
@@ -117,7 +117,10 @@
   function plan() {
     const pinned = trackedLine();
     const known = MODEL.lines.some((line) => line.name === pinned);
-    const lineName = known ? pinned : busiestLine();
+    // An empty stored value is a deliberate "none" and must be respected;
+    // auto-picking is only for a player who has never chosen.
+    const clearedOnPurpose = !known && hasStoredChoice() && !pinned;
+    const lineName = known ? pinned : (clearedOnPurpose ? "" : busiestLine());
     const stock = inventoryRows();
     if (!lineName) return { lineName: "", auto: !known, stock, remaining: [], next: null, nextRows: [], wholeRows: [] };
 
@@ -135,5 +138,5 @@
     };
   }
 
-  window.FRPG_GATHER = { plan, inventoryRows, ignoredCount, trackedLine, busiestLine, keyFor };
+  window.FRPG_GATHER = { plan, inventoryRows, ignoredCount, trackedLine, hasStoredChoice, busiestLine, keyFor };
 })();

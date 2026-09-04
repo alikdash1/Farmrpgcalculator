@@ -66,3 +66,25 @@ test("small shows this quest; big spreads the whole line across the page", () =>
   // panel stuck at whichever size it started at.
   assert.doesNotMatch(css, /^\s*transition:[^;]*width/m);
 });
+
+test("Track toggles off, and an explicit none is not auto-filled again", () => {
+  const quests = read("quests-page.js");
+  const gather = read("gather-model.js");
+  // Pressing Track on the line already being tracked used to re-set the same
+  // value, so there was no way to stop.
+  assert.match(quests, /trackedLine\(\) === tracker\.dataset\.trackLine \? "" :/);
+  assert.match(quests, /Tracking ✕/);
+  // And clearing it auto-picked the very same questline straight back, which
+  // is what made untracking look broken.
+  assert.match(gather, /function hasStoredChoice\(\)/);
+  assert.match(gather, /clearedOnPurpose/);
+});
+
+test("the inventory filter trusts the item list instead of guessing at prose", () => {
+  const gather = read("gather-model.js");
+  // "Adds 100 Stamina" is Title Case with no lowercase word, so every
+  // shape-based heuristic let it through. The complete library answers it.
+  assert.match(gather, /ART\.isKnownItem\(text\)/);
+  assert.doesNotMatch(gather, /looksLikeProse/);
+  assert.doesNotMatch(gather, /joiners/);
+});

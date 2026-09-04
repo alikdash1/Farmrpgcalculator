@@ -634,3 +634,26 @@ slipped past the earlier heuristic — are now correctly ignored, while
 Checked on the player's own list: 18 items, every one with a picture, 4
 description rows ignored. Tower, Mining, Quests and Inventory all report zero
 placeholders. Eight sampled library URLs return HTTP 200.
+
+## 2026-09-05 — Track toggles off, and the item list settles the prose question
+
+- **Pressing Track on the questline already being tracked did nothing**, because
+  the handler only ever set the value. It toggles now, and the button reads
+  "Tracking ✕" while it is on.
+- **Untracking then auto-picked the same questline straight back**, which is
+  what made it feel like nothing happened. An empty stored value is now a
+  deliberate "none" and is respected; auto-picking is only for a player who has
+  never chosen. The tracker hides and the Inventory tab says what to press.
+- **"Adds 100 Stamina" was still showing as an item.** Every shape-based rule
+  let it through — it is Title Case with no lowercase word in it. The filter no
+  longer guesses: if the complete item library has no item by that name, and no
+  artwork was found for it anywhere including the player's own captures, it is
+  description text. An item added to the game since the library was built still
+  passes, because a capture brings its picture with it.
+
+Verified end to end: a fresh browser auto-picks; Track pins another line and
+the tracker follows; pressing it again clears it and the tracker hides;
+tracking again restores the list. And on a seeded inventory, "Adds 100
+Stamina", "Almost transparent", "and it gets everywhere" and "A chill fish"
+are ignored while "Orange Juice", "Amber Mire Bloom", "Apple Slice" and an
+invented brand-new item are all kept and drawn.
