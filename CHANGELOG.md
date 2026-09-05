@@ -848,3 +848,11 @@ Two CSS traps found doing it, both recorded because neither is obvious:
 on its own height — it resolved to the full screen. And `auto-fill` row tracks
 need a **definite** height, not a maximum, or the grid collapses to one row per
 column.
+
+## 2026-09-05 — The expanded list opens where it lives
+
+Centred, it jumped to the middle of the screen the moment you opened it, away
+from the corner and the button you pressed, and covered the left of the page
+for no reason. It now stays anchored to the right-hand dock it grows out of —
+29px from the right edge, vertically centred — so the page stays readable
+beside it.

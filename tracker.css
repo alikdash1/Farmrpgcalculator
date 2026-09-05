@@ -101,11 +101,13 @@
   z-index: 90;
   /* Sized to its contents, not to the screen. Stretched to full width every
      row had a hand's width of nothing between the item and its number. */
-  left: 50%;
-  right: auto;
+  /* It grows out of the right-hand dock, so it stays on that side. Centred, it
+     jumped left the moment you opened it, away from the button you pressed. */
+  left: auto;
+  right: 14px;
   top: 50%;
   bottom: auto;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   /* A definite, modest width. max-content cannot resolve against a grid whose
      column count depends on its own height, and resolved to the full screen. */
   width: min(1020px, calc(100vw - 24px));

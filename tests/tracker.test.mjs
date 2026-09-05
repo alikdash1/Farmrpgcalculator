@@ -172,6 +172,10 @@ test("the expanded list is about half the screen, not all of it", () => {
   // Stretched to the full width, every row had a hand's width of nothing
   // between the item and its number.
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?width: min\(1020px, calc\(100vw - 24px\)\)/);
+  // It grows out of the right-hand dock, so it stays on that side; centred it
+  // jumped away from the button that opened it.
+  assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?right: 14px/);
+  assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?transform: translateY\(-50%\)/);
   // A definite height, because the row track uses auto-fill: with only a
   // max-height the grid collapsed to one row per column.
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?height: min\(78vh, 820px\)/);
