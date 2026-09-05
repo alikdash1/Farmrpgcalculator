@@ -38,56 +38,82 @@ test("Places reads Setup's perks instead of keeping its own copy", () => {
 
 test("what you spend decides which rate table can answer", () => {
   const page = read("locations-page.js");
-  // KNOWN_MISTAKES.md, "Arnold Palmer is not exploring": an AP finds items and
-  // spends no stamina, so it is a different activity from exploring. Pricing
-  // one as the other was a tenfold error once. It must not be a chip the
-  // reader can set wrong.
-  assert.match(page, /const FINDS = new Set\(\["ap", "lemonade", "cider", "largenet", "fishingnet"\]\);/);
-  assert.match(page, /if \(FINDS\.has\(prefs\.kind\)\)/);
+  // Farm RPG's own item text is the authority, and it splits these apart:
+  //   Arnold Palmer "Quicker than regular Lemonade"  -> finds, no stamina
+  //   Lemonade      "Finds items while exploring"    -> finds, no stamina
+  //   Apple Cider   "1000+ Stamina Use | Does not give Stamina" -> stamina
+  //   Orange Juice  "Adds 100 Stamina"               -> buys stamina
+  // So Cider belongs with exploring, not with the drinks that find items.
+  assert.match(page, /const FINDS = new Set\(\["ap", "lemonade", "largenet", "fishingnet"\]\);/);
+  assert.match(page, /const ciderStamina = \(\) => mods\(\)\.drinks\.ciderRolls;/);
+  assert.match(page, /case "cider": return amount \* ciderStamina\(\);/);
+  assert.match(page, /case "oj": return amount \* constant\("oj_stamina", 100\);/);
+  // And it is never a chip the reader can set wrong.
   assert.doesNotMatch(page, /data-basis/);
   assert.doesNotMatch(page, /prefs\.basis/);
-  // Drinks convert to each other by how many finds they make, never to explores.
-  assert.match(page, /case "lemonade": return m\.drinks\.apItems > 0 \? amount \* m\.drinks\.lemonadeItems \/ m\.drinks\.apItems : 0;/);
-  assert.match(page, /case "cider": return m\.drinks\.apItems > 0 \? amount \* m\.drinks\.ciderRolls \/ m\.drinks\.apItems : 0;/);
-  // Only stamina and Orange Juice turn into explores, and only per location.
-  assert.match(page, /function actionsFor\(place\)/);
-  assert.doesNotMatch(page, /case "ap": return amount \* m\.drinks\.apItems;/);
+});
+
+test("fishing costs bait, so it is never offered a stamina option", () => {
+  const page = read("locations-page.js");
+  // Worms are type "bait" and say "Use this to catch fish". Stamina buys
+  // nothing when fishing, and Exploring Effectiveness is an exploring
+  // mechanic, so neither belongs on a fishing card.
+  const from = page.indexOf("fishing: [");
+  const fishing = page.slice(from, page.indexOf("],", from));
+  assert.doesNotMatch(fishing, /stamina/);
+  assert.match(page, /if \(place\.mode !== "explore"\) return "";/);
+  assert.match(page, /const byRod = \(\) => prefs\.kind === "casts";/);
 });
 
 test("the workbook is scaled to this account, in its own unit", () => {
   const page = read("locations-page.js");
-  // Verified in KNOWN_MISTAKES.md: exploring rates sum to 550 per AP (500
-  // finds x 1.1 Quandary Chowder), fishing to exactly 500 per Large Net. That
-  // is what makes scaling by the player's own find count legitimate — it is
-  // fewer finds of the same kind, not a conversion between activities.
   assert.match(page, /const WORKBOOK_FINDS = 500;/);
   assert.match(page, /function setupScale\(place\)/);
-  assert.match(page, /Quandary Chowder/);
-  // And the workbook really does sum to those totals, per location.
-  const source = read("data/workbook-rates.js");
-  const wb = JSON.parse(source.slice(source.indexOf("{"), source.lastIndexOf("}") + 1));
-  const sum = (row) => Object.values(row).reduce((a, b) => a + Number(b || 0), 0);
-  // Nine of thirteen fishing locations land on 500.00 and eight of thirteen
-  // exploring ones on 550.00. The rest only ever come out HIGH — Ember Lagoon
-  // 606, Sinking Swamp 605 — which is what rare chests and runestones landing
-  // on top of the ordinary find looks like. A number BELOW the floor would
-  // mean the unit had changed, so the floor is what gets pinned.
-  for (const [name, row] of Object.entries(wb.fishing)) {
-    const total = sum(row);
-    assert.ok(total >= 499 && total <= 550, `${name} fishing sums to ${total}`);
-  }
-  for (const [name, row] of Object.entries(wb.exploring)) {
-    const total = sum(row);
-    assert.ok(total >= 549 && total <= 620, `${name} exploring sums to ${total}`);
-  }
 });
 
-test("a fishing pour reads the table that matches how you fish", () => {
+test("a chest is not a drop, and the table is un-expanded before it is shown", () => {
   const page = read("locations-page.js");
-  // data.js keeps two logs per fishing spot: drop_rates for nets and
-  // manual_fish_rates for the rod. Using one for both double-counts.
-  assert.match(page, /const byRod = \(\) => prefs\.kind === "casts" \|\| prefs\.kind === "stamina";/);
-  assert.match(page, /byRod\(\) && Object\.keys\(place\.fish\)\.length \? place\.fish : place\.drops/);
+  // The workbook lists a chest AND everything inside it, as if the contents
+  // were drops of the place. Detected by arithmetic, never by name.
+  assert.match(page, /function containersIn\(table\)/);
+  assert.match(page, /rows: rows\.filter\(\(row\) => !row\.inside\)/);
+  assert.match(page, /function chestMarkup\(result\)/);
+
+  // The proof: pull the detected contents back out and the affected
+  // locations land on exactly the totals KNOWN_MISTAKES.md documents.
+  const data = dataGlobal("FRPG_DATA");
+  const nameById = new Map(data.items.items.map((item) => [item.id, item.name]));
+  const parts = new Map();
+  for (const row of data.recipes.craft) {
+    const made = nameById.get(row.itemId);
+    const part = nameById.get(row.reqId);
+    if (!made || !part) continue;
+    if (!parts.has(made)) parts.set(made, []);
+    parts.get(made).push({ name: part, amt: row.amt });
+  }
+  const source = read("data/workbook-rates.js");
+  const wb = JSON.parse(source.slice(source.indexOf("{"), source.lastIndexOf("}") + 1));
+  const strip = (table) => {
+    const held = new Set();
+    for (const [made, rate] of Object.entries(table)) {
+      const recipe = parts.get(made) || [];
+      if (recipe.length < 2 || !(rate > 0)) continue;
+      const all = recipe.every((part) => {
+        const listed = table[part.name];
+        return listed > 0 && Math.abs(listed - rate * part.amt) <= 0.01 * listed + 1e-4;
+      });
+      if (all) recipe.forEach((part) => held.add(part.name));
+    }
+    return Object.entries(table).filter(([name]) => !held.has(name))
+      .reduce((sum, entry) => sum + entry[1], 0);
+  };
+  // Black Rock Canyon is the one the player caught: Medium Chest 02 drops
+  // 0.08987 per AP and holds 5 Aquamarine Rings, and the workbook duly lists
+  // Aquamarine Ring at 0.4493.
+  assert.ok(Math.abs(strip(wb.exploring["Black Rock Canyon"]) - 550) < 0.05);
+  assert.ok(Math.abs(strip(wb.exploring["Highland Hills"]) - 550) < 0.05);
+  assert.ok(Math.abs(strip(wb.exploring["Mount Banon"]) - 550) < 0.05);
+  assert.ok(Math.abs(strip(wb.fishing["Pirate's Cove"]) - 500) < 0.05);
 });
 
 test("Iron Depot has its own drop denominators, and they are real", () => {
@@ -131,8 +157,7 @@ test("how much stamina an explore costs is asked for, never guessed", () => {
   assert.match(page, /frpg_location_effort_v1/);
   // With no number entered, the stamina and Orange Juice options must refuse
   // to answer rather than fall back to an invented cost.
-  assert.match(page, /case "oj": return per > 0 \?/);
-  assert.match(page, /case "stamina": return per > 0 \?/);
+  assert.match(page, /if \(stamina != null\) return per > 0 \? stamina \/ per : null;/);
   assert.match(page, /Nothing to work out until that number is in\./);
 });
 
@@ -154,8 +179,10 @@ test("Places says what the workbook assumes that your account may not", () => {
   // "Every perk on" is a number Setup already knows, so the gap is stated
   // rather than left for the player to discover in-game.
   assert.match(page, /function sourceNote\(\)/);
-  assert.match(page, /scaled to " \+ count\(100 \* mine \/ WORKBOOK_FINDS\)/);
-  assert.match(page, /Shown as measured, which is/);
+  assert.match(page, /count\(100 \* mine \/ WORKBOOK_FINDS\)/);
+  // The long version explained the workbook's internals and the player could
+  // not tell what it was for. Keep it to one line.
+  assert.doesNotMatch(page, /which is what makes scaling them sound/);
 });
 
 test("a pour is scored against what you still need", () => {

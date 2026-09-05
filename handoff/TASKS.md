@@ -11,6 +11,7 @@ matter.
 |---|---|---|---|
 | 0 | **Extension: quests captures do not land** | either | Completed quests reads 2 of ~1,950; Available reads nothing. See the note below |
 | 1 | **Decide: drop "best route" framing for a neutral tracker** | either | The owner wants the tool to lay out every path and let the player choose, rather than recommending one. See the note below |
+| 3 | **The Calculate page counts Apple Cider as item rolls, not stamina** | either | Real arithmetic bug, found 2026-09-05. See the note below |
 | 2 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
 | 5 | Mining chip source text into a tooltip | claude | The chips wrap badly once a recipe has more than about four inputs |
 | 6 | Reconcile Large Net base 400 vs the workbook's 500 | either | Two sources disagree; ask the user rather than picking one |
@@ -87,3 +88,28 @@ The pieces that would change:
 
 Worth keeping either way: the **numbers** behind the recommendation are the
 valuable part, and they stay valid whichever framing wins.
+
+## Notes for whoever takes #3
+
+`engine.js` `translateCosts()` does `ciders: explores / mods.drinks.ciderRolls`,
+i.e. it treats one Apple Cider as 1,000 explores. The game says otherwise:
+**"1000+ Stamina Use | Does not give Stamina | Works with Wanderer Perks | Need
+at least 1000 Stamina to use"**. A cider is a fixed spend of 1,000 stamina, so
+the explores it buys are `1000 / (stamina per explore at that location)` —
+about 9.6 at 104 stamina, not 1,000. The current figure is therefore out by
+roughly the location's stamina cost, and always understates how many ciders a
+plan needs.
+
+The Places page already does this correctly, but it can only do so because it
+asks the player for the per-location stamina cost (`frpg_location_effort_v1`,
+the Effectiveness field). **Calculate has no location context**, which is why
+this was not fixed at the same time: there is no single right stamina number
+for a route that spans several places. Options, in the order they seem sensible:
+
+1. Read `frpg_location_effort_v1` for whichever location the chosen route uses,
+   and say "cider count unknown" when that location has no number yet.
+2. Ask for one typical stamina-per-explore in Setup and use it everywhere.
+3. Drop the cider line from Calculate and point at Places instead.
+
+`data/constants.json` `cider_base_rolls` has been re-described (it is stamina,
+not rolls); the key name is left alone because `engine.js` reads it.

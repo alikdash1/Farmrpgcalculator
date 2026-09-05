@@ -5,6 +5,44 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-05 (last) — Places corrections, all from the owner playing the game
+
+Four reports, every one a real modelling error rather than a display bug.
+
+- **"it doesnt calculate how much stamina i am using with cider."** Right, and
+  worse than that: Apple Cider was on the wrong side of the model entirely. The
+  game says **"1000+ Stamina Use | Does not give Stamina | Works with Wanderer
+  Perks | Need at least 1000 Stamina to use"** — a cider is a fixed spend of
+  1,000 stamina, so what it buys depends on the location. It now goes through
+  the stamina path and states the spend: 1,000 ciders is 1,000,000 stamina, or
+  9,615 explores at 104 each. `cider_base_rolls` was described as "item-roll
+  equivalent"; it is stamina, and is now labelled so.
+- **"why is stamina in fishing ... take away stamina."** Right — fishing costs
+  bait, not stamina (Worms are type `bait`, "Use this to catch fish"). The
+  option is gone, and Effectiveness no longer shows on fishing cards, since it
+  is an exploring mechanic.
+- **"the whole rings drop are from the chest not in here."** Right, and the
+  data proves it: Medium Chest 02 drops 0.08987 per AP at Black Rock Canyon and
+  holds 5 Aquamarine Rings; the workbook lists Aquamarine Ring at 0.4493. The
+  workbook expands a chest into its contents and lists them as drops. Now
+  detected by arithmetic — if every ingredient of a craftable item appears at
+  exactly its rate times its amount, the table has expanded it — and shown
+  under the drops as "And inside those chests". Confirmation the detection is
+  right: pulling the contents back out lands Highland Hills, Black Rock Canyon
+  and Mount Banon on exactly 550.0 and Pirate's Cove on 500.0.
+- **"i dont understand this what is this for just take it out."** The rates
+  note explained the workbook's internals. It was written for me, not for a
+  player. Now one line.
+- Effectiveness is the field's name, as the game calls it, and it says what it
+  buys: "At 104 stamina an explore, one Orange Juice (100 stamina) is 0.96
+  explores here, and one Apple Cider (1,000 stamina) is 9.6."
+- A place with logged rates but no per-AP rates now says which spend would
+  work instead of "nothing recorded".
+- Queued as TASKS #3: `engine.js` has the same cider error on the Calculate
+  page. Not fixed here because Calculate has no location, so it has no stamina
+  cost to divide by — the options are written up in `handoff/TASKS.md`.
+- 100 tests pass; verified in a browser with no console errors.
+
 ## 2026-09-05 (later) — Places: what a pour actually returns
 
 The user: *"add the locations where i can explore and fish ... add Exploring

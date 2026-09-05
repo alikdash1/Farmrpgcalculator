@@ -8,7 +8,7 @@
   "craft_cost_cap": { "v": 0.75, "verified": false, "why": "Safety cap until the complete stacking rule is verified" },
   "net_fn_base_catch": { "v": 10, "verified": true, "why": "Items per Fishing Net before Reinforced Netting" },
   "net_ln_base_catch": { "v": 250, "verified": true, "why": "Items per Large Net before Reinforced Netting and Trigon Knot" },
-  "cider_base_rolls": { "v": 1000, "verified": true, "why": "Base item-roll equivalent per Apple Cider before Cinnamon Sticks" },
+  "cider_base_rolls": { "v": 1000, "verified": true, "why": "Stamina spent by one Apple Cider before Cinnamon Sticks. The game says: 1000+ Stamina Use | Does not give Stamina | Need at least 1000 Stamina to use. The key is named cider_base_rolls for history; it is stamina, not rolls." },
   "lemonade_base_items": { "v": 10, "verified": true, "why": "Items per Lemonade before Lemon Squeezer" },
   "ap_base_items": { "v": 200, "verified": true, "why": "Items per Arnold Palmer before Lemon Squeezer" },
   "oj_stamina": { "v": 100, "verified": true, "why": "Stamina restored by one Orange Juice" },

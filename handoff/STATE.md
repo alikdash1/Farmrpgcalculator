@@ -63,15 +63,22 @@ Claim a task by adding a row before you start. Clear it when merged.
   two thirds of a phone screen.
 
 - **Places.** New tab. Every explore and fishing location, and what a stated
-  pour returns there. **Which rate table answers is decided by what you spend,
-  not by the reader** — AP/Lemonade/Cider and nets are *finds*, so they read
-  the workbook's drops-per-AP and drops-per-LN; stamina, OJ, explores and rod
-  casts are *actions*, so they read the logged denominators. See
-  KNOWN_MISTAKES.md "Arnold Palmer is not exploring": they are different
-  activities and must never be converted into one another.
-- **Exploring Effectiveness is typed in per location** (`frpg_location_effort_v1`).
-  Farm RPG prints it on the location page; Protein Bars and perks move it. With
-  no number the stamina and OJ options refuse to answer rather than guess.
+  pour returns there. **Which rate table answers is decided by what you spend**,
+  from Farm RPG's own item text: Arnold Palmer and Lemonade *find* items and
+  spend no stamina, so they read the workbook's drops-per-AP; **Apple Cider is
+  1,000 stamina** ("1000+ Stamina Use | Does not give Stamina"), as is Orange
+  Juice at 100, so those read the logged explores-per-drop alongside raw stamina
+  and plain explores. See KNOWN_MISTAKES.md "Arnold Palmer is not exploring".
+- **Fishing costs bait, not stamina** — no stamina option, and no Effectiveness
+  field, since that is an exploring mechanic.
+- **Chests are not drops.** The workbook expands a chest into its contents and
+  lists them as drops of the place. Detected arithmetically (every ingredient
+  present at exactly rate x amount) and shown separately. Stripping them lands
+  the affected locations on exactly 550.0 / 500.0, which is the proof.
+- **Effectiveness is typed in per location** (`frpg_location_effort_v1`). Farm
+  RPG prints it on the location page; Protein Bars and Jill lower it, Sprint
+  Shoes raise it. With no number the stamina, OJ and Cider options refuse to
+  answer rather than guess.
 - **Workbook rates are scaled to the account** by find count (its AP is 500
   finds; Setup may say 200). Legitimate because the workbook's rates for one
   place sum to ~550 per AP / ~500 per LN — same unit, fewer finds. Toggleable.

@@ -121,6 +121,9 @@
   places.sort((a, b) => a.name.localeCompare(b.name));
 
   // ---- what a pour is worth here ------------------------------------------
+  // Fishing costs bait, not stamina — Worms are type "bait" and say "Use this
+  // to catch fish". There is no stamina option here because there is nothing
+  // for it to buy.
   const KINDS = {
     explore: [
       ["ap", "Arnold Palmers"],
@@ -134,7 +137,6 @@
       ["largenet", "Large Nets"],
       ["fishingnet", "Fishing Nets"],
       ["casts", "casts with the rod"],
-      ["stamina", "stamina"],
     ],
   };
 
@@ -144,18 +146,64 @@
     return value > 0 ? value : 0;
   }
 
-  // KNOWN_MISTAKES.md, "Arnold Palmer is not exploring": an AP finds items on
-  // its own and spends no stamina, so it is a different activity from
-  // exploring, not the same one bought in bulk. Treating one as the other was
-  // a tenfold error once already. So WHAT YOU SPEND decides which table can
-  // answer; it is not the reader's choice to get wrong.
+  // What you spend decides which table can answer, because these are different
+  // activities. Farm RPG's own item text is the authority here:
   //
-  //   AP / Lemonade / Cider   -> finds        -> the workbook's drops per AP
-  //   Large Net / Fishing Net -> catches      -> the workbook's drops per LN
-  //   explores / stamina / OJ -> explores     -> the logged explores per drop
-  //   rod casts / stamina     -> manual casts -> the logged rod table
-  const FINDS = new Set(["ap", "lemonade", "cider", "largenet", "fishingnet"]);
-  const byRod = () => prefs.kind === "casts" || prefs.kind === "stamina";
+  //   Arnold Palmer  "Quicker than regular Lemonade"      -> finds, no stamina
+  //   Lemonade       "Finds items while exploring"        -> finds, no stamina
+  //   Apple Cider    "1000+ Stamina Use | Does not give   -> SPENDS stamina
+  //                   Stamina | Works with Wanderer Perks"
+  //   Orange Juice   "Adds 100 Stamina"                   -> buys stamina
+  //
+  // So AP and Lemonade read the workbook's drops-per-AP, and Cider, OJ, raw
+  // stamina and plain explores all read the logged explores-per-drop, because
+  // all four are just exploring paid for in different ways. Pricing an AP as
+  // exploring was a tenfold error once — see KNOWN_MISTAKES.md, "Arnold Palmer
+  // is not exploring".
+  const FINDS = new Set(["ap", "lemonade", "largenet", "fishingnet"]);
+  const byRod = () => prefs.kind === "casts";
+
+  // One Apple Cider is a fixed spend of stamina, not a number of finds. The
+  // constant is named ciderRolls and described as rolls, which is wrong: the
+  // game says 1000 Stamina Use. Cinnamon Sticks makes it 25% more effective,
+  // which mods() has already applied.
+  const ciderStamina = () => mods().drinks.ciderRolls;
+
+  // The workbook expands a chest into its contents and lists them as if they
+  // were drops. They are not: you find the chest, and the rings are inside it.
+  //
+  // Found by arithmetic, never by name. If every ingredient of a craftable item
+  // C appears in the same table at exactly C's rate times its amount, the table
+  // has expanded C. Medium Chest 02 drops 0.08987 per AP at Black Rock Canyon
+  // and holds 5 Aquamarine Rings; the workbook lists Aquamarine Ring at 0.4493.
+  // The proof it is right: pulling these back out lands Highland Hills, Black
+  // Rock Canyon and Mount Banon on exactly 550.0, and Pirate's Cove on 500.0.
+  const recipeParts = new Map();
+  (() => {
+    const nameById = new Map(((DATA.items && DATA.items.items) || []).map((item) => [item.id, item.name]));
+    for (const row of (DATA.recipes && DATA.recipes.craft) || []) {
+      const made = nameById.get(row.itemId);
+      const part = nameById.get(row.reqId);
+      if (!made || !part) continue;
+      if (!recipeParts.has(made)) recipeParts.set(made, []);
+      recipeParts.get(made).push({ name: part, amt: Number(row.amt) || 0 });
+    }
+  })();
+
+  function containersIn(table) {
+    const held = new Map();
+    for (const [made, rate] of Object.entries(table)) {
+      const parts = recipeParts.get(made) || [];
+      if (parts.length < 2 || !(rate > 0)) continue;
+      const matches = parts.every((part) => {
+        const listed = table[part.name];
+        return listed > 0 && Math.abs(listed - rate * part.amt) <= 0.01 * listed + 1e-4;
+      });
+      if (!matches) continue;
+      for (const part of parts) held.set(part.name, { chest: made, amt: part.amt, rate: table[part.name] });
+    }
+    return held;
+  }
 
   // The workbook was measured with every perk on. Its exploring rates for any
   // one location add up to 550 per AP - 500 finds plus 10% for Quandary
@@ -172,7 +220,6 @@
     switch (prefs.kind) {
       case "ap": return amount;
       case "lemonade": return m.drinks.apItems > 0 ? amount * m.drinks.lemonadeItems / m.drinks.apItems : 0;
-      case "cider": return m.drinks.apItems > 0 ? amount * m.drinks.ciderRolls / m.drinks.apItems : 0;
       case "largenet": return amount;
       case "fishingnet": return m.nets.lnCatch > 0 ? amount * m.nets.fnCatch / m.nets.lnCatch : 0;
       default: return 0;
@@ -181,14 +228,22 @@
 
   // How many explores or casts the pour buys. Only stamina answers this, and
   // only once the player has said what an action costs here.
+  function staminaSpent() {
+    const amount = Number(prefs.amount) || 0;
+    switch (prefs.kind) {
+      case "cider": return amount * ciderStamina();
+      case "oj": return amount * constant("oj_stamina", 100);
+      case "stamina": return amount;
+      default: return null;
+    }
+  }
+
   function actionsFor(place) {
     const amount = Number(prefs.amount) || 0;
     const per = staminaPer(place);
-    switch (prefs.kind) {
-      case "oj": return per > 0 ? amount * constant("oj_stamina", 100) / per : null;
-      case "stamina": return per > 0 ? amount / per : null;
-      default: return amount;
-    }
+    const stamina = staminaSpent();
+    if (stamina != null) return per > 0 ? stamina / per : null;
+    return amount;
   }
 
   // What one workbook unit is worth on this account, as a fraction of the
@@ -210,16 +265,22 @@
 
   function yields(place) {
     const rows = [];
+    let inChests = [];
     const finds = FINDS.has(prefs.kind);
     const unit = place.mode === "fishing" ? "Large Net" : "AP";
 
     if (finds) {
       if (!place.workbook) return { basis: "workbook", rows: [], missing: true };
       const units = unitsFor(place) * setupScale(place);
+      const held = containersIn(place.workbook);
       for (const [name, rate] of Object.entries(place.workbook)) {
         if (!(rate > 0)) continue;
-        rows.push({ name, expected: rate * units, rate: count(rate) + " per " + unit, known: true });
+        const inside = held.get(name);
+        const row = { name, expected: rate * units, rate: count(rate) + " per " + unit, known: true };
+        if (inside) { row.inside = inside.chest; row.per = inside.amt; inside.expected = row.expected; }
+        rows.push(row);
       }
+      inChests = [...held.entries()].map((entry) => Object.assign({ name: entry[0] }, entry[1]));
     } else {
       const actions = actionsFor(place);
       if (actions == null) return { basis: "logged", rows: [], blocked: true };
@@ -239,7 +300,12 @@
       Number(b.known) - Number(a.known) ||
       (b.expected || 0) - (a.expected || 0) ||
       a.name.localeCompare(b.name));
-    return { basis: finds ? "workbook" : "logged", rows, actions: finds ? null : rows.actions };
+    return {
+      basis: finds ? "workbook" : "logged",
+      rows: rows.filter((row) => !row.inside),
+      inChests,
+      actions: finds ? null : rows.actions,
+    };
   }
 
   // ---- what those items are worth to you ----------------------------------
@@ -275,33 +341,26 @@
     return row ? row[1] : "";
   }
 
-  // Which table answered, and what it assumes that this account may not.
-  // "Every perk on" is a number Setup already knows, so the gap is stated
-  // rather than left for the player to discover in the game.
+  // One short line saying where the numbers came from. The long version of
+  // this explained the workbook's internals and the player could not tell what
+  // it was for, which is fair — it was for me, not for them.
   function sourceNote() {
     const m = mods();
     if (FINDS.has(prefs.kind)) {
       const unit = prefs.mode === "fishing" ? "Large Net" : "Arnold Palmer";
       const mine = prefs.mode === "fishing" ? m.nets.lnCatch : m.drinks.apItems;
-      let text = "Drops per " + unit + ", measured in the shared Tower MM workbook. Its rates for a place add up to " +
-        (prefs.mode === "fishing"
-          ? "about 500 catches per Large Net"
-          : "about 550 per Arnold Palmer — 500 finds, plus 10% for Quandary Chowder") +
-        ", which is what makes scaling them sound. A few places come out higher, where rare chests and runestones land on top of the ordinary find.";
+      const verb = prefs.mode === "fishing" ? "catches " : "finds ";
       if (prefs.scaled && mine > 0 && mine !== WORKBOOK_FINDS) {
-        text += " Setup says yours " + (prefs.mode === "fishing" ? "catches " : "finds ") + whole(mine) +
-          ", so these are scaled to " + count(100 * mine / WORKBOOK_FINDS) + "% of what the workbook measured.";
-      } else if (!prefs.scaled && mine > 0 && mine !== WORKBOOK_FINDS) {
-        text += " Shown as measured, which is " + count(WORKBOOK_FINDS / mine) + "× what Setup says you would really pull.";
+        return "Rates per " + unit + " from the shared community workbook, which had every perk on. " +
+          "Setup says yours " + verb + whole(mine) + ", so these are " + count(100 * mine / WORKBOOK_FINDS) + "% of what it measured.";
       }
-      return text;
+      return "Rates per " + unit + " from the shared community workbook, which had every perk on.";
     }
     if (prefs.mode === "fishing") {
-      return "Casts per catch, from community logs — " + (byRod() ? "the rod table, which was logged separately from nets" : "the net table") + ".";
+      return byRod() ? "Rates from community logs of manual rod fishing." : "Rates from community logs.";
     }
-    return "Explores per drop, from community logs" +
-      (m.ironDepot ? " — the Iron Depot counts, since Setup says you own it" : "") +
-      ". Exploring spends stamina and an Arnold Palmer does not, so these are a different measurement from the workbook's, not a second opinion on it.";
+    return "Rates from community logs of ordinary exploring" +
+      (m.ironDepot ? ", counted with Iron Depot on since Setup says you own it" : "") + ".";
   }
   function controls() {
     const list = KINDS[prefs.mode] || [];
@@ -327,15 +386,25 @@
     "</div>";
   }
 
+  // Farm RPG calls this Exploring Effectiveness and prints it on the location
+  // page: "you are currently using N stamina every time you continue exploring
+  // this location." Protein Bars ("Increases exploring effectiveness"), Jill's
+  // paid service, Wanderer and Sprint Shoes ("Doubles Stamina Effectiveness /
+  // Stamina is used faster") all move it, and it differs per location, so the
+  // only correct value is the one the player reads off their own game.
   function effortRow(place) {
+    if (place.mode !== "explore") return "";
     const per = staminaPer(place);
-    const verb = place.mode === "fishing" ? "cast" : "explore";
     const oj = constant("oj_stamina", 100);
+    const cider = ciderStamina();
     const said = per > 0
-      ? whole(per) + " stamina each, so one Orange Juice (" + whole(oj) + " stamina) is worth about " + count(oj / per) + " " + verb + (oj / per === 1 ? "" : "s") + " here."
-      : "Farm RPG knows this one. Open the location and read <b>Exploring Effectiveness</b> — <i>you are currently using N stamina every time you continue exploring this location</i>. Protein Bars and perks move it, so the number is yours alone.";
+      ? "At " + whole(per) + " stamina an explore, one Orange Juice (" + whole(oj) + " stamina) is " +
+        count(oj / per) + " explores here, and one Apple Cider (" + whole(cider) + " stamina) is " +
+        count(cider / per) + "."
+      : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
+        "Protein Bars and Jill lower it, Sprint Shoes raise it, and it differs per place — so put in yours.";
     return '<div class="places-effort">' +
-      "<label><span>Stamina per " + verb + " here</span>" +
+      "<label><span>Effectiveness</span>" +
       '<input type="number" min="0" step="1" inputmode="numeric" data-effort="' + esc(effortKey(place)) + '" value="' + (per > 0 ? per : "") + '" placeholder="—"></label>' +
       "<p>" + said + "</p></div>";
   }
@@ -362,6 +431,29 @@
     return '<div class="places-scroll"><table class="places-table"><thead><tr><th>Item</th>' +
       '<th class="num">You would get</th><th class="rate">Rate</th>' +
       '<th class="tags">Also wanted for</th></tr></thead><tbody>' + body + "</tbody></table></div>";
+  }
+
+  // Shown under the drop table, not in it: these arrive inside a chest you
+  // found, so listing them as drops of the place would misread how you get them.
+  function chestMarkup(result) {
+    const held = (result.inChests || []).filter((row) => row.expected > 0);
+    if (!held.length) return "";
+    const byChest = new Map();
+    for (const row of held) {
+      if (!byChest.has(row.chest)) byChest.set(row.chest, []);
+      byChest.get(row.chest).push(row);
+    }
+    const blocks = [...byChest.entries()].map((entry) => {
+      const items = entry[1].sort((a, b) => b.expected - a.expected).map((row) => {
+        const art = ART.urlFor(row.name);
+        return '<span class="places-inchest-item">' +
+          (art ? '<img src="' + esc(art) + '" alt="" width="20" height="20" loading="lazy">' : "") +
+          "<b>" + count(row.expected) + "</b> " + esc(row.name) + "</span>";
+      }).join("");
+      return '<div class="places-inchest-row"><strong>' + esc(entry[0]) + "</strong>" + items + "</div>";
+    }).join("");
+    return '<div class="places-inchest"><h4>And inside those chests</h4>' + blocks +
+      "<p>Not drops of this place — you find the chest, and these are what it holds.</p></div>";
   }
 
   function sellValue(result) {
@@ -398,11 +490,13 @@
       const preview = blocked
         ? '<span class="places-preview blocked">Say what an ' + (place.mode === "fishing" ? "cast" : "explore") + " costs here and this fills in.</span>"
         : '<span class="places-preview">' + (result.rows.slice(0, 3).map((row) =>
-            "<b>" + count(row.expected || 0) + "</b> " + esc(row.name)).join(" · ") || "nothing recorded here") + "</span>";
+            "<b>" + count(row.expected || 0) + "</b> " + esc(row.name)).join(" · ") ||
+            (missing ? "no per-" + (place.mode === "fishing" ? "net" : "Arnold Palmer") + " rates for this place" : "nothing recorded here")) + "</span>";
       const found = !want ? ""
         : (entry.hit && entry.hit.expected != null
           ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
           : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
+      const spent = staminaSpent();
       const silver = blocked ? 0 : sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
       // An Arnold Palmer finds items without spending stamina, so a drink pour
@@ -410,13 +504,27 @@
       const line = blocked
         ? "Nothing to work out until that number is in."
         : missing
-          ? "Nothing recorded for " + esc(place.name) + " in that table yet."
+          // Falling back to the explore rates here would be the very error
+          // KNOWN_MISTAKES.md warns about, so say what would work instead.
+          ? "Nobody has measured " + esc(place.name) + " per " +
+            (place.mode === "fishing" ? "net" : "Arnold Palmer") + "." +
+            (Object.keys(denomTable(place)).length
+              ? " Its ordinary " + (place.mode === "fishing" ? "casts" : "explores") +
+                " are logged though — switch what you are spending to see those."
+              : "")
           : result.basis === "workbook"
             ? amount + " " + esc(label) + " here" + worth + "."
             : (prefs.kind === "explores" || prefs.kind === "casts")
               // Saying "1,000 casts is 1,000 catches" tells nobody anything.
               ? amount + " " + esc(label) + " here" + worth + "."
-              : amount + " " + esc(label) + " is <b>" + whole(result.actions) + "</b> " + noun + " here" + worth + ".";
+              : amount + " " + esc(label) + " is " +
+                // Cider and Orange Juice are stamina in another shape, so say
+                // how much stamina it actually is before saying what it buys.
+                (spent != null && prefs.kind !== "stamina"
+                  ? "<b>" + whole(spent) + "</b> stamina — " : "") +
+                "<b>" + whole(result.actions) + "</b> " + noun + " here" +
+                (staminaPer(place) > 0 && spent != null ? " at " + whole(staminaPer(place)) + " each" : "") +
+                worth + ".";
       return '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
         '<span class="places-art">' + (place.image ? '<img src="' + esc(place.image) + '?v=20260905-1" alt="" width="52" height="52" loading="lazy">' : "") + "</span>" +
         '<span class="places-headline"><strong>' + esc(place.name) + "</strong>" + preview + "</span>" +
@@ -426,6 +534,7 @@
       '<div class="places-detail">' + effortRow(place) +
         '<p class="places-actions">' + line + "</p>" +
         (blocked || missing ? "" : rowsMarkup(result, quests, tower)) +
+        (blocked || missing ? "" : chestMarkup(result)) +
         (place.buddyUrl ? '<p class="places-source"><a href="' + esc(place.buddyUrl) + '" target="_blank" rel="noopener">Open ' + esc(place.name) + " on Buddy's Almanac</a></p>" : "") +
       "</div></details>";
     }).join("");
