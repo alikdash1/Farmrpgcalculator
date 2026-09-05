@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="v3.css?v=20260905-102">
   <link rel="stylesheet" href="tower.css?v=20260905-102">
   <link rel="stylesheet" href="mining.css?v=20260905-1">
+  <link rel="stylesheet" href="locations.css?v=20260905-9">
   <link rel="stylesheet" href="quests.css?v=20260905-102">
   <link rel="stylesheet" href="inventory.css?v=20260905-102">
   <link rel="stylesheet" href="tracker.css?v=20260905-12">
@@ -30,6 +31,7 @@
       <button class="tab" data-tab="quests">Quests</button>
       <button class="tab" data-tab="inventory">Inventory</button>
       <button class="tab" data-tab="mining">Mining</button>
+      <button class="tab" data-tab="places">Places</button>
           </nav>
     <button id="exportPlan" class="quiet-button">Export plan</button>
   </header>
@@ -61,6 +63,7 @@
         <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Your Mega Masteries, and what every floor from T300 to T340 requires.</p><span class="drawer-action">Open Tower ledger →</span></button>
         <button class="desk-drawer" data-open-view="quests"><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="mining"><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
+        <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour a thousand Arnold Palmers into a spot and see what comes back out.</p><span class="drawer-action">Open places →</span></button>
       </section>
       <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
 
@@ -261,6 +264,15 @@
 
       <section id="mineGrid" class="mine-list" aria-label="Mines"></section>
     </section>
+
+    <section id="places" class="view">
+      <section class="page-intro">
+        <h1>Where you spend it</h1>
+        <p>Every place you can explore or fish. Say what you are about to pour in, and each one tells you what comes back.</p>
+      </section>
+
+      <section id="placesBody" aria-label="Explore and fishing locations"></section>
+    </section>
     <section id="fieldlab" class="view">
       <section class="page-intro"><h1>Field notes</h1><p>Keep account-specific tests separate from universal game facts.</p></section>
 
@@ -305,6 +317,7 @@
   <script src="data/new-items.js?v=20260831-1"></script>
   <script src="data/mining-capture-items.js?v=20260901-3"></script>
   <script src="data/workbook-rates.js?v=20260903-1"></script>
+  <script src="data/location-rates.js?v=20260905-1"></script>
   <script src="data/tradeable.js?v=20260903-1"></script>
   <script src="collectors/account-importer/shared/numbers.js?v=20260904-1"></script>
   <script src="collectors/account-importer/shared/sanitize.js?v=20260904-1"></script>
@@ -314,8 +327,9 @@
   <script src="engine.js?v=20260904-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260905-108"></script>
+  <script src="app.js?v=20260905-110"></script>
   <script src="mining-page.js?v=20260905-1"></script>
+  <script src="locations-page.js?v=20260905-10"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260905-6"></script>
   <script src="inventory-page.js?v=20260905-9"></script>

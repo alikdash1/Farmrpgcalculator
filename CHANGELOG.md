@@ -5,6 +5,46 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-05 (later) — Places: what a pour actually returns
+
+The user: *"add the locations where i can explore and fish ... add Exploring
+Effectiveness ... to each one of them so everyone can edit them to their own
+effectiveness ... if i want to pour 1k arnold palmer there what do i get in
+return"*, then *"or 2k 3k ... even for the fishing"*.
+
+- New **Places** tab. Every explore and fishing location, with what it drops
+  and what a stated pour returns: Arnold Palmers, Lemonades, Apple Ciders,
+  Orange Juices, raw stamina or plain explores; Large Nets, Fishing Nets,
+  rod casts or stamina for fishing. Each currency converts to actions through
+  Setup's own numbers, so ticking Lemon Squeezer changes the answer here too
+  (`window.FRPG_MODS`, exposed from app.js).
+- **Exploring Effectiveness is typed in, per location.** Farm RPG prints it
+  on the location page and Protein Bars and perks move it, so there is no
+  right value to default to. Without it, the stamina and Orange Juice options
+  refuse to answer rather than invent a cost. Stored per location in
+  `frpg_location_effort_v1`.
+- **Both rate sets are shown side by side, never averaged.** The shared Tower
+  MM workbook is *drops per Arnold Palmer*; `data/data.js` is *explores per
+  drop* from community logs. They disagree by roughly 12x on exploring. But
+  not randomly: multiply one by the other and every item at a location lands
+  near the same figure (~1,700-2,400), which the page states as "one Arnold
+  Palmer does the work of about N explores here" and labels as measured off
+  the two tables rather than stated by the game. On fishing the gap is about
+  2x and is explained: the workbook assumes a 500-catch Large Net and Setup
+  may have yours at 250. The page now says so.
+- Fishing reads the table that matches how you fish — `manual_fish_rates` for
+  the rod, `drop_rates` for nets. Using one for both double-counts.
+- New `data/location-rates.js` (+ `tools/build-location-rates.py`): the
+  `iron_depot_rates` that `build-data.mjs` was discarding. Used only when
+  Setup says the player owns Iron Depot. 158 of 159 comparable pairs get
+  better, as they should.
+- Every row is scored against what you still need: the tracked questline's
+  shortfall and the lowest unfinished Tower floor, with an "Only what I still
+  need" filter and an item search that re-ranks the locations. "Where do I
+  pour 1k AP for Ancient Coin" answers Ember Lagoon, 26k.
+- 98 tests pass; `handoff.mjs check` clean; verified in a real browser at
+  1180px and 375px with no console errors.
+
 ## 2026-09-04 — Inventory questline planner and shared item art
 
 - Added a dedicated Inventory tab with a searchable owned-item list, questline

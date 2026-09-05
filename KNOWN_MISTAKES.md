@@ -107,6 +107,20 @@ code, re-run the named test.
   Farming can win on masteries, quest reserves, sellable co-drops, or
   reduced inventory voiding. Don't collapse the decision to "cheapest single
   item price wins" — see `docs/FARM_RPG_PLAYER_SKILL_BLUEPRINT.md`.
+- **`data/data.js` is no longer purely generated. Do not re-run
+  `tools/build-data.mjs` casually.** It carries hand-added values that are not
+  in `raw/`: the `mushroom_mastery_bonus` constant and the Glass Bottle route
+  rule. Regenerating silently deletes both — confirmed 2026-09-05 by running it
+  and diffing the parsed JSON, which is the only way to see it (the file is
+  three enormous lines, so `git diff` shows nothing useful). If you need
+  something new out of `raw/`, write a separate small file the way
+  `tools/build-location-rates.py` does.
+- **`style.css` sets a bare `table { min-width: 1050px }`** for the Calculate
+  page's decision table. It is an element selector, so it silently applies to
+  every table anyone adds anywhere on the site, and it pushed the Places yield
+  table to three times its card width on a phone. Any new table needs its own
+  `min-width: 0`. Test: `the yield table survives the site-wide table
+  min-width` (places.test.mjs).
 - **Some Buddy.farm-listed location drops are event-only**, not always
   farmable, but earlier data pulls didn't distinguish this. Flag/verify
   event-only status before listing a drop as a normal route.
@@ -192,10 +206,17 @@ were never in conflict — they measure different actions. Do not try to convert
 between them.
 
 How the units were confirmed, if this ever needs re-checking:
-- Every fishing location's rates sum to **exactly 500** per Large Net.
-- Every exploring location's rates sum to **550** per AP = 500 x 1.1, so the
-  workbook's exploring figures assume **Quandary Chowder is active**. Back that
-  out for a player who does not have it.
+- Fishing locations' rates sum to **500** per Large Net; exploring locations'
+  to **550** per AP = 500 x 1.1, so the workbook's exploring figures assume
+  **Quandary Chowder is active**. Back that out for a player who does not
+  have it.
+- Refined 2026-09-05 while building Places: those totals are a **floor, not an
+  identity**. Nine of thirteen fishing locations sit on 500.00 and eight of
+  thirteen exploring ones on 550.00; the rest only ever come out *high* (Ember
+  Lagoon 606, Sinking Swamp 605, Small Cave 581, Forest Pond 543), which is
+  what rare chests and runestones landing on top of the ordinary find looks
+  like. A total *below* the floor would mean the unit had changed. Test: `the
+  workbook is scaled to this account, in its own unit` (places.test.mjs).
 - Cross-check that the method is sound: converting the workbook's *fishing*
   rates the same way reproduces the site's existing numbers almost exactly
   (Small Pond Drum 2.10 casts vs 2.09; median agreement 0.92 over 117 pairs).

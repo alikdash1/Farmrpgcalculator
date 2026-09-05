@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.dusk8";
+  const FRPG_BUILD = "2026-09-05.dusk10";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -205,6 +205,9 @@
     if (measured > 0) base.exploreStaminaPer = c("explore_base_stamina", 1) * measured;
     return base;
   }
+  // Places reads the same resolved perk numbers, so ticking Lemon Squeezer
+  // in Setup changes what an Arnold Palmer is worth there too.
+  window.FRPG_MODS = mods;
   function save() {
     localStorage.setItem("frpg_owned", JSON.stringify(state.owned));
     localStorage.setItem("frpg_effects_v2", JSON.stringify([...state.enabled]));
@@ -247,6 +250,7 @@
     if (id === "tower") renderTower();
     if (id === "home") renderHome();
     if (id === "library") renderLibrary();
+    if (id === "places" && window.FRPG_renderPlaces) window.FRPG_renderPlaces();
     if (history && history.pushState) {
       const target = "#" + id;
       if (fromHistory) history.replaceState(null, "", target);
