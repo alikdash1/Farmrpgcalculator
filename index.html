@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="mining.css?v=20260905-102">
   <link rel="stylesheet" href="quests.css?v=20260905-102">
   <link rel="stylesheet" href="inventory.css?v=20260905-102">
-  <link rel="stylesheet" href="tracker.css?v=20260905-102">
+  <link rel="stylesheet" href="tracker.css?v=20260905-8">
   <link rel="stylesheet" href="system.css?v=20260905-102">
 </head>
 <body>
@@ -250,28 +250,6 @@
         <div class="inventory-toolbar"><label class="inventory-search"><span>Find an item</span><input id="inventorySearch" name="inventory-search" type="search" autocomplete="off" placeholder="Item name…"></label></div>
         <div id="inventoryOwned" class="inventory-owned"></div>
       </section>
-      <section id="inventoryDouble" class="inventory-double" hidden>
-        <header class="inventory-section-heading">
-          <div><h2>Counts twice</h2><p>Items this questline needs that also finish a Tower mastery you have not reached.</p></div>
-          <div id="inventoryDoubleSummary" class="inventory-summary" aria-live="polite"></div>
-        </header>
-        <div id="inventoryDoubleRows" class="inventory-double-rows"></div>
-      </section>
-
-      <header class="inventory-plan-heading"><h2>What to gather</h2><p>The next step stays focused; the full list shows the entire remaining commitment.</p></header>
-      <section class="inventory-panels">
-        <article class="inventory-panel" aria-label="Next quest"><span class="scope-label">Next quest</span><div id="inventoryNext"></div></article>
-        <article class="inventory-panel" aria-label="Whole questline"><span class="scope-label">Whole questline</span><div id="inventoryWhole"></div></article>
-      </section>
-      <div id="inventoryOverlay" class="inventory-overlay" role="dialog" aria-modal="true" aria-labelledby="inventoryOverlayTitle" hidden>
-        <header class="inventory-overlay-head">
-          <div><h2 id="inventoryOverlayTitle"></h2><p id="inventoryOverlayMeta"></p></div>
-          <button id="inventoryOverlayClose" class="inventory-overlay-close" type="button">Close</button>
-        </header>
-        <div class="inventory-overlay-body">
-          <div id="inventoryOverlayBody"></div>
-        </div>
-      </div>
     </section>
 
     <section id="mining" class="view">
@@ -336,12 +314,12 @@
   <script src="engine.js?v=20260904-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260905-104"></script>
+  <script src="app.js?v=20260905-105"></script>
   <script src="mining-page.js?v=20260904-1"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260905-6"></script>
-  <script src="inventory-page.js?v=20260905-8"></script>
-  <script src="tracker.js?v=20260905-7"></script>
+  <script src="inventory-page.js?v=20260905-9"></script>
+  <script src="tracker.js?v=20260905-8"></script>
   <script src="sync-guide.js?v=20260904-2"></script>
 </body>
 </html>

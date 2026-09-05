@@ -22,16 +22,15 @@ Claim a task by adding a row before you start. Clear it when merged.
   it into one, in prerequisite order. 33 steps, 2 done, **31 left — a third of
   everything the player has remaining.** Step XXIX is known only from a
   community sheet and is flagged `pending`.
-- **Gather planning.** `gather-model.js` owns the arithmetic; the Inventory
-  tab and the tracker both read it. `whereFor()` says how an item is obtained
-  from the engine index `app.js` publishes as `window.FRPG_INDEX` — **for a
-  meal, `growMin` is the cooking time, so meals must test before crops**.
-  `towerOverlap()` finds the items a tracked questline needs that also finish
-  an unfinished Tower mastery, off `window.FRPG_TOWER_NEEDS`; that is the
-  "Counts twice" section, and for the pirate saga it is 39 items, 18 of them
-  needing only Grand Mastery. The tracker is two docked panels, current step
-  bottom-left, whole line bottom-right; the right one opens across the page,
-  dense, filterable, with Copy list, and steps aside on the Inventory tab.
+- **Gather planning.** `gather-model.js` owns the arithmetic. The **Inventory
+  tab is only what you hold** — the gather lists live in the floating tracker,
+  which is on every tab. Two docked panels: current step bottom-left, whole
+  line bottom-right; the right one opens to about half the screen (1020px),
+  dense, filterable, with Copy list. `whereFor()` says how an item is obtained
+  — **for a meal, `growMin` is the cooking time, so meals test before crops**.
+  `towerOverlap()` finds items a questline needs that also finish an unfinished
+  Tower mastery; it is surfaced on the Home page ("Counts twice", 39 items for
+  the pirate saga, 18 needing only Grand Mastery).
 - **Item art.** `data/item-library.js` holds the **complete** Farm RPG item
   list, 1,449 names with artwork, taken from buddy.farm's own search index
   (`https://buddy.farm/search.json`). `item-art.js` merges it under the more

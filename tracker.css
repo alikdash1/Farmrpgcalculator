@@ -99,11 +99,19 @@
   /* Covering the page means clearing the sticky masthead at z-index 80 —
      otherwise the site nav prints over the tracker's own close button. */
   z-index: 90;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
-  top: 12px;
-  width: auto;
+  /* Sized to its contents, not to the screen. Stretched to full width every
+     row had a hand's width of nothing between the item and its number. */
+  left: 50%;
+  right: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  /* A definite, modest width. max-content cannot resolve against a grid whose
+     column count depends on its own height, and resolved to the full screen. */
+  width: min(1020px, calc(100vw - 24px));
+  /* A definite height, not just a maximum: the row track uses auto-fill, and
+     with only a max-height the grid collapsed to a single row per column. */
+  height: min(78vh, 820px);
   max-height: none;
 }
 /* Denser when open. Two hundred rows at panel size is a wall; at this size the
@@ -112,18 +120,23 @@
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(auto-fill, minmax(18px, 1fr));
-  grid-auto-columns: minmax(178px, 1fr);
-  gap: 0 16px;
+  /* Content-width columns: a stretched column puts the number a long way from
+     the name it belongs to, which is the hardest version of this to read. */
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0 18px;
   padding: 6px 12px 10px;
   overflow: auto;
   font-size: 11px;
 }
 .quest-tracker.is-big .tracker-list li {
-  grid-template-columns: 16px minmax(0, 1fr) auto;
+  grid-template-columns: 16px auto auto;
   gap: 6px;
   padding: 1px 3px 1px 0;
   border-top: 0;
 }
+/* The number sits just past the longest name in its own column, not at the
+   far edge of the screen. */
+.quest-tracker.is-big .tracker-list li b { min-width: 44px; }
 .quest-tracker.is-big .tracker-list img { width: 16px; height: 16px; }
 .quest-tracker.is-big .tracker-noart { width: 16px; }
 .quest-tracker.is-big .tracker-list b { font-size: 10.5px; }

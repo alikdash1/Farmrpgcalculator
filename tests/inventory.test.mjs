@@ -60,21 +60,6 @@ test("the shared art helper uses base art first, then verified supplemental art,
   assert.deepEqual(towerItems.filter((name) => !helper.urlFor(name)), []);
 });
 
-test("Inventory is a separate responsive page with both live refresh paths and tracking controls", () => {
-  const html = read("index.html");
-  const source = read("inventory-page.js");
-  const css = read("inventory.css");
-  assert.match(html, /data-tab="inventory"/);
-  assert.match(html, /id="inventoryNext"/);
-  assert.match(html, /id="inventoryWhole"/);
-  assert.match(read("gather-model.js"), /frpg_owned/);
-  assert.match(read("gather-model.js"), /frpg_tracked_line/);
-  assert.match(source, /window\.addEventListener\("storage", render\)/);
-  assert.match(source, /source === "farmrpg-account-sync"/);
-  assert.match(read("quests-page.js"), /data-track-line/);
-  assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.inventory-panels \{ grid-template-columns: 1fr; \}/);
-});
-
 test("every local script and link in index.html is cache-busted and model scripts load before pages", () => {
   const html = read("index.html");
   for (const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"[^>]*>/g)) {
@@ -85,28 +70,6 @@ test("every local script and link in index.html is cache-busted and model script
   assert.ok(html.indexOf("quest-model.js") < html.indexOf("quests-page.js"));
   assert.ok(html.indexOf("quest-model.js") < html.indexOf("inventory-page.js"));
   assert.ok(html.indexOf("item-art.js?v=20260904-1") < html.indexOf("app.js"));
-});
-
-test("the requirement lists are not trapped in inner scroll boxes", () => {
-  const css = read("inventory.css");
-  // 189 items in half a column behind a 62vh scroller showed about nine rows.
-  assert.doesNotMatch(css, /\.inventory-requirements \{[^}]*max-height/);
-  // Names were clipped to "Amethyst …"; they wrap now.
-  assert.doesNotMatch(css, /\.inventory-item-link b \{[^}]*white-space: nowrap/);
-});
-
-test("the whole questline can be opened across the full screen", () => {
-  const html = read("index.html");
-  const css = read("inventory.css");
-  const source = read("inventory-page.js");
-  assert.match(html, /id="inventoryOverlay"/);
-  assert.match(html, /id="inventoryOverlayClose"/);
-  assert.match(source, /data-expand-whole/);
-  assert.match(source, /Escape/);           // closes on Esc
-  assert.match(source, /inventory-wide-row/);
-  // The masthead is sticky at 80; the overlay has to clear it.
-  const z = css.match(/\.inventory-overlay \{[\s\S]*?z-index: (\d+)/);
-  assert.ok(z && Number(z[1]) > 80, "the overlay sits above the sticky masthead");
 });
 
 test("a freshly captured inventory shows without pressing Apply", () => {
@@ -145,4 +108,21 @@ test("a half-cached mix of files degrades instead of blanking the page", () => {
   assert.match(page, /in your inventory/);
   assert.match(read("app.js"), /const FRPG_BUILD = "/);
   assert.match(read("app.js"), /build-stamp/);
+});
+
+test("the Inventory tab is only what you hold", () => {
+  const html = read("index.html");
+  const source = read("inventory-page.js");
+  assert.match(html, /data-tab="inventory"/);
+  assert.match(html, /id="inventoryOwned"/);
+  // The gather lists live in the floating tracker; having both meant reading
+  // the same two lists twice on one page.
+  for (const gone of ["inventoryNext", "inventoryWhole", "inventoryDouble", "inventoryOverlay"]) {
+    assert.doesNotMatch(html, new RegExp(`id="${gone}"`), `${gone} is gone`);
+    assert.doesNotMatch(source, new RegExp(gone), `${gone} is not referenced`);
+  }
+  // It still refreshes from every live path.
+  assert.match(source, /window\.addEventListener\("storage", render\)/);
+  assert.match(source, /source === "farmrpg-account-sync"/);
+  assert.match(read("quests-page.js"), /data-track-line/);
 });

@@ -102,8 +102,8 @@ test("dismissing the tracker is never a dead end", () => {
   // ✕ set a flag with no way back, so a later Track press showed nothing
   // anywhere and looked like tracking was broken.
   assert.match(quests, /localStorage\.setItem\("frpg_tracker_hidden", "0"\)/);
-  assert.match(page, /data-show-tracker/);
-  assert.match(page, /FRPG_showTracker/);
+  // Restoring it lives on the Quests tab now: tracking anything un-hides it.
+  assert.match(quests, /frpg_tracker_hidden/);
 });
 
 test("tracker rows open the item, and Escape closes the expanded list", () => {
@@ -154,14 +154,6 @@ test("gather lists say where an item comes from", () => {
   assert.match(page, /function sourceHint\(name\)/);
 });
 
-test("the tracker steps aside on the tab that already shows both lists", () => {
-  const js = read("tracker.js");
-  // Floating the same two panels over the Inventory tab only covers the page
-  // it duplicates — unless the expanded view is deliberately open.
-  assert.match(js, /getElementById\("inventory"\)\?\.classList\.contains\("active"\)/);
-  assert.match(js, /onInventory && !panels\.whole\.classList\.contains\("is-big"\)/);
-});
-
 test("a phone gets one panel with a switch, not two stacked", () => {
   const js = read("tracker.js");
   const css = read("tracker.css");
@@ -173,4 +165,14 @@ test("a phone gets one panel with a switch, not two stacked", () => {
   // And it re-renders if the screen changes shape.
   assert.match(js, /narrow\.addEventListener\("change", render\)/);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.quest-tracker\.is-next \{ left: 8px/);
+});
+
+test("the expanded list is about half the screen, not all of it", () => {
+  const css = read("tracker.css");
+  // Stretched to the full width, every row had a hand's width of nothing
+  // between the item and its number.
+  assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?width: min\(1020px, calc\(100vw - 24px\)\)/);
+  // A definite height, because the row track uses auto-fill: with only a
+  // max-height the grid collapsed to one row per column.
+  assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?height: min\(78vh, 820px\)/);
 });

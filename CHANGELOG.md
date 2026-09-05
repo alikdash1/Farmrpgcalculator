@@ -829,3 +829,22 @@ wins now.
 
 Swept all eight tabs with junk-laden data: zero placeholders, zero description
 rows, zero broken images.
+
+## 2026-09-05 — The Inventory tab is only your inventory
+
+The tab carried three things the floating tracker already showed: "Counts
+twice", "Next quest" and "Whole questline". Reading the same two lists twice on
+one page is worse than reading them once, so the tab is now what you hold, a
+search box, and a line saying what is being tracked. The tracker consequently
+shows on that tab again, and the double-duty count still appears on Home.
+
+The expanded whole-line view is **1020px — about half a 1900px screen** —
+rather than the full width. Stretched edge to edge, every row had roughly 67px
+of nothing between the item and its number; the median gap is now 6px, with all
+189 rows still visible in six columns without scrolling.
+
+Two CSS traps found doing it, both recorded because neither is obvious:
+`width: max-content` cannot resolve against a grid whose column count depends
+on its own height — it resolved to the full screen. And `auto-fill` row tracks
+need a **definite** height, not a maximum, or the grid collapses to one row per
+column.
