@@ -878,3 +878,25 @@ The column count is measured rather than guessed. Content-sized columns come
 out wider than any estimate — a first attempt at 196px each still ran off the
 side — so `fitColumns()` sets a row count, measures, and steps down a column at
 a time until it genuinely fits.
+
+## 2026-09-05 — The expanded list sizes itself to what is in it
+
+A 53-item questline was being shown in a box built for 189, with half of it
+empty. The panel now picks a column count that balances toward a square, sets
+the rows, measures, and shrinks onto its contents — staying anchored to its
+right-hand dock throughout.
+
+| Questline | Items | Box | Columns |
+|---|---|---|---|
+| Problems Start Arising | 189 | 908 × 741 | 4 |
+| Daily Dairy | 53 | 621 × 624 | 3 |
+| Banana Stand | 4 | 280 × 260 | 1 |
+
+Three measurement traps, all of which produced a wrong box before being found:
+`scrollWidth` reports the padding box when nothing overflows, so it measured
+the panel being shrunk rather than the content — the width has to come from
+where the last column actually ends. Content-sized columns come out wider than
+any estimate, so the column count is stepped down until a measurement agrees.
+And shrinking the box can bring on a vertical scrollbar that then takes width
+from the list and pushes the last column past the edge, so that width is given
+back once the final height is known.

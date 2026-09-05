@@ -187,4 +187,13 @@ test("the expanded list is about half the screen, not all of it", () => {
   const js = read("tracker.js");
   assert.match(js, /function fitColumns\(\)/);
   assert.match(js, /list\.scrollWidth > list\.clientWidth \+ 1/);
+  // The box is sized to what is in it: a 53-item questline was being shown in
+  // one built for 189, half of it empty.
+  assert.match(js, /Math\.ceil\(Math\.sqrt\(\(count \* ROW_PX\) \/ COL_PX\)\)/);
+  // scrollWidth reports the padding box when nothing overflows, so the width
+  // has to come from where the last column actually ends.
+  assert.match(js, /const rightmost = Math\.max\(\.\.\.\[\.\.\.list\.children\]/);
+  // Shrinking can bring on a scrollbar that then squeezes the last column out.
+  assert.match(js, /const gutter = list\.scrollWidth - list\.clientWidth;/);
+  assert.match(js, /function clearFit\(\)/);
 });

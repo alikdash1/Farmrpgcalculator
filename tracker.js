@@ -77,29 +77,70 @@
     `;
   }
 
-  // How many columns fit, and therefore how many rows each holds. CSS cannot
-  // work this out: grid-auto-flow: column keeps adding columns until it runs
-  // off the side, and auto-fill rows depend on a height that depends on the
-  // rows. Estimating the column width was not enough either — content-sized
-  // columns came out wider than the guess and still overflowed. So set a row
-  // count, measure, and step down until it genuinely fits.
+  // Size the expanded panel to what is actually in it. A 53-item questline was
+  // being shown in a box built for 189, with half of it empty. CSS cannot do
+  // this: grid-auto-flow: column keeps adding columns until it runs off the
+  // side, and auto-fill rows need a height that depends on the rows. So pick a
+  // column count, set the rows, measure, and fit the box to the result.
+  const ROW_PX = 22;
+  const COL_PX = 200;
+
   function fitColumns() {
-    const list = panels.whole.querySelector(".tracker-list");
-    if (!list || !panels.whole.classList.contains("is-big")) return;
+    const panel = panels.whole;
+    const list = panel.querySelector(".tracker-list");
+    if (!list || !panel.classList.contains("is-big")) return;
     const count = list.children.length;
     if (!count) return;
 
-    const setRows = (columns) => {
-      list.style.gridTemplateRows = `repeat(${Math.ceil(count / Math.max(1, columns))}, minmax(22px, max-content))`;
+    const maxWidth = Math.min(1020, window.innerWidth - 28);
+    const maxHeight = Math.min(window.innerHeight * 0.78, 820);
+    const chrome = panel.offsetHeight - list.offsetHeight;
+    const maxRows = Math.max(4, Math.floor((maxHeight - chrome) / ROW_PX));
+    const maxColumns = Math.max(1, Math.floor(maxWidth / COL_PX));
+
+    // A roughly square block reads better than a tall ribbon or a wide strip,
+    // so start from the shape that balances, then take enough columns to avoid
+    // scrolling if the height allows it, and never more than the width fits.
+    let columns = Math.ceil(Math.sqrt((count * ROW_PX) / COL_PX));
+    columns = Math.max(columns, Math.ceil(count / maxRows));
+    columns = Math.min(columns, maxColumns, count);
+
+    const applyColumns = (value) => {
+      list.style.gridTemplateRows = `repeat(${Math.ceil(count / Math.max(1, value))}, minmax(${ROW_PX}px, max-content))`;
     };
 
-    let columns = Math.max(1, Math.floor(list.clientWidth / 190));
-    setRows(columns);
-    // A handful of passes at most; each one removes a column.
+    panel.style.width = maxWidth + "px";
+    panel.style.height = "auto";
+    applyColumns(columns);
+    // Content-sized columns come out wider than any estimate, so step down
+    // until the measurement says it genuinely fits rather than trusting it.
     for (let guard = 0; guard < 8 && columns > 1 && list.scrollWidth > list.clientWidth + 1; guard += 1) {
       columns -= 1;
-      setRows(columns);
+      applyColumns(columns);
     }
+
+    // Now shrink the box onto its contents. scrollWidth is no use here: with
+    // nothing overflowing it reports the padding box, which is the panel we are
+    // trying to shrink. Measure where the last column actually ends.
+    const listBox = list.getBoundingClientRect();
+    const padding = parseFloat(getComputedStyle(list).paddingRight || 0);
+    const rightmost = Math.max(...[...list.children].map((row) => row.getBoundingClientRect().right));
+    const contentWidth = (rightmost - listBox.left) + padding + (panel.offsetWidth - list.offsetWidth);
+    panel.style.width = Math.min(maxWidth, Math.max(280, Math.ceil(contentWidth))) + "px";
+    panel.style.height = Math.min(maxHeight, Math.ceil(panel.scrollHeight)) + "px";
+
+    // Shrinking the box can bring on a vertical scrollbar, which then takes
+    // width from the list and pushes the last column past the edge. Give that
+    // width back, once, now that the final height is known.
+    const gutter = list.scrollWidth - list.clientWidth;
+    if (gutter > 0) {
+      panel.style.width = Math.min(maxWidth, panel.offsetWidth + gutter) + "px";
+    }
+  }
+
+  function clearFit() {
+    panels.whole.style.width = "";
+    panels.whole.style.height = "";
   }
 
   function render() {
@@ -153,6 +194,7 @@
       canExpand: true,
     });
     if (big) fitColumns();
+    else clearFit();
   }
 
   function openItem(node) {

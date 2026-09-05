@@ -110,10 +110,13 @@
   transform: translateY(-50%);
   /* A definite, modest width. max-content cannot resolve against a grid whose
      column count depends on its own height, and resolved to the full screen. */
+  /* Starting size only — tracker.js measures and shrinks this onto the
+     contents, so a short questline gets a small box, not an empty big one. */
   width: min(1020px, calc(100vw - 24px));
   /* A definite height, not just a maximum: the row track uses auto-fill, and
      with only a max-height the grid collapsed to a single row per column. */
   height: min(78vh, 820px);
+  max-width: min(1020px, calc(100vw - 24px));
   max-height: none;
 }
 /* Denser when open. Two hundred rows at panel size is a wall; at this size the
