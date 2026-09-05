@@ -33,3 +33,18 @@ test("corrected mine assignments do not regress to the old community map", () =>
 });
 
 
+
+test("one mine reads in about a screen, not four", () => {
+  const source = fs.readFileSync(new URL("../mining-page.js", import.meta.url), "utf8");
+  const css = fs.readFileSync(new URL("../mining.css", import.meta.url), "utf8");
+  // Each drop nested its crafts, and those nested theirs, so the same recipe
+  // appeared several times and Spring Cave ran to 3.44 screens. Drops are a
+  // chip grid at the top; the crafts they reach are one de-duplicated grid.
+  assert.match(source, /const crafts = \[\];/);
+  assert.match(source, /if \(!name \|\| drops\.has\(name\) \|\| seen\.has\(name\)\) return;/);
+  assert.match(source, /What it drops/);
+  assert.match(source, /What those drops make/);
+  assert.match(css, /\.mine-crafts \{[\s\S]*?grid-template-columns: repeat\(auto-fill/);
+  // The nested "goes into" block is what made it long; it is gone.
+  assert.doesNotMatch(source, /mine-onward/);
+});

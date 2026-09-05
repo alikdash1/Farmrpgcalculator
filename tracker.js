@@ -77,6 +77,31 @@
     `;
   }
 
+  // How many columns fit, and therefore how many rows each holds. CSS cannot
+  // work this out: grid-auto-flow: column keeps adding columns until it runs
+  // off the side, and auto-fill rows depend on a height that depends on the
+  // rows. Estimating the column width was not enough either — content-sized
+  // columns came out wider than the guess and still overflowed. So set a row
+  // count, measure, and step down until it genuinely fits.
+  function fitColumns() {
+    const list = panels.whole.querySelector(".tracker-list");
+    if (!list || !panels.whole.classList.contains("is-big")) return;
+    const count = list.children.length;
+    if (!count) return;
+
+    const setRows = (columns) => {
+      list.style.gridTemplateRows = `repeat(${Math.ceil(count / Math.max(1, columns))}, minmax(22px, max-content))`;
+    };
+
+    let columns = Math.max(1, Math.floor(list.clientWidth / 190));
+    setRows(columns);
+    // A handful of passes at most; each one removes a column.
+    for (let guard = 0; guard < 8 && columns > 1 && list.scrollWidth > list.clientWidth + 1; guard += 1) {
+      columns -= 1;
+      setRows(columns);
+    }
+  }
+
   function render() {
     if (read("frpg_tracker_hidden", "") === "1") {
       for (const panel of Object.values(panels)) panel.hidden = true;
@@ -127,6 +152,7 @@
       big,
       canExpand: true,
     });
+    if (big) fitColumns();
   }
 
   function openItem(node) {
@@ -214,6 +240,7 @@
   }
 
   narrow.addEventListener("change", render);
+  window.addEventListener("resize", fitColumns);
   window.addEventListener("frpg:tracked-line", render);
   window.addEventListener("storage", render);
   window.addEventListener("message", (event) => {

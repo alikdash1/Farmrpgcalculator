@@ -133,8 +133,11 @@ test("the expanded list is dense and filterable", () => {
   const css = read("tracker.css");
   // 189 rows at panel size reads as a wall; smaller rows and a filter make it
   // something you can take in.
-  assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?font-size: 11px/);
-  assert.match(css, /\.quest-tracker\.is-big \.tracker-list img \{ width: 16px/);
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?font-size: 12px/);
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list img \{ width: 22px/);
+  // Columns hug their contents, so a short name does not strand its number at
+  // the far edge of the column.
+  assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?grid-auto-columns: max-content/);
   assert.match(js, /data-filter/);
   assert.match(js, /matching/);
   // The filter belongs to the expanded view only.
@@ -179,4 +182,9 @@ test("the expanded list is about half the screen, not all of it", () => {
   // A definite height, because the row track uses auto-fill: with only a
   // max-height the grid collapsed to one row per column.
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?height: min\(78vh, 820px\)/);
+  // The column count is measured, not guessed: content-sized columns came out
+  // wider than any estimate and ran off the side of the panel.
+  const js = read("tracker.js");
+  assert.match(js, /function fitColumns\(\)/);
+  assert.match(js, /list\.scrollWidth > list\.clientWidth \+ 1/);
 });

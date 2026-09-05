@@ -121,27 +121,35 @@
 .quest-tracker.is-big .tracker-list {
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(auto-fill, minmax(18px, 1fr));
+  /* Row count is set by tracker.js once it can measure the panel. */
+  grid-template-rows: repeat(auto-fill, minmax(22px, max-content));
   /* Content-width columns: a stretched column puts the number a long way from
      the name it belongs to, which is the hardest version of this to read. */
-  grid-auto-columns: minmax(0, 1fr);
-  gap: 0 18px;
-  padding: 6px 12px 10px;
+  /* Columns hug their own contents and pack from the left. Stretched to equal
+     widths, a short name left its number stranded at the far edge of the
+     column while a long one sat right beside it — the same list looked
+     differently aligned row to row. */
+  grid-auto-columns: max-content;
+  justify-content: start;
+  gap: 0 30px;
+  padding: 8px 14px 10px;
   overflow: auto;
-  font-size: 11px;
+  font-size: 12px;
 }
 .quest-tracker.is-big .tracker-list li {
-  grid-template-columns: 16px auto auto;
-  gap: 6px;
-  padding: 1px 3px 1px 0;
+  /* Art, then name, then the number: one straight line of pictures down the
+     left of each column and one of numbers down its right. */
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 2px 0;
   border-top: 0;
 }
 /* The number sits just past the longest name in its own column, not at the
    far edge of the screen. */
-.quest-tracker.is-big .tracker-list li b { min-width: 44px; }
-.quest-tracker.is-big .tracker-list img { width: 16px; height: 16px; }
-.quest-tracker.is-big .tracker-noart { width: 16px; }
-.quest-tracker.is-big .tracker-list b { font-size: 10.5px; }
+.quest-tracker.is-big .tracker-list li b { min-width: 52px; }
+.quest-tracker.is-big .tracker-list img { width: 22px; height: 22px; }
+.quest-tracker.is-big .tracker-noart { width: 22px; }
+.quest-tracker.is-big .tracker-list b { font-size: 11.5px; }
 
 /* Narrowing 189 rows beats scanning them. */
 .tracker-filter { padding: 8px 12px 4px; }

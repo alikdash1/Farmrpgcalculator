@@ -856,3 +856,25 @@ from the corner and the button you pressed, and covered the left of the page
 for no reason. It now stays anchored to the right-hand dock it grows out of —
 29px from the right edge, vertically centred — so the page stays readable
 beside it.
+
+## 2026-09-05 — One mine in a screen, and a gather list that lines up
+
+**Mining.** Each drop nested the crafts it feeds, and those nested theirs, so
+the same recipe was printed several times and one mine — Spring Cave — ran to
+**3.44 screens**. Drops are now a compact grid at the top, and every craft they
+reach is a single de-duplicated grid underneath, each card showing its inputs
+as chips with the one this mine drops marked. Same nine drops, same seventeen
+crafts, **1.15 screens**.
+
+**The expanded gather list.** Columns were equal-width, so a short name left
+its number stranded at the far edge while a long one sat right beside it — the
+same list looked differently aligned row to row. Columns now hug their contents
+and pack from the left: one straight line of pictures down each column, one
+line of numbers down its right, and a median gap of 8px. Item art is 22px
+rather than 16, and the text 12px, so a shorter questline gets bigger, more
+readable rows in the space it frees.
+
+The column count is measured rather than guessed. Content-sized columns come
+out wider than any estimate — a first attempt at 196px each still ran off the
+side — so `fitColumns()` sets a row count, measures, and steps down a column at
+a time until it genuinely fits.

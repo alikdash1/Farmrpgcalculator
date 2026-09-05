@@ -123,3 +123,38 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- One mine, readable in one screen -----------------------------------
+   Drops used to nest their crafts, and those crafts nested theirs, so the same
+   recipe appeared several times and a single mine ran for over three screens.
+   Drops are a chip grid at the top; every craft they reach is one
+   de-duplicated grid underneath. */
+.mine-body { display: grid; gap: 1.1rem; padding: .9rem 1rem 1.1rem; }
+.mine-section > h3 { display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .5rem; font-size: .82rem; }
+.mine-section > h3 small { color: var(--muted); font-size: .7rem; font-weight: 400; }
+
+.mine-drops { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .3rem .6rem; }
+.mine-drop { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: .45rem; align-items: center; }
+.mine-drop b, .mine-drop small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine-drop b { font-size: .78rem; }
+.mine-drop small { color: var(--muted); font-size: .66rem; }
+
+.mine-crafts { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: .5rem .9rem; align-items: start; }
+.mine-craft { min-width: 0; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 6px; }
+.mine-craft > header { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: .45rem; align-items: center; margin-bottom: .4rem; }
+.mine-craft > header b { display: block; font-size: .78rem; overflow-wrap: anywhere; }
+.mine-craft > header small { display: block; color: var(--muted); font-size: .64rem; }
+
+/* Ingredients as small chips. The one this mine actually drops is marked, so
+   you can see at a glance why the craft is listed here at all. */
+.mine-craft .mine-recipe { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .25rem; }
+.mine-craft .mine-recipe li { display: inline-flex; align-items: center; gap: .28rem; padding: .12rem .34rem .12rem .16rem; border: 1px solid var(--line); border-radius: 4px; font-size: .68rem; }
+.mine-craft .mine-recipe li.is-this { border-color: var(--green); }
+.mine-craft .mine-recipe li.is-this span { color: var(--green); }
+.mine-craft .mine-recipe .mine-art, .mine-craft .mine-recipe .mine-art img { width: 16px; height: 16px; }
+
+@media (max-width: 620px) {
+  .mine-drops { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .mine-crafts { grid-template-columns: 1fr; }
+}

@@ -132,45 +132,49 @@
   }
 
   function itemsMarkup(mine) {
-    return `<div class="mine-items">${mine.items.map((name) => {
-      const crafts = craftsFrom(name);
-      return `<article class="mine-item">
-        <header class="mine-item-head">${itemImg(name, "drop")}<strong>${esc(name)}</strong>
-          <small>${crafts.length ? `Feeds ${crafts.length} craft${crafts.length === 1 ? "" : "s"}` : "Nothing crafts with this yet"}</small>
-        </header>
-        ${crafts.map((craft) => {
-          const parts = recipeFor(craft);
-          const level = craftLevel(craft);
-          return `<div class="mine-craft">
-            <div class="mine-craft-head">${itemImg(craft, "craft")}<span><b>${esc(craft)}</b>${level ? `<small>${esc(level)}</small>` : ""}</span></div>
-            ${parts.length ? `<ul class="mine-recipe">${parts.map((part) => {
-              const from = whereFrom(part.name);
-              const mine_ = part.name === name;
-              return `<li class="${mine_ ? "is-this" : ""}">${itemImg(part.name, "part")}
-                <span><b>${part.quantity ? `${part.quantity}× ` : ""}${esc(part.name)}</b>${from ? `<small>${esc(from)}</small>` : `<small class="unknown">source not recorded</small>`}</span></li>`;
-            }).join("")}</ul>` : `<p class="mine-recipe-none">Recipe not recorded yet.</p>`}
-            ${(() => {
-              // Where the craft itself goes next, with its recipe, so a chain like
-              // Unpolished Peridot -> Peridot -> Ancient Pickaxe reads in one place.
-              const onward = craftsFrom(craft).filter((next) => next !== craft && next !== name);
-              if (!onward.length) return "";
-              return `<div class="mine-onward"><span class="mine-onward-head">${esc(craft)} goes into</span>${onward.map((next) => {
-                const nextParts = recipeFor(next);
-                const nextLevel = craftLevel(next);
-                return `<div class="mine-onward-craft">
-                  <div class="mine-craft-head">${itemImg(next, "craft")}<span><b>${esc(next)}</b>${nextLevel ? `<small>${esc(nextLevel)}</small>` : ""}</span></div>
-                  ${nextParts.length ? `<ul class="mine-recipe">${nextParts.map((part) => {
-                    const from = whereFrom(part.name);
-                    return `<li class="${part.name === craft ? "is-this" : ""}">${itemImg(part.name, "part")}
-                      <span><b>${part.quantity ? `${part.quantity}× ` : ""}${esc(part.name)}</b>${from ? `<small>${esc(from)}</small>` : `<small class="unknown">source not recorded</small>`}</span></li>`;
-                  }).join("")}</ul>` : `<p class="mine-recipe-none">Recipe not recorded yet.</p>`}
-                </div>`;
-              }).join("")}</div>`;
-            })()}
-          </div>`;
-        }).join("")}
+    const drops = new Set(mine.items);
+
+    // Every craft this mine's drops reach, one level out and then one more, in
+    // a single de-duplicated list. Nesting each craft under each drop that
+    // feeds it repeated the same recipes and turned one mine into minutes of
+    // scrolling.
+    const crafts = [];
+    const seen = new Set();
+    const addCraft = (name) => {
+      if (!name || drops.has(name) || seen.has(name)) return;
+      seen.add(name);
+      crafts.push(name);
+    };
+    for (const drop of mine.items) for (const craft of craftsFrom(drop)) addCraft(craft);
+    for (const craft of [...crafts]) for (const next of craftsFrom(craft)) addCraft(next);
+
+    const dropChips = mine.items.map((name) => {
+      const feeds = craftsFrom(name).length;
+      return `<li class="mine-drop">${itemImg(name, "drop")}<span><b>${esc(name)}</b><small>${feeds ? `feeds ${feeds}` : "no craft yet"}</small></span></li>`;
+    }).join("");
+
+    const craftCards = crafts.map((craft) => {
+      const parts = recipeFor(craft);
+      const level = craftLevel(craft);
+      return `<article class="mine-craft">
+        <header>${itemImg(craft, "craft")}<span><b>${esc(craft)}</b>${level ? `<small>${esc(level)}</small>` : ""}</span></header>
+        ${parts.length ? `<ul class="mine-recipe">${parts.map((part) => {
+          const from = whereFrom(part.name);
+          return `<li class="${drops.has(part.name) ? "is-this" : ""}" title="${esc(from || "source not recorded")}">${itemImg(part.name, "part")}<span>${part.quantity ? `${part.quantity}× ` : ""}${esc(part.name)}</span></li>`;
+        }).join("")}</ul>` : `<p class="mine-recipe-none">Recipe not recorded yet.</p>`}
       </article>`;
-    }).join("")}</div>`;
+    }).join("");
+
+    return `<div class="mine-body">
+      <section class="mine-section">
+        <h3>What it drops</h3>
+        <ul class="mine-drops">${dropChips}</ul>
+      </section>
+      <section class="mine-section">
+        <h3>What those drops make <small>${crafts.length} craft${crafts.length === 1 ? "" : "s"}</small></h3>
+        ${crafts.length ? `<div class="mine-crafts">${craftCards}</div>` : `<p class="mine-recipe-none">Nothing recorded that uses these yet.</p>`}
+      </section>
+    </div>`;
   }
 
   function render() {
