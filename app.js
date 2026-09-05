@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.dusk12";
+  const FRPG_BUILD = "2026-09-05.dusk13";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -208,6 +208,22 @@
   // Places reads the same resolved perk numbers, so ticking Lemon Squeezer
   // in Setup changes what an Arnold Palmer is worth there too.
   window.FRPG_MODS = mods;
+  // Places shows the same meal switches. One store, so the two pages cannot
+  // disagree — writing straight to localStorage would leave state.meals here
+  // stale until a reload.
+  window.FRPG_MEALS = {
+    list: () => MEALS.map((meal) => ({ id: meal.id, name: meal.name, effect: meal.effect })),
+    get: (id) => !!state.meals[id],
+    set: (id, on) => {
+      if (!(id in state.meals)) return false;
+      state.meals[id] = !!on;
+      save();
+      if (document.getElementById("setup").classList.contains("active")) renderSetup();
+      render();
+      return true;
+    },
+  };
+
   function save() {
     localStorage.setItem("frpg_owned", JSON.stringify(state.owned));
     localStorage.setItem("frpg_effects_v2", JSON.stringify([...state.enabled]));

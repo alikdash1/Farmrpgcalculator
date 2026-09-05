@@ -50,7 +50,7 @@ test("what you spend decides which rate table can answer", () => {
   // EXPLORING is the constant and its stamina is not.
   assert.match(page, /const ciderExplores = \(\) => mods\(\)\.drinks\.ciderRolls;/);
   assert.match(page, /case "cider": return amount \* ciderExplores\(\);/);
-  assert.match(page, /case "cider": return per > 0 \? amount \* ciderExplores\(\) \* per : null;/);
+  assert.match(page, /case "cider": return per > 0[\s\S]*?ciderExplores\(\) \* per \* \(meal\("neigh"\)/);
   assert.match(page, /case "oj": return amount \* constant\("oj_stamina", 100\);/);
   // And it is never a chip the reader can set wrong.
   assert.doesNotMatch(page, /data-basis/);
@@ -81,7 +81,7 @@ test("a chest is not a drop, and the table is un-expanded before it is shown", (
   // were drops of the place. Detected by arithmetic, never by name.
   assert.match(page, /function containersIn\(table\)/);
   assert.match(page, /rows: rows\.filter\(\(row\) => !row\.inside\)/);
-  assert.match(page, /function chestMarkup\(result\)/);
+  assert.match(page, /function chestMarkup\(result, quests, tower\)/);
 
   // The proof: pull the detected contents back out and the affected
   // locations land on exactly the totals KNOWN_MISTAKES.md documents.
@@ -220,4 +220,55 @@ test("the stamina facts match what the game actually says", () => {
   assert.match(doc, /depends on your \*\*exploring effectiveness in each explore location\*\*/);
   assert.match(doc, /Nothing lowers it/);
   assert.match(doc, /The one inference on this page/);
+});
+
+test("the meals that change a pour are on the page, sharing Setup's store", () => {
+  const page = read("locations-page.js");
+  const app = read("app.js");
+  // Writing to localStorage directly would leave app.js's in-memory
+  // state.meals stale until a reload, so both pages go through one bridge.
+  assert.match(app, /window\.FRPG_MEALS = \{/);
+  assert.match(page, /window\.FRPG_MEALS\.set\(id, on\)/);
+  assert.doesNotMatch(page, /frpg_meals_v2/);
+
+  // Exploring gets the three that touch exploring; fishing gets the net one.
+  assert.match(page, /\["quandary", "Quandary Chowder"/);
+  assert.match(page, /\["neigh", "Neigh"/);
+  assert.match(page, /\["seapincher", "Sea Pincher Special"/);
+  const fishing = page.slice(page.indexOf("fishing: [", page.indexOf("MEALS_FOR")));
+  assert.doesNotMatch(fishing.slice(0, fishing.indexOf("],")), /quandary|neigh/);
+});
+
+test("each meal is applied where the workbook does not already include it", () => {
+  const page = read("locations-page.js");
+  // Exploring rates sum to 550 = 500 finds x 1.1, so Quandary Chowder is
+  // already IN them and comes back out when the meal is off. Fishing sums to
+  // exactly 500, which is perks only, so Sea Pincher goes ON TOP. Getting
+  // these the same way round would double-count one and drop the other.
+  assert.match(page, /if \(meal\("seapincher"\)\) scale \*= 1 \+ constant\("sea_pincher_bonus", 0\.1\);/);
+  assert.match(page, /\} else if \(!meal\("quandary"\)\) \{[\s\S]*?scale \/= 1 \+ constant\("quandary_bonus", 0\.1\);/);
+  // Neigh moves the stamina a cider costs, never the exploring it does.
+  assert.match(page, /meal\("neigh"\) \? 1 - constant\("neigh_stamina_save", 0\.2\) : 1/);
+  assert.doesNotMatch(page, /case "cider": return amount \* ciderExplores\(\) \* \(meal/);
+  // Mushroom Stew gives no extra items: each one just counts 1.1x toward a
+  // mastery, so it only moves how many finish a Tower row.
+  assert.match(page, /const masteryMult = \(\) => meal\("mushroom"\)/);
+  assert.match(page, /whole\(need\.remaining \/ mult\)/);
+});
+
+test("what a pour costs in stamina is stated, not left to be worked out", () => {
+  const page = read("locations-page.js");
+  // A cider's stamina moves with effectiveness, so the total for THIS pour is
+  // the number worth showing, next to the field that changes it.
+  assert.match(page, /Your " \+ whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\) \+ " here: " \+ whole\(spent\) \+ " stamina/);
+  assert.match(page, /costing <b>" \+ whole\(spent\)/);
+});
+
+test("chest contents keep the flags that followed them out of the table", () => {
+  const page = read("locations-page.js");
+  // They count toward quests and masteries exactly like a drop does; moving
+  // them out of the drop table must not lose that.
+  assert.match(page, /function chestMarkup\(result, quests, tower\)/);
+  assert.match(page, /places-inchest-need/);
+  assert.match(page, /whole\(need\.remaining \/ masteryMult\(\)\)/);
 });

@@ -207,6 +207,27 @@
     return held;
   }
 
+  // Meals that change what a pour is worth. Setup owns them; this reads and
+  // writes the same store through app.js so the two pages cannot disagree.
+  //
+  //   Quandary Chowder  "Lemonade/APs more effective"      exploring, finds
+  //   Neigh             "Cider uses 20% less stamina"      exploring, cider
+  //   Sea Pincher       "Fishing Nets/LNs more effective"  fishing, nets
+  //   Mushroom Stew     "+10% Mastery"                     both, mastery only
+  const MEALS_FOR = {
+    explore: [
+      ["quandary", "Quandary Chowder", "+10% from each Lemonade and AP"],
+      ["neigh", "Neigh", "Cider uses 20% less stamina"],
+      ["mushroom", "Mushroom Stew", "+10% mastery, so fewer items finish a Tower row"],
+    ],
+    fishing: [
+      ["seapincher", "Sea Pincher Special", "Nets and Large Nets catch more"],
+      ["mushroom", "Mushroom Stew", "+10% mastery, so fewer items finish a Tower row"],
+    ],
+  };
+  const meal = (id) => !!(window.FRPG_MEALS && window.FRPG_MEALS.get(id));
+  const setMeal = (id, on) => window.FRPG_MEALS && window.FRPG_MEALS.set(id, on);
+  const masteryMult = () => meal("mushroom") ? 1 + constant("mushroom_mastery_bonus", 0.1) : 1;
   // The workbook was measured with every perk on. Its exploring rates for any
   // one location add up to 550 per AP - 500 finds plus 10% for Quandary
   // Chowder - and its fishing rates to exactly 500 per Large Net. That is what
@@ -250,7 +271,9 @@
     const amount = Number(prefs.amount) || 0;
     const per = staminaPer(place);
     switch (prefs.kind) {
-      case "cider": return per > 0 ? amount * ciderExplores() * per : null;
+      case "cider": return per > 0
+        ? amount * ciderExplores() * per * (meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1)
+        : null;
       case "oj": return amount * constant("oj_stamina", 100);
       case "stamina": return amount;
       case "explores": return per > 0 ? amount * per : null;
@@ -264,7 +287,17 @@
     if (!prefs.scaled) return 1;
     const m = mods();
     const mine = place.mode === "fishing" ? m.nets.lnCatch : m.drinks.apItems;
-    return mine > 0 ? mine / WORKBOOK_FINDS : 1;
+    let scale = mine > 0 ? mine / WORKBOOK_FINDS : 1;
+    if (place.mode === "fishing") {
+      // The fishing table is 500 catches of permanent perks and nothing else,
+      // so Sea Pincher goes on top of it.
+      if (meal("seapincher")) scale *= 1 + constant("sea_pincher_bonus", 0.1);
+    } else if (!meal("quandary")) {
+      // The exploring table already has Quandary Chowder in it: 550 per AP is
+      // 500 finds x 1.1. Without the meal it has to come back out.
+      scale /= 1 + constant("quandary_bonus", 0.1);
+    }
+    return scale;
   }
 
   function denomTable(place) {
@@ -394,6 +427,13 @@
           : "") +
         '<button type="button" class="places-chip needed' + (prefs.onlyNeeded ? " active" : "") + '" data-only aria-pressed="' + !!prefs.onlyNeeded + '">Only what I still need</button>' +
       "</div>" +
+      '<div class="places-meals">' +
+        '<span class="places-basis-label">Meals running</span>' +
+        (MEALS_FOR[prefs.mode] || []).map((row) =>
+          '<button type="button" class="places-chip meal' + (meal(row[0]) ? " active" : "") +
+          '" data-meal="' + row[0] + '" aria-pressed="' + meal(row[0]) + '" title="' + esc(row[2]) + '">' +
+          esc(row[1]) + "</button>").join("") +
+      "</div>" +
       '<p class="places-basis-note">' + esc(sourceNote()) + "</p>" +
     "</div>";
   }
@@ -409,11 +449,19 @@
     const per = staminaPer(place);
     const oj = constant("oj_stamina", 100);
     const cider = ciderExplores();
+    const neigh = meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1;
+    // The number the player actually asked for: what THIS pour costs here,
+    // which moves every time the effectiveness does.
+    const spent = staminaSpent(place);
+    const bill = spent > 0
+      ? " <b>Your " + whole(prefs.amount) + " " + esc(kindLabel()) + " here: " + whole(spent) + " stamina.</b>"
+      : "";
     const said = per > 0
-      ? "At " + whole(per) + " stamina an explore: one Orange Juice (" + whole(oj) + " stamina) is " +
-        count(oj / per) + " explores here, and one Apple Cider is " + whole(cider) +
-        " explores for " + whole(cider * per) + " stamina. Raising this makes each cider cost more " +
-        "stamina, not less — that is the point of it, since stamina comes back on its own and ciders do not."
+      ? "At " + whole(per) + " stamina an explore: one Apple Cider is " + whole(cider) +
+        " explores costing <b>" + whole(cider * per * neigh) + "</b> stamina" +
+        (neigh < 1 ? " with Neigh" : "") + ", and one Orange Juice (" + whole(oj) + " stamina) is " +
+        count(oj / per) + " explores. Raising this makes a cider cost more stamina and cover more ground — " +
+        "worth it, because stamina comes back on its own and ciders do not." + bill
       : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
         "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it, and it differs per place — so put in yours.";
     return '<div class="places-effort">' +
@@ -430,8 +478,17 @@
       const need = tower.get(key(row.name));
       const tags = [];
       if (short > 0) tags.push('<span class="places-tag quest">Questline needs ' + whole(short) + "</span>");
-      if (need) tags.push('<span class="places-tag tower">T' + need.floor + " " + (need.tier === "gm" ? "Grand" : "Mega") + " · " + whole(need.remaining) + " left</span>");
-      const covers = row.expected != null && short > 0 && row.expected >= short;
+      if (need) {
+        // Mushroom Stew makes each item count 1.1x toward a mastery, so the
+        // number of ITEMS that finishes the row drops even though the mastery
+        // target does not.
+        const mult = masteryMult();
+        tags.push('<span class="places-tag tower">T' + need.floor + " " + (need.tier === "gm" ? "Grand" : "Mega") +
+          " · " + whole(need.remaining / mult) + " left" + (mult > 1 ? " with Stew" : "") + "</span>");
+      }
+      const covers = row.expected != null &&
+        ((short > 0 && row.expected >= short) ||
+         (need && row.expected >= need.remaining / masteryMult()));
       return '<tr class="' + (covers ? "covers" : "") + '">' +
         '<td><button type="button" class="places-item" data-open-item="' + esc(row.name) + '">' +
           (art ? '<img src="' + esc(art) + '" alt="" width="24" height="24" loading="lazy">' : '<span class="places-noart"></span>') +
@@ -448,7 +505,7 @@
 
   // Shown under the drop table, not in it: these arrive inside a chest you
   // found, so listing them as drops of the place would misread how you get them.
-  function chestMarkup(result) {
+  function chestMarkup(result, quests, tower) {
     const held = (result.inChests || []).filter((row) => row.expected > 0);
     if (!held.length) return "";
     const byChest = new Map();
@@ -459,9 +516,18 @@
     const blocks = [...byChest.entries()].map((entry) => {
       const items = entry[1].sort((a, b) => b.expected - a.expected).map((row) => {
         const art = ART.urlFor(row.name);
-        return '<span class="places-inchest-item">' +
+        // These count toward masteries and quests exactly like a drop does, so
+        // the flags have to follow them out of the table.
+        const short = quests.get(key(row.name)) || 0;
+        const need = tower.get(key(row.name));
+        const wanted = short > 0
+          ? ' <i class="places-inchest-need">quest ' + whole(short) + "</i>"
+          : need
+            ? ' <i class="places-inchest-need">T' + need.floor + " " + whole(need.remaining / masteryMult()) + "</i>"
+            : "";
+        return '<span class="places-inchest-item' + (short > 0 || need ? " wanted" : "") + '">' +
           (art ? '<img src="' + esc(art) + '" alt="" width="20" height="20" loading="lazy">' : "") +
-          "<b>" + count(row.expected) + "</b> " + esc(row.name) + "</span>";
+          "<b>" + count(row.expected) + "</b> " + esc(row.name) + wanted + "</span>";
       }).join("");
       return '<div class="places-inchest-row"><strong>' + esc(entry[0]) + "</strong>" + items + "</div>";
     }).join("");
@@ -546,7 +612,7 @@
       '<div class="places-detail">' + effortRow(place) +
         '<p class="places-actions">' + line + "</p>" +
         (blocked || missing ? "" : rowsMarkup(result, quests, tower)) +
-        (blocked || missing ? "" : chestMarkup(result)) +
+        (blocked || missing ? "" : chestMarkup(result, quests, tower)) +
         (place.buddyUrl ? '<p class="places-source"><a href="' + esc(place.buddyUrl) + '" target="_blank" rel="noopener">Open ' + esc(place.name) + " on Buddy's Almanac</a></p>" : "") +
       "</div></details>";
     }).join("");
@@ -580,6 +646,15 @@
     if (scaled) scaled.onclick = () => update({ scaled: !prefs.scaled });
     const only = root.querySelector("[data-only]");
     if (only) only.onclick = () => update({ onlyNeeded: !prefs.onlyNeeded });
+    root.querySelectorAll("[data-meal]").forEach((button) => {
+      button.onclick = () => {
+        const open = [...root.querySelectorAll("details.places-card[open]")].map((row) => row.dataset.place);
+        // app.js re-renders its own views and calls back into render() here.
+        setMeal(button.dataset.meal, !meal(button.dataset.meal));
+        render();
+        reopen(open);
+      };
+    });
     const amount = root.querySelector("#placesAmount");
     if (amount) amount.onchange = () => update({ amount: Math.max(0, Number(amount.value) || 0) });
     const kind = root.querySelector("#placesKind");

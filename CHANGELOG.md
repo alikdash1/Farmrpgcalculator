@@ -5,6 +5,31 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-05 (last, 3) — Meal switches on Places, and the cider bill
+
+- **Meals toggle on the Places tab**, showing only the ones that change that
+  mode: Quandary Chowder, Neigh and Mushroom Stew for exploring; Sea Pincher
+  Special and Mushroom Stew for fishing. They read and write **Setup's own
+  store** through a new `window.FRPG_MEALS` bridge — writing to localStorage
+  directly would have left `state.meals` in app.js stale until a reload.
+- Each is applied where the workbook does **not** already account for it, which
+  is not the same answer for all of them:
+  - **Quandary Chowder** is already inside the exploring rates (550 per AP =
+    500 finds x 1.1), so turning it off divides it back out.
+  - **Sea Pincher Special** is not in the fishing rates (exactly 500 per Large
+    Net is perks alone), so turning it on multiplies up.
+  - **Neigh** moves the stamina a cider costs, never the exploring it does.
+  - **Mushroom Stew** gives no extra items at all — each one counts 1.1x toward
+    a mastery, so it only changes how many finish a Tower row (Aquamarine Ring
+    at T286 goes from 782,829 items to 711,663).
+- **The pour's stamina bill is stated next to the field that changes it**:
+  "Your 260 Apple Ciders here: 8,840,000 stamina." A cider's stamina moves with
+  effectiveness, so the per-cider figure alone was not the number being asked
+  for.
+- Chest contents keep their quest and Tower flags now that they sit outside the
+  drop table — they count toward both exactly like a drop does.
+- 105 tests pass.
+
 ## 2026-09-05 (last, 2) — Everything the game says about stamina
 
 The owner: *"protien bars just increase effectivness"*, then *"please check

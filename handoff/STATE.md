@@ -75,6 +75,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   IV 13%), not "about 20% less stamina"** — `effects.json` now says 0.13; and
   **an Apple Cider's exploring is fixed while its stamina scales with your
   effectiveness**, so it is 1,000 explores costing 1,000 x effectiveness.
+- **Meals toggle on Places**, through `window.FRPG_MEALS` so Setup and Places
+  share one store. Quandary Chowder is already inside the workbook's exploring
+  rates and comes back out when off; Sea Pincher is not in the fishing rates
+  and goes on top; Neigh moves a cider's stamina only; Mushroom Stew moves only
+  how many items finish a Tower row.
 - **Fishing costs bait, not stamina** — no stamina option, and no Effectiveness
   field, since that is an exploring mechanic.
 - **Chests are not drops.** The workbook expands a chest into its contents and
