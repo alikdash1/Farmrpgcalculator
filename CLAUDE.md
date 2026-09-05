@@ -19,6 +19,7 @@ Almost everything has already been established and written down:
 | `NEXT_PHASE.md` | What's left to do, and the open decisions |
 | `KNOWN_MISTAKES.md` | Corrections the user made; regressions not to reintroduce |
 | `CHANGELOG.md` | Dated log of real work sessions |
+| `docs/STAMINA_AND_EFFECTIVENESS.md` | **Every stamina and effectiveness fact, in the game's own words** |
 | `../knowledge-pack/PLAYER_KNOWLEDGE.md` | **Canonical Farm RPG game facts** |
 | `../knowledge-pack/AI_READ_FIRST.md` | How to query the knowledge database |
 | `docs/history/` | The original Codex transcript this was built in |

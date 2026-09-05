@@ -5,6 +5,33 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-05 (last, 2) — Everything the game says about stamina
+
+The owner: *"protien bars just increase effectivness"*, then *"please check
+everything about stamina and effectivness farm rpg has to offer"*. They were
+right, and the check turned up two data errors older than this session.
+
+- **Wanderer is a skip chance, not a discount.** The game lists it per tier:
+  "4% / 7% / 9% / **13%** chance exploring won't use Stamina", and the tiers
+  replace each other. `data/effects.json` said "Uses about 20% less stamina
+  while exploring", value `0.2` — the wrong number *and* the wrong mechanic.
+  Now `0.13`. This moves `exploreStaminaPer` from 0.80 to 0.87 everywhere.
+- **An Apple Cider's stamina is not fixed; its exploring is.** The item page:
+  "The amount of stamina used by this item depends on your exploring
+  effectiveness in each explore location." So a cider is 1,000 explores
+  (1,250 with Cinnamon Sticks) costing 1,000 x effectiveness stamina — at 104,
+  that is 104,000, not 1,000. This reverses the "fix" made earlier today,
+  which had read "1000+ Stamina Use" without the item page beside it.
+- **Effectiveness only ever goes up.** Protein Bars, Jill and Sprint Shoes all
+  raise it ("Doubles Stamina Effectiveness — Stamina is used faster"). The page
+  said Protein Bars and Jill lowered it. It now says what raising it is for:
+  stamina comes back on its own and ciders do not.
+- **`docs/STAMINA_AND_EFFECTIVENESS.md`** collects all of it in the game's own
+  words — what uses stamina, what gives it, what saves it, what never touches
+  it, and the single inference the app leans on, flagged as an inference with
+  the in-game check that would confirm it.
+- 101 tests pass.
+
 ## 2026-09-05 (last) — Places corrections, all from the owner playing the game
 
 Four reports, every one a real modelling error rather than a display bug.

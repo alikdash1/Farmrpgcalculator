@@ -28,7 +28,12 @@ test("endgame permanent profile uses real drink and net units", () => {
   assert.equal(mods.drinks.ciderRolls, 1250);
   assert.equal(mods.drinks.lemonadeItems, 20);
   assert.equal(mods.drinks.apItems, 500);
-  assert.ok(Math.abs(mods.exploreStaminaPer - 0.8) < 1e-9);
+  // Wanderer is a skip chance per tier, not a flat discount: the game lists
+  // "4% / 7% / 9% / 13% chance exploring won't use Stamina", and the tiers
+  // replace each other. This was 0.2 and described as "about 20% less
+  // stamina", which was both the wrong number and the wrong mechanic.
+  // See docs/STAMINA_AND_EFFECTIVENESS.md.
+  assert.ok(Math.abs(mods.exploreStaminaPer - 0.87) < 1e-9);
   assert.equal(mods.ironDepot, true);
 });
 

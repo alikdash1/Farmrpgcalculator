@@ -45,8 +45,12 @@ test("what you spend decides which rate table can answer", () => {
   //   Orange Juice  "Adds 100 Stamina"               -> buys stamina
   // So Cider belongs with exploring, not with the drinks that find items.
   assert.match(page, /const FINDS = new Set\(\["ap", "lemonade", "largenet", "fishingnet"\]\);/);
-  assert.match(page, /const ciderStamina = \(\) => mods\(\)\.drinks\.ciderRolls;/);
-  assert.match(page, /case "cider": return amount \* ciderStamina\(\);/);
+  // And the cider's own item page: "The amount of stamina used by this item
+  // depends on your exploring effectiveness in each explore location." So its
+  // EXPLORING is the constant and its stamina is not.
+  assert.match(page, /const ciderExplores = \(\) => mods\(\)\.drinks\.ciderRolls;/);
+  assert.match(page, /case "cider": return amount \* ciderExplores\(\);/);
+  assert.match(page, /case "cider": return per > 0 \? amount \* ciderExplores\(\) \* per : null;/);
   assert.match(page, /case "oj": return amount \* constant\("oj_stamina", 100\);/);
   // And it is never a chip the reader can set wrong.
   assert.doesNotMatch(page, /data-basis/);
@@ -157,7 +161,8 @@ test("how much stamina an explore costs is asked for, never guessed", () => {
   assert.match(page, /frpg_location_effort_v1/);
   // With no number entered, the stamina and Orange Juice options must refuse
   // to answer rather than fall back to an invented cost.
-  assert.match(page, /if \(stamina != null\) return per > 0 \? stamina \/ per : null;/);
+  assert.match(page, /case "oj": return per > 0 \? amount \* constant\("oj_stamina", 100\) \/ per : null;/);
+  assert.match(page, /case "stamina": return per > 0 \? amount \/ per : null;/);
   assert.match(page, /Nothing to work out until that number is in\./);
 });
 
@@ -193,4 +198,26 @@ test("a pour is scored against what you still need", () => {
   // gather-model.js loads after this file, so the first pass cannot know the
   // questline. Without the redraw the tags never appear.
   assert.match(page, /window\.addEventListener\("load", render\);/);
+});
+
+test("the stamina facts match what the game actually says", () => {
+  const effects = JSON.parse(read("data/effects.json")).effects;
+  const wanderer = effects.find((row) => row.id === "wanderer");
+  // The game lists Wanderer as a SKIP CHANCE per tier — I 4%, II 7%, III 9%,
+  // IV 13% "chance exploring won't use Stamina" — not a flat 20% discount,
+  // and the tiers replace each other rather than adding up.
+  assert.equal(wanderer.value, 0.13);
+  assert.doesNotMatch(wanderer.plain, /20% less/);
+  assert.match(wanderer.plain, /chance/);
+  // data/data.js carries a baked copy, and the two must not drift apart.
+  const baked = dataGlobal("FRPG_EFFECTS").effects.find((row) => row.id === "wanderer");
+  assert.deepEqual(baked, wanderer);
+
+  // The Places page is the only thing that models a cider, and the reference
+  // for all of this has to stay where the next session will find it.
+  const doc = read("docs/STAMINA_AND_EFFECTIVENESS.md");
+  assert.match(doc, /1000\+ Stamina Use/);
+  assert.match(doc, /depends on your \*\*exploring effectiveness in each explore location\*\*/);
+  assert.match(doc, /Nothing lowers it/);
+  assert.match(doc, /The one inference on this page/);
 });

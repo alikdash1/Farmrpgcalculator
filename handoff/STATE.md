@@ -69,6 +69,12 @@ Claim a task by adding a row before you start. Clear it when merged.
   1,000 stamina** ("1000+ Stamina Use | Does not give Stamina"), as is Orange
   Juice at 100, so those read the logged explores-per-drop alongside raw stamina
   and plain explores. See KNOWN_MISTAKES.md "Arnold Palmer is not exploring".
+- **Stamina and effectiveness are written up** in
+  `docs/STAMINA_AND_EFFECTIVENESS.md`, quoted from the game. Two data errors
+  came out of it: **Wanderer is a skip chance per tier (I 4% / II 7% / III 9% /
+  IV 13%), not "about 20% less stamina"** — `effects.json` now says 0.13; and
+  **an Apple Cider's exploring is fixed while its stamina scales with your
+  effectiveness**, so it is 1,000 explores costing 1,000 x effectiveness.
 - **Fishing costs bait, not stamina** — no stamina option, and no Effectiveness
   field, since that is an exploring mechanic.
 - **Chests are not drops.** The workbook expands a chest into its contents and

@@ -163,11 +163,13 @@
   const FINDS = new Set(["ap", "lemonade", "largenet", "fishingnet"]);
   const byRod = () => prefs.kind === "casts";
 
-  // One Apple Cider is a fixed spend of stamina, not a number of finds. The
-  // constant is named ciderRolls and described as rolls, which is wrong: the
-  // game says 1000 Stamina Use. Cinnamon Sticks makes it 25% more effective,
-  // which mods() has already applied.
-  const ciderStamina = () => mods().drinks.ciderRolls;
+  // Apple Cider: "1000+ Stamina Use | Does not give Stamina | Need at least
+  // 1000 Stamina to use", and its item page adds that "the amount of stamina
+  // used by this item depends on your exploring effectiveness in each explore
+  // location". So the EXPLORING is the fixed part and the stamina is not: one
+  // cider is worth 1,000 explores (1,250 with Cinnamon Sticks, already applied
+  // by mods()) and costs that many times your effectiveness in stamina.
+  const ciderExplores = () => mods().drinks.ciderRolls;
 
   // The workbook expands a chest into its contents and lists them as if they
   // were drops. They are not: you find the chest, and the rings are inside it.
@@ -228,22 +230,32 @@
 
   // How many explores or casts the pour buys. Only stamina answers this, and
   // only once the player has said what an action costs here.
-  function staminaSpent() {
-    const amount = Number(prefs.amount) || 0;
-    switch (prefs.kind) {
-      case "cider": return amount * ciderStamina();
-      case "oj": return amount * constant("oj_stamina", 100);
-      case "stamina": return amount;
-      default: return null;
-    }
-  }
-
+  // Explores, the unit the logged denominators are in. Cider states its own
+  // exploring directly; stamina and Orange Juice buy explores at whatever this
+  // location charges.
   function actionsFor(place) {
     const amount = Number(prefs.amount) || 0;
     const per = staminaPer(place);
-    const stamina = staminaSpent();
-    if (stamina != null) return per > 0 ? stamina / per : null;
-    return amount;
+    switch (prefs.kind) {
+      case "cider": return amount * ciderExplores();
+      case "oj": return per > 0 ? amount * constant("oj_stamina", 100) / per : null;
+      case "stamina": return per > 0 ? amount / per : null;
+      default: return amount;
+    }
+  }
+
+  // What that costs in stamina. For a cider this is the number that moves with
+  // effectiveness, which is exactly what the player asked to see.
+  function staminaSpent(place) {
+    const amount = Number(prefs.amount) || 0;
+    const per = staminaPer(place);
+    switch (prefs.kind) {
+      case "cider": return per > 0 ? amount * ciderExplores() * per : null;
+      case "oj": return amount * constant("oj_stamina", 100);
+      case "stamina": return amount;
+      case "explores": return per > 0 ? amount * per : null;
+      default: return null;
+    }
   }
 
   // What one workbook unit is worth on this account, as a fraction of the
@@ -396,13 +408,14 @@
     if (place.mode !== "explore") return "";
     const per = staminaPer(place);
     const oj = constant("oj_stamina", 100);
-    const cider = ciderStamina();
+    const cider = ciderExplores();
     const said = per > 0
-      ? "At " + whole(per) + " stamina an explore, one Orange Juice (" + whole(oj) + " stamina) is " +
-        count(oj / per) + " explores here, and one Apple Cider (" + whole(cider) + " stamina) is " +
-        count(cider / per) + "."
+      ? "At " + whole(per) + " stamina an explore: one Orange Juice (" + whole(oj) + " stamina) is " +
+        count(oj / per) + " explores here, and one Apple Cider is " + whole(cider) +
+        " explores for " + whole(cider * per) + " stamina. Raising this makes each cider cost more " +
+        "stamina, not less — that is the point of it, since stamina comes back on its own and ciders do not."
       : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
-        "Protein Bars and Jill lower it, Sprint Shoes raise it, and it differs per place — so put in yours.";
+        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it, and it differs per place — so put in yours.";
     return '<div class="places-effort">' +
       "<label><span>Effectiveness</span>" +
       '<input type="number" min="0" step="1" inputmode="numeric" data-effort="' + esc(effortKey(place)) + '" value="' + (per > 0 ? per : "") + '" placeholder="—"></label>' +
@@ -496,7 +509,7 @@
         : (entry.hit && entry.hit.expected != null
           ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
           : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
-      const spent = staminaSpent();
+      const spent = staminaSpent(place);
       const silver = blocked ? 0 : sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
       // An Arnold Palmer finds items without spending stamina, so a drink pour
@@ -517,13 +530,12 @@
             : (prefs.kind === "explores" || prefs.kind === "casts")
               // Saying "1,000 casts is 1,000 catches" tells nobody anything.
               ? amount + " " + esc(label) + " here" + worth + "."
-              : amount + " " + esc(label) + " is " +
-                // Cider and Orange Juice are stamina in another shape, so say
-                // how much stamina it actually is before saying what it buys.
+              : amount + " " + esc(label) + " is <b>" + whole(result.actions) + "</b> " + noun + " here" +
+                // A cider's exploring is fixed and its stamina is not, so the
+                // stamina is the number worth spelling out.
                 (spent != null && prefs.kind !== "stamina"
-                  ? "<b>" + whole(spent) + "</b> stamina — " : "") +
-                "<b>" + whole(result.actions) + "</b> " + noun + " here" +
-                (staminaPer(place) > 0 && spent != null ? " at " + whole(staminaPer(place)) + " each" : "") +
+                  ? ", costing <b>" + whole(spent) + "</b> stamina at " + whole(staminaPer(place)) + " an explore"
+                  : "") +
                 worth + ".";
       return '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
         '<span class="places-art">' + (place.image ? '<img src="' + esc(place.image) + '?v=20260905-1" alt="" width="52" height="52" loading="lazy">' : "") + "</span>" +

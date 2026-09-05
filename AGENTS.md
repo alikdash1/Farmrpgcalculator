@@ -20,6 +20,11 @@ the spreadsheets in `../workbooks/` to work out what the project is. That is
 what burned the last budget. If `STATE.md` does not answer your question, ask
 the user one direct question instead of reading your way to it.
 
+Stamina, Exploring Effectiveness, Apple Cider, Wanderer and the drinks are
+written up in `docs/STAMINA_AND_EFFECTIVENESS.md`, quoted from the game. Two
+of those were wrong in the data until 2026-09-05; read it before modelling
+any of them.
+
 Game facts live in the knowledge pack, already built for this purpose:
 
 ```bash
