@@ -1,2 +1,11 @@
 build/preview-bundle.html
 .claude/
+
+# Raw account captures. These hold the player's own progress AND another
+# player's name and trade history, which is not ours to publish. The app does
+# not read them — they were source material for building data/.
+raw/account-captures/
+
+# A stale, divergent copy of the whole app. Keeping it out of the public repo
+# so nobody deploys or edits the wrong one by mistake.
+publish/
