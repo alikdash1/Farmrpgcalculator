@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.dusk7";
+  const FRPG_BUILD = "2026-09-05.dusk8";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -834,12 +834,20 @@
   function routeOptions(item, route, m) {
     const source = E.sourcesFor(index, item.id, 1, m, constants());
     const options = [["auto", "Auto"]];
+    // Craft was missing here entirely: an item with a recipe -- Twine, Rope,
+    // any of the dyes -- could be listed as something to go and get with no way
+    // to say "I will make it". It sets the make choice rather than the route,
+    // because crafting is what expands the item into its own inputs.
+    const craftable = (index.craftByItem.get(item.id) || []).length > 0;
+    if (craftable) options.push(["craft", "Craft"]);
     const gather = farmPlan(item, 1, m, constants());
     if (gather) options.push(["farm", farmLabel(gather)]);
     if (!isFish(item) && E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
     if (!isFish(item) && source.vendor) options.push(["vendor", "Store"]);
     if (infraFor(item, 1, m)) options.push(["covered", "Covered"]);
-    const selected = state.sourceChoices[item.id] || "auto";
+    const selected = state.makeChoices[item.id] === "craft" && craftable
+      ? "craft"
+      : (state.sourceChoices[item.id] || "auto");
     return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
   }
 
@@ -1376,7 +1384,21 @@
       };
     });
     el.ingBody.querySelectorAll("[data-source-id]").forEach((select) => {
-      select.onchange = () => { state.sourceChoices[select.dataset.sourceId] = select.value; save(); render(); };
+      select.onchange = () => {
+        const id = select.dataset.sourceId;
+        if (select.value === "craft") {
+          // Crafting is a decision about how the item is made, not where it is
+          // bought, so it lives in the other store — and the two must not both
+          // be set or they contradict each other.
+          state.makeChoices[id] = "craft";
+          delete state.sourceChoices[id];
+        } else {
+          if (state.makeChoices[id] === "craft") delete state.makeChoices[id];
+          state.sourceChoices[id] = select.value;
+        }
+        save();
+        render();
+      };
     });
     document.querySelectorAll("[data-meal-strip]").forEach((button) => {
       button.onclick = () => { state.mealStripHidden = !state.mealStripHidden; save(); render(); };

@@ -10,7 +10,8 @@ matter.
 | # | Task | Agent | Why it is worth doing |
 |---|---|---|---|
 | 0 | **Extension: quests captures do not land** | either | Completed quests reads 2 of ~1,950; Available reads nothing. See the note below |
-| 1 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
+| 1 | **Decide: drop "best route" framing for a neutral tracker** | either | The owner wants the tool to lay out every path and let the player choose, rather than recommending one. See the note below |
+| 2 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
 | 5 | Mining chip source text into a tooltip | claude | The chips wrap badly once a recipe has more than about four inputs |
 | 6 | Reconcile Large Net base 400 vs the workbook's 500 | either | Two sources disagree; ask the user rather than picking one |
 | 7 | Import the 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp) | codex | Known missing data, straightforward to add |
@@ -59,3 +60,30 @@ carries `authoritativeMasteries: true`, and `towerMasteryMap()` read that as
 "ignore captured masteries entirely", so re-capturing could never change a
 number. A capture newer than the imported file now updates the items it covers;
 an older one is still ignored so a stale capture cannot walk numbers backwards.
+
+
+## Notes for whoever takes #1 — "best route" versus "you decide"
+
+The owner said it "shouldn't be a best route website, just a calculator tracker
+so everyone can decide what path he wants". That is a real change of stance,
+not a tweak, and it should be agreed with them before it is built.
+
+What the app currently does: `chooseRoute()` and `makeDecision()` in `app.js`
+pick an **Auto** route per ingredient — cheapest gold-equivalent, with rules
+that prefer farming when co-drops or mastery make it close — and the page leads
+with "Use a mixed route" and "Not every cheap route is the right route".
+
+What a neutral version would do: show every route an item has, side by side,
+with the cost of each in its own currency, and no default winner. The data is
+already there — `sourcesFor` returns crop, fish, drops, vendor and market
+together, and `marketQuote` prices the trade.
+
+The pieces that would change:
+
+- `routeOptions()` — becomes a comparison, not a select with an Auto default.
+- The "Your Route at a Glance" and "Not every cheap route is the right route"
+  copy on Calculate, which is written to argue for a recommendation.
+- `data/progression.json`'s route rules, which encode preferences.
+
+Worth keeping either way: the **numbers** behind the recommendation are the
+valuable part, and they stay valid whichever framing wins.

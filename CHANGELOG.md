@@ -900,3 +900,15 @@ any estimate, so the column count is stepped down until a measurement agrees.
 And shrinking the box can bring on a vertical scrollbar that then takes width
 from the list and pushes the last column past the edge, so that width is given
 back once the final height is known.
+
+## 2026-09-05 — Craft was missing from the ingredient routes
+
+An ingredient with a recipe — Twine, Rope, any of the dyes — could be listed as
+something to go and get, with no way to say "I will make it". The route
+dropdown offered Auto, farm, trade, store and covered, and never Craft.
+
+It offers Craft now whenever the item has a recipe, and choosing it expands the
+item into its own inputs: picking Craft on Fishing Net replaces it with Iron,
+Rope and Antler, and Rope then offers Craft in turn. Crafting is a make
+decision rather than a route, so it writes to `makeChoices` and clears any
+`sourceChoices` entry — the two contradict each other if both are set.

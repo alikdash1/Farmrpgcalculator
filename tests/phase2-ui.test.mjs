@@ -45,3 +45,17 @@ test("the Back button moves between tabs instead of leaving the site", () => {
   // Going Back must not push another entry, or Back could never escape.
   assert.match(source, /if \(fromHistory\) history\.replaceState/);
 });
+
+test("a craftable ingredient can be told to be crafted", () => {
+  const source = readFileSync(new URL("app.js", root), "utf8");
+  // The ingredient dropdown offered Auto/farm/trade/store/covered and never
+  // Craft, so an item with a recipe -- Twine, Rope, the dyes -- could be listed
+  // as something to go and get with no way to say "I will make it".
+  assert.match(source, /const craftable = \(index\.craftByItem\.get\(item\.id\) \|\| \[\]\)\.length > 0;/);
+  assert.match(source, /if \(craftable\) options\.push\(\["craft", "Craft"\]\);/);
+  // Crafting is a make decision, not a route, and the two stores must never
+  // both be set for one item or they contradict each other.
+  assert.match(source, /state\.makeChoices\[id\] = "craft";/);
+  assert.match(source, /delete state\.sourceChoices\[id\];/);
+  assert.match(source, /if \(state\.makeChoices\[id\] === "craft"\) delete state\.makeChoices\[id\];/);
+});
