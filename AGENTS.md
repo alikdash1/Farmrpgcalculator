@@ -6,11 +6,14 @@ Everything below exists to stop that.
 
 ## Read these, in this order, and stop
 
-1. `CLAUDE.md` — how the app is built and the rules that break it. Applies to
+1. **`BRIEFING.md`** — the whole project in one file: the game, the player, the
+   app, every file, the decisions already made, and the mistakes already made.
+   If you read nothing else, read that.
+2. `CLAUDE.md` — how the app is built and the rules that break it. Applies to
    you too; it is not Claude-specific.
-2. `handoff/STATE.md` — what is true right now and who is on what. Short by
+3. `handoff/STATE.md` — what is true right now and who is on what. Short by
    design.
-3. `handoff/TASKS.md` — the queue.
+4. `handoff/TASKS.md` — the queue.
 
 Do **not** re-read the changelog, the Codex transcript in `docs/history/`, or
 the spreadsheets in `../workbooks/` to work out what the project is. That is

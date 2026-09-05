@@ -13,6 +13,8 @@ Almost everything has already been established and written down:
 
 | File | What it holds |
 |---|---|
+| **`BRIEFING.md`** | **The whole project in one file — game, player, app, files, decisions, mistakes. Start here.** |
+| `handoff/STATE.md` | What is true right now |
 | `PROJECT_STATE.md` | What this project is, where things live |
 | `NEXT_PHASE.md` | What's left to do, and the open decisions |
 | `KNOWN_MISTAKES.md` | Corrections the user made; regressions not to reintroduce |
