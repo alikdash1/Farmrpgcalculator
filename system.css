@@ -488,3 +488,42 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
 /* Which copy of the app is actually running. Reported in the footer because a
    browser holding an old file looks exactly like a bug that was never fixed. */
 .build-stamp { color: var(--muted); opacity: .7; }
+
+/* Where you stand, on the page you land on. Three facts that otherwise need
+   three tabs: the floor you are climbing, the quest step you are on, and how
+   much of that gathering does double duty. */
+.home-standing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px;
+  margin-top: 26px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.home-standing[hidden] { display: none; }
+.home-standing a {
+  display: block;
+  padding: 14px 16px;
+  background: var(--ink2);
+  color: inherit;
+  text-decoration: none;
+}
+.home-standing a:hover { background: var(--ink3); }
+.home-standing a:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.home-standing span {
+  display: block;
+  color: var(--muted);
+  font: 700 .62rem var(--ui), sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.home-standing strong {
+  display: block;
+  margin: 4px 0 2px;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.home-standing small { display: block; color: var(--muted); font-size: .74rem; }

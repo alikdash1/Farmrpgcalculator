@@ -49,3 +49,16 @@
   text-transform: uppercase;
   margin-bottom: .15rem;
 }
+
+/* Green was doing two jobs on this page: the progress bar of something you are
+   working on, and the mark on something already finished. A colour that means
+   both means neither, so finished rows go quiet and green is left to mean
+   "this is what is still in front of you". */
+.tower-mm.complete { opacity: .42; }
+.tower-mm.complete .tower-progress i { background: var(--line); }
+.tower-mm.complete .tower-mm-numbers span { color: var(--muted); }
+.tower-mm.complete .item-art.tower-art { filter: grayscale(1); opacity: .8; }
+
+/* The nearest unfinished requirement on each floor is the one that decides
+   whether you can climb, so give it the accent rather than sharing it out. */
+.tower-mm.working .tower-progress i { background: var(--green); }

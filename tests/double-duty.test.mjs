@@ -31,3 +31,25 @@ test("the gather list points out items that also finish a Tower mastery", () => 
   // Hidden when there is no overlap rather than showing an empty heading.
   assert.match(page, /doubleRoot\.hidden = rows\.length === 0;/);
 });
+
+test("the home page says where you stand", () => {
+  const app = read("app.js");
+  const html = read("index.html");
+  assert.match(html, /id="homeStanding"/);
+  assert.match(app, /function renderStanding\(\)/);
+  // Next floor, current quest step, and how much of it does double duty.
+  assert.match(app, /Next floor<\/span>/);
+  assert.match(app, /Current step<\/span>/);
+  assert.match(app, /Counts twice<\/span>/);
+  // gather-model.js loads after app.js, so the first render cannot see it.
+  assert.match(app, /window\.addEventListener\("load", renderStanding\)/);
+  // Hidden rather than showing an empty strip when there is nothing to say.
+  assert.match(app, /host\.hidden = bits\.length === 0;/);
+});
+
+test("finished Tower rows stop competing with the ones still ahead", () => {
+  const css = read("tower.css");
+  // Green marked both "done" and "in progress", so it distinguished nothing.
+  assert.match(css, /\.tower-mm\.complete \.tower-progress i \{ background: var\(--line\); \}/);
+  assert.match(css, /\.tower-mm\.working \.tower-progress i \{ background: var\(--green\); \}/);
+});

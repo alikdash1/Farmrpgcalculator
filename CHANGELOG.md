@@ -774,3 +774,18 @@ Mega (1m)** — the cheap wins, which is exactly what is hard to spot by hand.
 Sorted by the lowest unfinished floor, so the top of the list is what helps
 reach the next floor. Finished masteries are excluded; currency cannot be
 mastered and is excluded too. Hidden entirely when there is no overlap.
+
+## 2026-09-05 — Where you stand, and green meaning one thing
+
+- **The home page now opens with your actual position**: the floor you are
+  climbing and how many masteries it still wants, the quest step you are on and
+  how many of its items you are short, and how many of that questline's items
+  also finish a Tower mastery. Three facts that otherwise needed three tabs.
+  Each is a link to the tab it came from. Hidden when there is nothing to say.
+- **Finished Tower requirements go quiet.** Green was marking both "done" and
+  "in progress", so it separated nothing. Completed rows now use a grey bar and
+  greyscale art; green is left to mean "still in front of you".
+- **A quests page that only half drew says so.** The completed-requests page
+  states its own total; reading 2 of 1,950 was being reported as success. It
+  now says the list had not finished drawing and to scroll to the bottom first.
+  The popup shows capture warnings and row counts instead of a fixed message.

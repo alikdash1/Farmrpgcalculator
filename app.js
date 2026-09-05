@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.16";
+  const FRPG_BUILD = "2026-09-05.18";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -294,6 +294,39 @@
     return true;
   };
 
+  // Where you actually stand, on the first page you see: the floor you are
+  // climbing, the quest step you are on, and how much of that step's gathering
+  // also finishes a Tower mastery. All of it is elsewhere in the app already —
+  // the point is not having to go and look.
+  function renderStanding() {
+    const host = $("homeStanding");
+    if (!host) return;
+    const gather = window.FRPG_GATHER;
+    const bits = [];
+
+    const needs = window.FRPG_TOWER_NEEDS || [];
+    const nextFloor = needs.filter((row) => !row.complete).sort((a, b) => a.floor - b.floor)[0];
+    if (nextFloor) {
+      const left = needs.filter((row) => row.floor === nextFloor.floor && !row.complete).length;
+      bits.push(`<a href="#tower" data-open-view="tower"><span>Next floor</span><strong>T${nextFloor.floor}</strong><small>${left} mastery${left === 1 ? "" : "s"} to go</small></a>`);
+    }
+
+    if (gather && typeof gather.plan === "function") {
+      const plan = gather.plan();
+      if (plan.next) {
+        const short = plan.nextRows.filter((row) => row.short > 0).length;
+        bits.push(`<a href="#inventory" data-open-view="inventory"><span>Current step</span><strong>${esc(plan.next.title)}</strong><small>${short} item${short === 1 ? "" : "s"} still short</small></a>`);
+        if (typeof gather.towerOverlap === "function") {
+          const both = gather.towerOverlap(plan.wholeRows.filter((row) => row.short > 0)).length;
+          if (both) bits.push(`<a href="#inventory" data-open-view="inventory"><span>Counts twice</span><strong>${fmt(both)}</strong><small>items feed this line and a Tower mastery</small></a>`);
+        }
+      }
+    }
+
+    host.hidden = bits.length === 0;
+    host.innerHTML = bits.join("");
+  }
+
   function renderHome() {
     const item = state.itemId ? index.itemsById.get(state.itemId) : null;
     const enabledRows = profileRows().filter((row) => row.ids.every((id) => state.enabled.has(id))).length;
@@ -309,6 +342,7 @@
     const recent = document.querySelector("[data-home-recent]");
     if (recent) recent.onclick = () => showTab("planner");
 
+    renderStanding();
     $("homeSetupSummary").textContent = `${enabledRows}/${totalRows} permanent bonuses on · ${passive} passive sources · ${activeMeals} meals active.`;
     $("homeReadiness").textContent = `${readiness}/4 checked`;
     const readinessRows = [
@@ -2157,6 +2191,11 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
     const id = location.hash.replace(/^#/, "");
     return document.getElementById(id)?.classList.contains("view") ? id : "home";
   };
+  // gather-model.js loads after this file, so the first render of the home
+  // page cannot see it. Redraw once everything is in, and whenever what is
+  // being tracked changes.
+  window.addEventListener("load", renderStanding);
+  window.addEventListener("frpg:tracked-line", renderStanding);
   window.addEventListener("popstate", () => showTab(viewFromHash(), true));
   window.addEventListener("hashchange", () => showTab(viewFromHash(), true));
   // The Tower tab may never be opened, but the gather lists still want to know
