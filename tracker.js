@@ -53,8 +53,12 @@
   }
 
   let filter = "";
+  // A phone cannot host two docked lists — stacked they took two thirds of the
+  // screen. On a narrow screen one panel shows, with a switch for which list.
+  const narrow = window.matchMedia("(max-width: 620px)");
+  let mobileScope = "next";
 
-  function draw(which, { title, subtitle, rows, mark, collapsed, big, canExpand }) {
+  function draw(which, { title, subtitle, rows, mark, collapsed, big, canExpand, scopeSwitch }) {
     const panel = panels[which];
     panel.hidden = false;
     panel.classList.toggle("is-collapsed", collapsed);
@@ -63,6 +67,7 @@
       <header class="tracker-head">
         <button type="button" class="tracker-toggle" data-collapse="${which}" aria-expanded="${!collapsed}" title="${collapsed ? "Show" : "Hide"} this list">${collapsed ? "▲" : "▼"}</button>
         <span class="tracker-title"><b>${esc(title)}</b><small>${esc(subtitle)}</small></span>
+        ${scopeSwitch ? `<button type="button" class="tracker-toggle is-scope" data-scope="${mobileScope === "next" ? "whole" : "next"}" title="${mobileScope === "next" ? "Show the whole questline" : "Show just this step"}">${mobileScope === "next" ? "All" : "Step"}</button>` : ""}
         ${canExpand && !collapsed ? `<button type="button" class="tracker-toggle" data-size aria-pressed="${!!big}" title="${big ? "Back to the corner" : "Open across the page"}">${big ? "⤡" : "⤢"}</button>` : ""}
         <button type="button" class="tracker-toggle" data-close title="Hide until you track something again">✕</button>
       </header>
@@ -94,6 +99,23 @@
     const wholeRows = plan.wholeRows.filter((row) => row.short > 0);
     const steps = `${plan.remaining.length} step${plan.remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} items`;
 
+    const big = read("frpg_tracker_big", "") === "1";
+
+    if (narrow.matches && !big) {
+      const showingStep = mobileScope === "next";
+      panels.whole.hidden = true;
+      draw("next", {
+        title: showingStep ? plan.next.title : plan.lineName,
+        subtitle: showingStep ? plan.lineName : steps,
+        rows: showingStep ? nextRows : wholeRows,
+        mark: showingStep ? null : new Set(nextRows.map((row) => row.name)),
+        collapsed: read("frpg_tracker_next_collapsed", "") === "1",
+        canExpand: false,
+        scopeSwitch: true,
+      });
+      return;
+    }
+
     draw("next", {
       title: plan.next.title,
       subtitle: plan.lineName,
@@ -101,7 +123,6 @@
       collapsed: read("frpg_tracker_next_collapsed", "") === "1",
       canExpand: false,
     });
-    const big = read("frpg_tracker_big", "") === "1";
     const needle = filter.trim().toLowerCase();
     draw("whole", {
       title: plan.lineName,
@@ -141,6 +162,10 @@
   document.addEventListener("click", (event) => {
     const button = event.target.closest(".quest-tracker button");
     if (!button) return openItem(event.target), undefined;
+    if (button.dataset.scope) {
+      mobileScope = button.dataset.scope;
+      return render();
+    }
     if (button.dataset.collapse) {
       const key = button.dataset.collapse === "next" ? "frpg_tracker_next_collapsed" : "frpg_tracker_whole_collapsed";
       write(key, read(key, "") === "1" ? "0" : "1");
@@ -195,6 +220,7 @@
     done(false);
   }
 
+  narrow.addEventListener("change", render);
   window.addEventListener("frpg:tracked-line", render);
   window.addEventListener("storage", render);
   window.addEventListener("message", (event) => {

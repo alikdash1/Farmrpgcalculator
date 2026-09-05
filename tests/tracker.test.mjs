@@ -161,3 +161,16 @@ test("the tracker steps aside on the tab that already shows both lists", () => {
   assert.match(js, /getElementById\("inventory"\)\?\.classList\.contains\("active"\)/);
   assert.match(js, /onInventory && !panels\.whole\.classList\.contains\("is-big"\)/);
 });
+
+test("a phone gets one panel with a switch, not two stacked", () => {
+  const js = read("tracker.js");
+  const css = read("tracker.css");
+  // Two docked panels stacked took two thirds of a phone screen.
+  assert.match(js, /matchMedia\("\(max-width: 620px\)"\)/);
+  assert.match(js, /if \(narrow\.matches && !big\)/);
+  assert.match(js, /panels\.whole\.hidden = true;/);
+  assert.match(js, /data-scope/);
+  // And it re-renders if the screen changes shape.
+  assert.match(js, /narrow\.addEventListener\("change", render\)/);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.quest-tracker\.is-next \{ left: 8px/);
+});

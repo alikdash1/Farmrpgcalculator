@@ -789,3 +789,10 @@ mastered and is excluded too. Hidden entirely when there is no overlap.
   states its own total; reading 2 of 1,950 was being reported as success. It
   now says the list had not finished drawing and to scroll to the bottom first.
   The popup shows capture warnings and row counts instead of a fixed message.
+
+## 2026-09-05 — One panel on a phone
+
+Two docked panels stacked took 552px of an 812px phone screen, leaving almost
+no page. Below 620px a single panel shows, anchored to the bottom at 42% of the
+screen, with a switch in its header between the current step and the whole
+questline. The expanded full-page view still works as before.

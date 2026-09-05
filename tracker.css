@@ -155,10 +155,13 @@
   .quest-tracker.is-collapsed { width: calc(50vw - 20px); }
   .quest-tracker.is-big .tracker-list { grid-auto-flow: row; grid-template-rows: none; }
 }
-@media (max-width: 560px) {
-  .quest-tracker.is-next { left: 8px; right: 8px; width: auto; bottom: auto; top: 64px; max-height: 34vh; }
-  .quest-tracker.is-whole { left: 8px; right: 8px; width: auto; bottom: 8px; max-height: 34vh; }
+/* One panel on a phone, anchored to the bottom, with a switch in its header
+   for which list it shows. Two stacked panels took two thirds of the screen. */
+@media (max-width: 620px) {
+  .quest-tracker.is-next { left: 8px; right: 8px; width: auto; bottom: 8px; max-height: 42vh; }
   .quest-tracker.is-collapsed { width: auto; }
+  .tracker-head { grid-template-columns: 24px minmax(0, 1fr) auto auto; }
+  .tracker-toggle.is-scope { width: auto; padding: 0 8px; font-size: 10px; }
 }
 
 /* Rows open the item in the calculator, the same as every other list here. */
