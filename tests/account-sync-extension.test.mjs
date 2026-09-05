@@ -125,3 +125,15 @@ test("a mastery capture newer than the imported file is allowed to update it", (
   assert.match(app, /captureAt > fileAt \? rows : \[\]/);
   assert.doesNotMatch(app, /PERSONAL\.authoritativeMasteries \? \[\] :/);
 });
+
+test("a quests page that read only part of the list says so", () => {
+  const capture = fs.readFileSync(path.join(ext, "capture-page.js"), "utf8");
+  const popup = fs.readFileSync(path.join(ext, "popup.js"), "utf8");
+  // The page states how many completed requests exist. Reading 2 of 1,950 was
+  // reported as a clean success, which is why it could not be diagnosed.
+  assert.match(capture, /completed\.quests\.length < listed \* 0\.9/);
+  assert.match(capture, /Scroll to the bottom of the list/);
+  // And the warning has to reach the player, not just the capture file.
+  assert.match(popup, /const notes = \(result\.warnings \|\| \[\]\)/);
+  assert.ok(popup.includes("notes.length") && popup.includes("notes[0]"), "the first warning is what the popup says");
+});

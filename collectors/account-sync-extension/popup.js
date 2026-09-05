@@ -82,9 +82,20 @@ async function refresh() {
 $("#capture").onclick = async () => {
   say("Capture queued…");
   const result = await chrome.runtime.sendMessage({ type: "farmrpg-capture-active" });
-  say(result && result.ok
-    ? "Reading this page… it is saved here and sent straight to Lantern Ledger if you have it open."
-    : result && result.error || "Could not capture this page", !(result && result.ok));
+  if (!result || !result.ok) {
+    say((result && result.error) || "Could not capture this page", true);
+    setTimeout(refresh, 1200);
+    return;
+  }
+  // A capture can succeed and still have read almost nothing. The warnings are
+  // the only place that says so, and they used to go nowhere.
+  const notes = (result.warnings || []).filter(Boolean);
+  const rows = Number.isFinite(result.rowCount) ? result.rowCount : null;
+  say(notes.length
+    ? notes[0]
+    : "Read this page" + (rows === null ? "" : " — " + rows.toLocaleString() + " row" + (rows === 1 ? "" : "s")) +
+      ". Saved here, and sent to Lantern Ledger if you have it open.",
+    notes.length > 0);
   setTimeout(refresh, 1200);
 };
 

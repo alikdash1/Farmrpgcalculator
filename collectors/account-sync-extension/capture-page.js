@@ -1563,6 +1563,17 @@
     if (pageType === "mastery") applyMasteryPage(fields, parseMasteryPage(lines, visibleText));
     if (pageType.startsWith("quests")) {
       const completed = parseCompletedQuestPage(lines, visibleText);
+      // The page says how many completed requests you have. If far fewer were
+      // on screen, the list had not finished drawing — Farm RPG fills it in as
+      // you scroll. Reading 2 of 1,950 used to be reported as a clean success.
+      const listed = Number(String(completed.stats.completedListed || "").replace(/,/g, ""));
+      if (Number.isFinite(listed) && listed > 0 && completed.quests.length < listed * 0.9) {
+        fields.warnings.push(
+          "This page says you have " + listed.toLocaleString() + " completed requests but only " +
+          completed.quests.length.toLocaleString() + " had been drawn when it was read. " +
+          "Scroll to the bottom of the list so they all load, then capture again."
+        );
+      }
       if (completed.quests.length) applyCompletedQuestPage(fields, completed);
       else {
         const dashboard = parseQuestDashboard(lines, visibleText);
