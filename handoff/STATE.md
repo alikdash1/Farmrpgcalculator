@@ -1,4 +1,4 @@
-# State — 2026-09-04
+# State — 2026-09-05
 
 Keep this file short. It is read at the start of every session by both agents;
 every line it grows is paid for twice. Facts only, no history — history is in
@@ -52,6 +52,16 @@ Claim a task by adding a row before you start. Clear it when merged.
   parser had been recording as items of their own ("A blinger for your
   finger"). Anything skipped is named in the capture's warnings.
 
+
+- **Home page.** Opens with where you stand: next Tower floor and masteries
+  outstanding, the quest step you are on and items short, and the "counts
+  twice" total. Each links to its tab. `renderStanding()` is redrawn on
+  `load` because `gather-model.js` is loaded after `app.js`.
+- **Tower colours.** Green means "still ahead" only; finished requirements are
+  grey with greyscale art. It used to mean both.
+- **Mobile.** Below 620px the tracker is one bottom-anchored panel with a
+  switch between the current step and the whole line; two stacked panels took
+  two thirds of a phone screen.
 
 ## Known gaps
 

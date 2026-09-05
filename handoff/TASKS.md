@@ -11,13 +11,14 @@ matter.
 |---|---|---|---|
 | 0 | **Extension: quests captures do not land** | either | Completed quests reads 2 of ~1,950; Available reads nothing. See the note below |
 | 1 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
-| 2 | Split event quests out of `data/main-quests.js` into a lazily-loaded file | codex | 1.2 MB parsed on every load, for quests that mostly ended |
-| 3 | Add a `hashchange` listener | either | Back currently leaves the site instead of changing tab |
-| 4 | Tower "done" rows in quiet grey, green reserved for what is next | claude | Green currently means both "finished" and "active", so it means neither |
 | 5 | Mining chip source text into a tooltip | claude | The chips wrap badly once a recipe has more than about four inputs |
 | 6 | Reconcile Large Net base 400 vs the workbook's 500 | either | Two sources disagree; ask the user rather than picking one |
 | 7 | Import the 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp) | codex | Known missing data, straightforward to add |
 | 8 | Decide what happens to `publish/` | either | A divergent copy with none of this work; either resync it or delete it |
+
+Done and removed: the Back button, the Tower colour split, and splitting
+`data/main-quests.js` — that last one was measured at 102 ms to
+DOMContentLoaded and is not a performance problem.
 
 ## Notes for whoever takes #1
 
