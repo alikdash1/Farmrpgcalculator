@@ -17,7 +17,7 @@
 .mine-row > summary:hover .mine-row-cue,
 .mine-row[open] > summary .mine-row-cue { color: var(--green); }
 .mine-row > summary:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
-.mine-row-cue { color: var(--muted); font-size: .74rem; white-space: nowrap; }
+.mine-row-cue { color: var(--muted); font-size: .75rem; white-space: nowrap; }
 .mine-row[open] .mine-row-cue { visibility: hidden; }
 
 .mine-card-art {
@@ -33,8 +33,8 @@
 .mine-card-art img { max-width: 92%; max-height: 92%; object-fit: contain; }
 .mine-card-body { display: grid; gap: .12rem; min-width: 0; }
 .mine-card-body strong { font-family: var(--ui), serif; font-size: 1.05rem; }
-.mine-card-body small { color: var(--muted); font-size: .72rem; }
-.mine-card-kit { color: var(--muted) !important; font: 600 .62rem var(--ui), sans-serif; letter-spacing: .02em; }
+.mine-card-body small { color: var(--muted); font-size: .75rem; }
+.mine-card-kit { color: var(--muted) !important; font: 600 .75rem var(--ui), sans-serif; letter-spacing: .02em; }
 
 .mine-items {
   display: grid;
@@ -56,21 +56,21 @@
   align-items: center;
 }
 .mine-item-head strong { font-size: .88rem; font-weight: 600; }
-.mine-item-head small { grid-column: 2; color: var(--muted); font-size: .66rem; }
+.mine-item-head small { grid-column: 2; color: var(--muted); font-size: .75rem; }
 
 .mine-art {
   display: grid;
   place-items: center;
   border: 1px solid rgba(60,48,20,.16);
   background: linear-gradient(160deg, var(--tile), var(--tile2));
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .mine-art img { max-width: 88%; max-height: 88%; object-fit: contain; }
 .mine-art.drop { width: 34px; height: 34px; }
 .mine-art.craft { width: 28px; height: 28px; }
 .mine-art.part { width: 22px; height: 22px; border-radius: 4px; }
-.mine-art.missing { font: 700 11px var(--ui), monospace; color: var(--muted); }
+.mine-art.missing { font: 700 12px var(--ui), monospace; color: var(--muted); }
 
 .mine-craft {
   margin-top: .5rem;
@@ -79,7 +79,7 @@
 }
 .mine-craft-head { display: grid; grid-template-columns: 28px 1fr; gap: .45rem; align-items: center; }
 .mine-craft-head b { font-size: .82rem; font-weight: 600; color: var(--text); }
-.mine-craft-head small { display: block; color: var(--muted); font-size: .64rem; }
+.mine-craft-head small { display: block; color: var(--muted); font-size: .75rem; }
 
 /* Ingredients flow sideways as chips and wrap, instead of stacking one tall row
    per line — otherwise a craft with a dozen parts (Stained Glass Art) becomes an
@@ -88,20 +88,20 @@
 .mine-recipe li {
   display: inline-flex; align-items: center; gap: .32rem;
   padding: .2rem .45rem .2rem .32rem;
-  border: 1px solid var(--line); border-radius: 6px; background: var(--ink);
+  border: 1px solid var(--line); border-radius: 4px; background: var(--ink);
 }
 .mine-recipe li .mine-art.part { width: 18px; height: 18px; }
 .mine-recipe li > span { display: inline-flex; align-items: baseline; gap: .3rem; }
-.mine-recipe li b { font-size: .72rem; font-weight: 600; white-space: nowrap; }
-.mine-recipe li small { display: inline; color: var(--muted); font-size: .6rem; white-space: nowrap; }
+.mine-recipe li b { font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.mine-recipe li small { display: inline; color: var(--muted); font-size: .75rem; white-space: nowrap; }
 .mine-recipe li small.unknown { font-style: italic; opacity: .8; }
 .mine-recipe li small::before { content: "· "; }
 .mine-recipe li.is-this { border-color: var(--green); }
 .mine-recipe li.is-this b { color: var(--green); }
-.mine-recipe-none { margin: .4rem 0 0; color: var(--muted); font-size: .7rem; font-style: italic; }
+.mine-recipe-none { margin: .4rem 0 0; color: var(--muted); font-size: .75rem; font-style: italic; }
 
 .mine-onward { margin: .45rem 0 0; padding-top: .4rem; border-top: 1px dashed var(--line); }
-.mine-onward-head { display: block; color: var(--muted); font: 500 .6rem var(--ui), monospace; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
+.mine-onward-head { display: block; color: var(--muted); font: 500 .75rem var(--ui), monospace; text-transform: none; letter-spacing: 0; margin-bottom: .3rem; }
 .mine-onward-craft { margin-top: .5rem; padding-left: .55rem; border-left: 2px solid var(--line); }
 
 @media (max-width: 620px) {

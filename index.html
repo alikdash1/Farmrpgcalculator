@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#101c1c">
+  <meta name="theme-color" content="#27364B">
   <meta name="description" content="Plan Farm RPG crafting, Tower masteries, Mining, fishing, and account-aware routes in one fan-made desk.">
   <title>Lantern Ledger - Farm RPG Planner</title>
-  <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260904-1" type="image/svg+xml">
+  <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260905-102" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest?v=20260904-1">
-  <link rel="stylesheet" href="style.css?v=20260904-41">
-  <link rel="stylesheet" href="v3.css?v=20260904-61">
-  <link rel="stylesheet" href="tower.css?v=20260905-1">
-  <link rel="stylesheet" href="mining.css?v=20260903-42">
-  <link rel="stylesheet" href="quests.css?v=20260904-4">
-  <link rel="stylesheet" href="inventory.css?v=20260905-6">
-  <link rel="stylesheet" href="tracker.css?v=20260905-5">
-  <link rel="stylesheet" href="system.css?v=20260905-3">
+  <link rel="stylesheet" href="style.css?v=20260905-102">
+  <link rel="stylesheet" href="v3.css?v=20260905-102">
+  <link rel="stylesheet" href="tower.css?v=20260905-102">
+  <link rel="stylesheet" href="mining.css?v=20260905-102">
+  <link rel="stylesheet" href="quests.css?v=20260905-102">
+  <link rel="stylesheet" href="inventory.css?v=20260905-102">
+  <link rel="stylesheet" href="tracker.css?v=20260905-102">
+  <link rel="stylesheet" href="system.css?v=20260905-102">
 </head>
 <body>
   <a class="skip-link" href="#home">Skip to planner</a>
   <header class="masthead">
-    <a class="brand" href="#home" data-open-view="home" aria-label="Lantern Ledger home"><img class="brand-logo" src="assets/lantern-ledger-mark.svg" alt="" width="44" height="44"><span><strong>Lantern Ledger</strong><small>Farm RPG planning desk</small></span></a>
+    <a class="brand" href="#home" data-open-view="home" aria-label="Lantern Ledger home"><img class="brand-logo" src="assets/lantern-ledger-mark.svg?v=20260905-102" alt="" width="44" height="44"><span><strong>Lantern Ledger</strong><small>Farm RPG planning desk</small></span></a>
     <nav class="tabs" aria-label="Planner sections">
       <button class="tab active" data-tab="home">Home</button>
       <button class="tab" data-tab="planner">Calculate</button>
@@ -38,8 +38,9 @@
     <section id="home" class="view active">
       <section class="dispatch-board">
         <div class="dispatch-copy">
-          <span class="eyebrow">Farm RPG planning desk</span>
-          <h1>Plan the next move.</h1>
+          <div class="field-edge" aria-hidden="true"><img src="assets/locations/explore-forest.png?v=20260905-102" alt="" width="86" height="86"><img src="assets/locations/fishing-farm-pond.png?v=20260905-102" alt="" width="86" height="86"><img src="assets/locations/explore-highland-hills.png?v=20260905-102" alt="" width="86" height="86"></div>
+
+          <h1>The long harvest.</h1>
           <p>Set a goal. Compare crafting, buying, farming, passive production, quests, masteries, and useful co-drops.</p>
           <div id="homeRecent" class="recent-plan"></div>
           <div id="homeStanding" class="home-standing" hidden></div>
@@ -55,23 +56,23 @@
       </section>
 
       <section class="desk-drawers" aria-label="Planner work areas">
-        <button class="desk-drawer featured" data-open-view="planner"><span class="drawer-code">CALC</span><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
-        <button class="desk-drawer" data-open-view="setup"><span class="drawer-code">FARM</span><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
-        <button class="desk-drawer" data-open-view="tower"><span class="drawer-code">T340</span><strong>Tower ledger</strong><p>Your Mega Masteries, and what every floor from T300 to T340 requires.</p><span class="drawer-action">Open Tower ledger →</span></button>
-        <button class="desk-drawer" data-open-view="quests"><span class="drawer-code">QUEST</span><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
-        <button class="desk-drawer" data-open-view="mining"><span class="drawer-code">MINE</span><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
+        <button class="desk-drawer featured" data-open-view="planner"><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
+        <button class="desk-drawer" data-open-view="setup"><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
+        <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Your Mega Masteries, and what every floor from T300 to T340 requires.</p><span class="drawer-action">Open Tower ledger →</span></button>
+        <button class="desk-drawer" data-open-view="quests"><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
+        <button class="desk-drawer" data-open-view="mining"><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
       </section>
       <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
 
       <section class="desk-lower">
-        <article class="readiness-card"><div class="section-heading compact"><div><span class="eyebrow">Before You Calculate</span><h2>Check What Matches Your Farm</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
-        <article class="rule-card"><span class="eyebrow">How routes are decided</span><h2>Not every cheap route is the right route.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See why each route gets picked →</button></article>
+        <article class="readiness-card"><div class="section-heading compact"><div><h2>Before the grind</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
+        <article class="rule-card"><h2>The price is only part of it.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See why each route gets picked →</button></article>
       </section>
     </section>
 
     <section id="planner" class="view">
       <section class="goal-board">
-        <div class="goal-copy"><span class="eyebrow">Set a goal</span><h1>Choose an Item. See What It Takes.</h1><p>Enter how many you need. Craft it, buy it, fish it, explore for it, grow it, or wait for your farm.</p></div>
+        <div class="goal-copy"><h1>What will it cost?</h1><p>Enter how many you need. Craft it, buy it, fish it, explore for it, grow it, or wait for your farm.</p></div>
         <div class="goal-controls">
           <label class="field search-field"><span>Item</span><input id="search" type="search" name="item-search" placeholder="Red Trunk…" autocomplete="off"><div id="suggest" class="suggest hidden"></div></label>
           <label class="field quantity-field"><span>Target quantity</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
@@ -92,7 +93,7 @@
 
         <section id="gatherPanel" class="gather-panel hidden"></section>
 
-        <div class="section-heading" id="routeSummaryHead"><div><span class="eyebrow">Route summary</span><h2>Your Route at a Glance</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
+        <div class="section-heading" id="routeSummaryHead"><div><h2>Route comparison</h2></div><p>Change any route below when you want a different location, mastery, or useful co-drop.</p></div>
         <section class="route-grid three" id="routeGrid">
           <article id="bestRoute" class="route-card verdict-route"></article>
           <article id="grindRoute" class="route-card grind-route"></article>
@@ -103,39 +104,39 @@
         <section id="makeBuy" class="make-buy hidden"></section>
 
         <section class="workbench" id="workbench">
-          <div class="section-heading compact"><div><span class="eyebrow" id="workbenchEyebrow">Shopping &amp; Farming List</span><h2 id="workbenchTitle">Items You Still Need</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
+          <div class="section-heading compact"><div><span class="scope-label" id="workbenchEyebrow">Shopping &amp; Farming List</span><h2 id="workbenchTitle">Items still needed</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
           <div class="tablewrap"><table id="ingTable"><thead><tr><th>Ingredient</th><th class="num">Need</th><th class="num">Owned</th><th class="num">Missing</th><th>How to Get It</th><th>Cost & Useful Drops</th></tr></thead><tbody></tbody></table></div>
         </section>
 
-        <section class="tree-card" id="treeCard"><div class="section-heading compact"><div><span class="eyebrow">Step by step</span><h2>How this breaks down</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
+        <section class="tree-card" id="treeCard"><div class="section-heading compact"><div><h2>Ingredient tree</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
       </section>
     </section>
 
     <section id="setup" class="view">
-      <section class="page-intro"><span class="eyebrow">Your Setup</span><h1>Tell the Calculator What You Own.</h1><p>Turn on your permanent perks and passive buildings. Check meals only when you plan to use them for this calculation.</p></section>
-      <aside class="account-import-callout"><div><span class="eyebrow">Optional account import</span><strong>Review before applying</strong><p>Import your account to fill exact inventory and confirmed perks. Review the result before applying it.</p></div><a href="collectors/account-importer/index.html" class="quiet-button">Open local importer</a></aside>
+      <section class="page-intro"><h1>Your farm, accounted for.</h1><p>Turn on your permanent perks and passive buildings. Check meals only when you plan to use them for this calculation.</p></section>
+      <aside class="account-import-callout"><div><span class="scope-label">Optional account import</span><strong>Review before applying</strong><p>Import your account to fill exact inventory and confirmed perks. Review the result before applying it.</p></div><a href="collectors/account-importer/index.html" class="quiet-button">Open local importer</a></aside>
 
-      <div class="setup-heading"><div><span class="eyebrow">Permanent</span><h2>Perks and artifacts</h2><div id="profileSummary"></div></div><div><button id="maxProfile" class="quiet-button">Endgame: enable all</button><button id="zeroProfile" class="quiet-button">Disable all</button></div></div>
+      <div class="setup-heading"><div><span class="scope-label">Permanent</span><h2>Perks and artifacts</h2><div id="profileSummary"></div></div><div><button id="maxProfile" class="quiet-button">Endgame: enable all</button><button id="zeroProfile" class="quiet-button">Disable all</button></div></div>
       <div id="perkGroups" class="perk-groups"></div>
 
-      <div class="section-heading setup-section"><div><span class="eyebrow">Passive supply</span><h2>Farm production</h2></div><p>“Covered” removes an item from the main bottleneck list. Enter a useful rate if you also want a wait-time estimate.</p></div>
+      <div class="section-heading setup-section"><div><h2>Farm production</h2></div><p>“Covered” removes an item from the main bottleneck list. Enter a useful rate if you also want a wait-time estimate.</p></div>
       <div id="infraGrid" class="infra-grid"></div>
 
-      <div class="section-heading setup-section"><div><span class="eyebrow">Temporary effects</span><h2>Meals used for this plan</h2></div><p>Checked meals are assumed active while you execute the relevant part of the plan.</p></div>
+      <div class="section-heading setup-section"><div><span class="scope-label">Temporary effects</span><h2>Meals used for this plan</h2></div><p>Checked meals are assumed active while you execute the relevant part of the plan.</p></div>
       <div id="mealGrid" class="meal-grid"></div>
 
     </section>
 
     <section id="account" class="view">
-      <section class="page-intro"><span class="eyebrow">Your Farm</span><h1>Import Your Account.</h1><p>Load one complete snapshot to fill inventory, Tower, masteries, quests, perks, pets, and other progress. Your data stays in this browser.</p></section>
+      <section class="page-intro"><h1>Bring your farm along.</h1><p>Load one complete snapshot to fill inventory, Tower, masteries, quests, perks, pets, and other progress. Your data stays in this browser.</p></section>
       <section class="account-import-panel">
-        <div class="account-import-copy"><span class="eyebrow">Automatic</span><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><button class="primary-link" type="button" id="goGuide">How to install and connect it</button></div></div>
-        <div class="account-import-copy"><span class="eyebrow">By hand</span><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button></div>
+        <div class="account-import-copy"><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><button class="primary-link" type="button" id="goGuide">How to install and connect it</button></div></div>
+        <div class="account-import-copy"><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button></div>
       </section>
       <section id="syncGuide" class="sync-guide">
         <div class="sync-guide-head">
           <div>
-            <span class="eyebrow">Setup</span>
+
             <h2>Installing and connecting the account sync</h2>
             <p>Three short steps, done once. After that it keeps itself current while you play.</p>
           </div>
@@ -204,8 +205,8 @@
     <section id="tower" class="view">
       <section class="tower-ledger-head">
         <div class="tower-ledger-copy">
-          <span class="eyebrow">Personal Tower ledger</span>
-          <h1>Your Road to T340.</h1>
+
+          <h1>The climb to T340</h1>
           <p>See your named Mega Mastery goals first, then the masteries every floor from T300 to T340 requires.</p>
         </div>
         <div class="tower-next-stamp"><span>Next floor</span><strong id="towerNextFloor">T277</strong><small id="towerCaptureAge">Saved account data</small></div>
@@ -222,7 +223,7 @@
 
     <section id="quests" class="view">
       <section class="quest-hero">
-        <div><span class="eyebrow">Permanent Story Quests</span><h1>Know What Comes Next.</h1><p>Every questline in the game, with each step’s items and the sequels kept in order. Import your account to mark what is done or available. Seasonal quests are here too, filed under Events.</p></div>
+        <div><h1>Unfinished business</h1><p>Every questline in the game, with each step’s items and the sequels kept in order. Import your account to mark what is done or available. Seasonal quests are here too, filed under Events.</p></div>
       </section>
       <section id="questSummary" class="quest-summary" aria-label="Main quest summary"></section>
       <section class="quest-toolbar" aria-label="Quest filters">
@@ -242,7 +243,7 @@
 
     <section id="inventory" class="view inventory-page">
       <section class="inventory-intro">
-        <div><span class="eyebrow">Inventory</span><h1>Gather for what comes next.</h1><p id="inventoryTracking" class="inventory-tracking"></p></div>
+        <div><h1>On hand. Still needed.</h1><p id="inventoryTracking" class="inventory-tracking"></p></div>
       </section>
       <section class="inventory-owned-section">
         <header class="inventory-section-heading"><div><h2>Your inventory</h2><p>Search the items currently saved in Lantern Ledger.</p></div><div id="inventorySummary" class="inventory-summary" aria-live="polite"></div></header>
@@ -259,8 +260,8 @@
 
       <header class="inventory-plan-heading"><h2>What to gather</h2><p>The next step stays focused; the full list shows the entire remaining commitment.</p></header>
       <section class="inventory-panels">
-        <article class="inventory-panel" aria-label="Next quest"><div class="eyebrow">Next quest</div><div id="inventoryNext"></div></article>
-        <article class="inventory-panel" aria-label="Whole questline"><div class="eyebrow">Whole questline</div><div id="inventoryWhole"></div></article>
+        <article class="inventory-panel" aria-label="Next quest"><span class="scope-label">Next quest</span><div id="inventoryNext"></div></article>
+        <article class="inventory-panel" aria-label="Whole questline"><span class="scope-label">Whole questline</span><div id="inventoryWhole"></div></article>
       </section>
       <div id="inventoryOverlay" class="inventory-overlay" role="dialog" aria-modal="true" aria-labelledby="inventoryOverlayTitle" hidden>
         <header class="inventory-overlay-head">
@@ -275,20 +276,20 @@
 
     <section id="mining" class="view">
       <section class="page-intro">
-        <span class="eyebrow">Mining</span>
-        <h1>Pick a mine.</h1>
+
+        <h1>Below the farm</h1>
         <p>Every mine, what it drops, and what those drops go on to make.</p>
       </section>
 
       <section id="mineGrid" class="mine-list" aria-label="Mines"></section>
     </section>
     <section id="fieldlab" class="view">
-      <section class="page-intro"><span class="eyebrow">Your measurements</span><h1>Measure what guides cannot.</h1><p>Keep account-specific tests separate from universal game facts.</p></section>
+      <section class="page-intro"><h1>Field notes</h1><p>Keep account-specific tests separate from universal game facts.</p></section>
 
       <section class="lab-principles"><article><span>01</span><strong>One controlled run</strong><p>Record the location, bulk method, uses and Hide gained.</p></article><article><span>02</span><strong>Your data only</strong><p>Samples affect your browser and are never treated as a global drop rate.</p></article><article><span>03</span><strong>Unknown stays unknown</strong><p>Amber assumptions remain editable until a reliable source proves them.</p></article></section>
 
       <section class="acorn-lab">
-        <div class="section-heading"><div><span class="eyebrow">Field notes</span><h2>Acorn Pie samples</h2></div><p>One Pie lasts 150 actions. Cabbage Stew packs 5 Ciders into one action; Lemon Cream Pie does the same for 5 AP.</p></div>
+        <div class="section-heading"><div><h2>Acorn Pie samples</h2></div><p>One Pie lasts 150 actions. Cabbage Stew packs 5 Ciders into one action; Lemon Cream Pie does the same for 5 AP.</p></div>
         <form id="acornForm" class="sample-form">
           <label>Location<input name="location" required placeholder="Gary's Crushroom"></label>
           <label>Method<select name="method"><option value="ap">Arnold Palmer</option><option value="cider">Apple Cider</option><option value="lemonade">Lemonade</option><option value="manual">Manual</option></select></label>
@@ -299,11 +300,11 @@
         <div id="acornTests" class="sample-list"></div>
       </section>
 
-      <section class="assumption-card"><div class="section-heading compact"><div><span class="eyebrow">Advanced</span><h2>Numbers behind the plan</h2></div><button id="resetAssumptions" class="quiet-button">Reset estimates</button></div><p class="assumption-note">Amber rows are not fully verified. Change them if your account or a newer Library entry proves a better value.</p><div id="assumptionGrid" class="assumption-grid"></div></section>
+      <section class="assumption-card"><div class="section-heading compact"><div><span class="scope-label">Advanced</span><h2>Numbers behind the plan</h2></div><button id="resetAssumptions" class="quiet-button">Reset estimates</button></div><p class="assumption-note">Amber rows are not fully verified. Change them if your account or a newer Library entry proves a better value.</p><div id="assumptionGrid" class="assumption-grid"></div></section>
     </section>
 
     <section id="library" class="view">
-      <section class="page-intro"><span class="eyebrow">Why routes get picked</span><h1>The reasoning behind the plan.</h1><p>The exceptions an experienced player would make, what each meal actually changes, and where the numbers came from.</p></section>
+      <section class="page-intro"><h1>Behind the numbers</h1><p>The exceptions an experienced player would make, what each meal actually changes, and where the numbers came from.</p></section>
       <div id="knowledgeStatus" class="knowledge-status"></div>
       <div id="dataSummary" class="data-summary"></div>
       <section class="library-grid"><article class="source-list"><h2>Route exceptions worth knowing</h2><p>Habits an experienced player has that the cheapest-price maths would miss. They steer the plan, but none of them pretend to be a measured drop rate.</p><div id="strategyRules" class="strategy-rules"></div></article><article class="source-list"><h2>What each meal actually does</h2><p>Meals that only save clicks are labelled as saving clicks — they don't change how much material you need.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
@@ -335,7 +336,7 @@
   <script src="engine.js?v=20260904-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260905-15"></script>
+  <script src="app.js?v=20260905-104"></script>
   <script src="mining-page.js?v=20260904-1"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260905-6"></script>
@@ -344,10 +345,3 @@
   <script src="sync-guide.js?v=20260904-2"></script>
 </body>
 </html>
-
-
-
-
-
-
-

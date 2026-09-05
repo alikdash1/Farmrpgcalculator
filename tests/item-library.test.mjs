@@ -49,3 +49,28 @@ test("a complete item list is what tells an item from a line of prose", () => {
     assert.equal(art.isKnownItem(name), false, `${name} is description text`);
   }
 });
+
+test("an item's own name decides its artwork; fallbackName only fills a gap", () => {
+  const app = read("app.js");
+  // Read the other way round, a Setup card looked up its building ("Iron
+  // Depot") instead of the item it produces ("Iron"), and drew a letter.
+  assert.match(app, /const name = \(item && item\.name\) \|\| fallbackName \|\| "";/);
+  // And every call that can pass a null item now passes the name with it.
+  assert.match(app, /itemImg\(dropItem, "drop-art", drop\.name\)/);
+  assert.match(app, /itemImg\(item, "drop-art", entry\.itemName\)/);
+  assert.match(app, /itemImg\(item, "drop-art", reward\.name\)/);
+  assert.match(app, /itemImg\(item, "drop-art", effect\.name\)/);
+});
+
+test("capture text that is not an item never renders as one", () => {
+  const app = read("app.js");
+  // gather-model.js filtered the gather lists; the Account tab rendered the
+  // same description rows as masteries, consumables and active effects.
+  assert.match(app, /const isRealItem = \(name\)/);
+  assert.match(app, /ART\.isKnownItem\(text\)/);
+  for (const list of ["snapshot.inventory", "snapshot.masteries", "snapshot.activeEffects"]) {
+    assert.ok(app.includes(list) && app.includes("isRealItem"), `${list} is filtered`);
+  }
+  // And a description cannot reach the working inventory either.
+  assert.match(app, /if \(!isRealItem\(entry\.name\)\) continue;/);
+});

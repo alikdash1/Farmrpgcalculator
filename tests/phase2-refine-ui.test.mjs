@@ -22,7 +22,9 @@ test("calculator exposes per-item locations and opt-in seasonal areas", () => {
 
 test("expected co-drops use item artwork", () => {
   assert.match(app, /class="drop-chip"/);
-  assert.match(app, /itemImg\(dropItem, "drop-art"\)/);
+  // The name has to travel with it, or the art lookup has nothing to search
+  // for when the drop is not in the main dataset.
+  assert.match(app, /itemImg\(dropItem, "drop-art", drop\.name\)/);
   assert.match(css, /\.drop-chips/);
 });
 

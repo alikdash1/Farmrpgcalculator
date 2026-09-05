@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-05.19";
+  const FRPG_BUILD = "2026-09-05.dusk4";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -94,9 +94,24 @@
   // fallbackImg lets a data file that carries its own artwork — the Tower's
   // wiki images, say — still draw when the item is not in the shared art map.
   // Without it that artwork is silently dropped and the tile shows an initial.
+  // Farm RPG prints a description under each item name, and older captures
+  // stored those as rows of their own ("A blinger for your finger", "Adds 100
+  // Stamina"). gather-model.js filters them for the gather lists; anything
+  // rendering capture data needs the same guard or they surface here instead.
+  const isRealItem = (name) => {
+    const text = String(name || "").trim();
+    if (!text) return false;
+    if (ART && ART.isCurrency && ART.isCurrency(text)) return true;
+    if (ART && ART.isKnownItem) return ART.isKnownItem(text);
+    return true;
+  };
+
   const itemImg = (item, cls, fallbackName, fallbackImg) => {
     const px = artPx(cls);
-    const name = fallbackName || (item && item.name) || "";
+    // The item's own name wins: fallbackName is for when there is no item at
+    // all. Reading it the other way round made the Setup cards look up their
+    // building ("Iron Depot") instead of the item they produce ("Iron").
+    const name = (item && item.name) || fallbackName || "";
     const src = (ART ? ART.urlFor(name) : "") || fallbackImg || "";
     return src
       ? `<span class="item-art ${cls || ""}"><img loading="lazy" width="${px}" height="${px}" referrerpolicy="no-referrer" src="${esc(src)}" alt="${esc(name)}"></span>`
@@ -938,7 +953,7 @@
       const dropItem = itemByName(drop.name);
       const exactRate = ((EXACT_AP_RATES[route.location] || {})[drop.name]) || null;
       const rate = exactRate ? `${Number(exactRate.value).toFixed(2)} ${exactRate.unit}` : "";
-      return `<span class="drop-chip">${itemImg(dropItem, "drop-art")}<span><b>${fmt(drop.expected)}</b><small>${esc(drop.name)}</small>${rate ? `<small>${rate}</small>` : ""}</span></span>`;
+      return `<span class="drop-chip">${itemImg(dropItem, "drop-art", drop.name)}<span><b>${fmt(drop.expected)}</b><small>${esc(drop.name)}</small>${rate ? `<small>${rate}</small>` : ""}</span></span>`;
     }).join("")}</span>`);
     if (route.location && EVENT_LOCATIONS.has(route.location)) lines.push(`<span class="event-warning"><b>Seasonal:</b> ${esc(route.location)} is only included because event locations are enabled.</span>`);
     if (fact.hoard) {
@@ -1127,7 +1142,7 @@
       : "";
 
     panel.innerHTML =
-      `<div class="gather-head"><span class="eyebrow">Gathered, not crafted</span>` +
+      `<div class="gather-head"><span class="scope-label">Gathered, not crafted</span>` +
       `<h2>${esc(goal.name)} × ${fmt(state.qty)} — ${esc(words.verb)}</h2>` +
       `<p class="gather-sub">${canBuy ? "What each way actually costs you. No winner is picked — that depends on your own stamina and stock." : "Fish cannot be mailed, so there is no trade route — this is the only way to get it."}</p></div>` +
       (places.length > 1
@@ -1289,7 +1304,7 @@
     const goalSummary = goalIsCrafted
       ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted`
       : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><span class="eyebrow">Active goal</span><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
       trail("Buying part", tradeGoldEq > 0 ? fmt(tradeGoldEq) + " gold" : "nothing", tradeGoldEq > 0 ? "the pieces you're buying" : "you're not buying any of it", "violet"),
@@ -1325,7 +1340,7 @@
 
     if (coveredRows.length) {
       el.covered.classList.remove("hidden");
-      el.covered.innerHTML = `<div><span class="eyebrow">Your farm already covers these</span><strong>${plural(coveredRows.length, "ingredient you do not need to chase", "ingredients you do not need to chase")}</strong><p>${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)} — ${esc(row.route.label)}`).join(" · ")}</p></div><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show them in the list anyway</label>`;
+      el.covered.innerHTML = `<div><span class="scope-label">Your farm already covers these</span><strong>${plural(coveredRows.length, "ingredient you do not need to chase", "ingredients you do not need to chase")}</strong><p>${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)} — ${esc(row.route.label)}`).join(" · ")}</p></div><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show them in the list anyway</label>`;
       el.covered.querySelector("[data-show-covered]").onchange = (event) => { state.showCovered = event.target.checked; $("toggleCovered").checked = state.showCovered; render(); };
     } else {
       el.covered.classList.add("hidden");
@@ -1333,7 +1348,7 @@
 
     if (activeDecisions.length) {
       el.makeBuy.classList.remove("hidden");
-      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><span class="eyebrow">Route decisions</span><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
+      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
         const selected = state.makeChoices[decision.item.id] || "auto";
         const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients on the cheapest routes` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
@@ -1450,14 +1465,14 @@
       { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive hourly. Hickory adds six 20% ticks during its hour; useful output can still be limited by inventory or Craftworks.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
       { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];
-    $("infraGrid").innerHTML = infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art")}<div><span class="eyebrow">Farm source</span><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
+    $("infraGrid").innerHTML = infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
     document.querySelectorAll("[data-infra]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infra] = input.checked; save(); render(); }; });
     document.querySelectorAll("[data-infra-number]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infraNumber] = Number(input.value || 0); save(); render(); }; });
     document.querySelectorAll("[data-effect-direct]").forEach((input) => { input.onchange = () => { input.checked ? state.enabled.add(input.dataset.effectDirect) : state.enabled.delete(input.dataset.effectDirect); save(); renderSetup(); render(); }; });
 
     $("mealGrid").innerHTML = MEALS.map((meal) => {
       const item = itemByName(meal.name) || (meal.img ? { name: meal.name, img: meal.img } : null);
-      return `<label class="meal-card ${state.meals[meal.id] ? "active" : ""}"><input type="checkbox" data-meal="${meal.id}" ${state.meals[meal.id] ? "checked" : ""}>${itemImg(item, "meal-art")}<span><small>${esc(meal.area)}</small><strong>${esc(meal.name)}</strong><b>${esc(meal.effect)}</b><p>${esc(meal.calc)}</p></span></label>`;
+      return `<label class="meal-card ${state.meals[meal.id] ? "active" : ""}"><input type="checkbox" data-meal="${meal.id}" ${state.meals[meal.id] ? "checked" : ""}>${itemImg(item, "meal-art", meal.name)}<span><small>${esc(meal.area)}</small><strong>${esc(meal.name)}</strong><b>${esc(meal.effect)}</b><p>${esc(meal.calc)}</p></span></label>`;
     }).join("");
     document.querySelectorAll("[data-meal]").forEach((input) => { input.onchange = () => { state.meals[input.dataset.meal] = input.checked; save(); renderSetup(); render(); }; });
 
@@ -1830,10 +1845,10 @@
     const q = snapshot.quests || {};
     const questBuckets = ["available", "active", "ready", "completed", "locked"];
     const questCount = questBuckets.reduce((sum, key) => sum + ((q[key] || []).length), 0);
-    const inventory = snapshot.inventory || [];
-    const masteries = snapshot.masteries || [];
-    const consumables = Object.entries(snapshot.consumables || {}).sort((a, b) => a[0].localeCompare(b[0]));
-    const activeEffects = snapshot.activeEffects || [];
+    const inventory = (snapshot.inventory || []).filter((row) => isRealItem(row.name || row.itemName));
+    const masteries = (snapshot.masteries || []).filter((row) => isRealItem(row.itemName));
+    const consumables = Object.entries(snapshot.consumables || {}).filter(([name]) => isRealItem(name)).sort((a, b) => a[0].localeCompare(b[0]));
+    const activeEffects = (snapshot.activeEffects || []).filter((row) => isRealItem(row.name));
     const perks = snapshot.perks || [];
     const supply = snapshot.farmSupply || [];
     const pets = snapshot.pets || [];
@@ -1866,7 +1881,7 @@
     $("accountMasteries").innerHTML = `<div class="account-kv"><div><span>Mastered</span><b>${fmt(Number(masteryStats.mastered ?? masteries.filter((m2) => m2.mastered === true).length))}</b></div><div><span>Grand mastered</span><b>${fmt(Number(masteryStats.grandMastered ?? masteries.filter((m2) => m2.grandMastery === true).length))}</b></div><div><span>Mega mastered</span><b>${fmt(Number(masteryStats.megaMastered ?? masteries.filter((m2) => m2.megaMastery === true).length))}</b></div></div><div class="account-list"><strong>Closest to next tier</strong>${unfinished.length ? unfinished.map((entry) => {
       const item = itemByName(entry.itemName);
       const target = entry.progressTarget != null ? ` / ${fmt(Number(entry.progressTarget))}` : "";
-      return `<span class="account-item">${itemImg(item, "drop-art")}<span>${esc(entry.itemName)}${entry.masteryCount != null ? ` · ${fmt(Number(entry.masteryCount))}${target}` : ""}</span></span>`;
+      return `<span class="account-item">${itemImg(item, "drop-art", entry.itemName)}<span>${esc(entry.itemName)}${entry.masteryCount != null ? ` · ${fmt(Number(entry.masteryCount))}${target}` : ""}</span></span>`;
     }).join("") : "<span>No unfinished mastery entries were captured.</span>"}</div>`;
     const tower = snapshot.towerProgress || {};
     const nextRewards = tower.nextRewards || [];
@@ -1879,17 +1894,17 @@
       <div><span>Next silver cost</span><b>${fmt(Number(tower.nextSilverCost || 0))}</b></div>
     </div><div class="account-list"><strong>Next rewards</strong>${nextRewards.map((reward) => {
       const item = itemByName(reward.name);
-      return `<span class="account-item">${itemImg(item, "drop-art")}<span>${fmt(Number(reward.quantity))} ${esc(reward.name)}</span></span>`;
+      return `<span class="account-item">${itemImg(item, "drop-art", reward.name)}<span>${fmt(Number(reward.quantity))} ${esc(reward.name)}</span></span>`;
     }).join("") || "<span>No visible next-floor rewards.</span>"}</div>` : "<p>Tower details have not been captured yet.</p>";
     const warnings = [...(snapshot.warnings || []), ...(snapshot.unknownFields || []).map((field) => "Missing: " + field)];
     $("accountWarnings").innerHTML = warnings.length ? warnings.slice(0, 30).map((warning) => `<p>${esc(warning)}</p>`).join("") : "<p>Nothing looked wrong in what you imported.</p>";
     $("accountConsumables").innerHTML = (consumables.length || activeEffects.length) ? consumables.slice(0, 10).map(([name, entry]) => {
         const item = itemByName(name);
-        return `<span>${itemImg(item, "drop-art")}<b>${fmt(Number(entry.quantity || 0))}</b><small>${esc(name)}</small></span>`;
+        return `<span>${itemImg(item, "drop-art", name)}<b>${fmt(Number(entry.quantity || 0))}</b><small>${esc(name)}</small></span>`;
       }).join("") + activeEffects.map((effect) => {
         const item = itemByName(effect.name);
         const detail = effect.uses != null ? `${fmt(Number(effect.uses))} uses` : effect.remaining || "active";
-        return `<span>${itemImg(item, "drop-art")}<b>${esc(detail)}</b><small>${esc(effect.name)} · at capture</small></span>`;
+        return `<span>${itemImg(item, "drop-art", effect.name)}<b>${esc(detail)}</b><small>${esc(effect.name)} · at capture</small></span>`;
       }).join("") : "";
   }
 
@@ -2046,6 +2061,7 @@
     if (!state.account) return;
     let inventoryApplied = 0;
     for (const entry of state.account.inventory || []) {
+      if (!isRealItem(entry.name)) continue;
       const id = index.idByName.get(String(entry.name || "").trim().toLowerCase());
       const quantity = Number(entry.quantity);
       if (id && Number.isFinite(quantity) && quantity >= 0) {
@@ -2173,7 +2189,7 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
     const mealByName = new Map(K.meals.map((meal) => [meal.name.toLowerCase(), meal]));
     $("mechanicsIndex").innerHTML = MEALS.map((meal) => {
       const known = mealByName.get(meal.name.toLowerCase());
-      return `<article><div>${itemImg(itemByName(meal.name) || (meal.img ? { img: meal.img } : null), "table-art")}<span><strong>${esc(meal.name)}</strong><small>${esc(meal.area)}</small></span></div><p>${esc((known && known.effect) || meal.effect)}</p><b>${esc(meal.calc)}</b></article>`;
+      return `<article><div>${itemImg(itemByName(meal.name), "table-art", meal.name, meal.img)}<span><strong>${esc(meal.name)}</strong><small>${esc(meal.area)}</small></span></div><p>${esc((known && known.effect) || meal.effect)}</p><b>${esc(meal.calc)}</b></article>`;
     }).join("");
   }
 

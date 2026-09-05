@@ -45,7 +45,7 @@
 }
 
 .quest-search { flex: 1; min-width: 220px; }
-.quest-search span { display: block; margin-bottom: 6px; color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.quest-search span { display: block; margin-bottom: 6px; color: var(--muted); font-size: .75rem; letter-spacing: 0; text-transform: none; }
 .quest-search input { width: 100%; }
 .quest-filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .quest-filters button.active { color: var(--ink); background: var(--gold); border-color: var(--gold); }
@@ -91,13 +91,13 @@
 .quest-step-head strong,
 .quest-step-head small { display: block; overflow-wrap: anywhere; }
 .quest-step-head small { color: var(--muted); }
-.quest-step-head > span { flex: none; padding: 4px 8px; border: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
+.quest-step-head > span { flex: none; padding: 4px 8px; border: 1px solid var(--line); color: var(--muted); font-size: .75rem; }
 .quest-step.is-completed { opacity: .68; }
 .quest-step.is-ready .quest-step-head > span,
 .quest-step.is-active .quest-step-head > span { color: var(--gold); border-color: var(--gold); }
 
 .quest-items { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-.quest-item { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; padding: 7px 9px; border: 1px solid var(--line); background: var(--ink2); font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 6px; transition: border-color .15s, background .15s; }
+.quest-item { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; padding: 7px 9px; border: 1px solid var(--line); background: var(--ink2); font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 4px; transition: border-color .15s, background .15s; }
 .quest-item:hover { border-color: var(--gold); background: var(--ink3); }
 .quest-item:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .quest-item img { object-fit: contain; }
@@ -124,7 +124,7 @@
 .tower-need-grp .tower-reward-label { display: block; }
 .tower-cost-items { display: flex; flex-wrap: wrap; gap: 6px; }
 .tower-need .tower-cost-items { padding: 0; }
-.tower-cost-item { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 3px 8px 3px 4px; border: 1px solid var(--line); border-radius: 6px; }
+.tower-cost-item { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 3px 8px 3px 4px; border: 1px solid var(--line); border-radius: 4px; }
 .tower-cost-item img { flex: none; object-fit: contain; }
 .tower-cost-item span { min-width: 0; }
 .tower-cost-item b,
@@ -155,7 +155,7 @@
 }
 
 .quest-line-actions { display: flex; align-items: center; gap: .75rem; }
-.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 .67rem var(--ui), sans-serif; cursor: pointer; }
+.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 .75rem var(--ui), sans-serif; cursor: pointer; }
 .quest-track:hover, .quest-track.is-tracked { color: var(--green); border-color: var(--green); }
 .quest-item.is-currency { cursor: default; }
 .quest-item.is-static { cursor: default; border-color: transparent; }
@@ -179,7 +179,7 @@
   border: 1px solid var(--line);
   border-radius: 4px;
   color: var(--muted);
-  font-size: .62rem;
+  font-size: .75rem;
   font-style: normal;
   letter-spacing: .02em;
   vertical-align: 1px;
@@ -188,4 +188,4 @@
 
 /* A questline that Farm RPG renames as it goes. The alternate names sit under
    the title so the chain is recognisable however the game last called it. */
-.quest-line-aka { margin-top: 2px; color: var(--muted); font-size: .72rem; }
+.quest-line-aka { margin-top: 2px; color: var(--muted); font-size: .75rem; }

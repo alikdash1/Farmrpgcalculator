@@ -1,443 +1,84 @@
-/* ============================================================================
-   Lantern Ledger — visual system
-   ----------------------------------------------------------------------------
-   Loaded last, on purpose. The five stylesheets before this one each grew their
-   own card, spacing and colour habits, and gold ended up doing six unrelated
-   jobs at once: labels, links, hover, focus, active state and data. When one
-   colour means everything, it means nothing — which is what made the interface
-   feel improvised.
-
-   This file assigns one job per colour and one scale per dimension:
-
-     gold    data you are reading — quantities, rates, totals. Nothing else.
-     green   state — on, selected, open. Never used for a label.
-     text    links and actions, underlined on hover rather than coloured.
-     muted   labels, eyebrows, captions.
-
-   Structure comes from ruled hairlines and alignment, the way a ledger does,
-   not from filled boxes. The one place a fill is allowed is the ledger mark:
-   a 2px green rule down the left edge of anything currently switched on.
-   ========================================================================== */
-
-:root {
-  /* two radii, not eleven */
-  --r-sm: 4px;
-  --r-md: 8px;
-
-  /* 4px spacing scale */
-  --s1: 4px;
-  --s2: 8px;
-  --s3: 12px;
-  --s4: 16px;
-  --s5: 24px;
-  --s6: 32px;
-
-  /* state = the green accent */
-  --on: var(--green);
-  --on-dim: rgba(92, 192, 141, .5);
-  --on-wash: rgba(92, 192, 141, .12);
-
-  /* hairline that reads on a dark ground */
-  --rule: rgba(255, 255, 255, .09);
-
-  /* three voices, one job each */
-  --display: var(--ui);
-  --prose: var(--ui);
-  --data: var(--ui);
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/atkinson-hyperlegible-400-latin-ext.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/atkinson-hyperlegible-400-latin.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(assets/fonts/atkinson-hyperlegible-700-latin-ext.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(assets/fonts/atkinson-hyperlegible-700-latin.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Bree Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/bree-serif-400-latin-ext.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Bree Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/bree-serif-400-latin.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/ibm-plex-mono-400-latin-ext.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(assets/fonts/ibm-plex-mono-400-latin.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(assets/fonts/ibm-plex-mono-500-latin-ext.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(assets/fonts/ibm-plex-mono-500-latin.woff2?v=20260905-101) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* --- labels are labels ---------------------------------------------------- */
-/* Every eyebrow was gold, which made captions shout as loudly as values. */
-.eyebrow,
-.drawer-code,
-.gather-col > span,
-.gather-where > span,
-.gather-where-fixed > span,
-.path-head,
-.gather-haul-head,
-.meal-strip-head,
-.mine-onward-head,
-.tower-reward-label,
-.lab-principles span,
-.strategy-rules span,
-.mine-card-kit,
-.tower-pay {
-  color: var(--muted) !important;
-  font-weight: 600;
-  letter-spacing: .02em;
-}
-
-/* --- data keeps the ink -------------------------------------------------- */
-.trail-stop strong,
-.route-metric b,
-.gather-line strong,
-.haul-chip b,
-.mine-recipe li.is-this b,
-.gather-mastery b,
-.buy-total b {
-  color: var(--gold);
-}
-
-/* --- links and actions read as links, not as highlights ------------------ */
-.text-action,
-.drawer-action,
-.quest-line-progress,
-.mine-row-cue,
-.route-evidence > summary,
-.mine-open {
-  color: var(--muted);
-  text-decoration: none;
-}
-.text-action:hover,
-.drawer-action:hover,
-.route-evidence > summary:hover,
-.mine-open:hover,
-.mine-row > summary:hover .mine-row-cue,
-.quest-line > summary:hover .quest-line-progress {
-  color: var(--text);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* --- state: the ledger mark ---------------------------------------------- */
-/* Anything switched on gets a rule down its left edge and a barely-there
-   wash. No amber block fills — those read as warnings, not settings. */
-.meal-chip.on,
-.gather-method.on,
-.path-pick.on,
-.quest-filters button.active,
-.mine-row[open] {
-  border-color: var(--on-dim) !important;
-  background: var(--on-wash) !important;
-  box-shadow: inset 2px 0 0 var(--on);
-}
-.meal-chip.on::after {
-  background: var(--on);
-  color: var(--ink);
-}
-.mine-row[open] > summary .mine-row-cue { color: var(--muted); }
-
-/* --- one card idiom ------------------------------------------------------ */
-.route-card,
-.gather-col,
-.gather-panel,
-.mine-row,
-.mine-item,
-.haul-chip,
-.path-pick,
-.meal-chip,
-.decision-row,
-.tower-cost-card,
-.quest-line {
-  border-radius: var(--r-md);
-}
-.haul-chip,
-.meal-chip,
-.path-pick,
-.buy-rate .buy-per-k,
-.buy-rate .buy-cur,
-.meal-strip-toggle,
-.mine-art,
-.item-art {
-  border-radius: var(--r-sm);
-}
-.item-art.goal-art { border-radius: var(--r-md); }
-
-/* Hairlines do the dividing; drop the competing inner borders. */
-.mine-craft,
-.mine-onward,
-.gather-path,
-.gather-haul,
-.path-buy { border-top-color: var(--rule); }
-
-/* --- focus is the one place a bright ring belongs ------------------------ */
-:where(a, button, select, input, textarea, summary, label, [tabindex]):focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
-
-/* --- quieter interactive surfaces ---------------------------------------- */
-.meal-chip { opacity: 1; }
-.meal-chip:not(.on) { opacity: .62; }
-.meal-chip:not(.on):hover { opacity: 1; border-color: var(--muted); }
-
-.mine-row:hover { border-color: var(--muted); }
-.recent-button:hover { border-color: var(--muted); }
-.quest-item:hover { border-color: var(--muted); }
-
-/* --- Mining: it was the loudest page ------------------------------------- */
-/* Gold on the craft name, gold on the kit line, gold on the open row and a
-   gold left rule on the onward block all fought each other. One accent, on
-   the craft name only, because that is the thing you are looking for. */
-.mine-craft-head b { color: var(--text); font-weight: 600; }
-.mine-onward-craft { border-left-color: var(--rule); }
-.mine-card-kit { font-size: .62rem; }
-.mine-item { background: var(--ink2); }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .001ms !important;
-    transition-duration: .001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ============================================================================
-   Type — one clean voice, plus a mono for numbers
-   ----------------------------------------------------------------------------
-   Earlier passes paired a display face with a body face and it never cohered.
-   A single well-made sans across the whole UI, separated only by weight and
-   size, is what reads as "put together". Hanken Grotesk is warm and highly
-   legible; JetBrains Mono handles figures and labels so numbers align in
-   tables and read as data.
-   ========================================================================== */
-
-body { font-family: var(--prose); font-size: 16px; line-height: 1.65; color: var(--text); }
-
-h1, h2, h3,
-.brand strong, .goal-yield strong, .covered-strip strong,
-.data-card strong, .empty-state strong, .perk-group h2,
-.mine-card-body strong, .trail-stop strong {
-  font-family: var(--display);
-  letter-spacing: -.02em;
-}
-h1 { font-weight: 700; }
-h2, h3 { font-weight: 700; }
-
-/* Chrome uses the same face, medium-bold. */
-.tab, .quiet-button, .presets button, button, select,
-.route-choice, .gather-method, .path-pick, .meal-chip, .quest-filters button {
-  font-family: var(--prose);
-  font-weight: 600;
-}
-
-/* Numbers, rates, codes and the small uppercase labels are the mono's job. */
-.num, .owned, code, .decision-cost, .route-metric b, .gold-eq,
-th, .eyebrow, .field > span, .mini-field, .trail-stop span, .goal-title p,
-.drawer-code, .path-head, .gather-haul-head, .meal-strip-head {
-  font-family: var(--data);
-  font-variant-numeric: tabular-nums;
-}
-
-/* A calm, even scale — no oversized hero shouting over the rest. */
-h1 { font-size: clamp(28px, 3vw, 40px); line-height: 1.1; }
-.dispatch-copy h1 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.06; }
-.goal-copy h1 { font-size: clamp(24px, 2.6vw, 34px); line-height: 1.1; }
-h2 { font-size: clamp(21px, 2vw, 27px); line-height: 1.12; }
-h3 { font-size: 18px; }
-.eyebrow { font-size: 11px; letter-spacing: .02em; font-weight: 600; text-transform: none; }
-
-/* ============================================================================
-   Clean white theme — the calm ground
-   ----------------------------------------------------------------------------
-   Cards are white on a near-white page, separated by one soft hairline and a
-   very light shadow rather than by colour. Green is the only accent: the
-   primary figure, links, and the "on" state. Everything else is neutral so the
-   eye rests. Item tiles are soft light wells, not dark boxes.
-   ========================================================================== */
-
-/* Fewer boxes. Reading blocks — the ones you look *at* — carry no border and no
-   shadow; they're just white with room around them, separated by whitespace and
-   the hairline under each section heading. Only things you act *on* (inputs,
-   grouped toggles, small chips) get an outline, so borders mean "interactive"
-   instead of decorating every block. This is what stops the page reading as a
-   grid of competing edges. */
-.route-card, .gather-col, .gather-panel, .mine-item, .haul-chip,
-.tower-cost-card, .make-buy, .workbench, .tree-card, .assumption-card,
-.source-list, .acorn-lab, .readiness-card, .rule-card {
-  background: var(--ink2);
-  border: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-/* Those panels dropped their side padding back when this theme was light and
-   they sat on the same colour as the page — nothing showed. On the dark theme
-   var(--ink2) is a visible tint, so zero padding left every heading and
-   sentence flush against the edge of its own background. Give them room. */
-.route-card, .gather-col, .gather-panel, .mine-item,
-.tower-cost-card, .make-buy, .workbench, .tree-card, .assumption-card,
-.source-list, .acorn-lab {
-  padding: 20px 22px;
-}
-.haul-chip { padding: 6px 10px 6px 7px; }
-
-/* Grouped, interactive surfaces keep one light hairline (no shadow). */
-.perk-group, .infra-card, .meal-card, .data-card, .goal-controls, .sample-form,
-.mine-row, .decision-row, .quest-line {
-  background: var(--ink2);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: none;
-}
-
-/* A hairline under every section heading gives the page its horizontal spine. */
-.section-heading, .setup-heading, .page-intro, .tower-costs-head {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 12px;
-}
-
-/* Masthead: white, ruled off the page. */
-.masthead {
-  background: rgba(21, 22, 25, .9) !important;
-  border-bottom: 1px solid var(--line) !important;
-}
-.brand-mark { background: var(--green); color: #fff; box-shadow: none; transform: none; }
-
-/* The goal ticket is the one place the accent leads: white card, green action. */
-.goal-controls, .data-card, .sample-form {
-  color: var(--text);
-  border-radius: 12px;
-}
-.goal-controls .field > span, .data-card span, .sample-form label { color: var(--muted); }
-.goal-controls input, .sample-form input, .sample-form select,
-.mini-field input, .owned, .suggest, .sg, .field input {
-  background: var(--field);
-  color: var(--text);
-  border-color: var(--line);
-}
-.data-card strong { color: var(--text); }
-
-/* Primary buttons carry the accent; quiet ones stay outlined. */
-#homeGoal button[type="submit"] {
-  background: var(--green); color: #fff; border: 1px solid var(--green);
-}
-.presets button {
-  background: transparent; color: var(--muted); border: 1px solid var(--line);
-}
-.presets button:hover { border-color: var(--green); color: var(--green); }
-#homeGoal button[type="submit"]:hover { filter: brightness(1.06); }
-.quiet-button:hover { border-color: var(--green); color: var(--green); }
-
-/* Item pictures sit directly on the surface — no tile boxes — the way
-   buddy.farm shows them, so they read as "in place" beside their labels. */
-.item-art, .mine-art, .mine-card-art {
-  background: none;
-  border: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
-.item-art img, .mine-art img, .mine-card-art img { max-width: 100%; max-height: 100%; }
-/* The goal picture is the one that gets a soft plate to anchor the header. */
-.item-art.goal-art {
-  background: var(--paper2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: none;
-}
-
-/* The one accent: the primary figure and the active state are green. */
-.goal-yield strong, .trail-stop:first-child strong,
-.route-metric.is-primary b { color: var(--green); }
-.eyebrow, .field > span, .gather-col > span, .path-head, .gather-haul-head,
-.meal-strip-head, .mine-onward-head, .tower-reward-label, .drawer-code {
-  color: var(--muted) !important;
-}
-
-/* State = a soft green tint and a left rule. Nothing shouts. */
-.meal-chip.on, .gather-method.on, .path-pick.on,
-.quest-filters button.active, .mine-row[open] {
-  border-color: var(--green) !important;
-  background: rgba(92, 192, 141, .12) !important;
-  box-shadow: inset 2px 0 0 var(--green);
-}
-.tab.active { border-color: var(--green); color: var(--text); }
-
-/* Hovers are the faintest neutral wash. */
-tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
-.recipe-node:hover, .sample-row:hover, .mine-item:hover {
-  background: rgba(255, 255, 255, .04) !important;
-}
-.mine-row:hover, .recent-button:hover, .quest-item:hover { border-color: var(--green); }
-
-/* Route tags: quiet outlined chips, muted category colours. */
-.route-choice { font-weight: 600; }
-
-/* Notice slip. */
-.notice { background: rgba(224,119,106,.12); color: #f0b3aa; border-left-color: var(--red); }
-
-/* Focus ring. */
-:where(a, button, select, input, textarea, summary, label, [tabindex]):focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 2px;
-}
-
-/* First trail stop leads, the rest support — but calmly, one scale. */
-.resource-trail { grid-template-columns: 1.3fr repeat(3, minmax(0, 1fr)); }
-.trail-stop:first-child strong { font-size: 26px; }
-@media (max-width: 860px) { .resource-trail { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 420px) { .resource-trail { grid-template-columns: minmax(0, 1fr); } }
-
-.section-heading { align-items: baseline; }
-.section-heading > p { text-align: left; max-width: 40ch; font-size: 12.5px; }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .001ms !important;
-    transition-duration: .001ms !important;
-  }
-}
-
-/* ============================================================================
-   Cohesion pass — one accent, everywhere
-   ----------------------------------------------------------------------------
-   Several older components still coded meaning as a rainbow: the three route
-   cards each had a differently-coloured spine, the route-type tags ran through
-   violet/amber/blue/gold, and the trail figures were tinted. Green is the only
-   accent this product uses — it marks the recommended option and anything you
-   have handled — so colour is spent only where it carries that meaning. Red is
-   kept for a genuine warning (an unknown route); everything else is ink.
-   ========================================================================== */
-
-/* Route cards: the spine marks the pick, not the category. */
-.route-card::before { background: var(--line) !important; }
-.verdict-route::before { background: var(--green) !important; }
-
-/* Route-type tags: muted by default, green when you've got it, red if unknown. */
-.route-choice { color: var(--muted) !important; }
-.route-choice.covered, .route-choice.crop { color: var(--green) !important; }
-.route-choice.unknown { color: var(--red) !important; }
-
-/* Trail figures are data, not decoration — one ink colour, one green lead. */
-.trail-stop.violet strong, .trail-stop.amber strong { color: var(--text) !important; }
-.trail-stop::after { color: var(--muted) !important; background: var(--ink) !important; }
-
-/* "Your farm covers this" is a settled state: a quiet green-marked note. */
-.covered-strip {
-  background: rgba(92, 192, 141, .06) !important;
-  border: 1px solid var(--line) !important;
-  border-left: 2px solid var(--green) !important;
-}
-
-/* A section heading's rule belongs under a page-level heading, never inside a
-   card, so compact headers (which sit within cards) stay rule-less. */
-.section-heading.compact { border-bottom: 0; padding-bottom: 0; }
-
-/* One consistent hover for anything that reveals or opens. */
-.route-evidence > summary:hover,
-.text-action:hover,
-.drawer-action:hover { color: var(--green); }
-.route-evidence > summary { color: var(--green); }
-
-/* Verdict/route labels and the "you pay" style stamps read as small captions. */
-.verdict b, .route-metric b, .buy-total b, .gather-line strong,
-.haul-chip b, .gather-mastery b { color: var(--text); }
-
-/* The two panels on the home page are real surfaces, not borderless reading
-   blocks, so the earlier padding reset does not suit them: text was sitting on
-   the card edge and the background stopped on the final word. Give them room,
-   and a deeper bottom so the surface carries past the last line. Their heights
-   are free to differ — matching them is not worth cramping either one. */
-.readiness-card,
-.rule-card {
-  padding: 24px 26px 34px !important;
-  border-radius: 12px;
-}
-.desk-lower { align-items: start; }
-
-/* ---- Account sync guide -------------------------------------------------
-   A reference block, not a marketing panel: ruled headings, one accent, and
-   a measure narrow enough to read straight through. */
 .sync-guide { margin-top: 34px; }
 .sync-guide-head {
   display: flex;
@@ -499,7 +140,7 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
   margin-top: 26px;
   background: var(--line);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .home-standing[hidden] { display: none; }
@@ -516,8 +157,8 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
   display: block;
   color: var(--muted);
   font: 700 .62rem var(--ui), sans-serif;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .home-standing strong {
   display: block;
@@ -527,3 +168,365 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover,
   overflow-wrap: anywhere;
 }
 .home-standing small { display: block; color: var(--muted); font-size: .74rem; }
+
+/* Lantern Ledger after dusk. See DESIGN_PLAN.md for the decisions.
+   Page styles own layout; this final sheet owns material, type and state. */
+:root {
+  --dusk: #27364B;
+  --slate: #34475B;
+  --chalk: #E8E8D4;
+  --lantern: #E8B967;
+  --water: #91BFCB;
+  --sage: #ABC58D;
+  --ink: var(--dusk);
+  --ink2: var(--slate);
+  --ink3: color-mix(in srgb, var(--slate) 88%, var(--chalk));
+  --paper: var(--slate);
+  --paper2: var(--ink3);
+  --text: var(--chalk);
+  --muted: color-mix(in srgb, var(--chalk) 86%, var(--slate));
+  --line: color-mix(in srgb, var(--chalk) 23%, var(--slate));
+  --rule: var(--line);
+  --green: var(--sage);
+  --gold: var(--text);
+  --amber: color-mix(in srgb, var(--lantern) 72%, var(--chalk));
+  --blue: var(--water);
+  --violet: color-mix(in srgb, var(--water) 55%, var(--chalk));
+  --red: color-mix(in srgb, #D98F83 80%, var(--chalk));
+  --tile: var(--ink3);
+  --tile2: var(--slate);
+  --field: var(--dusk);
+  --on: var(--water);
+  --on-dim: color-mix(in srgb, var(--water) 60%, var(--slate));
+  --on-wash: color-mix(in srgb, var(--water) 15%, var(--slate));
+  --r-sm: 4px;
+  --r-md: 8px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+  --display: 'Bree Serif', Rockwell, Georgia, serif;
+  --prose: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+  --data: 'IBM Plex Mono', Consolas, 'Liberation Mono', monospace;
+  --ui: var(--prose);
+  --shadow: 0 2px 0 color-mix(in srgb, var(--dusk) 70%, transparent);
+}
+
+html { color-scheme: dark; background: var(--dusk); scroll-padding-top: 100px; }
+html, body { overflow-x: clip; }
+body { font: 14px/1.5 var(--prose); background: var(--dusk); color: var(--text); }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(var(--line) .5px, transparent .5px);
+  background-size: 6px 6px; opacity: .15;
+}
+main { padding-top: 24px; padding-bottom: 120px; }
+h1, h2, .brand strong, .desk-drawer strong { font-family: var(--display); font-weight: 400; letter-spacing: 0; }
+h1, .dispatch-copy h1 { font-size: clamp(32px, 3.2vw, 40px); line-height: 1.12; }
+h2 { font-size: 24px; line-height: 1.2; }
+h3 { font: 700 20px/1.25 var(--prose); letter-spacing: 0; }
+p { line-height: 1.5; }
+.goal-copy h1 { font-size: 32px; }
+.goal-title h2 { font-size: clamp(24px, 3vw, 32px); }
+button, select { font-family: var(--prose); font-weight: 700; }
+button, input, select, textarea { border-radius: var(--r-sm); }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .85; }
+input[type=checkbox] { accent-color: var(--water); }
+input, select, textarea { color: var(--text); background-color: var(--field); border-color: var(--line); }
+a { color: var(--water); }
+.num, .owned, code, .decision-cost, .route-metric b, .gold-eq, .node-amt,
+.trail-stop strong, .goal-yield strong, .tower-next-stamp strong, .quest-summary strong,
+.tracker-list li b, .inventory-row > :not(:first-child), .tower-mm-count,
+.gather-line strong, .haul-chip b, .buy-total b, .gather-mastery b,
+.inventory-summary strong, .readiness-score, .quantity-field input, #homeQty {
+  font-family: var(--data); font-variant-numeric: tabular-nums; font-weight: 500;
+  letter-spacing: -.025em;
+}
+th, .field > span, .mini-field, .eyebrow, .drawer-code, .path-head,
+.gather-haul-head, .meal-strip-head, .trail-stop span, .route-label,
+.brand small, .home-standing span, .ticket-stub {
+  font-family: var(--prose); font-size: 12px; font-weight: 400;
+  letter-spacing: 0; text-transform: none;
+}
+.eyebrow { color: var(--muted); margin-bottom: 8px; }
+.scope-label { display: block; color: var(--water); font-size: 12px; margin-bottom: 8px; }
+.section-heading { align-items: baseline; margin-bottom: 16px; }
+.section-heading > p { text-align: left; font-size: 14px; max-width: 48ch; }
+.section-heading.compact { border: 0; padding-bottom: 0; }
+.page-intro, .inventory-intro, .tower-ledger-head, .quest-hero { padding-top: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.page-intro p, .inventory-intro p, .quest-hero p, .tower-ledger-copy p { font-size: 14px; margin-top: 12px; }
+
+/* The upper rail: blue paint, a small lantern, book tabs. */
+.masthead {
+  height: 80px; padding: 0 max(24px, calc((100vw - 1280px)/2)); gap: 24px;
+  background: var(--dusk); border-bottom: 2px solid var(--line); backdrop-filter: none;
+}
+.brand { min-width: 225px; gap: 8px; }
+.brand-logo { width: 44px; height: 48px; filter: none; image-rendering: pixelated; }
+.brand strong { font-size: 24px; line-height: 1.1; }
+.brand small { display: block; font-size: 12px; margin-top: 4px; color: var(--muted); }
+.tabs { align-items: center; gap: 4px; overflow-y: hidden; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 12px; border: 1px solid transparent; border-radius: 4px; font-size: 14px; color: var(--muted); }
+.tab.active { color: var(--text); border-color: var(--on-dim); background: var(--on-wash); box-shadow: inset 0 -2px var(--water); }
+.tab:hover { color: var(--text); background: var(--ink3); }
+.quiet-button { color: var(--text); border-color: var(--line); border-radius: var(--r-sm); font-size: 12px; padding: 8px 12px; }
+.quiet-button:hover { color: var(--text); border-color: var(--water); background: var(--on-wash); }
+.text-action, .drawer-action, .route-evidence > summary, .mine-open { color: var(--water); font-size: 12px; }
+.text-action:hover, .drawer-action:hover, .route-evidence > summary:hover, .mine-open:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+:where(a, button, select, input, textarea, summary, label, [tabindex]):focus-visible {
+  outline: 2px solid var(--lantern) !important; outline-offset: 3px;
+}
+.skip-link { color: var(--dusk); background: var(--lantern); }
+
+/* Home retains its standing/form/work-area structure. The landscape is a
+   small field edge on the ledger, made from the supplied game artwork. */
+.dispatch-board { gap: 48px; padding: 24px 0 32px; min-height: 0; border: 0; }
+.field-edge { display: flex; align-items: end; height: 72px; margin: -12px 0 12px; gap: 0; }
+.field-edge img { width: 86px; height: 86px; object-fit: contain; }
+.field-edge img + img { margin-left: -12px; }
+.dispatch-copy > p { font-size: 16px; margin-top: 16px; max-width: 54ch; }
+.recent-plan { min-height: 0; margin-top: 24px; }
+.recent-button { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 16px; }
+.recent-button > span { letter-spacing: 0; font-size: 12px; }
+.recent-button:hover { border-color: var(--water); }
+.home-standing { margin-top: 16px; border-radius: var(--r-md); }
+.home-standing a { padding: 12px; }
+.home-standing strong { font-size: 16px; line-height: 1.25; font-weight: 700; }
+.home-standing small { font-size: 12px; line-height: 1.4; }
+.home-standing a:focus-visible { outline-offset: -3px; }
+.dispatch-ticket { padding: 24px; gap: 16px; color: var(--text); border-top: 4px solid var(--lantern); }
+.dispatch-ticket::after { display: none; }
+.ticket-stub { color: var(--muted); padding-bottom: 12px; border-color: var(--line); }
+.ticket-stub span { color: var(--text); font-family: var(--display); font-size: 20px; }
+.ticket-stub b { font: 400 12px var(--prose); align-self: center; }
+.field > span { margin-bottom: 8px; color: var(--muted); }
+.field input { padding: 12px; color: var(--text); background: var(--field); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.field input:focus { border-color: var(--water); box-shadow: none; }
+.dispatch-ticket > small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+#homeGoal button[type=submit], .primary-action, .primary-link, .sample-form button {
+  border: 1px solid var(--lantern); border-radius: var(--r-sm);
+  background: var(--lantern); color: var(--dusk); font-size: 14px; font-weight: 700;
+  box-shadow: inset 0 -2px color-mix(in srgb, var(--dusk) 22%, transparent);
+}
+#homeGoal button[type=submit]:hover, .primary-action:hover, .primary-link:hover { background: color-mix(in srgb, var(--lantern) 85%, var(--chalk)); color: var(--dusk); }
+.desk-drawers { background: transparent; border: 0; gap: 8px; margin-top: 0; }
+.desk-drawer { min-height: 192px; padding: 20px 16px; border: 1px solid var(--line); border-radius: var(--r-md); }
+.desk-drawer.featured { box-shadow: var(--shadow); }
+.desk-drawer strong { margin-top: 0; font-size: 20px; }
+.desk-drawer p { font-weight: 400; font-size: 14px; margin-top: 8px; }
+.desk-drawer:hover { border-color: var(--water); background: var(--ink3); }
+.drawer-action { font-size: 12px; }
+.desk-tools { font-size: 12px; margin-top: 16px; }
+.desk-lower { margin-top: 24px; gap: 24px; align-items: start; }
+.readiness-card, .rule-card { padding: 24px; }
+.readiness-row, .rule-stack p, .rule-stack strong { font-size: 13px; }
+.rule-stack strong { letter-spacing: 0; }
+
+/* One card idiom. No white leftovers, competing outlines or neon spines. */
+.dispatch-ticket, .route-card, .gather-panel, .tower-cost-card,
+.make-buy, .workbench, .tree-card, .assumption-card, .source-list, .acorn-lab,
+.readiness-card, .rule-card, .perk-group, .infra-card, .meal-card, .data-card,
+.goal-controls, .sample-form, .mine-row, .quest-line, .inventory-panel,
+.account-import-copy, .account-empty, .quest-summary article {
+  background: var(--slate); color: var(--text);
+  border-radius: var(--r-md); box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.dispatch-ticket { border-top: 4px solid var(--lantern); }
+.route-card, .gather-panel, .tower-cost-card, .make-buy, .workbench,
+.tree-card, .assumption-card, .source-list, .acorn-lab { padding: 24px; }
+.gather-col, .mine-item, .haul-chip, .path-pick, .meal-chip, .decision-row {
+  background: var(--dusk); border: 1px solid var(--line); border-radius: var(--r-sm);
+}
+.gather-col, .mine-item { padding: 16px; }
+.haul-chip { padding: 8px; }
+.goal-board { gap: 32px; padding: 24px 0 32px; border-color: var(--line); }
+.goal-copy p { margin-top: 12px; font-size: 14px; }
+.goal-controls { padding: 20px; }
+.presets button { background: var(--field); color: var(--text); border: 1px solid var(--line); font: 500 12px var(--data); text-transform: none; min-height: 36px; }
+.presets button:hover { background: var(--on-wash); color: var(--text); border-color: var(--water); }
+.suggest, .sg { color: var(--text); background: var(--slate); border-color: var(--line); }
+.suggest { border-radius: var(--r-sm); box-shadow: 0 8px 20px var(--dusk); }
+.sg:hover { background: var(--ink3); }
+.sg .sub { color: var(--muted); }
+.resource-trail { grid-template-columns: 1.3fr repeat(3, minmax(0, 1fr)); border-radius: var(--r-md); margin-bottom: 32px; }
+.trail-stop { padding: 16px; }
+.trail-stop strong, .trail-stop:first-child strong { font-size: 24px; color: var(--text); }
+.trail-stop.violet strong, .trail-stop.amber strong { color: var(--text); }
+.trail-stop::after { color: var(--muted); background: var(--slate); }
+.trail-stop small { font-size: 12px; }
+.route-card::before { display: none; }
+.route-card h3 { font-size: 20px; margin-top: 8px; }
+.route-label { color: var(--muted); }
+.route-metric { border-color: var(--line); font-size: 14px; padding: 8px 0; }
+.route-note, .verdict { font-size: 13px; }
+.route-metric b, .verdict b, .buy-total b, .gather-line strong, .haul-chip b, .gather-mastery b { color: var(--text); }
+.route-choice { color: var(--muted); font-size: 12px; border-color: var(--line); }
+.route-choice.trade, .route-choice.explore, .route-choice.acorn, .route-choice.crop,
+.route-choice.fish, .route-choice.vendor { color: var(--text); }
+.route-choice.covered { color: var(--sage); }
+.route-choice.unknown { color: var(--red); }
+.covered-strip { background: color-mix(in srgb, var(--sage) 10%, var(--dusk)); border: 1px solid var(--line); border-left: 4px solid var(--sage); border-radius: var(--r-md); }
+.covered-strip strong { font: 700 20px var(--prose); }
+.covered-strip p { font-size: 12px; }
+.gather-col > span, .gather-where > span, .gather-where-fixed > span, .path-head,
+.gather-haul-head, .meal-strip-head, .mine-onward-head { color: var(--muted); font: 400 12px var(--prose); letter-spacing: 0; }
+.gather-method.on, .path-pick.on, .meal-chip.on, .quest-filters button.active {
+  color: var(--text); border-color: var(--water); background: var(--on-wash);
+  box-shadow: inset 3px 0 var(--water);
+}
+.meal-chip { opacity: 1; }
+.meal-chip.on::after { color: var(--dusk); background: var(--water); }
+.mine-row[open] { border-color: var(--water); background: var(--slate); }
+.mine-row[open] > summary { background: var(--on-wash); border-radius: var(--r-md) var(--r-md) 0 0; }
+.mine-row:hover, .quest-item:hover, .inventory-item-link:hover { border-color: var(--water); }
+.mine-card-body strong { font: 400 20px var(--display); }
+.mine-card-body small, .mine-card-kit { font-size: 12px; }
+.mine-row, .mine-item, .mine-items, .mine-craft, .mine-onward, .mine-onward-craft, .mine-craft-head { min-width: 0; }
+.mine-items { grid-template-columns: minmax(0, 1fr); }
+.mine-item-head { grid-template-columns: 34px minmax(0, 1fr); }
+.mine-craft-head { grid-template-columns: 28px minmax(0, 1fr); }
+.mine-recipe li { max-width: 100%; min-width: 0; }
+.mine-recipe li > span { flex-wrap: wrap; min-width: 0; }
+.mine-recipe li small { white-space: normal; overflow-wrap: anywhere; }
+.mine-recipe li b { white-space: normal; }
+.mine-craft-head b { color: var(--text); }
+.mine-onward-craft { border-left-color: var(--line); }
+.mine-row-cue { color: var(--water); }
+.item-art, .mine-art, .mine-card-art { background: none; border: 0; box-shadow: none; border-radius: 4px; }
+.item-art img, .mine-art img, .mine-card-art img { max-width: 100%; max-height: 100%; }
+.item-art.goal-art { background: var(--dusk); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
+th { font-size: 12px; letter-spacing: 0; padding: 12px 8px; }
+td { font-size: 13px; border-color: var(--line); padding: 12px 8px; }
+.decision-row { padding: 12px; }
+.decision-cost, .route-detail { font-size: 12px; }
+.route-select, .decision-row select { font-size: 12px; }
+tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background: var(--ink3); }
+.setup-heading, .setup-section { margin-top: 32px; }
+.perk-group h2 { font-family: var(--prose); font-size: 20px; font-weight: 700; }
+.perk-row b, .meal-card h3, .infra-card h3 { font-size: 16px; }
+.perk-row strong { font-size: 14px; }
+.perk-row { border-bottom-color: var(--line); }
+.perk-row > input, .meal-card > input, .inline-toggle input { background: var(--line); border-radius: 4px; }
+.perk-row > input:checked, .meal-card > input:checked, .inline-toggle input:checked { background: var(--water); }
+.perk-row > input::after, .meal-card > input::after, .inline-toggle input::after { background: var(--chalk); }
+.perk-row > input:checked::after, .meal-card > input:checked::after, .inline-toggle input:checked::after { background: var(--dusk); }
+.perk-row small, .meal-card p, .infra-card p { font-size: 13px; }
+.quest-toolbar { top: 80px; background: var(--dusk); border-radius: var(--r-md); }
+.quest-toolbar input { min-height: 40px; padding: 8px 12px; }
+.quest-filters button { border: 1px solid var(--line); padding: 8px 12px; font-size: 12px; }
+.quest-filters button:not(.active) { color: var(--text); background: var(--slate); }
+.account-import-panel { background: transparent; border: 0; gap: 16px; }
+.account-import-callout { border-color: var(--line); background: var(--slate); border-radius: 8px; }
+.account-review-bar .primary-action { color: var(--dusk); background: var(--lantern); }
+.quest-line-progress { color: var(--sage); }
+.quest-step-head > span { border-radius: 4px; }
+.quest-step.is-active .quest-step-head > span { color: var(--water); border-color: var(--water); }
+.quest-step.is-ready .quest-step-head > span { color: var(--sage); border-color: var(--sage); }
+.inventory-panel-heading span { color: var(--muted); letter-spacing: 0; }
+.inventory-panel-heading h2 { font-size: 24px; }
+.inventory-row-head > span { font: 400 12px var(--prose); }
+.inventory-row .inventory-item-link b { font-size: 13px; }
+.inventory-row > :not(:first-child) { font-size: 12px; }
+.inventory-item-link small { font-family: var(--data); font-size: 12px; }
+.tower-progress { border-radius: 4px; }
+.tower-progress i { border-radius: 4px; }
+.tower-mm, .tower-floor, .tower-next-stamp, .tower-target, .tower-toolbar { border-radius: 8px; }
+.tower-next-stamp { border-color: var(--line); }
+.tower-next-stamp strong { color: var(--text); }
+.tower-ledger-copy h1 { font-weight: 400; }
+.tower-mm-numbers, .tower-summary strong, .tower-floor-mark strong { font-family: var(--data); font-variant-numeric: tabular-nums; }
+.tower-mm.complete { opacity: 1; }
+.tower-mm.complete .tower-mm-title strong, .tower-mm.complete .tower-mm-numbers b { color: var(--muted); }
+.tower-reward-label, .tower-pay { color: var(--muted); }
+
+/* Floating lists are raised slate with a water-coloured binding. They must
+   stay legible over any tab. Width and z-index behavior remain in tracker.css. */
+.quest-tracker { background: var(--dusk); border: 1px solid var(--on-dim); border-top: 3px solid var(--water); border-radius: 8px; box-shadow: 0 8px 32px color-mix(in srgb, var(--dusk) 90%, transparent); }
+.tracker-head { padding: 10px 12px; background: var(--slate); }
+.tracker-title b { font-size: 14px; }
+.tracker-title small, .tracker-foot { font-size: 12px; }
+.tracker-list { padding-top: 8px; padding-bottom: 8px; }
+.tracker-list li { padding-top: 4px; padding-bottom: 4px; }
+.tracker-toggle, .tracker-foot button, .tracker-filter input { border-radius: 4px; }
+.tracker-toggle:hover, .tracker-foot button:hover, .tracker-list li.is-openable:hover span { color: var(--water); border-color: var(--water); }
+.quest-tracker.is-big .tracker-list li.is-now { border-left-color: var(--water); }
+.tracker-foot { background: var(--slate); }
+.inventory-overlay { background: var(--dusk); border-color: var(--water); border-radius: 8px; }
+.inventory-wide-row:has(.inventory-currency-art) { grid-template-columns: minmax(0, 1fr); }
+.inventory-wide-nums b { font: 500 12px var(--data); overflow-wrap: anywhere; }
+.inventory-wide-row:has(.inventory-currency-art) .inventory-wide-nums { justify-content: space-between; gap: 8px; }
+.inventory-wide-row:has(.inventory-currency-art) .inventory-wide-nums span { min-width: 0; }
+.notice { background: color-mix(in srgb, var(--red) 12%, var(--dusk)); color: var(--red); }
+.sync-guide { font-size: 14px; }
+.sync-steps > li::before { color: var(--water); border-color: var(--line); background: var(--slate); border-radius: 4px; }
+.sync-steps h3 { font: 700 20px var(--prose); }
+.build-stamp { color: var(--muted); opacity: 1; }
+
+@media (max-width: 1200px) {
+  .masthead { gap: 12px; padding-left: 24px; padding-right: 24px; }
+  .brand { min-width: 200px; }
+  .brand strong { font-size: 20px; }
+  .tab { padding: 10px 8px; }
+}
+@media (max-width: 1000px) {
+  .masthead { height: auto; flex-wrap: wrap; padding-top: 12px; gap: 8px; }
+  .tabs { order: 3; width: 100%; overflow-x: auto; padding-bottom: 8px; }
+  .quest-toolbar { top: 124px; }
+  .dispatch-board { gap: 24px; }
+}
+@media (max-width: 860px) {
+  .resource-trail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  html { scroll-padding-top: 132px; }
+  main { width: calc(100% - 32px); padding-top: 16px; padding-bottom: 160px; }
+  .masthead { padding: 12px 16px 0; min-height: 0; overflow: visible; }
+  .brand small { display: block; }
+  .brand strong { font-size: 24px; }
+  .brand-logo { width: 36px; height: 40px; }
+  .tabs { margin: 0; gap: 4px; }
+  .tab { padding: 8px 12px; min-height: 40px; font-size: 14px; }
+  .dispatch-board { padding: 16px 0 24px; gap: 24px; }
+  .dispatch-copy h1 { font-size: 32px; }
+  .field-edge { height: 64px; }
+  .field-edge img { width: 76px; height: 76px; }
+  .dispatch-copy > p { font-size: 14px; }
+  .home-standing { grid-template-columns: 1fr; }
+  .home-standing a { padding: 12px 16px; }
+  .dispatch-ticket, .goal-controls { padding: 20px; }
+  .desk-drawer { min-height: 0; padding: 20px; }
+  .desk-drawer .drawer-action { margin-top: 16px; }
+  .readiness-card, .rule-card, .route-card, .gather-panel, .make-buy, .workbench, .tree-card, .assumption-card, .source-list, .acorn-lab { padding: 16px; }
+  .gather-col, .mine-item { padding: 12px; }
+  .section-heading > p { font-size: 13px; }
+  .page-intro, .inventory-intro, .tower-ledger-head, .quest-hero { padding-top: 16px; }
+  .goal-board { padding-top: 16px; }
+  .goal-title h2 { font-size: 24px; }
+  .decision-row { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
+  .decision-row > * { min-width: 0; overflow-wrap: anywhere; }
+  .decision-controls { flex-wrap: wrap; }
+  .decision-controls select { max-width: 100%; }
+  .location-choice { min-width: 0; }
+  .inventory-double-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 12px 0; }
+  .inventory-double-row > .inventory-item-link { grid-column: 1 / -1; }
+  .inventory-requirements { overflow-x: auto; }
+  .inventory-wide-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .inventory-wide-nums { justify-content: space-between; gap: 8px; }
+  .inventory-wide-row:has(.inventory-currency-art) .inventory-wide-nums { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .inventory-wide-row:has(.inventory-currency-art) .inventory-wide-nums span { display: flex; justify-content: space-between; gap: 8px; }
+  .trail-stop:not(:last-child)::after { display: none; }
+  .quest-toolbar { position: static; }
+  .quest-search { min-width: 0; }
+  .quest-line > summary { padding: 12px; gap: 8px; }
+  .quest-line-progress { font-size: 12px; }
+  .tracker-head { padding: 8px; }
+  .tracker-title b { font-size: 12px; }
+  .tracker-title small, .tracker-foot { font-size: 11px; }
+  .inventory-row > :not(:first-child) { font-size: 12px; }
+  .sync-steps > li { grid-template-columns: 28px minmax(0, 1fr); gap: 0 12px; }
+}
+@media (max-width: 420px) {
+  .resource-trail { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

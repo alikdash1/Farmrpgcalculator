@@ -796,3 +796,36 @@ Two docked panels stacked took 552px of an 812px phone screen, leaving almost
 no page. Below 620px a single panel shows, anchored to the bottom at 42% of the
 screen, with a switch in its header between the current step and the whole
 questline. The expanded full-page view still works as before.
+
+## 2026-09-05 — The dusk design, merged; and the last of the missing pictures
+
+Merged the redesign produced from the brief: a blue-slate ground (#27364B)
+instead of near-black, three colours with separate jobs (Lantern for actions,
+Water for selection, Sage for progress), and three real typefaces bundled as
+local WOFF2 — Bree Serif for titles, Atkinson Hyperlegible for prose, IBM Plex
+Mono for numbers. Its `DESIGN_PLAN.md` is kept alongside. The repeated uppercase
+kickers are gone.
+
+Merged rather than copied: the redesign forked before the last few fixes, so
+its CSS, `index.html` and assets came across while `app.js` kept this branch's
+work and took only its five markup edits.
+
+Two picture bugs found by sweeping every tab with a snapshot full of junk rows:
+
+- **The Account tab rendered description text as items.** `gather-model.js`
+  filtered the gather lists, but the Account tab's masteries, consumables and
+  active effects had no such guard, so "A blinger for your finger" and "Adds
+  100 Stamina" appeared there. `isRealItem()` now guards all of them, and the
+  same check stops a description reaching the working inventory.
+- **`itemImg` resolved artwork from the name, but several calls passed a
+  possibly-null item and no name**, so the lookup had nothing to search for.
+  Fixed at seven call sites — co-drops, hauls, masteries, rewards, consumables,
+  active effects and the meal list.
+
+And a bug introduced while fixing that: `fallbackName` was **overriding** the
+item's own name rather than filling in for a missing item, so the Setup cards
+looked up "Iron Depot" instead of "Iron" and drew a letter. The item's own name
+wins now.
+
+Swept all eight tabs with junk-laden data: zero placeholders, zero description
+rows, zero broken images.

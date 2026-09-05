@@ -3,7 +3,7 @@
 .inventory-intro h1 { margin-top: .25rem; }
 .inventory-intro p { max-width: 680px; margin-top: .8rem; color: var(--muted); }
 .inventory-line-picker { display: grid; gap: .45rem; }
-.inventory-line-picker span, .inventory-search span { color: var(--muted); font: 700 .68rem var(--ui), sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.inventory-line-picker span, .inventory-search span { color: var(--muted); font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
 .inventory-line-picker select, .inventory-search input { width: 100%; min-height: 42px; padding: .7rem .8rem; color: var(--text); background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; }
 
 .inventory-owned-section { margin-top: 2rem; }
@@ -22,7 +22,7 @@
 .inventory-item-link.is-static:hover { border-color: transparent; background: var(--ink2); }
 .inventory-item-link b, .inventory-item-link small { display: block; }
 .inventory-item-link b { font-size: .78rem; line-height: 1.25; overflow-wrap: anywhere; }
-.inventory-item-link small { margin-top: .2rem; color: var(--muted); font-size: .68rem; }
+.inventory-item-link small { margin-top: .2rem; color: var(--muted); font-size: .75rem; }
 .inventory-art { display: grid; place-items: center; width: 36px; height: 36px; color: var(--muted); font-weight: 800; }
 .inventory-art img { display: block; width: 36px; height: 36px; object-fit: contain; }
 .inventory-currency-art::after { content: ""; display: block; width: 18px; height: 1px; background: var(--muted); }
@@ -32,20 +32,20 @@
 .inventory-panels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; margin-top: 1rem; align-items: start; }
 .inventory-panel { min-width: 0; padding: 1rem; background: var(--ink2); }
 .inventory-panel-heading { min-height: 76px; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
-.inventory-panel-heading span { color: var(--green); font: 700 .68rem var(--ui), sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.inventory-panel-heading span { color: var(--green); font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
 .inventory-panel-heading h2 { margin-top: .3rem; font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.15; }
 .inventory-requirements { overflow: visible; }
 .inventory-row { display: grid; grid-template-columns: minmax(150px, 1fr) 96px 96px 104px; gap: .45rem; align-items: center; min-height: 46px; padding: .3rem .35rem; }
 .inventory-row:nth-child(odd):not(.inventory-row-head) { background: var(--ink3); }
-.inventory-row > :not(:first-child) { text-align: right; font: 700 .74rem var(--ui), sans-serif; }
+.inventory-row > :not(:first-child) { text-align: right; font: 700 .75rem var(--ui), sans-serif; }
 .inventory-row.is-short > strong { color: var(--text); }
 .inventory-row.is-covered > strong { color: var(--green); }
 .inventory-row-head { position: sticky; z-index: 2; top: 0; min-height: 34px; color: var(--muted); background: var(--ink2); border-bottom: 1px solid var(--line); }
-.inventory-row-head > span { font: 700 .61rem var(--ui), sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.inventory-row-head > span { font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
 .inventory-row .inventory-item-link { grid-template-columns: 30px minmax(0, 1fr); gap: .55rem; align-items: center; padding: .28rem .34rem; background: transparent; }
 .inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
 .inventory-row .inventory-item-link.is-static:hover { background: transparent; }
-.inventory-total { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .9rem; margin-top: .65rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
+.inventory-total { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .9rem; margin-top: .65rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; }
 .inventory-total b { color: var(--text); margin-right: auto; }
 .inventory-empty { display: grid; place-items: center; min-height: 150px; padding: 1.5rem; text-align: center; color: var(--muted); }
 .inventory-empty strong, .inventory-empty span { display: block; }
@@ -70,7 +70,7 @@
   .inventory-row { min-width: 486px; grid-template-columns: 135px 108px 108px 112px; gap: .3rem; }
   .inventory-row .inventory-item-link { grid-template-columns: 30px minmax(0, 1fr); gap: .4rem; }
   .inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
-  .inventory-row > :not(:first-child) { font-size: .66rem; }
+  .inventory-row > :not(:first-child) { font-size: .75rem; }
 }
 
 /* The Inventory tab used to open on an empty dropdown. It now names what it is
@@ -104,9 +104,9 @@
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 4px;
-  font: 700 .66rem var(--ui), sans-serif;
-  letter-spacing: .06em;
-  text-transform: uppercase;
+  font: 700 .75rem var(--ui), sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
 }
 .inventory-expand:hover { color: var(--green); border-color: var(--green); }
@@ -163,10 +163,10 @@
 .inventory-wide-nums span { display: grid; min-width: 62px; }
 .inventory-wide-nums i {
   color: var(--muted);
-  font: 700 .56rem var(--ui), sans-serif;
+  font: 700 .75rem var(--ui), sans-serif;
   font-style: normal;
-  letter-spacing: .07em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .inventory-wide-nums b { font: 700 .78rem var(--ui), sans-serif; }
 .inventory-wide-row.is-covered .inventory-wide-nums span:last-child b { color: var(--green); }
@@ -185,7 +185,7 @@
 .inventory-show-tracker { margin-top: 8px; padding: 5px 11px; font-size: .78rem; }
 
 /* Where the item comes from, under its name. */
-.inventory-source { color: var(--muted); font-size: .68rem; }
+.inventory-source { color: var(--muted); font-size: .75rem; }
 
 /* Items that serve the tracked questline and an unfinished Tower mastery at
    the same time. The single most useful thing this app can tell an endgame
@@ -209,7 +209,7 @@
   border-bottom: 1px solid var(--line);
 }
 .inventory-double-need { position: relative; min-width: 0; text-align: right; }
-.inventory-double-need span { display: block; color: var(--muted); font-size: .6rem; white-space: nowrap; letter-spacing: .04em; text-transform: uppercase; }
+.inventory-double-need span { display: block; color: var(--muted); font-size: .75rem; white-space: nowrap; letter-spacing: .04em; text-transform: none; }
 .inventory-double-need b { display: block; font-size: .82rem; font-variant-numeric: tabular-nums; }
 /* How far the mastery already is, drawn under its number rather than as a
    separate bar that would double the height of every row. */
