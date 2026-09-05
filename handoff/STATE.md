@@ -62,6 +62,16 @@ Claim a task by adding a row before you start. Clear it when merged.
   switch between the current step and the whole line; two stacked panels took
   two thirds of a phone screen.
 
+- **Calculate.** The ingredient route dropdown includes **Craft** for anything
+  with a recipe; it writes to `makeChoices` (which expands the item) rather
+  than `sourceChoices`, and clears the other so they cannot contradict.
+- **Mining.** Drops are a chip grid at the top, then every craft they reach as
+  one de-duplicated grid. Spring Cave went from 3.44 screens to 1.15.
+- **Published.** `https://github.com/alikdash1/Farmrpgcalculator` — public,
+  full 66-commit history, with `raw/account-captures/` and `publish/` stripped
+  from **every** commit because the captures held another player's name and
+  trade history. Those stay on disk and are gitignored. Work on `main`.
+
 ## Known gaps
 
 - `publish/` is a divergent copy with **none** of this work. Do not deploy it
