@@ -5,6 +5,31 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-05 (last, 4) — The cider bill was 100x too high
+
+The owner: *"i am pretty sure 10k apple ciders doesnt consume 832million
+stamina ... i have use over 15k in some places and it doesnt even use up to
+10m"*. Correct. 832m stamina is about ten thousand full stamina bars.
+
+- **Places was multiplying the cider bill by effectiveness.** It is not a
+  price per explore — it is stamina per *click*. One explore is one stamina,
+  and a cider is about 1,000 explores for about 1,000 stamina. 10,000 ciders is
+  10m stamina, not 832m.
+- The rest of the app always had this right (`stamina = explores *
+  exploreStaminaPer * neigh`, `ciderUses = explores / ciderRolls` in app.js).
+  Places was the only page that disagreed with it.
+- **Wanderer was not being applied at all** on Places — the answer to "is this
+  considering the amount of stamina getting saved?" was no. It now reads
+  `mods().exploreStaminaPer`, and the bill names which savings are in it:
+  "8,700,000 stamina (after Wanderer)", "6,960,000 (after Neigh and Wanderer)".
+- Effectiveness no longer gates anything, since it does not enter the
+  arithmetic. It says how much clicking a pour takes: "One click does 104
+  explores here for 104 stamina, so a whole Apple Cider is about 9.6 clicks."
+- `docs/STAMINA_AND_EFFECTIVENESS.md` now records that the item text alone is
+  ambiguous, that reading it twice gave two wrong answers, and that what
+  settled it was the owner checking against their own play.
+- 105 tests pass.
+
 ## 2026-09-05 (last, 3) — Meal switches on Places, and the cider bill
 
 - **Meals toggle on the Places tab**, showing only the ones that change that

@@ -69,12 +69,13 @@ Claim a task by adding a row before you start. Clear it when merged.
   1,000 stamina** ("1000+ Stamina Use | Does not give Stamina"), as is Orange
   Juice at 100, so those read the logged explores-per-drop alongside raw stamina
   and plain explores. See KNOWN_MISTAKES.md "Arnold Palmer is not exploring".
-- **Stamina and effectiveness are written up** in
-  `docs/STAMINA_AND_EFFECTIVENESS.md`, quoted from the game. Two data errors
-  came out of it: **Wanderer is a skip chance per tier (I 4% / II 7% / III 9% /
-  IV 13%), not "about 20% less stamina"** — `effects.json` now says 0.13; and
-  **an Apple Cider's exploring is fixed while its stamina scales with your
-  effectiveness**, so it is 1,000 explores costing 1,000 x effectiveness.
+- **Stamina model** (see `docs/STAMINA_AND_EFFECTIVENESS.md`): **one explore is
+  one stamina**, and an Apple Cider is ~1,000 explores for ~1,000 stamina.
+  **Effectiveness is stamina per CLICK** — it decides how much clicking a pour
+  takes and nothing else. Multiplying the cider bill by it gave 832m stamina
+  for 10,000 ciders and was caught by the owner against real play. Wanderer is
+  a skip chance per tier (I 4% / II 7% / III 9% / IV 13%), not "20% less
+  stamina"; `effects.json` is now 0.13.
 - **Meals toggle on Places**, through `window.FRPG_MEALS` so Setup and Places
   share one store. Quandary Chowder is already inside the workbook's exploring
   rates and comes back out when off; Sea Pincher is not in the fishing rates

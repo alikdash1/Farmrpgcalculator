@@ -320,3 +320,10 @@
   border-radius: var(--r-sm);
   padding: 0 5px;
 }
+.places-effort-bill {
+  flex-basis: 100%;
+  margin: var(--s2) 0 0;
+  font-size: 13px;
+  color: var(--text);
+}
+.places-effort-bill b { font-family: var(--data); font-weight: 500; }

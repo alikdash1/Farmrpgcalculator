@@ -163,13 +163,26 @@
   const FINDS = new Set(["ap", "lemonade", "largenet", "fishingnet"]);
   const byRod = () => prefs.kind === "casts";
 
-  // Apple Cider: "1000+ Stamina Use | Does not give Stamina | Need at least
-  // 1000 Stamina to use", and its item page adds that "the amount of stamina
-  // used by this item depends on your exploring effectiveness in each explore
-  // location". So the EXPLORING is the fixed part and the stamina is not: one
-  // cider is worth 1,000 explores (1,250 with Cinnamon Sticks, already applied
-  // by mods()) and costs that many times your effectiveness in stamina.
+  // One explore costs one stamina, and a cider is worth 1,000 of them for about
+  // 1,000 stamina. That is what the rest of the app has always used
+  // (`stamina = explores * exploreStaminaPer * neigh` in app.js) and it matches
+  // what the owner actually spends in game: ~15,000 ciders comes nowhere near
+  // 10m stamina.
+  //
+  // Effectiveness is NOT a multiplier on that. It is stamina per *click* — how
+  // much one "continue exploring" does at once — so it decides how many clicks
+  // a pour takes, not what it costs. Multiplying the cider bill by it produced
+  // 832m stamina for 10,000 ciders, about 10,000 full stamina bars, which is
+  // how the error was caught.
   const ciderExplores = () => mods().drinks.ciderRolls;
+  const ciderStaminaEach = () => constant("cider_base_rolls", 1000);
+  // Wanderer IV is a 13% chance an explore costs no stamina, so stamina goes
+  // that much further. mods() folds it in, and honours a measured override.
+  const staminaFactor = () => {
+    const value = Number(mods().exploreStaminaPer);
+    return value > 0 ? value : 1;
+  };
+  const neighFactor = () => meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1;
 
   // The workbook expands a chest into its contents and lists them as if they
   // were drops. They are not: you find the chest, and the rings are inside it.
@@ -256,27 +269,23 @@
   // location charges.
   function actionsFor(place) {
     const amount = Number(prefs.amount) || 0;
-    const per = staminaPer(place);
     switch (prefs.kind) {
       case "cider": return amount * ciderExplores();
-      case "oj": return per > 0 ? amount * constant("oj_stamina", 100) / per : null;
-      case "stamina": return per > 0 ? amount / per : null;
+      case "oj": return amount * constant("oj_stamina", 100) / staminaFactor();
+      case "stamina": return amount / staminaFactor();
       default: return amount;
     }
   }
 
   // What that costs in stamina. For a cider this is the number that moves with
   // effectiveness, which is exactly what the player asked to see.
-  function staminaSpent(place) {
+  function staminaSpent() {
     const amount = Number(prefs.amount) || 0;
-    const per = staminaPer(place);
     switch (prefs.kind) {
-      case "cider": return per > 0
-        ? amount * ciderExplores() * per * (meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1)
-        : null;
+      case "cider": return amount * ciderStaminaEach() * neighFactor() * staminaFactor();
       case "oj": return amount * constant("oj_stamina", 100);
       case "stamina": return amount;
-      case "explores": return per > 0 ? amount * per : null;
+      case "explores": return amount * staminaFactor();
       default: return null;
     }
   }
@@ -328,7 +337,6 @@
       inChests = [...held.entries()].map((entry) => Object.assign({ name: entry[0] }, entry[1]));
     } else {
       const actions = actionsFor(place);
-      if (actions == null) return { basis: "logged", rows: [], blocked: true };
       const table = denomTable(place);
       if (!Object.keys(table).length) return { basis: "logged", rows: [], missing: true };
       for (const [name, info] of Object.entries(table)) {
@@ -447,27 +455,28 @@
   function effortRow(place) {
     if (place.mode !== "explore") return "";
     const per = staminaPer(place);
-    const oj = constant("oj_stamina", 100);
+    const spent = staminaSpent();
     const cider = ciderExplores();
-    const neigh = meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1;
-    // The number the player actually asked for: what THIS pour costs here,
-    // which moves every time the effectiveness does.
-    const spent = staminaSpent(place);
-    const bill = spent > 0
-      ? " <b>Your " + whole(prefs.amount) + " " + esc(kindLabel()) + " here: " + whole(spent) + " stamina.</b>"
-      : "";
+    // Effectiveness does not change what a pour costs or yields — one explore
+    // is one stamina either way. It changes how many clicks it takes, which is
+    // the whole reason Protein Bars, Jill and Sprint Shoes exist.
     const said = per > 0
-      ? "At " + whole(per) + " stamina an explore: one Apple Cider is " + whole(cider) +
-        " explores costing <b>" + whole(cider * per * neigh) + "</b> stamina" +
-        (neigh < 1 ? " with Neigh" : "") + ", and one Orange Juice (" + whole(oj) + " stamina) is " +
-        count(oj / per) + " explores. Raising this makes a cider cost more stamina and cover more ground — " +
-        "worth it, because stamina comes back on its own and ciders do not." + bill
+      ? "One click does " + whole(per) + " explores here for " + whole(per) + " stamina, so a whole Apple Cider (" +
+        whole(cider) + " explores) is about " + count(cider / per) + " clicks. Raising this is fewer clicks for the " +
+        "same result — it does not change what anything costs or drops."
       : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
-        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it, and it differs per place — so put in yours.";
+        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it. It only decides how many clicks a pour takes, so the numbers below work without it.";
+    const bill = spent > 0
+      ? '<p class="places-effort-bill">Your ' + whole(prefs.amount) + " " + esc(kindLabel()) +
+        " here: <b>" + whole(spent) + "</b> stamina" +
+        (neighFactor() < 1 || staminaFactor() < 1
+          ? " (after " + [neighFactor() < 1 ? "Neigh" : null, staminaFactor() < 1 ? "Wanderer" : null].filter(Boolean).join(" and ") + ")"
+          : "") + ".</p>"
+      : "";
     return '<div class="places-effort">' +
       "<label><span>Effectiveness</span>" +
       '<input type="number" min="0" step="1" inputmode="numeric" data-effort="' + esc(effortKey(place)) + '" value="' + (per > 0 ? per : "") + '" placeholder="—"></label>' +
-      "<p>" + said + "</p></div>";
+      "<p>" + said + "</p>" + bill + "</div>";
   }
 
   function rowsMarkup(result, quests, tower) {
@@ -563,26 +572,21 @@
     const cards = scored.map((entry) => {
       const place = entry.place;
       const result = entry.result;
-      const blocked = !!result.blocked;
       const missing = !!result.missing;
       const noun = place.mode === "fishing" ? "catches" : "explores";
-      const preview = blocked
-        ? '<span class="places-preview blocked">Say what an ' + (place.mode === "fishing" ? "cast" : "explore") + " costs here and this fills in.</span>"
-        : '<span class="places-preview">' + (result.rows.slice(0, 3).map((row) =>
+      const preview = '<span class="places-preview">' + (result.rows.slice(0, 3).map((row) =>
             "<b>" + count(row.expected || 0) + "</b> " + esc(row.name)).join(" · ") ||
             (missing ? "no per-" + (place.mode === "fishing" ? "net" : "Arnold Palmer") + " rates for this place" : "nothing recorded here")) + "</span>";
       const found = !want ? ""
         : (entry.hit && entry.hit.expected != null
           ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
           : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
-      const spent = staminaSpent(place);
-      const silver = blocked ? 0 : sellValue(result);
+      const spent = staminaSpent();
+      const silver = sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
       // An Arnold Palmer finds items without spending stamina, so a drink pour
       // is counted in finds and never restated as a number of explores.
-      const line = blocked
-        ? "Nothing to work out until that number is in."
-        : missing
+      const line = missing
           // Falling back to the explore rates here would be the very error
           // KNOWN_MISTAKES.md warns about, so say what would work instead.
           ? "Nobody has measured " + esc(place.name) + " per " +
@@ -599,8 +603,11 @@
               : amount + " " + esc(label) + " is <b>" + whole(result.actions) + "</b> " + noun + " here" +
                 // A cider's exploring is fixed and its stamina is not, so the
                 // stamina is the number worth spelling out.
+                // One explore is one stamina; the effectiveness number is
+                // stamina per CLICK, so quoting it here read as a per-explore
+                // price and made the bill look a hundred times too big.
                 (spent != null && prefs.kind !== "stamina"
-                  ? ", costing <b>" + whole(spent) + "</b> stamina at " + whole(staminaPer(place)) + " an explore"
+                  ? ", costing <b>" + whole(spent) + "</b> stamina"
                   : "") +
                 worth + ".";
       return '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
@@ -611,8 +618,8 @@
       "</summary>" +
       '<div class="places-detail">' + effortRow(place) +
         '<p class="places-actions">' + line + "</p>" +
-        (blocked || missing ? "" : rowsMarkup(result, quests, tower)) +
-        (blocked || missing ? "" : chestMarkup(result, quests, tower)) +
+        (missing ? "" : rowsMarkup(result, quests, tower)) +
+        (missing ? "" : chestMarkup(result, quests, tower)) +
         (place.buddyUrl ? '<p class="places-source"><a href="' + esc(place.buddyUrl) + '" target="_blank" rel="noopener">Open ' + esc(place.name) + " on Buddy's Almanac</a></p>" : "") +
       "</div></details>";
     }).join("");

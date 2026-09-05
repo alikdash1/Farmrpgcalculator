@@ -45,12 +45,14 @@ test("what you spend decides which rate table can answer", () => {
   //   Orange Juice  "Adds 100 Stamina"               -> buys stamina
   // So Cider belongs with exploring, not with the drinks that find items.
   assert.match(page, /const FINDS = new Set\(\["ap", "lemonade", "largenet", "fishingnet"\]\);/);
-  // And the cider's own item page: "The amount of stamina used by this item
-  // depends on your exploring effectiveness in each explore location." So its
-  // EXPLORING is the constant and its stamina is not.
   assert.match(page, /const ciderExplores = \(\) => mods\(\)\.drinks\.ciderRolls;/);
   assert.match(page, /case "cider": return amount \* ciderExplores\(\);/);
-  assert.match(page, /case "cider": return per > 0[\s\S]*?ciderExplores\(\) \* per \* \(meal\("neigh"\)/);
+  // One explore is one stamina, so a cider is ~1,000 explores for ~1,000
+  // stamina. Effectiveness is stamina per CLICK and must never multiply the
+  // bill: doing that quoted 832m stamina for 10,000 ciders, roughly ten
+  // thousand full stamina bars, which is how it was caught.
+  assert.match(page, /case "cider": return amount \* ciderStaminaEach\(\) \* neighFactor\(\) \* staminaFactor\(\);/);
+  assert.doesNotMatch(page, /ciderExplores\(\) \* per/);
   assert.match(page, /case "oj": return amount \* constant\("oj_stamina", 100\);/);
   // And it is never a chip the reader can set wrong.
   assert.doesNotMatch(page, /data-basis/);
@@ -153,17 +155,22 @@ test("Iron Depot has its own drop denominators, and they are real", () => {
   assert.match(read("locations-page.js"), /if \(mods\(\)\.ironDepot && place\.ironDepot\) return place\.ironDepot;/);
 });
 
-test("how much stamina an explore costs is asked for, never guessed", () => {
+test("effectiveness decides clicks, and the stamina perks are applied", () => {
   const page = read("locations-page.js");
-  // Farm RPG prints it per location under Exploring Effectiveness, and Protein
-  // Bars and perks move it, so there is no right value to default to.
+  // Farm RPG prints effectiveness per location, and Protein Bars, Jill and
+  // Sprint Shoes all raise it, so it is typed in rather than defaulted.
   assert.match(page, /Exploring Effectiveness/);
   assert.match(page, /frpg_location_effort_v1/);
-  // With no number entered, the stamina and Orange Juice options must refuse
-  // to answer rather than fall back to an invented cost.
-  assert.match(page, /case "oj": return per > 0 \? amount \* constant\("oj_stamina", 100\) \/ per : null;/);
-  assert.match(page, /case "stamina": return per > 0 \? amount \/ per : null;/);
-  assert.match(page, /Nothing to work out until that number is in\./);
+  // But it is stamina per CLICK, not per explore. One explore is one stamina,
+  // so it changes how much clicking a pour takes and nothing else. It must
+  // therefore never gate a card, and never multiply a bill.
+  assert.match(page, /it does not change what anything costs or drops/);
+  assert.doesNotMatch(page, /Nothing to work out until that number is in/);
+  // Wanderer IV is a 13% chance an explore is free, so stamina goes further.
+  // Places was not applying it at all.
+  assert.match(page, /const staminaFactor = \(\) => \{/);
+  assert.match(page, /mods\(\)\.exploreStaminaPer/);
+  assert.match(page, /case "stamina": return amount \/ staminaFactor\(\);/);
 });
 
 test("the yield table survives the site-wide table min-width", () => {
@@ -219,7 +226,9 @@ test("the stamina facts match what the game actually says", () => {
   assert.match(doc, /1000\+ Stamina Use/);
   assert.match(doc, /depends on your \*\*exploring effectiveness in each explore location\*\*/);
   assert.match(doc, /Nothing lowers it/);
-  assert.match(doc, /The one inference on this page/);
+  assert.match(doc, /What effectiveness actually does — settled by measurement/);
+  // The bill must never be shown as scaling with effectiveness again.
+  assert.doesNotMatch(doc, /costs `1,000 × your effectiveness`/);
 });
 
 test("the meals that change a pour are on the page, sharing Setup's store", () => {
@@ -260,8 +269,10 @@ test("what a pour costs in stamina is stated, not left to be worked out", () => 
   const page = read("locations-page.js");
   // A cider's stamina moves with effectiveness, so the total for THIS pour is
   // the number worth showing, next to the field that changes it.
-  assert.match(page, /Your " \+ whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\) \+ " here: " \+ whole\(spent\) \+ " stamina/);
-  assert.match(page, /costing <b>" \+ whole\(spent\)/);
+  assert.match(page, /Your ' \+ whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\)/);
+  assert.match(page, /costing <b>" \+ whole\(spent\) \+ "<\/b> stamina"/);
+  // And it names which savings are already in that figure.
+  assert.match(page, /neighFactor\(\) < 1 \? "Neigh" : null, staminaFactor\(\) < 1 \? "Wanderer" : null/);
 });
 
 test("chest contents keep the flags that followed them out of the table", () => {

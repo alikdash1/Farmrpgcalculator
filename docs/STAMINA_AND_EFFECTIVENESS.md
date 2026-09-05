@@ -1,9 +1,13 @@
 # Stamina and Exploring Effectiveness
 
 Everything Farm RPG says about stamina, gathered 2026-09-05 because the planner
-had two of these wrong. **Every line below is the game's own text**, from
+had several of these wrong. **Every quoted line is the game's own text**, from
 `raw/items-etl2.json` item descriptions and the player's own Farm Supply
-capture. Nothing here is inferred except the one section that says so.
+capture.
+
+The one thing the text does not settle on its own is what effectiveness *does*.
+That section is marked, and it was settled by the owner's own play, not by
+reading — two readings of the item text gave two wrong answers first.
 
 ---
 
@@ -31,9 +35,9 @@ and Jill lowered it. They do not.
 
 ### Why you would want it higher
 
-Because it is the one thing that makes an **Apple Cider** go further. Stamina
-regenerates on its own; ciders cost 40 Apples + an Orange + a Glass Bottle
-each. See the cider entry below.
+Because it is **fewer clicks for the same result** — one click does N explores
+instead of one. It does not change what a pour costs or what it drops. See
+*What effectiveness actually does* below.
 
 ---
 
@@ -44,14 +48,14 @@ each. See the cider entry below.
 | **Apple Cider** | "1000+ Stamina Use \| Does not give Stamina \| Works with Wanderer Perks \| Need at least 1000 Stamina to use" |
 | | *Item page:* "The amount of stamina used by this item depends on your **exploring effectiveness in each explore location**. It can also be boosted with the Cinnamon Sticks perk at the Farm Supply." |
 
-Read those two together and the shape is fixed: **the exploring a cider does is
-the constant, and the stamina it costs is the variable.** One cider is worth
-1,000 explores (1,250 with Cinnamon Sticks, "Apple Cider is 25% more
-effective") and costs `1,000 × your effectiveness` stamina at that location —
-which is why the minimum is 1,000, at an effectiveness of 1.
+One cider is worth **about 1,000 explores for about 1,000 stamina** (1,250
+explores with Cinnamon Sticks, "Apple Cider is 25% more effective").
 
-So raising effectiveness makes a cider *cost more stamina*, and that is the
-point: the same cider covers proportionally more ground.
+The item page's "depends on your exploring effectiveness" is easy to over-read,
+and was over-read here twice. It does **not** mean the bill scales with
+effectiveness — see *What effectiveness actually does* below, which is settled
+by measurement rather than by reading. It means a cider spends whole clicks, so
+the total lands a little past 1,000 rather than exactly on it. Hence "1000+".
 
 **Fishing does not use stamina.** Worms are `type: "bait"` — "Use this to catch
 fish."
@@ -121,7 +125,47 @@ except where an Acorn Pie is running, because a pie is limited to 150
 
 ---
 
-## The one inference on this page
+## What effectiveness actually does — settled by measurement
+
+The item text alone is ambiguous, and reading it two different ways produced
+two wrong answers here on 2026-09-05. What settled it was the owner checking
+against their own play: **~15,000 Apple Ciders does not come close to 10m
+stamina.** Any model where a cider costs `1,000 x effectiveness` gives 15,000
+ciders a bill of over 100m at a 104-effectiveness location, which is more than
+a thousand full stamina bars. That is not what happens.
+
+The model that fits both the text and the play:
+
+| | |
+|---|---|
+| One explore | costs **1 stamina** and rolls the drop table once |
+| Effectiveness **N** | **stamina per click** — one "continue exploring" does N explores for N stamina |
+| One Apple Cider | **~1,000 explores for ~1,000 stamina**, about `1000/N` clicks |
+
+So effectiveness buys **fewer clicks for the same result**. It does not change
+what a pour costs, and it does not change what it drops. That is why Protein
+Bars, Jill and Sprint Shoes all raise it, and why "Stamina is used faster" is a
+plain statement of fact rather than a drawback.
+
+It also explains "1000+ Stamina Use": a cider spends whole clicks, so at N=104
+it rounds up past 1,000 rather than landing exactly on it.
+
+The rest of the app has always modelled it this way — `app.js` uses
+`stamina = explores * exploreStaminaPer * neigh` and
+`ciderUses = explores / ciderRolls`. Only the Places page ever multiplied by
+effectiveness, and that was the bug.
+
+### The savings that apply on top
+
+- **Wanderer IV** — 13% of explores cost nothing, so stamina goes 1/0.87
+  further. `mods().exploreStaminaPer` carries this; Places was not reading it.
+- **Neigh** — a cider costs 20% less stamina for 5 minutes.
+
+Both only apply when they are actually switched on in Setup.
+
+---
+
+## An older inference, now superseded
 
 Everything above is quoted. This part is not, and is flagged as such wherever
 the app relies on it.
@@ -140,7 +184,8 @@ least 1000 Stamina to use" is the N = 1 case. It is consistent with
 `explore_base_stamina: 1` ("Base stamina opportunity per logged item roll"),
 which the project already assumed.
 
-**Worth confirming in game**, since it decides whether a stamina figure should
+**Superseded by the measurement above.** The original wording is kept because
+it shows how the wrong reading looked reasonable. **Worth confirming in game**, since it decides whether a stamina figure should
 be divided by effectiveness: read the location's effectiveness, spend a known
 amount of stamina, and check whether the explore counter moves by
 `stamina ÷ effectiveness` or by `stamina`.
