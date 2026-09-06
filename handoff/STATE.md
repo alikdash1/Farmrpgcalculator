@@ -74,6 +74,12 @@ Claim a task by adding a row before you start. Clear it when merged.
   is `1250 + 12.5 × effectiveness` stamina for `(1 + effectiveness/100) × 1000`
   explores; Wanderer's four tiers **stack to 33%** (×0.67); Neigh ×0.8 on
   ciders. Effectiveness is a **percentage** and stretches ciders, not stamina.
+- **Masteries are the 2026-09-06 export**, 519 items, imported with
+  `tools/build-personal-tower.py <csv>`. The export names carry the Tower floor
+  and the importer strips it; **222 of its 224 floor labels agree with the app**
+  (the two that differ are dual-floor items). Tower start floor is **286**.
+- **Setup has a Steel works** covering Steel and Steel Wire; entering Steel/hr
+  fills Wire at a third of it (owner-measured 1,500 against 4,500).
 - **`data/owner-workbook.js`** holds the rest of the owner's workbook: 405
   masterable items rated (Tower floor, or *not possible* / *too expensive* /
   *too long / pet* / *event* / 1-6 difficulty), nine Mega Mastery cost rows,

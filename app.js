@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-06.dawn2";
+  const FRPG_BUILD = "2026-09-06.dawn3";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -136,6 +136,10 @@
     boardHour: 0,
     stoneTen: 0,
     coalHour: 0,
+    forgeSteel: false,
+    forgeWire: false,
+    steelHour: 0,
+    wireHour: 0,
   };
   const MEALS = [
     { id: "neigh", name: "Neigh", area: "Exploring economy", effect: "Cider uses 20% less stamina", calc: "Lowers stamina and OJ opportunity cost. It does not reduce the number of Ciders used." },
@@ -455,6 +459,18 @@
     if (name === "stone" && state.infra.quarryStone) {
       const rate = Number(state.infra.stoneTen || 0) * 6;
       return { kind: "Quarry", detail: rate ? `${fmt(rate)}/hr from 10-minute ticks` : "Covered; enter your 10-minute tick in Setup", hours: rate ? need / rate : null };
+    }
+    // Steel and Steel Wire come out of the same building, and the owner's own
+    // measurement is that Wire runs at a third of Steel — 1,500/hr while Steel
+    // was 4,500. Both rates stay editable because that ratio is one player's
+    // observation, not a stated rule.
+    if (name === "steel" && state.infra.forgeSteel) {
+      const rate = Number(state.infra.steelHour || 0);
+      return { kind: "Steel production", detail: rate ? `${fmt(rate)}/hr` : "Covered; enter your rate in Setup", hours: rate ? need / rate : null };
+    }
+    if (name === "steel wire" && state.infra.forgeWire) {
+      const rate = Number(state.infra.wireHour || 0);
+      return { kind: "Steel Wire production", detail: rate ? `${fmt(rate)}/hr` : "Covered; enter your rate in Setup", hours: rate ? need / rate : null };
     }
     if (name === "coal" && state.infra.quarryCoal) {
       const rate = Number(state.infra.coalHour || 0);
@@ -1505,11 +1521,26 @@
     const infraCards = [
       { title: "Iron Depot", art: itemByName("Iron"), body: "Keeps Iron and Nails full by auto-buying with silver. These stay out of the main bottleneck list when enabled.", controls: `<label class="inline-toggle"><input type="checkbox" data-effect-direct="iron_depot" ${state.enabled.has("iron_depot") ? "checked" : ""}> I own Iron Depot</label>` },
       { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive hourly. Hickory adds six 20% ticks during its hour; useful output can still be limited by inventory or Craftworks.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
+      { title: "Steel works", art: itemByName("Steel"), body: "Steel and Steel Wire produce on their own once the building is running. Wire comes out at about a third of the Steel rate, so setting Steel fills Wire in unless you have measured it yourself.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="forgeSteel" ${state.infra.forgeSteel ? "checked" : ""}> Cover Steel</label><label class="inline-toggle"><input type="checkbox" data-infra="forgeWire" ${state.infra.forgeWire ? "checked" : ""}> Cover Steel Wire</label><label class="mini-field">Steel/hr<input type="number" min="0" data-infra-number="steelHour" data-fills="wireHour" value="${clean(state.infra.steelHour)}"></label><label class="mini-field">Steel Wire/hr<input type="number" min="0" data-infra-number="wireHour" value="${clean(state.infra.wireHour)}"></label>` },
       { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];
     $("infraGrid").innerHTML = infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
     document.querySelectorAll("[data-infra]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infra] = input.checked; save(); render(); }; });
-    document.querySelectorAll("[data-infra-number]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infraNumber] = Number(input.value || 0); save(); render(); }; });
+    document.querySelectorAll("[data-infra-number]").forEach((input) => {
+      input.onchange = () => {
+        state.infra[input.dataset.infraNumber] = Number(input.value || 0);
+        // Steel Wire runs at about a third of Steel, measured by the owner at
+        // 1,500/hr against 4,500. Filling it in saves entering the same thing
+        // twice, and it stays editable for anyone whose ratio differs.
+        const fills = input.dataset.fills;
+        if (fills && !Number(state.infra[fills] || 0)) {
+          state.infra[fills] = Math.round(Number(input.value || 0) / 3);
+        }
+        save();
+        renderSetup();
+        render();
+      };
+    });
     document.querySelectorAll("[data-effect-direct]").forEach((input) => { input.onchange = () => { input.checked ? state.enabled.add(input.dataset.effectDirect) : state.enabled.delete(input.dataset.effectDirect); save(); renderSetup(); render(); }; });
 
     $("mealGrid").innerHTML = MEALS.map((meal) => {

@@ -38,18 +38,30 @@ test('personal Tower page uses the authoritative mastery-history snapshot', () =
   const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const personalSource = fs.readFileSync(path.join(root, 'data/personal-tower.js'), 'utf8');
   const payload = JSON.parse(personalSource.slice(personalSource.indexOf('{'), personalSource.lastIndexOf(';')));
-  assert.equal(payload.startFloor, 277);
+  // This file is re-imported from a fresh Mastery History export whenever the
+  // player sends one, so pinning a frozen snapshot only ever broke the suite.
+  // What has to stay true is the shape and the invariants.
   assert.equal(payload.goalFloor, 340);
-  assert.equal(payload.source, 'Farm RPG Mastery History.csv');
   assert.equal(payload.authoritativeMasteries, true);
-  assert.equal(Object.keys(payload.masteries).length, 514);
-  assert.equal(payload.masteries['Butter Churn'], 1000000);
-  assert.equal(payload.masteries.Crossbow, 1000000);
-  // Snapshot of 2026-09-04: Looking Glass finished its Mega Mastery, Wizard
-  // Hat is still short. Values are clamped at 1m because that is the cap.
-  assert.equal(payload.masteries['Looking Glass'], 1000000);
-  assert.equal(payload.masteries['Wizard Hat'], 832170);
-  assert.equal(payload.masteries['Mulberry Snapper'], 1000000);
+  assert.match(payload.source, /Mastery History.*\.csv/);
+  assert.ok(payload.startFloor >= 277 && payload.startFloor <= payload.goalFloor);
+  assert.equal(payload.startFloor, payload.towerAtCapture);
+  assert.ok(Object.keys(payload.masteries).length >= 514);
+  // The export keeps counting past a Mega Mastery; the planner only cares that
+  // it is finished, so 1m is the cap.
+  for (const [name, value] of Object.entries(payload.masteries)) {
+    assert.ok(Number.isInteger(value) && value >= 0 && value <= 1000000, `${name}: ${value}`);
+  }
+  // The Tower floor is part of the exported name ("Salt 294") and has to be
+  // stripped, or nothing matches the game data. Two-digit suffixes are part of
+  // the name ("Runestone 02") and must survive.
+  for (const name of Object.keys(payload.masteries)) {
+    assert.doesNotMatch(name, /\s\d{3}(\s*\/\s*\d{3})*$/, `${name} still carries its floor`);
+  }
+  assert.ok(Object.keys(payload.masteries).includes('Runestone 02'));
+  assert.match(
+    fs.readFileSync(path.join(root, 'tools/build-personal-tower.py'), 'utf8'),
+    /build-personal-tower\.py/);
   assert.match(index, /id="towerRail"/);
   // Assert the manual-import control exists, not the wording around it —
   // player-facing copy is rewritten often and shouldn't break the suite.

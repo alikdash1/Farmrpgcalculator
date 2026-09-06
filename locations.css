@@ -327,3 +327,15 @@
   color: var(--text);
 }
 .places-effort-bill b { font-family: var(--data); font-weight: 500; }
+.places-applyall {
+  font: inherit;
+  font-size: 12px;
+  align-self: flex-end;
+  padding: 5px 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.places-applyall:hover { color: var(--text); border-color: var(--on-dim); }

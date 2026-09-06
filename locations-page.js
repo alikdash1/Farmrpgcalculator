@@ -486,6 +486,7 @@
     return '<div class="places-effort">' +
       "<label><span>Effectiveness</span>" +
       '<input type="number" min="0" step="1" inputmode="numeric" data-effort="' + esc(effortKey(place)) + '" value="' + (per > 0 ? per : "") + '" placeholder="—"></label>' +
+      (per > 0 ? '<button type="button" class="places-applyall" data-apply-all="' + per + '">Use ' + whole(per) + " everywhere</button>" : "") +
       "<p>" + said + "</p>" + bill + "</div>";
   }
 
@@ -693,6 +694,21 @@
       };
     }
 
+    // Most players sit at the same effectiveness across the board, so typing it
+    // into fourteen cards one at a time is busywork.
+    root.querySelectorAll("[data-apply-all]").forEach((button) => {
+      button.onclick = () => {
+        const value = Number(button.dataset.applyAll) || 0;
+        if (!(value > 0)) return;
+        for (const place of places) {
+          if (place.mode === "explore") effort[effortKey(place)] = { stamina: value };
+        }
+        writeJson(EFFORT_KEY, effort);
+        const open = [...root.querySelectorAll("details.places-card[open]")].map((row) => row.dataset.place);
+        render();
+        reopen(open);
+      };
+    });
     root.querySelectorAll("[data-effort]").forEach((input) => {
       input.onchange = () => {
         const id = input.dataset.effort;

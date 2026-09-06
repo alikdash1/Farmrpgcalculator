@@ -5,6 +5,28 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-06 (last) — Real mastery numbers, Steel works, effectiveness in one go
+
+- **`tools/build-personal-tower.py`** imports a Mastery History export. Names
+  carry the floor ("Salt 294", "Leather Belt 304/335") and those are three
+  digits, while a real part of a name is two ("Runestone 02", "Bone 03") —
+  which is what tells them apart. Re-imported from the 2026-09-06 export: 519
+  masteries, 129 moved, 5 new, nothing lost. Tower start floor 277 -> 286.
+- **The export cross-checks the site.** Its names embed the floor, so all 224
+  can be compared against what the app believes: **222 agree**, and the two
+  that differ are the dual-floor items (Leather Belt 304/335, Tin Scraps
+  309/325) where the app holds the higher floor. No errors found.
+- The Tower test no longer pins a frozen snapshot — it broke on every fresh
+  import. It now checks the invariants: values capped at 1m, floors stripped
+  from names, two-digit suffixes kept, startFloor matching towerAtCapture.
+- **Steel works** added to Setup, covering Steel and Steel Wire. Entering a
+  Steel rate fills Wire at a third of it, which is the owner's own measurement
+  (1,500/hr against 4,500); both stay editable because that ratio is one
+  player's observation, not a stated rule.
+- **"Use N everywhere"** on the Places effectiveness field, since most players
+  sit at one number and typing it into fourteen cards is busywork.
+- 109 tests pass.
+
 ## 2026-09-06 (later) — The rest of the owner's workbook
 
 *"do everything, the sheets are a reliable source ... if there's something we
