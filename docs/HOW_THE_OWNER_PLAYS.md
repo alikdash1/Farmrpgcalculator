@@ -4,6 +4,19 @@ Written 2026-09-06 from the owner correcting a run of plans that were
 arithmetically right and practically useless. Read this before costing anything
 for them, or you will optimise the wrong quantity.
 
+**These are not a checklist. They are calibration.** They were written down
+because a run of plans got the arithmetic right and the point wrong — and the
+owner's own warning, in their words, is that whoever reads this will "take
+everything to the word and not understand it very well".
+
+So: work the specific case. Every rule below has a situation that breaks it —
+the PJ rule breaks when an item is two bottles from done, rule 2 breaks the
+moment Straw is the wall, rule 3 breaks when the thing to buy is not on any
+price list. Notice when you are in one of those and say so, rather than
+reaching for the nearest rule. The owner corrects fast and is usually right;
+if a plan feels obviously wrong to them it probably is, and the answer is to
+re-derive it, not to defend it.
+
 The short version: **they are not short of gold, stone, wood or straw. They are
 short of time, of inventory space, and of the few things that cannot be
 bought.** Cost things in those.
