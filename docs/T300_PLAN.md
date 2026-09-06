@@ -5,9 +5,31 @@ requirement costed **as part of the loop it belongs to**, not on its own. Read
 `HOW_THE_OWNER_PLAYS.md` first — especially rule 4 (stack masteries) and rule 7
 (judge by marginal cost).
 
-Mastery model used throughout: **1 mastery per item, x1.1 with Mushroom Stew**,
-so crafts needed = (1,000,000 - current) / 1.1. Progress is from the
-2026-09-06 mastery export in `data/personal-tower.js`.
+## The mastery arithmetic — get this right first
+
+Two multipliers, and they are independent:
+
+- **Mushroom Stew +10% mastery.** Mastery per item obtained = 1.1.
+- **Resource Saver I + II + III = 45% duplicate chance.** The game's own words:
+  *"10% / 15% / 20% chance item is duplicated during crafting or resources are
+  returned if max inventory."* So a craft yields **1.45 items on average**, and
+  the duplicate is a real item, so it carries mastery too.
+
+**crafts = (1,000,000 - current) / 1.1 / 1.45**
+
+The 1.45 applies to *every* craft in a chain, including intermediate ones — the
+Steel you craft to feed a Glass Jar is itself duplicated 45% of the time. It
+does **not** apply to anything bought, explored or fished.
+
+One caveat worth respecting at 15,870 inventory: the perk pays a duplicate
+*or*, at max inventory, refunds the resources instead. Refunded resources carry
+no mastery. Keep headroom in the output stack while grinding, or the 1.45
+quietly becomes 1.0 for mastery purposes.
+
+(`engine.js` already divides by `craftYield` — the Calculate page has always
+done this. It is hand-written plans that forget it.)
+
+Progress is from the 2026-09-06 mastery export in `data/personal-tower.js`.
 
 ---
 
@@ -18,12 +40,12 @@ buildings is not a plan:
 
 | Item | Steel needed | At 5,000/hr |
 |---|---|---|
-| Glass Jar (T287) | 886,581 | 177 hrs |
-| Pitchfork (T290) | 1,803,108 | 361 hrs |
-| Wrench (T298) | 370,821 | 74 hrs |
-| Red Trunk (T299) | 6,903,272 | 1,381 hrs |
-| **Total** | **9,963,782** | **83 days** |
-| Fancy Guitar (T295) | 4,621,674 **Steel Wire** | 2,772 hrs = **115 days** |
+| Glass Jar (T287) | 611,435 | 122 hrs |
+| Pitchfork (T290) | 1,243,523 | 249 hrs |
+| Wrench (T298) | 255,739 | 51 hrs |
+| Red Trunk (T299) | 4,760,877 | 952 hrs |
+| **Total** | **6,871,575** | **57 days** |
+| Fancy Guitar (T295) | 3,187,365 **Steel Wire** | 1,912 hrs = **80 days** |
 
 **But Steel and Steel Wire are craftable, and the only scarce ingredient is
 Carbon Sphere.**
@@ -31,16 +53,17 @@ Carbon Sphere.**
 - Steel = 10 Iron + 1 Glass Orb + 1 Carbon Sphere (craft level 15)
 - Steel Wire = 10 Iron + 1 Stone + 1 Carbon Sphere (craft level 50)
 
-Iron is Iron Depot, Stone is the Quarry, Glass Orb is 2–3 AP/k. So the whole
-steel programme is **14,585,456 Carbon Sphere** — about **145,000 AP** bought
-at 8–12 AP/k, or **236,000 AP** exploring Mount Banon at 61.74/AP.
+Both duplicate, so 6,871,575 Steel is only 4,739,017 crafts and 3,187,365 Wire
+is 2,198,183. Iron is Iron Depot, Stone is the Quarry, Glass Orb is 2–3 AP/k.
+So the whole steel programme is **6,937,200 Carbon Sphere** — about **69,000
+AP** bought at 8–12 AP/k, or **112,000 AP** exploring Mount Banon at 61.74/AP.
 
 That turns Red Trunk and Fancy Guitar from months of building output into an AP
 purchase. Two things to check before betting on it:
 
-1. **Market depth.** Nobody sells 14.5m Carbon Sphere. Mount Banon is the
+1. **Market depth.** Nobody sells 6.9m Carbon Sphere. Mount Banon is the
    fallback and it is not absurd.
-2. **Iron at scale.** Rule 5 says iron is free, and it is — but this is ~100m
+2. **Iron at scale.** Rule 5 says iron is free, and it is — but this is ~69m
    Iron through the Depot. Confirm the Depot keeps up before treating it as
    background.
 
@@ -48,27 +71,32 @@ purchase. Two things to check before betting on it:
 
 ## T287 — Glass Jar
 
-At 24,761 / 1,000,000. **886,581 crafts** with Stew.
+At 24,761 / 1,000,000. **611,435 crafts.**
 Recipe: 3 Glass Orb + 1 Shimmer Quartz + 1 Steel.
 
 | Need | Quantity | Where it comes from |
 |---|---|---|
-| Glass Orb | 2,659,743 (+886,581 for the Steel) = **3,546,324** | buy at 2–3 AP/k ≈ **8,900 AP**, or Ember Lagoon at 113.41/AP = 31,270 AP |
-| Shimmer Quartz | 886,581 | **Black Rock Canyon only, 24.63/AP = 35,997 AP. Not mailable — cannot be bought.** |
-| Carbon Sphere (for the Steel) | 886,581 | buy at 8–12 AP/k ≈ **8,900 AP**, or Mount Banon at 61.74/AP = 14,359 AP |
-| Iron | 8,865,810 | Iron Depot |
+| Glass Orb | 1,834,305 (+421,679 for the Steel) = **2,255,984** | buy at 2–3 AP/k ≈ **5,640 AP**, or Ember Lagoon at 113.41/AP = 19,892 AP |
+| Shimmer Quartz | 611,435 | **Black Rock Canyon only, 24.63/AP = 24,825 AP. Not mailable — cannot be bought.** |
+| Steel | 611,435 items = 421,679 crafts | crafted, see above |
+| Carbon Sphere | 421,679 | buy at 8–12 AP/k ≈ **4,216 AP**, or Mount Banon at 61.74/AP = 6,829 AP |
+| Iron | 4,216,793 | Iron Depot |
 
-**The Shimmer Quartz is free.** Salt (T294) needs 29,224,600 Salt Rock, which
-is 363,296 AP at Black Rock Canyon — and that run drops **8,947,611 Shimmer
+**Buying the orbs and spheres: ~9,900 AP.**
+
+**The Shimmer Quartz is free.** Salt (T294) needs 20,154,921 Salt Rock, which
+is 250,549 AP at Black Rock Canyon — and that run drops **6,170,773 Shimmer
 Quartz**, ten times what Glass Jar wants. Do Salt at Black Rock Canyon rather
 than Whispering Creek (80.44 vs 78.16 Salt Rock/AP, and the Creek gives no
-Quartz) and Glass Jar's only real bill is the orbs and spheres, ~17,800 AP.
+Quartz).
 
-The same Black Rock Canyon run also drops **13,671,182 Horn**, which finishes
-Horn Canteen's (T297) 808,319 Horn outright.
+The same run also drops **9,428,413 Horn**, which covers Horn Canteen's (T297)
+557,461 many times over. And Salt eats one Hammer per craft: 403,098 Hammer
+crafts is **642,942 Hammer mastery**, and Hammer (T289) only needs 496,946 —
+so **Salt finishes Hammer on its own.**
 
 Practical note: all three ingredients cap at 15,870. Glass Orb at 3 per jar is
-the tightest — one full load is 5,290 jars, so this is roughly **168 fill-and-
+the tightest — one full load is 5,290 jars, so this is roughly **116 fill-and-
 craft cycles**, not one big craft.
 
 ---
@@ -78,6 +106,6 @@ craft cycles**, not one big craft.
 - **T286 Aquamarine Ring / T300 Sewing Needle / T300 Water Lily** — one loop:
   Grab Bag 01 in 3,500s for Potato, Bone and Aquamarine while fishing Forest
   Pond for Water Lily; Awl twine accrues on its own.
-- **T286 Wooden Spear** — 813,560 crafts; 3,254,240 Straw is 60.3 hrs at
-  54,000/hr, the first place production is genuinely the wall. Arrowhead price
-  still unanswered.
+- **T286 Wooden Spear** — quoted at 813,560 crafts **before the 1.45 was
+  counted**; the real figure is 561,076 crafts, so 2,244,304 Straw = 41.6 hrs
+  at 54,000/hr, not 60.3. Arrowhead price still unanswered.
