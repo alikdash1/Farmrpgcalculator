@@ -5,6 +5,34 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-06 (later) — The rest of the owner's workbook
+
+*"do everything, the sheets are a reliable source ... if there's something we
+are using in the website and you dont know the rate, take the sheets for it."*
+All 20 tabs read; four had something the app was missing.
+
+- **`data/owner-workbook.js`** + `tools/build-owner-workbook.py`, holding what
+  did not belong in the rate or constant files.
+- **405 masterable items, each rated** — a Tower floor where it is a Tower
+  requirement, otherwise *1 easy* through *6 extremely hard*, or **not possible**
+  (62), **too long / pet** (38), **too expensive** (10), **event** (53). The
+  Tower rail used to say only "No route data for this one yet"; 40 rows in the
+  owner's range now say what they actually are — Energy Coil *not possible*,
+  Crab Claw *too expensive*, Silk *6 extremely hard*.
+- **Nine Mega Mastery cost rows** with their ingredient breakdown, and the
+  owner's own price list: 25 meals in gold each, 28 items per 1,000 in AP and
+  gold, and the conversion rates (70 fishing nets to a Large Net, 3 oranges to
+  an OJ, 30 lemons to an AP).
+- **The workbook checks itself.** Its Water Lily row wants 68,301 items for
+  33,930 Large Nets, which is 2.013 per net — the Tower MM Calculator's 1.83
+  with Sea Pincher's 10% on top. Two independent sheets landing on the same
+  number, now pinned by a test.
+- Tabs skipped and **why** are written into the generator: `Acorn pie leather`
+  is empty, `Items recipe` is already complete in the game export, the quest
+  tabs duplicate `data/main-quests.js`, and the rest are calculators for things
+  this app does not model.
+- 109 tests pass.
+
 ## 2026-09-06 — The owner's own workbook replaces buddy
 
 *"take the sheets rates or anything over buddy's any time and change

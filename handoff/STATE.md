@@ -74,6 +74,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   is `1250 + 12.5 × effectiveness` stamina for `(1 + effectiveness/100) × 1000`
   explores; Wanderer's four tiers **stack to 33%** (×0.67); Neigh ×0.8 on
   ciders. Effectiveness is a **percentage** and stretches ciders, not stamina.
+- **`data/owner-workbook.js`** holds the rest of the owner's workbook: 405
+  masterable items rated (Tower floor, or *not possible* / *too expensive* /
+  *too long / pet* / *event* / 1-6 difficulty), nine Mega Mastery cost rows,
+  their price list and conversion rates. The Tower rail shows the rating.
+  Re-run with `tools/build-owner-workbook.py <xlsx>`; it lists the skipped tabs.
 - **Exploring rates come from the owner's workbook** (2026-09-06), not buddy —
   45 replaced, 5 added. Fishing rates are still the Tower MM Calculator. The
   sheet calls Jundland Desert "Junklands".

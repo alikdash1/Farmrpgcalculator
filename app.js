@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-06.dawn1";
+  const FRPG_BUILD = "2026-09-06.dawn2";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -2025,6 +2025,22 @@
     return rows.sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
   }
 
+  // The owner's own workbook rates every masterable item: a Tower floor when
+  // it is a Tower requirement, otherwise how hard it is (1 easy .. 6 extremely
+  // hard) or why it is not worth chasing at all. The rail used to say only
+  // "No route data for this one yet", which is true but unhelpful.
+  const MASTERY_RATING = ((window.FRPG_OWNER_WORKBOOK || {}).masteryFeasibility) || {};
+  const RATING_CLASS = {
+    "not possible": "blocked", "too expensive": "blocked", "too long / pet": "slow",
+    "event": "event", "Event": "event", "event possible": "event",
+    "1 easy": "easy", "2 normal": "easy", "3 medium": "mid",
+    "4 hard": "hard", "5 very hard": "hard", "6 extremely hard": "hard",
+  };
+  function masteryRating(name) {
+    const row = MASTERY_RATING[name] ||
+      MASTERY_RATING[Object.keys(MASTERY_RATING).find((key) => key.toLowerCase() === String(name).toLowerCase())];
+    return row && row.note ? { note: row.note, kind: RATING_CLASS[row.note] || "mid" } : null;
+  }
   function renderTower() {
     const start = Math.max(1, Math.min(340, Number(state.towerStart) || 277));
     const goal = 340;
@@ -2074,9 +2090,11 @@
         // knows the item. Otherwise it looked like a button and did nothing.
         const plannable = !!item;
         const openAttrs = row.complete || !plannable ? "" : ` data-open-item="${esc(row.name)}" data-open-qty="${row.remaining}" tabindex="0" role="button" title="Open ${esc(row.name)} in the calculator"`;
+        const rating = row.complete ? null : masteryRating(row.name);
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
+        const ratingTag = rating ? `<small class="tower-rating is-${rating.kind}">${esc(rating.note)}</small>` : "";
         const art = itemImg(item, "tower-art", row.name, row.img);
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}</div></div>`;
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}${ratingTag}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
