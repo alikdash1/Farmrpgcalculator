@@ -45,14 +45,14 @@ Progress is from the 2026-09-06 mastery export in `data/personal-tower.js`.
 Four Tower requirements want Steel and one wants Steel Wire. Waiting for the
 buildings is not a plan:
 
-| Item | Steel needed | At 5,000/hr |
+| Item | Steel needed | At 6,000/hr |
 |---|---|---|
-| Glass Jar (T287) | 672,579 | 135 hrs |
-| Pitchfork (T290) | 1,367,876 | 274 hrs |
-| Wrench (T298) | 281,313 | 56 hrs |
-| Red Trunk (T299) | 5,236,966 | 1,047 hrs |
-| **Total** | **7,558,733** | **63 days** |
-| Fancy Guitar (T295) | 3,506,102 **Steel Wire** | 2,103 hrs = **88 days** |
+| Glass Jar (T287) | 672,579 | 112 hrs |
+| Pitchfork (T290) | 1,367,876 | 228 hrs |
+| Wrench (T298) | 281,313 | 47 hrs |
+| Red Trunk (T299) | 5,236,966 | 873 hrs |
+| **Total** | **7,558,733** | **52.5 days** |
+| Fancy Guitar (T295) | 3,506,102 **Steel Wire** | 1,753 hrs = **73 days** |
 
 **But Steel and Steel Wire are craftable, and the only scarce ingredient is
 Carbon Sphere.**
@@ -65,11 +65,27 @@ is 2,418,001. Iron is Iron Depot, Stone is the Quarry, Glass Orb is 2–3 AP/k.
 So the whole steel programme is **7,630,921 Carbon Sphere** — about **76,000
 AP** bought at 8–12 AP/k, or **124,000 AP** exploring Mount Banon at 61.74/AP.
 
+**But the buildings were upgraded to 6,000 Steel and 2,000 Wire an hour
+(2026-09-06), which changes the answer.** That is 144,000 Steel and 48,000 Wire
+a day, and the T300 push is months of elapsed time anyway. Carbon Sphere is now
+a **top-up for whatever production misses**, not the whole bill:
+
+| If the push takes | Steel covered | Wire covered | Spheres to buy | AP |
+|---|---|---|---|---|
+| 30 days | 57% | 41% | 3,658,507 | ~36,600 |
+| 45 days | 86% | 62% | 1,672,300 | ~16,700 |
+| 60 days | 100% | 82% | 431,794 | ~4,300 |
+| 90 days | 100% | 100% | 0 | 0 |
+
+**Steel Wire is the half that falls short**, not Steel — the 2,000/hr line has
+to cover 3.5m for Fancy Guitar alone. Collect often enough that a tick never
+overflows the 15,870 cap.
+
 That turns Red Trunk and Fancy Guitar from months of building output into an AP
 purchase. Two things to check before betting on it:
 
-1. **Market depth.** Nobody sells 7.6m Carbon Sphere. Mount Banon is the
-   fallback and it is not absurd.
+1. **Market depth.** Nobody sells millions of Carbon Sphere. Mount Banon is
+   the fallback and it is not absurd.
 2. **Iron at scale.** Rule 5 says iron is free, and it is — but this is ~76m
    Iron through the Depot. Confirm the Depot keeps up before treating it as
    background.
@@ -91,16 +107,37 @@ Recipe: 3 Glass Orb + 1 Shimmer Quartz + 1 Steel.
 
 **Buying the orbs and spheres: ~10,800 AP.**
 
-**The Shimmer Quartz is free.** Salt (T294) needs 22,170,414 Salt Rock, which
-is 275,604 AP at Black Rock Canyon — and that run drops **6,787,851 Shimmer
-Quartz**, ten times what Glass Jar wants. Do Salt at Black Rock Canyon rather
-than Whispering Creek (80.44 vs 78.16 Salt Rock/AP, and the Creek gives no
-Quartz).
+### What the Shimmer Quartz run costs, and what else it pays for
 
-The same run also drops **10,371,255 Horn**, which covers Horn Canteen's (T297)
-613,208 many times over. And Salt eats one Hammer per craft: 443,408 Hammer
-crafts is **642,942 Hammer mastery**, and Hammer (T289) only needs 496,946 —
-so **Salt finishes Hammer on its own.**
+672,579 Shimmer Quartz from Black Rock Canyon is **27,308 Arnold Palmers** or
+**27,523 Apple Ciders** — the two rate tables agree to within 1%, which is the
+best cross-check this project has produced. In stamina, at effectiveness 104:
+2,550 per cider, x0.8 Neigh, x0.67 Wanderer = **1,367 each, 37.6m total** (451
+full bars). Without Wanderer configured it reads 2,040 and 56.1m.
+
+That one run also drops:
+
+| | Amount | Covers |
+|---|---|---|
+| Salt Rock | 1.9m–2.2m | 37,700–43,900 Salt crafts = **55k–64k Salt mastery**, ~10% of what is left |
+| Horn | 1.0m–1.1m | Horn Canteen (T297) needs 613,208 — **finished outright** |
+| Sandstone | 5.3m | Hourglass (T298) needs ~2.0m — **finished outright** |
+| Coal | 5.3m | — |
+
+**Salt itself is not done at Black Rock Canyon.** The owner runs it at
+Whispering Creek: 22,170,414 Salt Rock at 78.16/AP is **283,672 AP** against
+275,604 at the Canyon — 2.9% more AP for Oak, Apple, Orange, Lemon, Striped
+Feather, Slimestone and Raptor Claw, every one of which they use. The Canyon's
+other drops are dead weight to them. Rule 7, applied by the owner, not the
+rule book.
+
+That Whispering Creek run also covers Fancy Drum and Fancy Guitar's 12,017,628
+Oak (55.4m), Essence of Slime's 1,090,206 Slimestone (22.2m), and Red Dye's
+942,370 Striped Feather (5.0m).
+
+And Salt eats one Hammer per craft: 443,408 Hammer crafts is **642,942 Hammer
+mastery**, and Hammer (T289) only needs 496,946 — so **Salt finishes Hammer on
+its own.**
 
 Practical note: all three ingredients cap at 15,870. Glass Orb at 3 per jar is
 the tightest — one full load is 5,290 jars, so this is roughly **128 fill-and-
