@@ -1,13 +1,13 @@
-// Drop rates from the shared Tower MM workbook, in the workbook's own units.
+// Drop rates from the shared Tower MM workbook and the owner's own workbook.
 // Read-only reference: nothing in the engine consumes these yet, on purpose.
 window.FRPG_WORKBOOK_RATES = {
  "schema": "farmrpg-workbook-rates-v1",
- "capturedAt": "2026-09-03",
+ "capturedAt": "2026-09-06",
  "source": "FarmRPG Tower MM Calculator (Shared)",
  "sourceUrl": "https://docs.google.com/spreadsheets/d/1N4FdpTC3G2vjf7cn0mhcvZF2odP-_W8tSFUjiI1xjUs/edit",
  "exploringUnit": "drops per Arnold Palmer",
  "fishingUnit": "drops per Large Net",
- "note": "Rates exactly as the workbook states them. Its Fishing Rates tab cites buddy.farm as its origin. The workbook assumes every beneficial perk is active. These are NOT the same unit as the explores-per-drop denominators in data/data.js and must not be swapped in without resolving that first - see KNOWN_MISTAKES.md.",
+ "note": "Rates exactly as the workbook states them. Its Fishing Rates tab cites buddy.farm as its origin. The workbook assumes every beneficial perk is active. These are NOT the same unit as the explores-per-drop denominators in data/data.js and must not be swapped in without resolving that first - see KNOWN_MISTAKES.md. Exploring rates were replaced from the owner's own workbook on 2026-09-06 where it lists the item; that tab states it assumes Quandary Chowder, Monster Hunter complete and T200. Per-location totals still land near 550 per AP.",
  "exploring": {
   "Small Cave": {
    "Stone": 212.971,
@@ -16,9 +16,9 @@ window.FRPG_WORKBOOK_RATES = {
    "Bone": 31.79,
    "Grab Bag 02": 2.541,
    "Wooden Mask": 2.53,
-   "Runestone 04": 0.7971,
-   "Skeleton Key": 0.1735,
-   "Model Ship": 0.0375,
+   "Runestone 04": 0.7913896801372474,
+   "Skeleton Key": 0.1724137930995044,
+   "Model Ship": 0.038128355280213494,
    "Ancient Coin": 3.6703,
    "Antler": 3.6703,
    "Fire Ant": 3.6703,
@@ -34,13 +34,13 @@ window.FRPG_WORKBOOK_RATES = {
    "Feathers": 139.656,
    "Stone": 139.601,
    "Mushroom": 60.929,
-   "Aquamarine": 41.9829,
+   "Aquamarine": 39.204,
    "Apple": 22.913,
-   "Snail": 3.971,
+   "Snail": 7.942,
    "Spectacles": 1.848,
    "Dice": 1.848,
    "Small Chest 01": 0.2757,
-   "Skull Coin": 0.0276,
+   "Skull Coin": 0.02814744759,
    "Amethyst": 2.7569,
    "Emerald": 2.7569,
    "Jade": 2.7569,
@@ -54,10 +54,10 @@ window.FRPG_WORKBOOK_RATES = {
    "Purple Flower": 102.971,
    "Fern Leaf": 102.971,
    "Amethyst": 30.327,
-   "Caterpillar": 3.102,
-   "Strange Letter": 1.441,
+   "Caterpillar": 6.226,
+   "Strange Letter": 1.4520000000000002,
    "Runestone 14": 0.1284,
-   "Medium Chest 01": 0.0719,
+   "Medium Chest 01": 0.07289639234523504,
    "Ancient Coin": 3.5948,
    "Apple": 7.1895,
    "Grape Juice": 0.0719
@@ -69,9 +69,9 @@ window.FRPG_WORKBOOK_RATES = {
    "Mushroom": 61.116,
    "Lemon Quartz": 39.369,
    "Tea Leaves": 23.001,
-   "Horned Beetle": 3.993,
+   "Horned Beetle": 7.964,
    "Pocket Watch": 1.859,
-   "Lima Bean": 0.028
+   "Lima Bean": 0.027777777777777776
   },
   "Misty Forest": {
    "Acorn": 85.085,
@@ -85,12 +85,12 @@ window.FRPG_WORKBOOK_RATES = {
    "Unpolished Ruby": 25.498,
    "Pine Cone": 12.474,
    "4-leaf Clover": 9.317,
-   "Spider": 2.64,
-   "Shiny Beetle": 2.629,
-   "Runestone 05": 0.3064,
+   "Spider": 5.258,
+   "Shiny Beetle": 5.258,
+   "Runestone 05": 0.3047108294384166,
    "Gold Feather": 0.1332,
    "Frog": 0.1147,
-   "Amber": 0.0181
+   "Amber": 0.01843474285203291
   },
   "Black Rock Canyon": {
    "Sandstone": 195.822,
@@ -99,11 +99,11 @@ window.FRPG_WORKBOOK_RATES = {
    "Horn": 37.631,
    "Shimmer Quartz": 24.629,
    "Ancient Coin": 7.194,
-   "Giant Centipede": 5.115,
-   "Ruby Scorpion": 2.387,
+   "Giant Centipede": 10.252,
+   "Ruby Scorpion": 4.774,
    "Runestone 09": 0.3313,
    "Runestone 13": 0.2277,
-   "Orange Gecko": 0.2209,
+   "Orange Gecko": 0.22495163542662117,
    "Large Chest 02": 0.1193,
    "Medium Chest 02": 0.0899,
    "Cogwheel": 0.2386,
@@ -126,10 +126,10 @@ window.FRPG_WORKBOOK_RATES = {
    "Antler": 39.941,
    "Arrowhead": 31.559,
    "Bird Egg": 26.037,
-   "Fire Ant": 5.423,
+   "Fire Ant": 10.824,
    "Gold Feather": 0.2689,
-   "Gold Leaf": 0.2689,
-   "Frog": 0.2355
+   "Gold Leaf": 0.2663470502,
+   "Frog": 0.23305134119999998
   },
   "Mount Banon": {
    "Unpolished Shimmer Stone": 141.79,
@@ -137,12 +137,12 @@ window.FRPG_WORKBOOK_RATES = {
    "Stone": 141.735,
    "Unpolished Emerald": 61.787,
    "Carbon Sphere": 61.743,
-   "Magna Quartz": 0.5612,
-   "Gold Feather": 0.2,
+   "Magna Quartz": 0.5641112428222931,
+   "Gold Feather": 0.19748795327453555,
    "Small Chest 02": 0.1407,
    "Bacon": 0.1403,
-   "Runestone 19": 0.1228,
-   "Dragon Skull": 0.0281,
+   "Runestone 19": 0.12359564449240007,
+   "Dragon Skull": 0.027827016138112216,
    "Antler": 1.4066,
    "Glass Orb": 1.4066,
    "Leather": 1.4066,
@@ -154,12 +154,12 @@ window.FRPG_WORKBOOK_RATES = {
    "Glass Orb": 113.41,
    "Emberstone": 71.093,
    "Prism Shard": 33.704,
-   "Ancient Coin": 25.8609,
+   "Ancient Coin": 9.746,
    "Moonstone": 2.42,
    "Magicite": 0.9649,
    "Runestone 17": 0.235,
    "Large Chest 01": 0.1608,
-   "Diamond": 0.0482,
+   "Diamond": 0.048694263325,
    "Emerald": 8.0409,
    "Jade": 8.0409,
    "Pearl": 8.0409,
@@ -179,8 +179,8 @@ window.FRPG_WORKBOOK_RATES = {
    "Thorns": 17.721,
    "Orange": 5.808,
    "Lemon": 5.797,
-   "Herbs": 0.6962,
-   "Raptor Egg": 0.0174,
+   "Herbs": 0.6918500070175438,
+   "Raptor Egg": 0.016636443794152047,
    "Raptor Claw": 0.0114
   },
   "Jundland Desert": {
@@ -195,29 +195,34 @@ window.FRPG_WORKBOOK_RATES = {
    "Pulley": 7.953,
    "Copper Wire": 7.942,
    "Monster Skull": 3.025,
-   "Onyx Scorpion": 2.629,
-   "Langstaff Crest": 0.0098
+   "Onyx Scorpion": 5.258,
+   "Langstaff Crest": 0.009608732416158536
   },
   "Gary's Crushroom": {
-   "Mushroom": 550.0
+   "Mushroom": 550.0,
+   "Piece 30": 0.11055343046341463,
+   "Gary's Diary Page 77": 8.250206317073171e-05,
+   "Gary's Diary Page 36": 5.500000024390244e-05
   },
   "Sinking Swamp": {
-   "Bamboo": 116.38,
-   "Swamp Thistle": 70.73,
-   "Scrap Cloth": 69.63,
+   "Bamboo": 103.06246000983077,
+   "Swamp Thistle": 62.980439997191205,
+   "Scrap Cloth": 62.98698000140439,
    "Sinkrot": 51.59,
-   "Mudcap": 48.84,
-   "Bogslug": 84.92,
-   "Amber Mire Bloom": 29.81,
-   "Glowshroom": 26.95,
-   "Swamp Algae": 26.4,
-   "Swamp Gourd": 23.21,
-   "Mist Lily": 16.61,
-   "Shadow Bloom": 16.39,
-   "Sporefly": 20.24,
-   "Water Lily": 3.52,
+   "Mudcap": 45.6627,
+   "Bogslug": 35.801860002808795,
+   "Amber Mire Bloom": 29.519219998595606,
+   "Glowshroom": 25.063000000000002,
+   "Swamp Algae": 25.089680001404396,
+   "Swamp Gourd": 21.83613999719121,
+   "Mist Lily": 15.665039997191208,
+   "Shadow Bloom": 14.3247,
+   "Sporefly": 9.495000000000001,
+   "Water Lily": 2.81848,
    "Re'taw": 0.055,
-   "U'ral Talisman": 0.011
+   "U'ral Talisman": 0.00494,
+   "Sinkroot": 45.62353999719121,
+   "Re'Taw": 0.06582
   }
  },
  "fishing": {
@@ -400,5 +405,6 @@ window.FRPG_WORKBOOK_RATES = {
    "Mini Slime Squid": 9.4545,
    "Lavos Shard": 0.0129
   }
- }
+ },
+ "exploringSource": "Item drops tab of the owner's Farm RPG workbook (2026-09-06); falls back to the Tower MM Calculator where that tab does not list an item"
 };

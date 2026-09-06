@@ -5,6 +5,36 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-06 — The owner's own workbook replaces buddy
+
+*"take the sheets rates or anything over buddy's any time and change
+everything about them."* Done, from `Untitled spreadsheet.xlsx`.
+
+- **45 exploring rates replaced, 5 items added.** From the workbook's **Item
+  drops** tab, which is a live calculator — the rate is items ÷ the AP input.
+  Biggest moves: every critter roughly doubles (Fire Ant 5.42 → 10.82, Giant
+  Centipede 5.12 → 10.25, Caterpillar 3.10 → 6.23), Ember Lagoon Ancient Coin
+  25.86 → 9.75, and all of Sinking Swamp. Its "Junklands" is our "Jundland
+  Desert" — identical item list, so it is a rename, not a new place. Items the
+  tab does not list were kept rather than dropped.
+- **The stamina calculator tab settles what the item text never could.** Its
+  28 rows from effectiveness 0 to 108 are exact:
+  `stamina = 1250 + 12.5 × effectiveness`, `× 0.67` for perks, `× 0.8` for
+  Neigh, and a cider does `(1 + effectiveness/100)` times base exploring.
+  Divide the first by the last and effectiveness cancels: **one explore costs
+  1.25 stamina, always.** `explore_base_stamina` was 1 and unverified; it is
+  1.25 and verified. The app now reproduces the sheet exactly at every step.
+- **Wanderer's four tiers ADD UP.** The sheet's perk column is ×0.67 at every
+  row, and 4+7+9+13 = 33. `effects.json` has been 0.2, then 0.13, now **0.33**.
+  `exploreStaminaPer` moves 0.87 → 0.8375.
+- Effectiveness is a **percentage**, not a stamina price. Raising it gives a
+  cider proportionally more explores for proportionally more stamina, so it
+  stretches ciders, not stamina.
+- Caught while verifying: the cider figure from the sheet is already in stamina,
+  so multiplying it by the full per-explore cost counted the 1.25 twice
+  (3,188 instead of 2,550). Split out `perkFactor()`.
+- 105 tests pass.
+
 ## 2026-09-05 (last, 4) — The cider bill was 100x too high
 
 The owner: *"i am pretty sure 10k apple ciders doesnt consume 832million

@@ -125,45 +125,39 @@ except where an Acorn Pie is running, because a pie is limited to 150
 
 ---
 
-## What effectiveness actually does — settled by measurement
+## What effectiveness actually does — from the owner's own workbook
 
-The item text alone is ambiguous, and reading it two different ways produced
-two wrong answers here on 2026-09-05. What settled it was the owner checking
-against their own play: **~15,000 Apple Ciders does not come close to 10m
-stamina.** Any model where a cider costs `1,000 x effectiveness` gives 15,000
-ciders a bill of over 100m at a 104-effectiveness location, which is more than
-a thousand full stamina bars. That is not what happens.
+The item text does not settle this, and two readings of it gave two wrong
+answers on 2026-09-05. The **stamina calculator** tab of the owner's workbook
+settles it outright, with a table running from effectiveness 0 to 108:
 
-The model that fits both the text and the play:
+| Column | What it is | Exact relationship |
+|---|---|---|
+| stamina before meal and perk | a cider's raw cost | **1250 + 12.5 × effectiveness** |
+| stamina with perk | after Wanderer | × **0.67** |
+| stamina with meal | after Neigh too | × **0.8** |
+| cider needed | ciders for a fixed job | ÷ **(1 + effectiveness/100)** |
 
-| | |
-|---|---|
-| One explore | costs **1 stamina** and rolls the drop table once |
-| Effectiveness **N** | **stamina per click** — one "continue exploring" does N explores for N stamina |
-| One Apple Cider | **~1,000 explores for ~1,000 stamina**, about `1000/N` clicks |
+Those hold at every one of the 28 steps, with no drift. Divide the first by the
+last and the effectiveness cancels:
 
-So effectiveness buys **fewer clicks for the same result**. It does not change
-what a pour costs, and it does not change what it drops. That is why Protein
-Bars, Jill and Sprint Shoes all raise it, and why "Stamina is used faster" is a
-plain statement of fact rather than a drawback.
+> **One explore costs 1.25 stamina, at any effectiveness.**
 
-It also explains "1000+ Stamina Use": a cider spends whole clicks, so at N=104
-it rounds up past 1,000 rather than landing exactly on it.
+So effectiveness raises what a cider *does* and what it *costs* by the same
+proportion. It stretches your **ciders**, not your stamina — which is the point,
+because stamina comes back on its own and a cider costs 40 Apples.
 
-The rest of the app has always modelled it this way — `app.js` uses
-`stamina = explores * exploreStaminaPer * neigh` and
-`ciderUses = explores / ciderRolls`. Only the Places page ever multiplied by
-effectiveness, and that was the bug.
+At effectiveness 104: a cider is **2,040 explores for 2,550 stamina**, or
+**1,708 with Wanderer** and **1,367 with Neigh as well**.
 
-### The savings that apply on top
+`data/constants.json` carries this as `cider_stamina_base` (1250),
+`cider_stamina_per_eff` (12.5) and `explore_base_stamina` (1.25).
 
-- **Wanderer IV** — 13% of explores cost nothing, so stamina goes 1/0.87
-  further. `mods().exploreStaminaPer` carries this; Places was not reading it.
-- **Neigh** — a cider costs 20% less stamina for 5 minutes.
+### Wanderer's tiers ADD UP
 
-Both only apply when they are actually switched on in Setup.
-
----
+The sheet's perk column is exactly ×0.67 at every step, and 4 + 7 + 9 + 13 = 33.
+So the four Wanderer tiers **stack** rather than replacing each other.
+`data/effects.json` has been 0.2, then 0.13, and is now **0.33**.
 
 ## An older inference, now superseded
 

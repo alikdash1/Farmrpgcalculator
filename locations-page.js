@@ -13,9 +13,10 @@
 //     keeps two of these: the net table and the rod table.
 //     data/location-rates.js holds the same logs re-counted for Iron Depot.
 //
-// How much stamina one action costs is a per-player, per-location number that
-// only the game can tell you (Farm RPG prints it under Exploring
-// Effectiveness), so it is typed in here rather than guessed.
+// Exploring Effectiveness is a per-player, per-location number the game prints
+// on the location page, so it is typed in rather than guessed. What it DOES is
+// settled by the stamina calculator tab of the owner's own workbook - see the
+// note above ciderExplores, and docs/STAMINA_AND_EFFECTIVENESS.md.
 (() => {
   const DATA = window.FRPG_DATA;
   const INTEL = window.FRPG_LOCATION_INTEL;
@@ -163,24 +164,32 @@
   const FINDS = new Set(["ap", "lemonade", "largenet", "fishingnet"]);
   const byRod = () => prefs.kind === "casts";
 
-  // One explore costs one stamina, and a cider is worth 1,000 of them for about
-  // 1,000 stamina. That is what the rest of the app has always used
-  // (`stamina = explores * exploreStaminaPer * neigh` in app.js) and it matches
-  // what the owner actually spends in game: ~15,000 ciders comes nowhere near
-  // 10m stamina.
+  // Straight off the stamina calculator tab of the owner's own workbook, which
+  // settles what the item text could not. Both of these scale with
+  // effectiveness, and by the same amount:
   //
-  // Effectiveness is NOT a multiplier on that. It is stamina per *click* — how
-  // much one "continue exploring" does at once — so it decides how many clicks
-  // a pour takes, not what it costs. Multiplying the cider bill by it produced
-  // 832m stamina for 10,000 ciders, about 10,000 full stamina bars, which is
-  // how the error was caught.
-  const ciderExplores = () => mods().drinks.ciderRolls;
-  const ciderStaminaEach = () => constant("cider_base_rolls", 1000);
+  //   stamina per cider  = 1250 + 12.5 x effectiveness   (exact, every step)
+  //   explores per cider = base x (1 + effectiveness/100)
+  //
+  // which is a flat 1.25 stamina per explore at any effectiveness. So raising
+  // effectiveness makes a cider do proportionally more for proportionally
+  // more — it is not free, and it is not a penalty either.
+  const effPct = (place) => staminaPer(place);
+  const ciderExplores = (place) => mods().drinks.ciderRolls * (1 + effPct(place) / 100);
+  const ciderStaminaEach = (place) =>
+    constant("cider_stamina_base", 1250) + constant("cider_stamina_per_eff", 12.5) * effPct(place);
   // Wanderer IV is a 13% chance an explore costs no stamina, so stamina goes
   // that much further. mods() folds it in, and honours a measured override.
   const staminaFactor = () => {
     const value = Number(mods().exploreStaminaPer);
     return value > 0 ? value : 1;
+  };
+  // Just the perk part of that. The cider figure from the sheet is ALREADY in
+  // stamina, so multiplying it by the full per-explore cost would count the
+  // 1.25 twice — it read 3,188 per cider instead of 2,550.
+  const perkFactor = () => {
+    const base = constant("explore_base_stamina", 1.25);
+    return base > 0 ? staminaFactor() / base : 1;
   };
   const neighFactor = () => meal("neigh") ? 1 - constant("neigh_stamina_save", 0.2) : 1;
 
@@ -270,7 +279,7 @@
   function actionsFor(place) {
     const amount = Number(prefs.amount) || 0;
     switch (prefs.kind) {
-      case "cider": return amount * ciderExplores();
+      case "cider": return amount * ciderExplores(place);
       case "oj": return amount * constant("oj_stamina", 100) / staminaFactor();
       case "stamina": return amount / staminaFactor();
       default: return amount;
@@ -279,10 +288,10 @@
 
   // What that costs in stamina. For a cider this is the number that moves with
   // effectiveness, which is exactly what the player asked to see.
-  function staminaSpent() {
+  function staminaSpent(place) {
     const amount = Number(prefs.amount) || 0;
     switch (prefs.kind) {
-      case "cider": return amount * ciderStaminaEach() * neighFactor() * staminaFactor();
+      case "cider": return amount * ciderStaminaEach(place) * neighFactor() * perkFactor();
       case "oj": return amount * constant("oj_stamina", 100);
       case "stamina": return amount;
       case "explores": return amount * staminaFactor();
@@ -455,17 +464,18 @@
   function effortRow(place) {
     if (place.mode !== "explore") return "";
     const per = staminaPer(place);
-    const spent = staminaSpent();
-    const cider = ciderExplores();
+    const spent = staminaSpent(place);
+    const cider = ciderExplores(place);
     // Effectiveness does not change what a pour costs or yields — one explore
     // is one stamina either way. It changes how many clicks it takes, which is
     // the whole reason Protein Bars, Jill and Sprint Shoes exist.
     const said = per > 0
-      ? "One click does " + whole(per) + " explores here for " + whole(per) + " stamina, so a whole Apple Cider (" +
-        whole(cider) + " explores) is about " + count(cider / per) + " clicks. Raising this is fewer clicks for the " +
-        "same result — it does not change what anything costs or drops."
+      ? "At " + whole(per) + "% effectiveness one Apple Cider does <b>" + whole(cider) + "</b> explores for <b>" +
+        whole(ciderStaminaEach(place) * perkFactor() * neighFactor()) + "</b> stamina. Raising this gives a cider " +
+        "proportionally more explores for proportionally more stamina — the rate stays at " +
+        constant("explore_base_stamina", 1.25) + " stamina an explore either way, so it is your ciders it stretches, not your stamina."
       : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
-        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it. It only decides how many clicks a pour takes, so the numbers below work without it.";
+        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it. Without it, a cider is counted at its effectiveness-0 value.";
     const bill = spent > 0
       ? '<p class="places-effort-bill">Your ' + whole(prefs.amount) + " " + esc(kindLabel()) +
         " here: <b>" + whole(spent) + "</b> stamina" +
@@ -581,7 +591,7 @@
         : (entry.hit && entry.hit.expected != null
           ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
           : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
-      const spent = staminaSpent();
+      const spent = staminaSpent(place);
       const silver = sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
       // An Arnold Palmer finds items without spending stamina, so a drink pour

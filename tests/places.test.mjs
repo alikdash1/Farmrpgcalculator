@@ -45,14 +45,16 @@ test("what you spend decides which rate table can answer", () => {
   //   Orange Juice  "Adds 100 Stamina"               -> buys stamina
   // So Cider belongs with exploring, not with the drinks that find items.
   assert.match(page, /const FINDS = new Set\(\["ap", "lemonade", "largenet", "fishingnet"\]\);/);
-  assert.match(page, /const ciderExplores = \(\) => mods\(\)\.drinks\.ciderRolls;/);
-  assert.match(page, /case "cider": return amount \* ciderExplores\(\);/);
-  // One explore is one stamina, so a cider is ~1,000 explores for ~1,000
-  // stamina. Effectiveness is stamina per CLICK and must never multiply the
-  // bill: doing that quoted 832m stamina for 10,000 ciders, roughly ten
-  // thousand full stamina bars, which is how it was caught.
-  assert.match(page, /case "cider": return amount \* ciderStaminaEach\(\) \* neighFactor\(\) \* staminaFactor\(\);/);
-  assert.doesNotMatch(page, /ciderExplores\(\) \* per/);
+  // The owner's own stamina calculator settles the cider: its stamina is
+  // 1250 + 12.5 x effectiveness and its exploring is (1 + effectiveness/100)
+  // times base, a flat 1.25 stamina an explore at any effectiveness.
+  assert.match(page, /const ciderExplores = \(place\) => mods\(\)\.drinks\.ciderRolls \* \(1 \+ effPct\(place\) \/ 100\);/);
+  assert.match(page, /constant\("cider_stamina_base", 1250\) \+ constant\("cider_stamina_per_eff", 12\.5\) \* effPct\(place\)/);
+  assert.match(page, /case "cider": return amount \* ciderExplores\(place\);/);
+  // perkFactor, not staminaFactor: the sheet's cider figure is already in
+  // stamina, so the full 1.25-per-explore cost would count that twice.
+  assert.match(page, /case "cider": return amount \* ciderStaminaEach\(place\) \* neighFactor\(\) \* perkFactor\(\);/);
+  assert.match(page, /const perkFactor = \(\) => \{/);
   assert.match(page, /case "oj": return amount \* constant\("oj_stamina", 100\);/);
   // And it is never a chip the reader can set wrong.
   assert.doesNotMatch(page, /data-basis/);
@@ -116,10 +118,19 @@ test("a chest is not a drop, and the table is un-expanded before it is shown", (
   // Black Rock Canyon is the one the player caught: Medium Chest 02 drops
   // 0.08987 per AP and holds 5 Aquamarine Rings, and the workbook duly lists
   // Aquamarine Ring at 0.4493.
-  assert.ok(Math.abs(strip(wb.exploring["Black Rock Canyon"]) - 550) < 0.05);
-  assert.ok(Math.abs(strip(wb.exploring["Highland Hills"]) - 550) < 0.05);
-  assert.ok(Math.abs(strip(wb.exploring["Mount Banon"]) - 550) < 0.05);
+  // Fishing lands on exactly 500 per Large Net once the chests come back out:
+  // Pirate's Cove is 501.7 before and 500.0 after.
   assert.ok(Math.abs(strip(wb.fishing["Pirate's Cove"]) - 500) < 0.05);
+  for (const [name, row] of Object.entries(wb.fishing)) {
+    assert.ok(strip(row) >= 499.9, `${name} fishing strips to ${strip(row)}`);
+  }
+  // Exploring no longer sits on a flat 550: the owner's own workbook replaced
+  // 45 of these rates on 2026-09-06 and measures a little richer. The floor is
+  // what matters, since a total BELOW 550 would mean the unit had changed.
+  for (const [name, row] of Object.entries(wb.exploring)) {
+    const total = strip(row);
+    assert.ok(total >= 549.9 && total <= 600, `${name} exploring strips to ${total}`);
+  }
 });
 
 test("Iron Depot has its own drop denominators, and they are real", () => {
@@ -164,7 +175,7 @@ test("effectiveness decides clicks, and the stamina perks are applied", () => {
   // But it is stamina per CLICK, not per explore. One explore is one stamina,
   // so it changes how much clicking a pour takes and nothing else. It must
   // therefore never gate a card, and never multiply a bill.
-  assert.match(page, /it does not change what anything costs or drops/);
+  assert.match(page, /it is your ciders it stretches, not your stamina/);
   assert.doesNotMatch(page, /Nothing to work out until that number is in/);
   // Wanderer IV is a 13% chance an explore is free, so stamina goes further.
   // Places was not applying it at all.
@@ -213,9 +224,11 @@ test("the stamina facts match what the game actually says", () => {
   // The game lists Wanderer as a SKIP CHANCE per tier — I 4%, II 7%, III 9%,
   // IV 13% "chance exploring won't use Stamina" — not a flat 20% discount,
   // and the tiers replace each other rather than adding up.
-  assert.equal(wanderer.value, 0.13);
+  // The four tiers ADD UP -- 4+7+9+13 = 33 -- which is why the owner's stamina
+  // calculator multiplies by exactly 0.67 at every effectiveness step.
+  assert.equal(wanderer.value, 0.33);
   assert.doesNotMatch(wanderer.plain, /20% less/);
-  assert.match(wanderer.plain, /chance/);
+  assert.match(wanderer.plain, /33%/);
   // data/data.js carries a baked copy, and the two must not drift apart.
   const baked = dataGlobal("FRPG_EFFECTS").effects.find((row) => row.id === "wanderer");
   assert.deepEqual(baked, wanderer);
@@ -226,9 +239,11 @@ test("the stamina facts match what the game actually says", () => {
   assert.match(doc, /1000\+ Stamina Use/);
   assert.match(doc, /depends on your \*\*exploring effectiveness in each explore location\*\*/);
   assert.match(doc, /Nothing lowers it/);
-  assert.match(doc, /What effectiveness actually does — settled by measurement/);
+  assert.match(doc, /What effectiveness actually does/);
   // The bill must never be shown as scaling with effectiveness again.
+  // The two wrong readings must not creep back in.
   assert.doesNotMatch(doc, /costs `1,000 × your effectiveness`/);
+  assert.match(doc, /1250 \+ 12\.5/);
 });
 
 test("the meals that change a pour are on the page, sharing Setup's store", () => {
