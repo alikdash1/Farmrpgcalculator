@@ -60,6 +60,13 @@ Salt reached 357k with no deliberate effort because Salt Rock rides along with
 Whispering Creek and Black Rock Canyon. Judge a mastery by its *marginal* cost
 given what they already do, not by its buy-it-outright price.
 
+**8. Mushroom Stew is a burst buff, not a grind buff.**
+It gives +10% mastery for **five minutes**. That is useful when the whole job
+fits in the window — fishing, opening Grab Bags, harvesting a field — and
+useless across 600,000 crafts. **Never put the 1.1 on a craft plan.** The craft
+multiplier that does apply is the 45% Resource Saver duplicate (x1.45), and it
+stacks down a chain: intermediate crafts duplicate too.
+
 ---
 
 ## Their numbers, as of 2026-09-06
