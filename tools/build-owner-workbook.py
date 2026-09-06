@@ -20,7 +20,7 @@ Tabs deliberately skipped, and why:
   Acorn pie leather               empty ("Nothing to see here yet go away")
   Items recipe                    the game export in data/data.js is complete
   Crop Calculator, Gold discounts, Meal cost calc, Townfolk level exp,
-  PJ use random items, Bags       calculators for things this app does not model
+  PJ use random items             calculators for things this app does not model
   ATI, Pamrats, Starmap, PSA, PSA 2, DI
                                   questline requirements; data/main-quests.js
                                   already has all 2,479 quests from the game
@@ -146,6 +146,26 @@ def main(path):
             if entry:
                 currency[item] = entry
 
+    # Grab bags: one bag yields this many of EVERY item on its list at once,
+    # which is why opening them feeds several masteries in one action.
+    bags, current = {}, None
+    rows = book.rows("Bags")
+    for r in sorted(rows):
+        row = rows[r]
+        label = (row.get("A") or "").strip()
+        if not label:
+            continue
+        if label.lower().startswith("bag "):
+            current = label
+            bags[current] = {"perBag": {}}
+            continue
+        if current is None or num(row.get("C")) is None:
+            continue
+        # "Bone 10-50" -> name "Bone", and C is the average yield per bag.
+        name = re.sub(r"\s*\d+\s*-\s*\d+\s*$", "", label).strip()
+        if name:
+            bags[current]["perBag"][name] = num(row["C"])
+
     conversions = {}
     header = book.rows("Converting").get(1) or {}
     for label, col in (
@@ -171,6 +191,7 @@ def main(path):
         "mealGoldEach": meals,
         "currencyPer1000": currency,
         "conversions": conversions,
+        "grabBags": bags,
     }
 
     out = os.path.join(ROOT, "data", "owner-workbook.js")
@@ -184,8 +205,8 @@ def main(path):
         )
     print(
         "wrote data/owner-workbook.js: %d rated items, %d tower costs, %d meal prices, "
-        "%d item prices, %d conversions"
-        % (len(mastery), len(tower), len(meals), len(currency), len(conversions))
+        "%d item prices, %d conversions, %d bags"
+        % (len(mastery), len(tower), len(meals), len(currency), len(conversions), len(bags))
     )
 
 

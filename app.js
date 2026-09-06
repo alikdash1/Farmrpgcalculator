@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-06.dawn3";
+  const FRPG_BUILD = "2026-09-06.dawn4";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -439,6 +439,27 @@
   };
   $("toggleCovered").onchange = (event) => { state.showCovered = event.target.checked; render(); };
 
+  // Production is collected in ticks, and anything over the inventory cap at
+  // the moment you collect is simply gone. A Sawmill making 22,000 Boards per
+  // 10 minutes into a 15,870 cap delivers 15,870 — the other 6,130 never
+  // existed. So past a point the cap, not the building, is the limit.
+  function afterCap(perHour, ticksPerHour) {
+    const cap = Number(state.infra.inventoryCap || 0);
+    if (!(cap > 0) || !(perHour > 0) || !(ticksPerHour > 0)) return { rate: perHour, voided: 0 };
+    const perTick = perHour / ticksPerHour;
+    const kept = Math.min(perTick, cap);
+    return { rate: kept * ticksPerHour, voided: (perTick - kept) * ticksPerHour };
+  }
+  function cappedDetail(perHour, ticksPerHour, label) {
+    const capped = afterCap(perHour, ticksPerHour);
+    if (!capped.rate) return { rate: 0, detail: "Covered; enter your rate in Setup" };
+    return {
+      rate: capped.rate,
+      detail: capped.voided > 0
+        ? `${fmt(capped.rate)}/hr reaches you — ${fmt(capped.voided)}/hr is over your inventory cap and lost`
+        : `${fmt(capped.rate)}/hr ${label}`,
+    };
+  }
   function infraFor(item, need, m) {
     if (!item) return null;
     const name = item.name.toLowerCase();
@@ -446,19 +467,19 @@
       const silver = (item.buy || 0) * need;
       return { kind: "Iron Depot", detail: `Auto-filled for ${fmt(silver)} silver`, hours: null };
     }
-    if (name === "wood" && state.infra.sawmillWood) {
+    if ((name === "wood" && state.infra.sawmillWood) || (name === "board" && state.infra.sawmillBoard)) {
+      // Hickory turns one hourly collection into six. That is worth far more
+      // than the 2.2x it looks like, because a single hourly drop large enough
+      // to overflow the cap loses the overflow every time.
+      const ticks = state.meals.hickory ? 6 : 1;
       const multiplier = state.meals.hickory ? 1 + 6 * c("hickory_tick_bonus", 0.2) : 1;
-      const rate = Number(state.infra.woodHour || 0) * multiplier;
-      return { kind: "Sawmill", detail: rate ? `${fmt(rate)}/hr useful output` : "Covered; enter your rate in Setup", hours: rate ? need / rate : null };
-    }
-    if (name === "board" && state.infra.sawmillBoard) {
-      const multiplier = state.meals.hickory ? 1 + 6 * c("hickory_tick_bonus", 0.2) : 1;
-      const rate = Number(state.infra.boardHour || 0) * multiplier;
-      return { kind: "Sawmill", detail: rate ? `${fmt(rate)}/hr useful output` : "Covered; enter your rate in Setup", hours: rate ? need / rate : null };
+      const raw = Number(state.infra[name === "wood" ? "woodHour" : "boardHour"] || 0) * multiplier;
+      const out = cappedDetail(raw, ticks, "useful output");
+      return { kind: "Sawmill", detail: out.detail, hours: out.rate ? need / out.rate : null };
     }
     if (name === "stone" && state.infra.quarryStone) {
-      const rate = Number(state.infra.stoneTen || 0) * 6;
-      return { kind: "Quarry", detail: rate ? `${fmt(rate)}/hr from 10-minute ticks` : "Covered; enter your 10-minute tick in Setup", hours: rate ? need / rate : null };
+      const out = cappedDetail(Number(state.infra.stoneTen || 0) * 6, 6, "from 10-minute ticks");
+      return { kind: "Quarry", detail: out.detail, hours: out.rate ? need / out.rate : null };
     }
     // Steel and Steel Wire come out of the same building, and the owner's own
     // measurement is that Wire runs at a third of Steel — 1,500/hr while Steel
@@ -1521,6 +1542,7 @@
     const infraCards = [
       { title: "Iron Depot", art: itemByName("Iron"), body: "Keeps Iron and Nails full by auto-buying with silver. These stay out of the main bottleneck list when enabled.", controls: `<label class="inline-toggle"><input type="checkbox" data-effect-direct="iron_depot" ${state.enabled.has("iron_depot") ? "checked" : ""}> I own Iron Depot</label>` },
       { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive hourly. Hickory adds six 20% ticks during its hour; useful output can still be limited by inventory or Craftworks.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
+      { title: "Inventory cap", art: itemByName("Wooden Box"), body: "Anything a building produces above this in one collection is lost. It is why Hickory is worth more than its 2.2x — six collections an hour each fit under the cap where one big one would not.", controls: `<label class="mini-field">Your cap per item<input type="number" min="0" data-infra-number="inventoryCap" value="${clean(state.infra.inventoryCap)}"></label>` },
       { title: "Steel works", art: itemByName("Steel"), body: "Steel and Steel Wire produce on their own once the building is running. Wire comes out at about a third of the Steel rate, so setting Steel fills Wire in unless you have measured it yourself.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="forgeSteel" ${state.infra.forgeSteel ? "checked" : ""}> Cover Steel</label><label class="inline-toggle"><input type="checkbox" data-infra="forgeWire" ${state.infra.forgeWire ? "checked" : ""}> Cover Steel Wire</label><label class="mini-field">Steel/hr<input type="number" min="0" data-infra-number="steelHour" data-fills="wireHour" value="${clean(state.infra.steelHour)}"></label><label class="mini-field">Steel Wire/hr<input type="number" min="0" data-infra-number="wireHour" value="${clean(state.infra.wireHour)}"></label>` },
       { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];

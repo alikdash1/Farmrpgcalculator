@@ -74,6 +74,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   is `1250 + 12.5 × effectiveness` stamina for `(1 + effectiveness/100) × 1000`
   explores; Wanderer's four tiers **stack to 33%** (×0.67); Neigh ×0.8 on
   ciders. Effectiveness is a **percentage** and stretches ciders, not stamina.
+- **Read `docs/HOW_THE_OWNER_PLAYS.md` before costing anything.** Plans priced
+  in gold, or costing items one at a time that they do together, are useless to
+  them. Their rates and the inventory cap (15,870) are in there.
+- **The inventory cap is modelled** in Setup: production over the cap per
+  collection is lost, which is why their Board and Wood both deliver 95,220/hr.
 - **Masteries are the 2026-09-06 export**, 519 items, imported with
   `tools/build-personal-tower.py <csv>`. The export names carry the Tower floor
   and the importer strips it; **222 of its 224 floor labels agree with the app**

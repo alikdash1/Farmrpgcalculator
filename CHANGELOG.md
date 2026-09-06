@@ -5,6 +5,30 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-06 (last, 2) — The inventory cap, and how the owner actually plays
+
+A run of plans here were arithmetically right and practically useless — costing
+items one at a time that the owner does simultaneously, and spending scarce
+Pumpkin Juice to save things that are free.
+
+- **`docs/HOW_THE_OWNER_PLAYS.md`**: the decision rules, their production rates,
+  and the order to quote a job in. `CLAUDE.md` and `AGENTS.md` point at it.
+  The short version: they are not short of gold, stone, wood or straw — they
+  are short of time, inventory space, and things that cannot be bought.
+- **The inventory cap is now modelled.** Production is collected in ticks and
+  anything over the cap at that moment is gone. At the owner's 15,870 cap the
+  Sawmill loses **36,780 Board and 10,380 Wood an hour**, so Wood and Board both
+  deliver exactly 95,220/hr however far apart their nominal rates are. A new
+  Setup field takes the cap, and the covered-by lines say what is being lost.
+- That also explains **why Hickory Omelette is worth more than its 2.2x**: six
+  collections an hour each fit under the cap where one hourly drop would
+  overflow. The Sawmill branch now counts ticks, not just the multiplier.
+- **All 8 grab bags imported** from the workbook's Bags tab, which I had
+  skipped as "a calculator this app does not model". It is the backbone of the
+  owner's main loop: one Grab Bag 01 gives 4.285 each of Bone, Mushroom,
+  Potato, Aquamarine, Golden Cucumber and 3-leaf Clover at once.
+- 109 tests pass.
+
 ## 2026-09-06 (last) — Real mastery numbers, Steel works, effectiveness in one go
 
 - **`tools/build-personal-tower.py`** imports a Mastery History export. Names

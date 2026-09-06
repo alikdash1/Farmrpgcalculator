@@ -20,6 +20,10 @@ the spreadsheets in `../workbooks/` to work out what the project is. That is
 what burned the last budget. If `STATE.md` does not answer your question, ask
 the user one direct question instead of reading your way to it.
 
+`docs/HOW_THE_OWNER_PLAYS.md` is the one to read before costing any job:
+the owner is short of time, inventory space and unbuyable items, not gold,
+and a plan priced in the wrong currency is useless to them.
+
 Stamina, Exploring Effectiveness, Apple Cider, Wanderer and the drinks are
 written up in `docs/STAMINA_AND_EFFECTIVENESS.md`, quoted from the game. Two
 of those were wrong in the data until 2026-09-05; read it before modelling
