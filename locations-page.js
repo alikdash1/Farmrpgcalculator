@@ -45,7 +45,7 @@
 
   const effort = readJson(EFFORT_KEY, {});
   const prefs = Object.assign(
-    { mode: "explore", amount: 1000, kind: "ap", want: "", onlyNeeded: false, scaled: true },
+    { mode: "explore", amount: 1000, kind: "ap", want: "", onlyNeeded: false, scaled: true, solve: false, target: 100000 },
     readJson(PREFS_KEY, {})
   );
 
@@ -257,10 +257,18 @@
   // finds. It is not a conversion between exploring and drinking.
   const WORKBOOK_FINDS = 500;
 
+  // Every figure on a card is linear in the amount poured, which is what lets
+  // the page run backwards: to answer "how much for 672,579 Shimmer Quartz" it
+  // asks one place what a single unit yields and divides. While that answer is
+  // being built, `solved` stands in for the typed amount so nothing else has to
+  // know which direction the question was asked in.
+  let solved = null;
+  const spend = () => (solved != null ? solved : (Number(prefs.amount) || 0));
+
   // How many workbook units the pour is worth. One AP is one unit; everything
   // else in this group converts by how many finds it makes, which Setup knows.
   function unitsFor(place) {
-    const amount = Number(prefs.amount) || 0;
+    const amount = spend();
     const m = mods();
     switch (prefs.kind) {
       case "ap": return amount;
@@ -277,7 +285,7 @@
   // exploring directly; stamina and Orange Juice buy explores at whatever this
   // location charges.
   function actionsFor(place) {
-    const amount = Number(prefs.amount) || 0;
+    const amount = spend();
     switch (prefs.kind) {
       case "cider": return amount * ciderExplores(place);
       case "oj": return amount * constant("oj_stamina", 100) / staminaFactor();
@@ -289,7 +297,7 @@
   // What that costs in stamina. For a cider this is the number that moves with
   // effectiveness, which is exactly what the player asked to see.
   function staminaSpent(place) {
-    const amount = Number(prefs.amount) || 0;
+    const amount = spend();
     switch (prefs.kind) {
       case "cider": return amount * ciderStaminaEach(place) * neighFactor() * perkFactor();
       case "oj": return amount * constant("oj_stamina", 100);
@@ -370,6 +378,25 @@
     };
   }
 
+  // How much of the chosen drink, net or stamina this place needs before it has
+  // handed over `target` of the wanted item. One probe at a single unit gives
+  // the per-unit yield; everything above it is proportional. Returns null when
+  // the place does not drop the thing at all.
+  function amountFor(place, want, target) {
+    const keep = solved;
+    solved = 1;
+    let per = 0;
+    try {
+      const probe = yields(place);
+      const row = probe.rows.find((entry) => key(entry.name).includes(want)) ||
+        (probe.inChests || []).find((entry) => key(entry.name).includes(want));
+      if (row && row.expected > 0) per = row.expected;
+    } finally {
+      solved = keep;
+    }
+    return per > 0 ? target / per : null;
+  }
+
   // ---- what those items are worth to you ----------------------------------
   const itemsByName = new Map(((DATA.items && DATA.items.items) || []).map((item) => [item.name.toLowerCase(), item]));
   const key = (name) => String(name || "").trim().toLowerCase();
@@ -434,15 +461,20 @@
         '<button type="button" class="places-mode' + (prefs.mode === "fishing" ? " active" : "") + '" data-mode="fishing" aria-pressed="' + (prefs.mode === "fishing") + '">Fishing</button>' +
       "</div>" +
       '<div class="places-pour">' +
-        '<label class="places-field"><span>Spend</span><input id="placesAmount" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.amount) + '"></label>' +
-        '<label class="places-field"><span>of</span><select id="placesKind">' + options + "</select></label>" +
-        '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="anything — try Iron"></label>' +
+        (prefs.solve
+          ? '<label class="places-field"><span>Get</span><input id="placesTarget" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.target) + '"></label>' +
+            '<label class="places-field grow"><span>of</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="name the item"></label>' +
+            '<label class="places-field"><span>paying in</span><select id="placesKind">' + options + "</select></label>"
+          : '<label class="places-field"><span>Spend</span><input id="placesAmount" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.amount) + '"></label>' +
+            '<label class="places-field"><span>of</span><select id="placesKind">' + options + "</select></label>" +
+            '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="anything — try Iron"></label>') +
       "</div>" +
       '<div class="places-basis">' +
         (FINDS.has(prefs.kind)
           ? '<button type="button" class="places-chip' + (prefs.scaled ? " active" : "") + '" data-scaled aria-pressed="' + !!prefs.scaled + '">Scale to my Setup</button>'
           : "") +
         '<button type="button" class="places-chip needed' + (prefs.onlyNeeded ? " active" : "") + '" data-only aria-pressed="' + !!prefs.onlyNeeded + '">Only what I still need</button>' +
+        '<button type="button" class="places-chip' + (prefs.solve ? " active" : "") + '" data-solve aria-pressed="' + !!prefs.solve + '">Start from what I need</button>' +
       "</div>" +
       '<div class="places-meals">' +
         '<span class="places-basis-label">Meals running</span>' +
@@ -477,7 +509,7 @@
       : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
         "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it. Without it, a cider is counted at its effectiveness-0 value.";
     const bill = spent > 0
-      ? '<p class="places-effort-bill">Your ' + whole(prefs.amount) + " " + esc(kindLabel()) +
+      ? '<p class="places-effort-bill">Your ' + whole(spend()) + " " + esc(kindLabel()) +
         " here: <b>" + whole(spent) + "</b> stamina" +
         (neighFactor() < 1 || staminaFactor() < 1
           ? " (after " + [neighFactor() < 1 ? "Neigh" : null, staminaFactor() < 1 ? "Wanderer" : null].filter(Boolean).join(" and ") + ")"
@@ -570,28 +602,42 @@
     const tower = towerShort();
     const want = key(prefs.want);
     const wanted = (name) => quests.has(key(name)) || tower.has(key(name));
+    const target = Number(prefs.target) || 0;
+    const solving = !!prefs.solve && !!want && target > 0;
     const scored = places.filter((place) => place.mode === prefs.mode).map((place) => {
+      const need = solving ? amountFor(place, want, target) : null;
+      solved = solving ? need : null;
       const result = yields(place);
+      solved = null;
       if (prefs.onlyNeeded) result.rows = result.rows.filter((row) => wanted(row.name));
       const hit = want ? result.rows.find((row) => key(row.name).includes(want)) : null;
-      return { place, result, hit };
+      return { place, result, hit, need };
     });
-    if (want) scored.sort((a, b) => ((b.hit && b.hit.expected) || -1) - ((a.hit && a.hit.expected) || -1));
+    // Asked forwards, the best place is the one that hands over the most. Asked
+    // backwards it is the one that asks for the least, so the order flips.
+    if (solving) scored.sort((a, b) => (a.need == null ? Infinity : a.need) - (b.need == null ? Infinity : b.need));
+    else if (want) scored.sort((a, b) => ((b.hit && b.hit.expected) || -1) - ((a.hit && a.hit.expected) || -1));
 
     const label = kindLabel();
-    const amount = whole(prefs.amount);
     const cards = scored.map((entry) => {
       const place = entry.place;
       const result = entry.result;
+      solved = solving ? entry.need : null;
+      const amount = whole(solving ? entry.need || 0 : prefs.amount);
       const missing = !!result.missing;
       const noun = place.mode === "fishing" ? "catches" : "explores";
       const preview = '<span class="places-preview">' + (result.rows.slice(0, 3).map((row) =>
             "<b>" + count(row.expected || 0) + "</b> " + esc(row.name)).join(" · ") ||
             (missing ? "no per-" + (place.mode === "fishing" ? "net" : "Arnold Palmer") + " rates for this place" : "nothing recorded here")) + "</span>";
       const found = !want ? ""
-        : (entry.hit && entry.hit.expected != null
-          ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
-          : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
+        : solving
+          // Backwards, the headline number is the price, not the pile.
+          ? (entry.need != null
+            ? '<span class="places-found">' + whole(entry.need) + " " + esc(label) + "</span>"
+            : '<span class="places-found none">no ' + esc(prefs.want) + "</span>")
+          : (entry.hit && entry.hit.expected != null
+            ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
+            : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
       const spent = staminaSpent(place);
       const silver = sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
@@ -606,8 +652,11 @@
               ? " Its ordinary " + (place.mode === "fishing" ? "casts" : "explores") +
                 " are logged though — switch what you are spending to see those."
               : "")
+          : solving && entry.need == null
+            ? esc(place.name) + " does not drop " + esc(prefs.want) + "."
           : result.basis === "workbook"
-            ? amount + " " + esc(label) + " here" + worth + "."
+            ? (solving ? "<b>" + amount + "</b> " + esc(label) + " here gets you " + whole(target) + " " + esc(prefs.want)
+              : amount + " " + esc(label) + " here") + worth + "."
             : (prefs.kind === "explores" || prefs.kind === "casts")
               // Saying "1,000 casts is 1,000 catches" tells nobody anything.
               ? amount + " " + esc(label) + " here" + worth + "."
@@ -621,7 +670,7 @@
                   ? ", costing <b>" + whole(spent) + "</b> stamina"
                   : "") +
                 worth + ".";
-      return '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
+      const html = '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
         '<span class="places-art">' + (place.image ? '<img src="' + esc(place.image) + '?v=20260905-1" alt="" width="52" height="52" loading="lazy">' : "") + "</span>" +
         '<span class="places-headline"><strong>' + esc(place.name) + "</strong>" + preview + "</span>" +
         found +
@@ -633,6 +682,8 @@
         (missing ? "" : chestMarkup(result, quests, tower)) +
         (place.buddyUrl ? '<p class="places-source"><a href="' + esc(place.buddyUrl) + '" target="_blank" rel="noopener">Open ' + esc(place.name) + " on Buddy's Almanac</a></p>" : "") +
       "</div></details>";
+      solved = null;
+      return html;
     }).join("");
 
     root.innerHTML = controls() + '<div class="places-list">' + (cards || '<p class="places-none">Nothing recorded for this yet.</p>') + "</div>";
@@ -664,6 +715,8 @@
     if (scaled) scaled.onclick = () => update({ scaled: !prefs.scaled });
     const only = root.querySelector("[data-only]");
     if (only) only.onclick = () => update({ onlyNeeded: !prefs.onlyNeeded });
+    const solve = root.querySelector("[data-solve]");
+    if (solve) solve.onclick = () => update({ solve: !prefs.solve });
     root.querySelectorAll("[data-meal]").forEach((button) => {
       button.onclick = () => {
         const open = [...root.querySelectorAll("details.places-card[open]")].map((row) => row.dataset.place);
@@ -677,6 +730,8 @@
     if (amount) amount.onchange = () => update({ amount: Math.max(0, Number(amount.value) || 0) });
     const kind = root.querySelector("#placesKind");
     if (kind) kind.onchange = () => update({ kind: kind.value });
+    const target = root.querySelector("#placesTarget");
+    if (target) target.onchange = () => update({ target: Math.max(0, Number(target.value) || 0) });
 
     // Re-rendering on every keystroke would take the caret with it, so the
     // search waits for a pause and then puts the caret back where it was.

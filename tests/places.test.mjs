@@ -284,7 +284,7 @@ test("what a pour costs in stamina is stated, not left to be worked out", () => 
   const page = read("locations-page.js");
   // A cider's stamina moves with effectiveness, so the total for THIS pour is
   // the number worth showing, next to the field that changes it.
-  assert.match(page, /Your ' \+ whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\)/);
+  assert.match(page, /Your ' \+ whole\(spend\(\)\) \+ " " \+ esc\(kindLabel\(\)\)/);
   assert.match(page, /costing <b>" \+ whole\(spent\) \+ "<\/b> stamina"/);
   // And it names which savings are already in that figure.
   assert.match(page, /neighFactor\(\) < 1 \? "Neigh" : null, staminaFactor\(\) < 1 \? "Wanderer" : null/);
@@ -297,4 +297,35 @@ test("chest contents keep the flags that followed them out of the table", () => 
   assert.match(page, /function chestMarkup\(result, quests, tower\)/);
   assert.match(page, /places-inchest-need/);
   assert.match(page, /whole\(need\.remaining \/ masteryMult\(\)\)/);
+});
+
+test("the page runs backwards: name what you need and it prices the pour", () => {
+  const page = read("locations-page.js");
+  // Every figure is linear in the amount, so one probe at a single unit gives
+  // the rate. If that stops being true this solver quietly starts lying.
+  assert.match(page, /let solved = null;/);
+  assert.match(page, /const spend = \(\) => \(solved != null \? solved : \(Number\(prefs\.amount\) \|\| 0\)\);/);
+  assert.match(page, /function amountFor\(place, want, target\)/);
+  assert.match(page, /solved = 1;/);
+  // Nothing may read the typed amount directly any more, or half a card would
+  // answer the forward question while the other half answers the backward one.
+  assert.ok(
+    !/Number\(prefs\.amount\) \|\| 0/.test(page.replace(/const spend = [^\n]+\n/, "")),
+    "unitsFor, actionsFor and staminaSpent all go through spend()"
+  );
+  assert.ok(!/whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\)/.test(page), "the stamina bill uses the solved amount too");
+  // Asked forwards the best place gives the most; asked backwards it asks the
+  // least, so the order has to flip.
+  assert.match(page, /if \(solving\) scored\.sort\(\(a, b\) => \(a\.need == null \? Infinity : a\.need\) - \(b\.need == null \? Infinity : b\.need\)\);/);
+  assert.match(page, /data-solve/);
+  assert.match(page, /id="placesTarget"/);
+});
+
+test("the backward answer agrees with the workbook it came from", () => {
+  const source = read("data/workbook-rates.js");
+  const wb = JSON.parse(source.slice(source.indexOf("{"), source.lastIndexOf("}") + 1));
+  const rate = wb.exploring["Black Rock Canyon"]["Shimmer Quartz"];
+  // 672,579 Shimmer Quartz is the Glass Jar Mega Mastery; the page answers
+  // 27,308 Arnold Palmers, which is only right if this rate is.
+  assert.ok(Math.abs(672579 / rate - 27308) < 1, `672,579 / ${rate} should be 27,308`);
 });

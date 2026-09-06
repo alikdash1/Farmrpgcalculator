@@ -5,6 +5,29 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-06 (last, 3) — Places runs backwards, and the craft multipliers
+
+**Places can be asked the question the owner keeps asking.** "Start from what I
+need" swaps the control row: name an item and a quantity, and every place is
+priced in the drink, net or stamina you chose, cheapest first. The page is
+linear in the amount, so one probe at a single unit gives the rate; `spend()`
+now stands in for the typed amount everywhere so no half of a card answers the
+forward question while the other half answers the backward one.
+
+**The mastery arithmetic in hand-written plans was wrong twice.** Resource
+Saver I+II+III duplicate a crafted item 45% of the time and the duplicate
+carries mastery, so crafts are `remaining / 1.45` — `engine.js` always did
+this, the plans did not. And Mushroom Stew's +10% lasts five minutes, so per
+the owner it counts on fishing, Grab Bags and harvests but never on a craft
+grind. The Calculate page already had this right: its stew line only renders
+for gathered goals.
+
+**Verified on the running site**, not by reading it: 27,308 Arnold Palmers and
+27,522 Apple Ciders both land on 673k Shimmer Quartz at Black Rock Canyon —
+two independent rate tables agreeing to within 1%.
+
+See `docs/T300_PLAN.md` for the per-floor costings this came out of.
+
 ## 2026-09-06 (last, 2) — The inventory cap, and how the owner actually plays
 
 A run of plans here were arithmetically right and practically useless — costing
