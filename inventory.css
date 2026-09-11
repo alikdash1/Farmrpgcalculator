@@ -15,7 +15,11 @@
 .inventory-toolbar { display: grid; grid-template-columns: minmax(220px, 420px) 1fr; gap: 16px; align-items: end; padding: 16px 0; }
 .inventory-search { display: grid; gap: 8px; }
 .inventory-owned { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-height: 310px; overflow: auto; padding: .15rem .2rem 8px 0; scrollbar-color: var(--line) var(--ink); }
-.inventory-owned-item { min-width: 0; }
+/* Cards in one row share the height of the tallest (a "Craft · Trade" line
+   makes one taller). The wrapper stretched but the card inside did not, which
+   left ragged gaps under the shorter ones. */
+.inventory-owned-item { min-width: 0; display: grid; }
+.inventory-owned-item > .inventory-item-link { height: 100%; }
 .inventory-item-link { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; min-width: 0; padding: 8px 12px; color: var(--text); text-align: left; background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
 .inventory-item-link:hover { border-color: var(--green); background: var(--ink3); }
 .inventory-item-link.is-static { border-color: transparent; cursor: default; }
