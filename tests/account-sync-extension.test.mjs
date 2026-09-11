@@ -154,6 +154,13 @@ test("a mastery capture newer than the imported file is allowed to update it", (
   // it let a weeks-old mastery read overwrite a fresh Mastery History file.
   assert.match(app, /rows\.filter\(\(row\) => \{[\s\S]{0,200}row\.capturedAt[\s\S]{0,120}> fileAt/);
   assert.doesNotMatch(app, /captureAt > fileAt \? rows : \[\]/);
+  // The Tower sat on T277 for good: save() stored the start floor on every
+  // save, so a first visit's default outlived every later export. Only a floor
+  // the player typed is honoured, and the captured floor clears those below it.
+  assert.match(app, /state\.towerStartChosen \? /);
+  assert.match(app, /state\.towerStart = Number\(event\.target\.value\)[^;]*; state\.towerStartChosen = true/);
+  assert.match(app, /function currentTowerFloor\(\)[\s\S]{0,300}levels\.tower/);
+  assert.match(app, /complete: cleared \|\| current >= goal/);
   assert.doesNotMatch(app, /PERSONAL\.authoritativeMasteries \? \[\] :/);
 });
 

@@ -20,6 +20,17 @@ The owner captured masteries and the site did not change. Two faults:
   "Sep 11". It now shows the newest applied capture, with the time.
 - Checked with a synthetic snapshot: a capture read now moved Water Lily from
   223.38k to 300k and the label to 10:58 PM; one read on Aug 26 changed nothing.
+- **The live Tower sat on T277.** `save()` stored the start floor on every save,
+  so the default from the owner's first visit to the website outlived every
+  later export (which says 286). Only a floor the player types is honoured now;
+  otherwise the page starts at the floor they are on — the higher of the
+  export's floor and a captured profile/Tower level — and every floor below it
+  counts as cleared, whatever its mastery number says.
+- "Last updated" now says where the numbers came from: "from your mastery
+  capture (312 items)", "the extension has not reached this page", or that the
+  capture is older than the export — so "extension or website?" has an answer
+  on the page. Checked with 277 stored the way the live site had it: the page
+  opened on T286, and a capture at T287 moved it to T287.
 
 ## 2026-09-11 (5) — Captures reach the website, privately
 

@@ -174,6 +174,9 @@
     account: read("frpg_account_snapshot_v1", null),
     acornTests: read("frpg_acorn_tests_v2", []),
     towerStart: Number(read("frpg_tower_start_v1", PERSONAL.startFloor || 277)),
+    // save() wrote the start floor on every save, so the 277 from a first visit
+    // stuck for good. Only a floor the player typed in is honoured now.
+    towerStartChosen: read("frpg_tower_start_chosen_v1", false) === true,
     towerShowDone: read("frpg_tower_show_done_v1", false) === true,
     extensionConnectedAt: null,
     showCovered: false,
@@ -245,6 +248,7 @@
     localStorage.setItem("frpg_make_v2", JSON.stringify(state.makeChoices));
     localStorage.setItem("frpg_acorn_tests_v2", JSON.stringify(state.acornTests));
     localStorage.setItem("frpg_tower_start_v1", JSON.stringify(state.towerStart));
+    localStorage.setItem("frpg_tower_start_chosen_v1", JSON.stringify(state.towerStartChosen));
     localStorage.setItem("frpg_tower_show_done_v1", JSON.stringify(state.towerShowDone));
     try {
       if (state.account) localStorage.setItem("frpg_account_snapshot_v1", JSON.stringify(state.account));
@@ -2124,6 +2128,28 @@
   const MM_GOAL = 1000000;
   const GM_GOAL = 100000;
 
+  // The floor the player is on. The Mastery History import records it, and a
+  // profile or Tower capture reads it off the game; floors only go up, so the
+  // higher of the two is right. Every floor below it is cleared.
+  function currentTowerFloor() {
+    const fromFile = Number(PERSONAL.towerAtCapture || PERSONAL.startFloor) || 0;
+    const captured = Number(state.account && state.account.levels && state.account.levels.tower) || 0;
+    return Math.max(fromFile, captured) || 277;
+  }
+
+  // Where the Tower's mastery numbers came from, so "did my capture land?" is
+  // answered on the page instead of guessed at.
+  function masterySourceNote() {
+    const fromPage = ((state.account && state.account.masteries) || []).filter((row) => row.sourcePage === "mastery");
+    if (!state.account) return "the extension has not reached this page";
+    if (!fromPage.length) return "no mastery capture has arrived yet";
+    const readAt = fromPage.reduce((latest, row) => Math.max(latest, Date.parse(row.capturedAt || "") || 0), 0);
+    const items = `${fmt(fromPage.length)} ${fromPage.length === 1 ? "item" : "items"}`;
+    if (readAt > Date.parse(PERSONAL.capturedAt || "")) return `from your mastery capture (${items})`;
+    const when = new Date(readAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    return `your mastery capture (${when}, ${items}) is older than the mastery export`;
+  }
+
   // Every floor's requirement, in one list. Floors the Tower MM wiki covers
   // (T300–T340) come from it, because it is the only source that says which
   // masteries a floor wants at GRAND level rather than Mega — scoring those
@@ -2131,15 +2157,19 @@
   // planner's own named Mega Mastery goals.
   function towerRequirements() {
     const progress = towerMasteryMap();
+    const floorNow = currentTowerFloor();
     const wikiFloors = new Set((TOWER_FLOORS.floors || []).map((row) => row.floor));
     const rows = [];
     const push = (name, floor, tier, img, methods) => {
       const goal = tier === "gm" ? GM_GOAL : MM_GOAL;
       const current = progress.get(String(name).toLowerCase()) || 0;
+      // A floor below the one you are on is cleared in game, whatever its
+      // mastery number says here.
+      const cleared = floor < floorNow;
       rows.push({
         name, floor, tier, goal, current,
-        remaining: Math.max(0, goal - current),
-        complete: current >= goal,
+        remaining: cleared ? 0 : Math.max(0, goal - current),
+        complete: cleared || current >= goal,
         methods: methods || [],
         img: img || null,
       });
@@ -2184,7 +2214,8 @@
     // The top floor is whatever the floor data reaches, so publishing a new
     // block of floors is a data change, not a code change.
     const goal = Math.max(340, ...(TOWER_FLOORS.floors || []).map((row) => row.floor));
-    const start = Math.max(1, Math.min(goal, Number(state.towerStart) || 277));
+    const floorNow = currentTowerFloor();
+    const start = Math.max(1, Math.min(goal, state.towerStartChosen ? (Number(state.towerStart) || floorNow) : floorNow));
     document.querySelectorAll("[data-tower-top]").forEach((node) => { node.textContent = `T${goal}`; });
     $("towerStart").max = String(goal);
     // Published so the gather lists can point out the items that serve a Tower
@@ -2208,7 +2239,7 @@
     // With the time: several captures a day all showed the same bare date,
     // so a capture that did land looked like it had not.
     $("towerCaptureAge").textContent = captureDate
-      ? `Last updated ${new Date(captureDate).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`
+      ? `Last updated ${new Date(captureDate).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${masterySourceNote()}`
       : "No saved progress yet";
     // The named-mastery list only reaches as far as the data does — don't
     // claim a floor range the rows can't back up.
@@ -2343,7 +2374,7 @@
   };
   $("clearAccount").onclick = () => { state.account = null; save(); renderAccount(); };
   $("applyAccount").onclick = applyAccountSnapshot;
-  $("towerStart").onchange = (event) => { state.towerStart = Number(event.target.value) || 277; save(); renderTower(); };
+  $("towerStart").onchange = (event) => { state.towerStart = Number(event.target.value) || currentTowerFloor(); state.towerStartChosen = true; save(); renderTower(); };
   $("towerShowDone").onchange = (event) => { state.towerShowDone = event.target.checked; save(); renderTower(); };
 
   window.addEventListener("message", (event) => {
