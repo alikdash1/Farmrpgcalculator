@@ -145,6 +145,7 @@ tab-separated rows for a spreadsheet.
 |---|---|
 | `engine.js` | Pure crafting/route resolution: `buildIndex`, `resolveTree`, `sourcesFor`, `coDropsFor`, `marketQuote`, `translateCosts`. No DOM. |
 | `data/data.js` | The main dataset: **1,138 items**, 1,468 recipes, 25 locations, market prices. |
+| `data/extra-items.js` | **Generated** by `tools/import-buddy.mjs`: the 418 items data.js predates (Sinking Swamp, dyes/twines, mining, newer events), their recipes, Sinking Swamp and Gary's Crushroom. Merges itself into `FRPG_DATA`, only ever adding. 1,556 items after the merge. |
 | `data/main-quests.js` | **2,479 quests / 569 questlines** (1.2 MB). Each quest has title, line, category, sequence, requirements, giver, prerequisite. |
 | `data/quest-sagas.js` | Stitches questlines Farm RPG renames partway through into one chain. See §8. |
 | `data/tower-floors.js` | Tower T300–T340 requirements from the wiki, with artwork, and **which floors want Grand vs Mega**. |
@@ -317,7 +318,8 @@ test is protecting before you change it.
   infer recipes from item names.
 - **`publish/` is a divergent copy** with none of this work. Do not deploy it.
 - **Large Net base 400 vs the workbook's 500** — two sources disagree, unresolved.
-- 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp) not imported.
+- Mined items can be searched and crafted but not costed: no mine has drop rates.
+- Sinking Swamp's exploring sheet adds to 500/AP, not 550 — possibly measured without Quandary (see NEXT_PHASE).
 
 ---
 

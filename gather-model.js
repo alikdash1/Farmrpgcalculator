@@ -158,6 +158,9 @@
     const exploring = [...new Set(sources.filter((row) => row.mode !== "fishes").map((row) => row.loc))];
     if (fishing.length) bits.push("Fish " + fishing[0] + (fishing.length > 1 ? " +" + (fishing.length - 1) : ""));
     if (exploring.length) bits.push("Explore " + exploring[0] + (exploring.length > 1 ? " +" + (exploring.length - 1) : ""));
+    const mines = (((window.FRPG_LOCATION_INTEL || {}).mining || {}).mines) || [];
+    const mine = mines.find((row) => (row.items || []).some((entry) => keyFor(entry) === keyFor(item.name)));
+    if (mine) bits.push("Mine " + mine.name);
 
     if (item.buy != null && item.buy > 0) bits.push("Buy " + item.buy.toLocaleString() + "g");
     const market = index.marketByName.get(keyFor(item.name));

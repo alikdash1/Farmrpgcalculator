@@ -24,7 +24,9 @@
     const locsByItem = new Map();
     const locationsByName = new Map();
     for (const loc of data.sources.locations) {
-      locationsByName.set(loc.name, loc);
+      // Sinking Swamp is an exploring and a fishing location under one name.
+      // Only exploring routes read this map (for co-drops), so exploring wins.
+      if (!locationsByName.has(loc.name) || loc.type === "explore") locationsByName.set(loc.name, loc);
       // Fishing snapshots carry a generic outcome table and a dedicated fish
       // table. Indexing both double-counts every fishing route.
       const drops = loc.mode === "fishes" ? {} : (loc.drops || {});

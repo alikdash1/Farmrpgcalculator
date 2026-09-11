@@ -151,15 +151,24 @@ Specific items:
 
 - **`publish/` has none of the 2026-09-03 work** — player-chosen routes, the
   Mining page, the new palette and typefaces all live only in the root copy.
-- **59 workbook drops and 2 locations** (Gary's Crushroom, Sinking Swamp) are
-  in `data/workbook-rates.js` but not in `data/data.js`.
+- **Sinking Swamp's exploring table in the sheet has two stray rows** —
+  "Sinkrot" (51.59/AP) and "Re'Taw" (0.066/AP) beside the real "Sinkroot" and
+  "Re'taw". The planner reads by exact item name, so it uses the real ones, but
+  Places lists all four. Without the strays the table adds to exactly **500**
+  per AP, where every other location adds to 550 (Quandary Chowder included).
+  If that table was measured without Quandary, the planner's Arnold Palmer
+  counts at Sinking Swamp are 10% high with the meal on. Ask the owner.
+- **Two items were renamed in game** and stay under their data.js names:
+  Spring Basket (now Spring Basket 01) and Beatrix's Booming Brawl Box (now …01).
 - **Large Net base catch: 400 in our data, 500 in the workbook.** 250 base +
   150 Reinforced Netting + 100 Trigon Knot = 500, which matches the workbook
   exactly, so the workbook figure is fully-perked. Changing
   `net_ln_base_catch` moves every fishing number — needs a decision.
 - **Tower silver may be 2× low.** T276 is the only confirmed data point.
-- **Mining items dead-end in the calculator** — the planner's route index has
-  no mining locations, so a mine drop cannot be costed yet.
+- **Mined items still cannot be costed.** Since 2026-09-11 they are searchable
+  and their crafts resolve, and a raw mined item says which mine and pickaxe it
+  needs — but no mine has drop rates (Buddy publishes none either), so the cost
+  stops there.
 - **Dead CSS for a full-screen list.** `inventory.css` still styles
   `.inventory-overlay` and `.inventory-expand`, which no script creates any
   more — the tracker's expanded mode replaced it. Harmless; delete when next in

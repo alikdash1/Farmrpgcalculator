@@ -5,6 +5,38 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 (4) — Every Farm RPG item in the Calculate search
+
+The owner: *"some of the new items arent showing in the calculate craft menu …
+like acid … and pine bird feeder"*, then *"almost all the new mining items are
+missing"*. It was far more than a few. `data/data.js` came from a 2023-era item
+export, so **420 of the game's 1,556 items** could not be searched — 63 Tower
+requirements from T301 to T350 among them.
+
+- **`tools/import-buddy.mjs`** pulls every missing item and location from
+  Buddy's Almanac (its static page JSON) and builds **`data/extra-items.js`**:
+  418 items, 450 craft and 8 cook recipe rows, Sinking Swamp exploring and
+  fishing, Gary's Crushroom, and new drops at Highland Hills and Vast Ocean. It
+  merges itself into `FRPG_DATA` after data.js and never overwrites anything.
+- **The sheet's word on rates**, as the owner asked. Arnold Palmer counts at
+  the new places read `data/workbook-rates.js` as every other place does, and
+  **fishing routes now take their Large Net and Fishing Net counts from the
+  sheet's per-net rates** too (scaled to the account's nets, Sea Pincher on top)
+  instead of converting logged catches. Buddy supplies only explores and
+  catches per drop — the same unit as data.js (Salt Rock at Whispering Creek:
+  36.75 there, 36.44 here) — using its plain rates, no Iron Depot or Runecube.
+- **Exploring no longer beats fishing by default.** Once Sinking Swamp gave
+  Water Lily an exploring route, the planner switched it off Forest Pond nets.
+  With both on offer the cheaper route now leads.
+- Mined items say where they come from ("Found in Spring Cave with the Cid's
+  Spare Pickaxe") instead of "Not known yet". There are still no mine rates.
+- `engine.js`: Sinking Swamp is two locations with one name; the co-drop lookup
+  now keeps the exploring side.
+- Checked on a fresh load: 1,556 items, Acid Extract / Bamboo Trellis / Tie Dye
+  Scarf / Gold Ring / Esperium all open with routes, no Tower row left without
+  route data, Places shows Sinking Swamp's per-AP rates, no console errors.
+  `tests/extra-items.test.mjs` adds 7 tests (118 pass).
+
 ## 2026-09-11 (3) — The new Tower floors, T341 to T350
 
 Farm RPG released ten more Tower floors. Their requirements are only on the

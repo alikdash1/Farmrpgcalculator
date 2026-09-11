@@ -589,6 +589,20 @@
     const rate = row && row[itemName];
     return rate > 0 ? rate : null;
   }
+  // Drops per Large Net from the same workbook. Its fishing tables add up to
+  // 500 a net: 250 base + Reinforced Netting + Trigon Knot, and no meal.
+  const WORKBOOK_NET_CATCH = 500;
+  function workbookLnRate(location, itemName) {
+    const table = window.FRPG_WORKBOOK_RATES && window.FRPG_WORKBOOK_RATES.fishing;
+    const row = table && table[location];
+    const rate = row && row[itemName];
+    return rate > 0 ? rate : null;
+  }
+  // Mines list what they turn up but carry no rates, so a mined item can say
+  // where it comes from and nothing more.
+  const MINES = (((window.FRPG_LOCATION_INTEL || {}).mining || {}).mines) || [];
+  const mineFor = (name) => MINES.find((mine) =>
+    (mine.items || []).some((entry) => String(entry).toLowerCase() === String(name).toLowerCase())) || null;
   const itemFact = (name) => P.items[name] || { questSteps: 0, questTotal: 0, usedInCrafts: 0, relevance: 0, hoard: false };
   const routeRule = (name) => P.routeRules[name] || null;
   const farmLabel = (farm) => farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn overlay" : "Explore";
@@ -705,13 +719,20 @@
     if (chosenDrop) return chosenDrop;
     const fishPlans = sources.fish.filter((row) => row.catches != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).sort((a, b) => a.catches - b.catches);
     const chosenFish = fishPlans.find((row) => row.location === chosenLocation);
-    const fish = chosenFish || (!dropPlans.length ? fishPlans[0] : null);
-    if (fish) {
+    const buildFish = (fish) => {
       const mealBoost = state.meals.seapincher ? 1 + c("sea_pincher_bonus", 0.1) : 1;
       const lnCatch = m.nets.lnCatch * mealBoost;
       const fnCatch = m.nets.fnCatch * mealBoost;
-      const largeNets = lnCatch > 0 ? fish.catches / lnCatch : null;
-      const fishingNets = fnCatch > 0 ? fish.catches / fnCatch : null;
+      // Nets read the owner's sheet when it measured this fish here, the same
+      // way Arnold Palmers do. It counted 500 catches a net, so it scales to
+      // this account's nets, and Sea Pincher goes on top. Casting by hand has
+      // no sheet rate and keeps the logged catches.
+      const wbLn = workbookLnRate(fish.location, item.name);
+      const perNet = (catchSize) => wbLn * (catchSize / WORKBOOK_NET_CATCH) * mealBoost;
+      const largeNets = wbLn != null && m.nets.lnCatch > 0 ? need / perNet(m.nets.lnCatch)
+        : lnCatch > 0 ? fish.catches / lnCatch : null;
+      const fishingNets = wbLn != null && m.nets.fnCatch > 0 ? need / perNet(m.nets.fnCatch)
+        : fnCatch > 0 ? fish.catches / fnCatch : null;
       // Fishing by hand is one cast at a time. How much stamina a cast costs is
       // not recorded in any local source, so the cast count is given and the
       // stamina is left blank rather than guessed.
@@ -747,9 +768,17 @@
         progressionScore: itemFact(item.name).relevance || 0,
         detail: `${esc(fish.location)} · ${detailBy}`,
       };
-    }
-    if (dropPlans.length) return dropPlans[0];
-    return null;
+    };
+    if (chosenFish) return buildFish(chosenFish);
+    const bestDrop = dropPlans[0] || null;
+    const bestFish = fishPlans.length ? buildFish(fishPlans[0]) : null;
+    // When an item can be both explored and fished, the cheaper one leads
+    // unless a route rule prefers exploring. Exploring used to win outright,
+    // which went unnoticed until Sinking Swamp gave Water Lily an exploring
+    // route beside the Forest Pond nets it is actually farmed with.
+    if (bestDrop && bestFish && !bestDrop.preferred && bestFish.goldEq != null
+      && (bestDrop.goldEq == null || bestFish.goldEq < bestDrop.goldEq)) return bestFish;
+    return bestDrop || bestFish;
   }
 
   function farmLocationChoices(item, need, m, consts) {
@@ -907,6 +936,8 @@
     if (farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
     if (vendor) return vendor;
     if (trade) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
+    const mine = mineFor(item.name);
+    if (mine) return { type: "unknown", label: "Mine it", detail: `Found in ${esc(mine.name)}${mine.pickaxe ? ` with the ${esc(mine.pickaxe)}` : ""}. Mining rates are not recorded yet — see the Mining tab.` };
     return { type: "unknown", label: "Not known yet", detail: "No reliable way to get this one is recorded yet" };
   }
 
@@ -1177,7 +1208,7 @@
 
     const coDrops = best ? E.coDropsFor(index, best.location, best.actions, goal.name, P, 40) : [];
     const placeChoices = places.map((row) =>
-      `<option value="${esc(row.location)}" ${row === best ? "selected" : ""}>${esc(row.location)}${row.denom != null ? ` · ${fmt(round2(row.denom))} ${esc(words.act)} each` : ""}</option>`).join("");
+      `<option value="${esc(row.location)}" ${row === best ? "selected" : ""}>${esc(row.location)}${row.denom != null ? ` · ${fmt(round2(row.denom))} ${esc(GATHER_WORDS[row.kind].act)} each` : ""}</option>`).join("");
 
     const lineRow = ([k, v, note]) => `<div class="gather-line"><b>${esc(k)}</b><strong>${v}</strong>${note ? `<small>${note}</small>` : ""}</div>`;
     const col = (label, lines, extra) =>

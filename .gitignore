@@ -6,6 +6,10 @@ build/preview-bundle.html
 # not read them — they were source material for building data/.
 raw/account-captures/
 
+# Per-page download cache for tools/import-buddy.mjs. The combined
+# raw/buddy-*-<date>.json files are what gets kept.
+raw/.buddy-cache-*/
+
 # A stale, divergent copy of the whole app. Keeping it out of the public repo
 # so nobody deploys or edits the wrong one by mistake.
 publish/

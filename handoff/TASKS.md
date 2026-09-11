@@ -15,7 +15,7 @@ matter.
 | 2 | Crafting routes for Tower rows that show "No route data for this one yet" | codex | The Tower rail admits it does not know; the engine can usually answer |
 | 5 | Mining chip source text into a tooltip | claude | The chips wrap badly once a recipe has more than about four inputs |
 | 6 | Reconcile Large Net base 400 vs the workbook's 500 | either | Two sources disagree; ask the user rather than picking one |
-| 7 | Import the 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp) | codex | Known missing data, straightforward to add |
+| 7 | ~~Import the 59 workbook drops and 2 locations (Gary's Crushroom, Sinking Swamp)~~ **Done 2026-09-11** — `data/extra-items.js` | claude | Every missing item and both locations now load |
 | 8 | Decide what happens to `publish/` | either | A divergent copy with none of this work; either resync it or delete it |
 
 Done and removed: the Back button, the Tower colour split, and splitting
