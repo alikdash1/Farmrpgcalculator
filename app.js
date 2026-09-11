@@ -2088,9 +2088,23 @@
     if (!rows.length) return [];
     if (!PERSONAL.authoritativeMasteries) return rows;
     const fileAt = Date.parse(PERSONAL.capturedAt || "");
-    const captureAt = Date.parse((state.account && (state.account.generatedAt || state.account.syncedAt)) || "");
-    if (!Number.isFinite(fileAt) || !Number.isFinite(captureAt)) return [];
-    return captureAt > fileAt ? rows : [];
+    if (!Number.isFinite(fileAt)) return [];
+    // Judge each row by when its own page was read. The snapshot's generatedAt
+    // is when the extension last rebuilt it, which moves on every capture of
+    // any page — so a fresh mastery read and a weeks-old one looked alike.
+    const fallback = Date.parse((state.account && state.account.generatedAt) || "");
+    return rows.filter((row) => {
+      const readAt = Date.parse(row.capturedAt || "");
+      return (Number.isFinite(readAt) ? readAt : fallback) > fileAt;
+    });
+  }
+  // When the Tower numbers were last actually refreshed: the newest capture
+  // that beat the mastery file, or the file itself.
+  function masteryUpdatedAt() {
+    const fileAt = Date.parse(PERSONAL.capturedAt || "");
+    const newest = masteryRowsToApply().reduce((latest, row) => Math.max(latest, Date.parse(row.capturedAt || "") || 0), 0);
+    if (newest > (Number.isFinite(fileAt) ? fileAt : 0)) return new Date(newest).toISOString();
+    return PERSONAL.capturedAt || null;
   }
 
   function towerMasteryMap() {
@@ -2190,9 +2204,11 @@
     $("towerStart").value = String(start);
     $("towerShowDone").checked = state.towerShowDone;
     $("towerNextFloor").textContent = `T${nextFloor}`;
-    const captureDate = PERSONAL.authoritativeMasteries ? PERSONAL.capturedAt : state.extensionConnectedAt || state.account && state.account.generatedAt || PERSONAL.capturedAt;
+    const captureDate = PERSONAL.authoritativeMasteries ? masteryUpdatedAt() : state.extensionConnectedAt || state.account && state.account.generatedAt || PERSONAL.capturedAt;
+    // With the time: several captures a day all showed the same bare date,
+    // so a capture that did land looked like it had not.
     $("towerCaptureAge").textContent = captureDate
-      ? `Last updated ${new Date(captureDate).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}`
+      ? `Last updated ${new Date(captureDate).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`
       : "No saved progress yet";
     // The named-mastery list only reaches as far as the data does — don't
     // claim a floor range the rows can't back up.

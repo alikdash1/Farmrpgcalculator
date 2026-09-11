@@ -5,6 +5,22 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 (6) — A new mastery capture now moves the Tower page
+
+The owner captured masteries and the site did not change. Two faults:
+
+- **"Newer than the Mastery History file" was judged on the wrong clock.** It
+  compared the file against the snapshot's `generatedAt`, which the extension
+  resets every time it rebuilds — on a capture of *any* page. So a weeks-old
+  mastery read could overwrite a fresh file, and the decision had nothing to do
+  with when masteries were actually read. It now goes row by row, on each row's
+  own `capturedAt`.
+- **"Last updated" always showed the file's date** while the file was
+  authoritative, and only the date — so a capture that did land still read
+  "Sep 11". It now shows the newest applied capture, with the time.
+- Checked with a synthetic snapshot: a capture read now moved Water Lily from
+  223.38k to 300k and the label to 10:58 PM; one read on Aug 26 changed nothing.
+
 ## 2026-09-11 (5) — Captures reach the website, privately
 
 The owner asked for their captures on the site and for the extension to push

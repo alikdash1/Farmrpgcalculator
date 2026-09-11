@@ -149,7 +149,11 @@ test("a mastery capture newer than the imported file is allowed to update it", (
   // authoritativeMasteries made the code skip captured masteries entirely, so
   // re-capturing them silently did nothing at all.
   assert.match(app, /function masteryRowsToApply\(\)/);
-  assert.match(app, /captureAt > fileAt \? rows : \[\]/);
+  // And newer is decided per row, by when that row's page was read. The
+  // snapshot's generatedAt moves on every capture of any page, so comparing
+  // it let a weeks-old mastery read overwrite a fresh Mastery History file.
+  assert.match(app, /rows\.filter\(\(row\) => \{[\s\S]{0,200}row\.capturedAt[\s\S]{0,120}> fileAt/);
+  assert.doesNotMatch(app, /captureAt > fileAt \? rows : \[\]/);
   assert.doesNotMatch(app, /PERSONAL\.authoritativeMasteries \? \[\] :/);
 });
 
