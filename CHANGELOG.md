@@ -5,6 +5,28 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 (3) — The new Tower floors, T341 to T350
+
+Farm RPG released ten more Tower floors. Their requirements are only on the
+wiki's Spoilers page, which needs a login, and buddy.farm's Tower page still
+stops at T340 — so the owner read them off the in-game table one floor at a
+time. Each item was matched against the game's own item list (for its
+picture) or buddy.farm's item page, and against the owner's mastery export.
+
+- `data/tower-floors.js` now holds **T341–T350: 17 Grand and 13 Mega Mastery
+  requirements**. Buddy's first picture on crop and seed pages is not the
+  item's own, which put the wrong art on Gold Carrot; every entry the planner
+  knows now uses the game's picture.
+- **The Tower page stopped hardcoding T340.** The goal floor, the Start-at-floor
+  limit and the "climb to" copy follow the highest floor in the data, so the
+  next block of floors is a data change alone.
+- Verified on a fresh load: "The climb to T350", all ten floors drawn with the
+  right tier and the owner's progress, no console errors.
+
+Not yet costable: 16 of the 30 items are unknown to the calculator and show "No
+route data". Five need only their own recipe; the other eleven also need 13
+ingredients the planner does not have (Gold Ring, Bamboo, Yellow Dye, …).
+
 ## 2026-09-11 (2) — Production pass, the half that was missing
 
 Asked afterwards whether the brief had all been done, the honest answer was no:

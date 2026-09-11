@@ -3,8 +3,9 @@
 // Masteries required. Each entry is [name, image URL].
 //
 // Source: the official Farm RPG "Tower MM" wiki
-// (https://farmrpg.com/#!/wiki.php?page=Tower+MM), read 2026-09-03. The wiki's
-// floor table ends at T340, so there is no T341–T350 data to show. Silver cost
+// (https://farmrpg.com/#!/wiki.php?page=Tower+MM), read 2026-09-03, for T300–T340.
+// Floors from T341 were released later and come from the wiki's Spoilers page,
+// entered floor by floor by the owner on 2026-09-11. Silver cost
 // is intentionally not listed here — this file is about what a floor requires,
 // not what it costs in silver.
 //
@@ -12,10 +13,10 @@
 // Needed" column); 301–340 come from its 301–340 table, which splits the
 // requirement into "GMs Required" and "MMs Required".
 window.FRPG_TOWER_FLOORS = {
-  updated: "2026-09-03",
+  updated: "2026-09-11",
   source: "https://farmrpg.com/#!/wiki.php?page=Tower+MM",
   itemsAre: "requirements",
-  note: "Masteries you must already hold to unlock each floor. From the official Tower MM wiki, which lists floors up to T340. Silver cost omitted on purpose.",
+  note: "Masteries you must already hold to unlock each floor. From the official Tower MM wiki, for T300–T340, and the wiki's Spoilers page from T341. Silver cost omitted on purpose.",
   floors: [
     [300,[],[['Wizard Hat','https://farmrpg.com/img/items/4798.png'],['Sewing Needle','https://farmrpg.com/img/items/needle.png'],['Water Lily','https://farmrpg.com/img/items/3258.png']]],
     [301,[['Corn Oil','https://farmrpg.com/img/items/cornoil.png'],['Cotton','https://farmrpg.com/img/items/8311.png'],['Basic Pillow','https://farmrpg.com/img/items/basicpillow.png']],[]],
@@ -57,7 +58,20 @@ window.FRPG_TOWER_FLOORS = {
     [337,[['White Scarf','https://farmrpg.com/img/items/whitescarf.png'],['Orange Dye','https://farmrpg.com/img/items/orangedye.png']],[['Purple Twine','https://farmrpg.com/img/items/purpletwine.png']]],
     [338,[['Frost Shield','https://farmrpg.com/img/items/frostshield.png?1'],['Mayonnaise','https://farmrpg.com/img/items/mayo.png']],[['Orange Scarf','https://farmrpg.com/img/items/orangescarf.png']]],
     [339,[['Black Purse','https://farmrpg.com/img/items/blackpurse.png'],['Fancy Violin','https://farmrpg.com/img/items/finp_618.png?1'],['Brown Bag','https://farmrpg.com/img/items/brownbag.png']],[]],
-    [340,[['White Purse','https://farmrpg.com/img/items/whitepurse.png']],[['Yellow Dye','https://farmrpg.com/img/items/yellowdye.png'],['Purple Diary','https://farmrpg.com/img/items/purplebook.png']]]
+    [340,[['White Purse','https://farmrpg.com/img/items/whitepurse.png']],[['Yellow Dye','https://farmrpg.com/img/items/yellowdye.png'],['Purple Diary','https://farmrpg.com/img/items/purplebook.png']]],
+    // T341–T350: the owner read these off the new Tower table on the Farm RPG
+    // wiki's Spoilers page (it needs a login to view), 2026-09-11. Pictures are
+    // the game's own where the planner knows the item, otherwise buddy.farm's.
+    [341,[['Butter','https://farmrpg.com/img/items/4431.png'],['Joyful Ring','https://farmrpg.com/img/items/joyfulring.png'],['Purple Butterfly','https://farmrpg.com/img/items/afk_8578.png']],[]],
+    [342,[['Pinecone Bird Feeder','https://farmrpg.com/img/items/pineconebirdfeeder.png'],['Sail Cloth','https://farmrpg.com/img/items/2453.png']],[['Bamboo Chair','https://farmrpg.com/img/items/bamboochair.png']]],
+    [343,[['Gold Emerald Ring','https://farmrpg.com/img/items/goldemring.png'],['Fancy Chair','https://farmrpg.com/img/items/195.png'],['Acid Extract','https://farmrpg.com/img/items/acid.png']],[]],
+    [344,[['Mushroom Stew','https://farmrpg.com/img/items/mushroomstew.png']],[['Barbed Wire','https://farmrpg.com/img/items/barbedwire.png'],['Red Diary','https://farmrpg.com/img/items/reddiary.png']]],
+    [345,[['Gold Carrot','https://farmrpg.com/img/items/8391g.png'],['Fancy Table','https://farmrpg.com/img/items/193.png']],[['Bamboo Trellis','https://farmrpg.com/img/items/bambootrellis.png']]],
+    [346,[["Re'taw Pail",'https://farmrpg.com/img/items/8263w.PNG'],['Black Shield','https://farmrpg.com/img/items/blackshield.png']],[['Canoe','https://farmrpg.com/img/items/554.png']]],
+    [347,[['Gold Peas','https://farmrpg.com/img/items/8259g.png']],[['Corn','https://farmrpg.com/img/items/8288.png'],['White Dye','https://farmrpg.com/img/items/whitedye.png']]],
+    [348,[['Engine','https://farmrpg.com/img/items/engine.png'],['Ship Mast','https://farmrpg.com/img/items/viri_4089.png']],[['Brown Bag','https://farmrpg.com/img/items/brownbag.png']]],
+    [349,[['Sunflower Oil','https://farmrpg.com/img/items/nj_985.png']],[['Propeller Hat','https://farmrpg.com/img/items/Propeller_hat.png'],['Watermelon','https://farmrpg.com/img/items/8293.png']]],
+    [350,[],[['Tie Dye Scarf','https://farmrpg.com/img/items/tiedyescarf2.png'],['Crown of Clover','https://farmrpg.com/img/items/Crownofclover.png'],['Steel Plate','https://farmrpg.com/img/items/9313.png']]]
   ].map(([floor, gms, mms]) => ({
     floor,
     gms: gms.map(([name, img]) => ({ name, img })),

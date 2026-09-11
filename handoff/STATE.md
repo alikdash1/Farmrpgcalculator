@@ -154,6 +154,10 @@ Claim a task by adding a row before you start. Clear it when merged.
 
 ## Known gaps
 
+- **T341–T350 are tracked but 16 of their 30 items cannot be costed yet.** They
+  are missing from `data/data.js`, as are 13 of their ingredients. Floors past
+  T340 come from the wiki's Spoilers page as entered by the owner.
+
 - `inventory.css` still styles `.inventory-overlay` / `.inventory-expand`, which
   no script creates. Dead CSS, harmless.
 - Three CSS generations are still stacked (`style.css` → `v3.css` →
