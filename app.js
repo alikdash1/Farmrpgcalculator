@@ -2136,8 +2136,12 @@
     return row && row.note ? { note: row.note, kind: RATING_CLASS[row.note] || "mid" } : null;
   }
   function renderTower() {
-    const start = Math.max(1, Math.min(340, Number(state.towerStart) || 277));
-    const goal = 340;
+    // The top floor is whatever the floor data reaches, so publishing a new
+    // block of floors is a data change, not a code change.
+    const goal = Math.max(340, ...(TOWER_FLOORS.floors || []).map((row) => row.floor));
+    const start = Math.max(1, Math.min(goal, Number(state.towerStart) || 277));
+    document.querySelectorAll("[data-tower-top]").forEach((node) => { node.textContent = `T${goal}`; });
+    $("towerStart").max = String(goal);
     // Published so the gather lists can point out the items that serve a Tower
     // mastery as well as the questline being tracked. Rebuilt on every Tower
     // render, which is also when the mastery numbers can have changed.
