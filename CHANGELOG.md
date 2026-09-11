@@ -5,6 +5,16 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-12 — Mastery History export, 12:18 AM
+
+`data/personal-tower.js` re-imported from "Farm RPG Mastery History (4).csv"
+(column 9/12/2026 12:18:23 AM): 72 rows moved since the 5:05 PM export, 49 of
+them below the 1m cap. Tower rows that moved: Glass Jar 97,190 → 122,665,
+Hammer 503,054 → 521,028, Potato 831,336 → 960,250, Wooden Bow 516,399 →
+609,027, Salt 362,330 → 363,810, Horn Canteen 239,276 → 274,670, Mystic Ring
+593,212 → 603,970, Hourglass 148,673 → 148,853, Wizard Hat 949,604 → 973,876,
+Water Lily 223,384 → 246,584. Floor unchanged at T286.
+
 ## 2026-09-11 (6) — A new mastery capture now moves the Tower page
 
 The owner captured masteries and the site did not change. Two faults:
