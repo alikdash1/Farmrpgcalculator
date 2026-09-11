@@ -273,6 +273,11 @@
     const activeTab = document.querySelector(`.tab[data-tab="${id}"]`);
     const tabRow = activeTab && activeTab.parentElement;
     if (tabRow && tabRow.scrollWidth > tabRow.clientWidth) activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    // Each view names itself in the browser tab and in history, like a page.
+    const viewName = id === "home" ? "" : ((activeTab && activeTab.firstChild && activeTab.firstChild.textContent.trim())
+      || ((document.querySelector(`#${id} h1`) || {}).textContent || "").trim());
+    document.title = viewName ? `${viewName} — Lantern Ledger` : "Lantern Ledger — Farm RPG Planner";
+    if (id === "planner" && !state.itemId) renderEmptySuggestions();
     if (id === "setup" || id === "fieldlab") renderSetup();
     if (id === "account") renderAccount();
     if (id === "tower") renderTower();
@@ -1258,10 +1263,29 @@
   const metric = (key, value, note) => `<div class="route-metric"><span>${key}${note ? `<small>${note}</small>` : ""}</span><b>${value}</b></div>`;
   const trail = (label, value, note, tone) => `<div class="trail-stop ${tone || ""}"><span>${label}</span><strong>${value}</strong><small>${note || ""}</small></div>`;
 
+  // The Calculate page before an item is chosen. A bare "pick something" was
+  // the least useful screen on the site, so it offers the player's own next
+  // unfinished Tower masteries: the thing they most often come here to cost.
+  function renderEmptySuggestions() {
+    const box = $("emptySuggest");
+    if (!box) return;
+    let needs = [];
+    try { needs = towerRequirements(); } catch (_) { needs = []; }
+    const picks = needs.filter((row) => !row.complete && itemByName(row.name)).slice(0, 6);
+    box.hidden = !picks.length;
+    box.innerHTML = picks.map((row) =>
+      `<button type="button" class="empty-pick" data-empty-pick="${esc(row.name)}" data-empty-qty="${row.remaining}">` +
+      `${itemImg(itemByName(row.name), "empty-art", row.name)}` +
+      `<span><b>${esc(row.name)}</b><small>T${row.floor} · ${fmt(row.remaining)} left</small></span></button>`).join("");
+    box.querySelectorAll("[data-empty-pick]").forEach((button) => {
+      button.onclick = () => window.FRPG_openItem(button.dataset.emptyPick, Number(button.dataset.emptyQty));
+    });
+  }
+
   function render() {
     el.error.classList.add("hidden");
     if (!state.itemId || !state.qty) {
-      el.result.classList.add("hidden"); el.empty.classList.remove("hidden"); return;
+      el.result.classList.add("hidden"); el.empty.classList.remove("hidden"); renderEmptySuggestions(); return;
     }
     const consts = constants(), m = mods();
     let fullTree;
@@ -2326,12 +2350,12 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
   renderSetup();
   renderLibrary();
   renderTower();
+  // Reopen the item this player last costed. With none saved, Calculate starts
+  // empty and offers their own next Tower masteries. It used to open Red Trunk
+  // for everyone, which put somebody else's goal on a first visit and meant the
+  // empty state could never be reached.
   const last = Number(localStorage.getItem("frpg_last"));
   if (last && index.itemsById.has(last)) pick(last);
-  else {
-    const redTrunk = index.idByName.get("red trunk");
-    if (redTrunk) pick(redTrunk);
-  }
   renderHome();
   const viewFromHash = () => {
     const id = location.hash.replace(/^#/, "");

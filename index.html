@@ -9,15 +9,15 @@
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260905-102" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest?v=20260904-1">
-  <link rel="stylesheet" href="style.css?v=20260911-1">
-  <link rel="stylesheet" href="v3.css?v=20260911-1">
-  <link rel="stylesheet" href="tower.css?v=20260911-2">
-  <link rel="stylesheet" href="mining.css?v=20260911-1">
-  <link rel="stylesheet" href="locations.css?v=20260911-1">
-  <link rel="stylesheet" href="quests.css?v=20260911-1">
-  <link rel="stylesheet" href="inventory.css?v=20260911-2">
-  <link rel="stylesheet" href="tracker.css?v=20260911-1">
-  <link rel="stylesheet" href="system.css?v=20260911-4">
+  <link rel="stylesheet" href="style.css?v=20260911-5">
+  <link rel="stylesheet" href="v3.css?v=20260911-5">
+  <link rel="stylesheet" href="tower.css?v=20260911-6">
+  <link rel="stylesheet" href="mining.css?v=20260911-5">
+  <link rel="stylesheet" href="locations.css?v=20260911-5">
+  <link rel="stylesheet" href="quests.css?v=20260911-5">
+  <link rel="stylesheet" href="inventory.css?v=20260911-5">
+  <link rel="stylesheet" href="tracker.css?v=20260911-5">
+  <link rel="stylesheet" href="system.css?v=20260911-7">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -88,7 +88,11 @@
       </section>
 
       <section id="error" class="notice error hidden"></section>
-      <section id="empty" class="empty-state"><div class="empty-compass">✦</div><div><strong>Pick an item to open the trail.</strong><span>Your setup, inventory and route choices stay on this device.</span></div></section>
+      <section id="empty" class="empty-state" aria-labelledby="emptyTitle">
+        <div class="empty-copy"><h2 id="emptyTitle">Pick an item to cost it</h2><p>Search above, or start from a Mega Mastery you still need for the Tower.</p></div>
+        <div id="emptySuggest" class="empty-suggest" hidden></div>
+        <p class="empty-note">Your setup, inventory and route choices stay on this device.</p>
+      </section>
 
       <section id="result" class="hidden">
         <section id="goalHeader" class="goal-header"></section>
@@ -338,9 +342,9 @@
   <script src="engine.js?v=20260904-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260911-2"></script>
-  <script src="mining-page.js?v=20260905-1"></script>
-  <script src="locations-page.js?v=20260906-5"></script>
+  <script src="app.js?v=20260911-8"></script>
+  <script src="mining-page.js?v=20260911-5"></script>
+  <script src="locations-page.js?v=20260911-5"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260905-6"></script>
   <script src="inventory-page.js?v=20260905-9"></script>

@@ -167,11 +167,11 @@
 
     return `<div class="mine-body">
       <section class="mine-section">
-        <h3>What it drops</h3>
+        <h2>What it drops</h2>
         <ul class="mine-drops">${dropChips}</ul>
       </section>
       <section class="mine-section">
-        <h3>What those drops make <small>${crafts.length} craft${crafts.length === 1 ? "" : "s"}</small></h3>
+        <h2>What those drops make <small>${crafts.length} craft${crafts.length === 1 ? "" : "s"}</small></h2>
         ${crafts.length ? `<div class="mine-crafts">${craftCards}</div>` : `<p class="mine-recipe-none">Nothing recorded that uses these yet.</p>`}
       </section>
     </div>`;

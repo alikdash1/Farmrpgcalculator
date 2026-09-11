@@ -139,6 +139,16 @@ Claim a task by adding a row before you start. Clear it when merged.
   its text into `#footer`.
 - **Trackers default to folded.** A missing `frpg_tracker_*_collapsed` key now
   reads as collapsed.
+- **Spacing is on 4/8/12/16/24/32px** for every padding, margin and gap from 4
+  to 36px. Values outside that range are layout geometry and were kept on
+  purpose (the Tower rail's 72px is tied to its timeline dots).
+- **The header puts the nav on its own row below 1,080px.** Measured: it needs
+  about 1,036px on one line. Re-measure if a tab is added.
+- **Page titles step** 32px → 40px at 1,200px; no fluid `clamp()` font sizes.
+- **Every view sets `document.title`** in `showTab`.
+- **Calculate has no default item.** It reopens `frpg_last`; with nothing saved
+  it shows the empty state with the next unfinished Tower masteries
+  (`renderEmptySuggestions`). The old hardcoded Red Trunk fallback is gone.
 - **To verify on screen, load `index.html?fresh=N`.** The local server's cached
   `index.html` silently served the old build during this pass.
 

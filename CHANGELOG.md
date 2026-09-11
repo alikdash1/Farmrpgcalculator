@@ -5,6 +5,44 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 (2) — Production pass, the half that was missing
+
+Asked afterwards whether the brief had all been done, the honest answer was no:
+spacing had not been normalised, tablet widths had never been tested, the empty
+and loading states had not been looked at, and heading order had not been
+audited. This entry is that remaining work.
+
+- **Spacing now follows the scale.** 85 distinct padding, margin and gap values
+  became 35; everything from 4 to 36px is on 4/8/12/16/24/32. Hairlines under
+  4px and larger layout values were left alone on purpose — the Tower rail's
+  72px padding is locked to the position of its timeline dots.
+- **Tablet.** Between about 1,001 and 1,036px the nav no longer fitted beside
+  the brand and Export button and scrolled out of sight with no cue. Measured at
+  1024px it needs 24 + 200 + 12 + 663 + 12 + 86 + 24px plus a scrollbar, so the
+  second-row layout now starts at 1,080px. Group separators stay until phone
+  widths.
+- **Page titles step between sizes on the scale** (32px, then 40px from 1,200px;
+  the result title 24px, then 32px from 1,100px) instead of sliding through
+  every value between them with the window.
+- **Heading order.** Places jumped from the page title straight to an h4 and
+  Mining to an h3; both are h2 now, restyled so nothing looks different.
+- **Each view names itself** in the browser tab and history ("Tower — Lantern
+  Ledger").
+- **The empty Calculate screen was unreachable, and is now the first-visit
+  screen.** On startup Calculate reopened the last item, and with none saved it
+  opened Red Trunk for everyone — nothing ever cleared the item, so the empty
+  state could never show. It now starts empty on a first visit and offers the
+  player's own next unfinished Tower masteries as buttons (verified: six picks
+  from T286–T289, and clicking Aquamarine Ring opens it at 675,832). Anyone
+  with a saved item still lands on it, exactly as before.
+
+**Audited on fresh loads at 375, 768, 1024, 1100, 1200 and 1366px, all eleven
+views:** no horizontal overflow, no rendered text off the type scale, no
+targets under 24px (44px on touch), no heading skips, exactly one h1 per view,
+no unlabelled controls, no images without alt text, no nameless buttons or
+links, no duplicate ids. Item art below the fold was already lazy-loaded — the
+hundreds of "pending" images on Calculate are that working, not a bug.
+
 ## 2026-09-11 — Production pass: one designed site, measured
 
 The owner asked for the site to look intentionally designed and ready for

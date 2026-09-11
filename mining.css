@@ -1,15 +1,15 @@
 /* Mines page — pick a mine, see its drops and what they make. */
 
-.mine-list { display: grid; gap: .5rem; margin-top: 1.4rem; }
+.mine-list { display: grid; gap: 8px; margin-top: 24px; }
 
 .mine-row { border: 1px solid var(--line); background: var(--ink2); }
 .mine-row[open] { border-color: var(--green); background: var(--ink2); }
 .mine-row > summary {
   display: grid;
   grid-template-columns: 56px 1fr auto;
-  gap: .85rem;
+  gap: 12px;
   align-items: center;
-  padding: .8rem .9rem;
+  padding: 12px 16px;
   cursor: pointer;
   list-style: none;
 }
@@ -39,20 +39,20 @@
 .mine-items {
   display: grid;
   grid-template-columns: 1fr;
-  gap: .55rem;
-  padding: .8rem .9rem .9rem;
+  gap: 8px;
+  padding: 12px 16px 16px;
   border-top: 1px solid var(--line);
   align-items: start;
 }
 .mine-item {
-  padding: .6rem .7rem .65rem;
+  padding: 8px 12px 12px;
   border: 1px solid var(--line);
   background: var(--dusk);
 }
 .mine-item-head {
   display: grid;
   grid-template-columns: 34px 1fr;
-  gap: .5rem;
+  gap: 8px;
   align-items: center;
 }
 .mine-item-head strong { font-size: 14px; font-weight: 600; }
@@ -73,36 +73,36 @@
 .mine-art.missing { font: 700 12px var(--ui), monospace; color: var(--muted); }
 
 .mine-craft {
-  margin-top: .5rem;
-  padding-top: .5rem;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid var(--line);
 }
-.mine-craft-head { display: grid; grid-template-columns: 28px 1fr; gap: .45rem; align-items: center; }
+.mine-craft-head { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: center; }
 .mine-craft-head b { font-size: 13px; font-weight: 600; color: var(--text); }
 .mine-craft-head small { display: block; color: var(--muted); font-size: 12px; }
 
 /* Ingredients flow sideways as chips and wrap, instead of stacking one tall row
    per line — otherwise a craft with a dozen parts (Stained Glass Art) becomes an
    endless column. Each chip still carries icon, quantity, name and source. */
-.mine-recipe { list-style: none; margin: .4rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem; }
+.mine-recipe { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .mine-recipe li {
-  display: inline-flex; align-items: center; gap: .32rem;
-  padding: .2rem .45rem .2rem .32rem;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: .2rem 8px .2rem 4px;
   border: 1px solid var(--line); border-radius: 4px; background: var(--ink);
 }
 .mine-recipe li .mine-art.part { width: 18px; height: 18px; }
-.mine-recipe li > span { display: inline-flex; align-items: baseline; gap: .3rem; }
+.mine-recipe li > span { display: inline-flex; align-items: baseline; gap: 4px; }
 .mine-recipe li b { font-size: 12px; font-weight: 600; white-space: nowrap; }
 .mine-recipe li small { display: inline; color: var(--muted); font-size: 12px; white-space: nowrap; }
 .mine-recipe li small.unknown { font-style: italic; opacity: .8; }
 .mine-recipe li small::before { content: "· "; }
 .mine-recipe li.is-this { border-color: var(--green); }
 .mine-recipe li.is-this b { color: var(--green); }
-.mine-recipe-none { margin: .4rem 0 0; color: var(--muted); font-size: 12px; font-style: italic; }
+.mine-recipe-none { margin: 8px 0 0; color: var(--muted); font-size: 12px; font-style: italic; }
 
-.mine-onward { margin: .45rem 0 0; padding-top: .4rem; border-top: 1px dashed var(--line); }
-.mine-onward-head { display: block; color: var(--muted); font: 500 12px var(--ui), monospace; text-transform: none; letter-spacing: 0; margin-bottom: .3rem; }
-.mine-onward-craft { margin-top: .5rem; padding-left: .55rem; border-left: 2px solid var(--line); }
+.mine-onward { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); }
+.mine-onward-head { display: block; color: var(--muted); font: 500 12px var(--ui), monospace; text-transform: none; letter-spacing: 0; margin-bottom: 4px; }
+.mine-onward-craft { margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--line); }
 
 @media (max-width: 620px) {
   .mine-items { grid-template-columns: 1fr; }
@@ -112,8 +112,8 @@
 
 /* Shared rhythm: the newer pages were each inventing their own spacing and
    type scale. One set of section headings keeps them reading as one desk. */
-.page-intro { padding: 2rem 0 .4rem; }
-.page-intro h1 { margin: .2rem 0 .3rem; }
+.page-intro { padding: 32px 0 8px; }
+.page-intro h1 { margin: .2rem 0 4px; }
 .page-intro p { color: var(--muted); max-width: 62ch; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -130,26 +130,26 @@
    recipe appeared several times and a single mine ran for over three screens.
    Drops are a chip grid at the top; every craft they reach is one
    de-duplicated grid underneath. */
-.mine-body { display: grid; gap: 1.1rem; padding: .9rem 1rem 1.1rem; }
-.mine-section > h3 { display: flex; align-items: baseline; gap: .5rem; margin: 0 0 .5rem; font-size: 13px; }
-.mine-section > h3 small { color: var(--muted); font-size: 12px; font-weight: 400; }
+.mine-body { display: grid; gap: 16px; padding: 16px 16px 16px; }
+.mine-section > h2 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font: 700 13px/1.25 var(--prose); }
+.mine-section > h2 small { color: var(--muted); font-size: 12px; font-weight: 400; }
 
-.mine-drops { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .3rem .6rem; }
-.mine-drop { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: .45rem; align-items: center; }
+.mine-drops { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 4px 8px; }
+.mine-drop { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: center; }
 .mine-drop b, .mine-drop small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mine-drop b { font-size: 12px; }
 .mine-drop small { color: var(--muted); font-size: 12px; }
 
-.mine-crafts { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: .5rem .9rem; align-items: start; }
-.mine-craft { min-width: 0; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 6px; }
-.mine-craft > header { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: .45rem; align-items: center; margin-bottom: .4rem; }
+.mine-crafts { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 8px 16px; align-items: start; }
+.mine-craft { min-width: 0; padding: 8px 8px; border: 1px solid var(--line); border-radius: 6px; }
+.mine-craft > header { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: center; margin-bottom: 8px; }
 .mine-craft > header b { display: block; font-size: 12px; overflow-wrap: anywhere; }
 .mine-craft > header small { display: block; color: var(--muted); font-size: 12px; }
 
 /* Ingredients as small chips. The one this mine actually drops is marked, so
    you can see at a glance why the craft is listed here at all. */
-.mine-craft .mine-recipe { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .25rem; }
-.mine-craft .mine-recipe li { display: inline-flex; align-items: center; gap: .28rem; padding: .12rem .34rem .12rem .16rem; border: 1px solid var(--line); border-radius: 4px; font-size: 12px; }
+.mine-craft .mine-recipe { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.mine-craft .mine-recipe li { display: inline-flex; align-items: center; gap: 4px; padding: .12rem 4px .12rem .16rem; border: 1px solid var(--line); border-radius: 4px; font-size: 12px; }
 .mine-craft .mine-recipe li.is-this { border-color: var(--green); }
 .mine-craft .mine-recipe li.is-this span { color: var(--green); }
 .mine-craft .mine-recipe .mine-art, .mine-craft .mine-recipe .mine-art img { width: 16px; height: 16px; }

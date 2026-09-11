@@ -22,9 +22,9 @@
 .tracker-head {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) auto auto;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
-  padding: 8px 9px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--line);
 }
 .quest-tracker.is-collapsed .tracker-head { border-bottom: 0; }
@@ -46,13 +46,13 @@
 }
 .tracker-toggle:hover { color: var(--green); border-color: var(--green); }
 
-.tracker-list { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 4px 4px 4px 9px; }
+.tracker-list { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 4px 4px 4px 8px; }
 .tracker-list li {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr) auto;
-  gap: 7px;
+  gap: 8px;
   align-items: center;
-  padding: 3px 5px 3px 0;
+  padding: 3px 4px 3px 0;
 }
 .tracker-list li + li { border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent); }
 .tracker-list img { display: block; width: 20px; height: 20px; object-fit: contain; }
@@ -67,13 +67,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 7px 9px;
+  padding: 8px 8px;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 12px;
 }
 .tracker-foot button {
-  padding: 3px 9px;
+  padding: 3px 8px;
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--line);
@@ -134,8 +134,8 @@
      differently aligned row to row. */
   grid-auto-columns: max-content;
   justify-content: start;
-  gap: 0 30px;
-  padding: 8px 14px 10px;
+  gap: 0 32px;
+  padding: 8px 16px 12px;
   overflow: auto;
   font-size: 12px;
 }
@@ -159,7 +159,7 @@
 .tracker-filter input {
   width: 100%;
   min-height: 30px;
-  padding: 5px 9px;
+  padding: 4px 8px;
   color: var(--text);
   background: var(--ink);
   border: 1px solid var(--line);
@@ -170,7 +170,7 @@
 .tracker-filter input:focus-visible { outline: 2px solid var(--lantern); outline-offset: 1px; }
 .quest-tracker.is-big .tracker-list li + li { border-top: 0; }
 /* The items the step you are on also needs, kept findable in a long list. */
-.quest-tracker.is-big .tracker-list li.is-now { padding-left: 5px; border-left: 2px solid var(--green); }
+.quest-tracker.is-big .tracker-list li.is-now { padding-left: 4px; border-left: 2px solid var(--green); }
 .quest-tracker.is-big .tracker-list li.is-now span { color: var(--text); }
 .quest-tracker.is-collapsed { width: 260px; }
 

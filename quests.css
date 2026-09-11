@@ -15,13 +15,13 @@
 .quest-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .quest-summary article {
   min-width: 0;
-  padding: 15px 16px;
+  padding: 16px 16px;
   border: 1px solid var(--line);
   background: var(--ink2);
 }
@@ -38,31 +38,31 @@
   gap: 12px;
   align-items: end;
   padding: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--ink) 92%, transparent);
   backdrop-filter: blur(12px);
 }
 
 .quest-search { flex: 1; min-width: 220px; }
-.quest-search span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; letter-spacing: 0; text-transform: none; }
+.quest-search span { display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; letter-spacing: 0; text-transform: none; }
 .quest-search input { width: 100%; }
-.quest-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.quest-filters { display: flex; gap: 8px; flex-wrap: wrap; }
 .quest-filters button.active { color: var(--ink); background: var(--gold); border-color: var(--gold); }
-.quest-count { min-width: 84px; padding-bottom: 10px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.quest-count { min-width: 84px; padding-bottom: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 
 .quest-account-note {
   display: flex;
-  gap: 8px 14px;
+  gap: 8px 16px;
   flex-wrap: wrap;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
   border-left: 3px solid var(--gold);
   background: var(--ink2);
 }
 .quest-account-note span { color: var(--muted); }
 
-.quest-lines { display: grid; gap: 10px; }
+.quest-lines { display: grid; gap: 12px; }
 .quest-line { border: 1px solid var(--line); background: var(--ink2); content-visibility: auto; }
 .quest-line > summary {
   display: flex;
@@ -85,7 +85,7 @@
 .quest-line-progress { flex: none; color: var(--gold); font-size: 13px; font-variant-numeric: tabular-nums; }
 
 .quest-line-body { display: grid; gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
-.quest-step { padding: 14px 16px; background: var(--ink3); }
+.quest-step { padding: 16px 16px; background: var(--ink3); }
 .quest-step-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
 .quest-step-head > div { min-width: 0; }
 .quest-step-head strong,
@@ -96,8 +96,8 @@
 .quest-step.is-ready .quest-step-head > span,
 .quest-step.is-active .quest-step-head > span { color: var(--gold); border-color: var(--gold); }
 
-.quest-items { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-.quest-item { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; padding: 7px 9px; border: 1px solid var(--line); background: var(--ink2); font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 4px; transition: border-color .15s, background .15s; }
+.quest-items { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.quest-item { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; padding: 8px 8px; border: 1px solid var(--line); background: var(--ink2); font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 4px; transition: border-color .15s, background .15s; }
 .quest-item:hover { border-color: var(--gold); background: var(--ink3); }
 .quest-item:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
 .quest-item img { object-fit: contain; }
@@ -105,26 +105,26 @@
 .quest-item small { display: block; }
 .quest-item small { color: var(--muted); font-variant-numeric: tabular-nums; }
 .quest-item-fallback { width: 34px; text-align: center; color: var(--muted); }
-.quest-extra { display: grid; gap: 4px; margin-top: 10px; color: var(--muted); }
-.quest-no-items { margin: 9px 0 0; color: var(--muted); }
-.quest-empty { padding: 30px; border: 1px dashed var(--line); text-align: center; }
+.quest-extra { display: grid; gap: 4px; margin-top: 12px; color: var(--muted); }
+.quest-no-items { margin: 8px 0 0; color: var(--muted); }
+.quest-empty { padding: 32px; border: 1px dashed var(--line); text-align: center; }
 .quest-empty strong,
 .quest-empty span { display: block; }
 .quest-empty span { margin-top: 4px; color: var(--muted); }
 
-.tower-costs { margin-top: 30px; }
-.tower-cost-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tower-costs { margin-top: 32px; }
+.tower-cost-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .tower-cost-card { display: grid; grid-template-columns: 86px minmax(0, 1fr); border: 1px solid var(--line); background: var(--ink2); content-visibility: auto; }
-.tower-cost-mark { padding: 14px; border-right: 1px solid var(--line); background: var(--ink3); }
+.tower-cost-mark { padding: 16px; border-right: 1px solid var(--line); background: var(--ink3); }
 .tower-cost-mark span,
 .tower-cost-mark small { display: block; color: var(--muted); }
 .tower-cost-mark strong { display: block; margin: 3px 0; font-size: 24px; }
-.tower-need { padding: 12px; display: grid; gap: 10px; }
-.tower-need-grp { display: grid; gap: 6px; }
+.tower-need { padding: 12px; display: grid; gap: 12px; }
+.tower-need-grp { display: grid; gap: 8px; }
 .tower-need-grp .tower-reward-label { display: block; }
-.tower-cost-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.tower-cost-items { display: flex; flex-wrap: wrap; gap: 8px; }
 .tower-need .tower-cost-items { padding: 0; }
-.tower-cost-item { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 3px 8px 3px 4px; border: 1px solid var(--line); border-radius: 4px; }
+.tower-cost-item { display: inline-flex; align-items: center; gap: 8px; min-width: 0; padding: 3px 8px 3px 4px; border: 1px solid var(--line); border-radius: 4px; }
 .tower-cost-item img { flex: none; object-fit: contain; }
 .tower-cost-item span { min-width: 0; }
 .tower-cost-item b,
@@ -133,9 +133,9 @@
 .tower-data-note { color: var(--muted); font-size: 13px; }
 
 .route-evidence { margin-top: 8px; border-top: 1px solid var(--line); }
-.route-evidence > summary { padding: 9px 0; cursor: pointer; color: var(--gold); font-weight: 700; }
+.route-evidence > summary { padding: 8px 0; cursor: pointer; color: var(--gold); font-weight: 700; }
 .route-evidence > summary:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
-.route-evidence-body { display: grid; gap: 8px; padding-bottom: 6px; }
+.route-evidence-body { display: grid; gap: 8px; padding-bottom: 8px; }
 
 @media (max-width: 900px) {
   .quest-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -149,13 +149,13 @@
   .tower-costs-head { grid-template-columns: 1fr; }
   .quest-summary { grid-template-columns: 1fr 1fr; }
   .quest-filters { display: grid; grid-template-columns: 1fr 1fr; }
-  .quest-step-head { flex-direction: column; gap: 7px; }
+  .quest-step-head { flex-direction: column; gap: 8px; }
   .tower-cost-card { grid-template-columns: 72px minmax(0, 1fr); }
   .tower-cost-items { grid-template-columns: 1fr; }
 }
 
-.quest-line-actions { display: flex; align-items: center; gap: .75rem; }
-.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 12px var(--ui), sans-serif; cursor: pointer; }
+.quest-line-actions { display: flex; align-items: center; gap: 12px; }
+.quest-track { min-width: 72px; padding: 8px 12px; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 12px var(--ui), sans-serif; cursor: pointer; }
 .quest-track:hover { border-color: var(--water); }
 .quest-track.is-tracked { color: var(--text); border-color: var(--water); background: var(--on-wash); }
 .quest-item.is-currency { cursor: default; }
@@ -164,7 +164,7 @@
 .quest-pending { color: var(--muted); font-weight: 500; }
 
 @media (max-width: 620px) {
-  .quest-line-actions { align-items: flex-end; flex-direction: column; gap: .4rem; }
+  .quest-line-actions { align-items: flex-end; flex-direction: column; gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -175,8 +175,8 @@
    rather than a colour, so the list stays readable at 569 lines. */
 .quest-line-tag {
   display: inline-block;
-  margin-right: .4rem;
-  padding: 0 .35rem;
+  margin-right: 8px;
+  padding: 0 4px;
   border: 1px solid var(--line);
   border-radius: 4px;
   color: var(--muted);

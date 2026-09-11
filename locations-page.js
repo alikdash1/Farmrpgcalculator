@@ -583,7 +583,7 @@
       }).join("");
       return '<div class="places-inchest-row"><strong>' + esc(entry[0]) + "</strong>" + items + "</div>";
     }).join("");
-    return '<div class="places-inchest"><h4>And inside those chests</h4>' + blocks +
+    return '<div class="places-inchest"><h2>And inside those chests</h2>' + blocks +
       "<p>Not drops of this place — you find the chest, and these are what it holds.</p></div>";
   }
 

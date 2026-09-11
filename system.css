@@ -84,16 +84,16 @@
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-  padding-bottom: 14px;
-  margin-bottom: 22px;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
   border-bottom: 1px solid var(--line);
 }
-.sync-guide-head h2 { margin: 4px 0 6px; }
+.sync-guide-head h2 { margin: 4px 0 8px; }
 .sync-guide-head p { max-width: 62ch; color: var(--muted); }
 
-.sync-steps { list-style: none; counter-reset: sync; margin: 0; padding: 0; display: grid; gap: 26px; }
+.sync-steps { list-style: none; counter-reset: sync; margin: 0; padding: 0; display: grid; gap: 24px; }
 .sync-steps > li { counter-increment: sync; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 0 16px; }
 .sync-steps > li::before {
   content: counter(sync);
@@ -109,18 +109,18 @@
 }
 .sync-steps h3 { margin: 3px 0 8px; font-size: 16px; }
 .sync-steps p { max-width: 66ch; margin: 0 0 8px; }
-.sync-steps code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; }
-.sync-steps code.path { display: inline-block; padding: 5px 9px; overflow-wrap: anywhere; }
+.sync-steps code { padding: 1px 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; }
+.sync-steps code.path { display: inline-block; padding: 4px 8px; overflow-wrap: anywhere; }
 .sync-note { color: var(--muted); }
 
-.sync-sites { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 5px; }
-.sync-sites li { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sync-sites { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; }
+.sync-sites li { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .sync-sites span { color: var(--muted); font-size: 13px; }
 
-.sync-guide-split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); }
+.sync-guide-split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
 .sync-guide-split h3 { margin: 0 0 8px; font-size: 16px; }
 .sync-guide-split p { margin: 0 0 8px; }
-.sync-guide-split code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
+.sync-guide-split code { padding: 1px 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
 
 @media (max-width: 900px) {
   .sync-guide-split { grid-template-columns: 1fr; }
@@ -137,7 +137,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1px;
-  margin-top: 26px;
+  margin-top: 24px;
   background: var(--line);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -146,7 +146,7 @@
 .home-standing[hidden] { display: none; }
 .home-standing a {
   display: block;
-  padding: 14px 16px;
+  padding: 16px 16px;
   background: var(--ink2);
   color: inherit;
   text-decoration: none;
@@ -219,12 +219,16 @@ body::before {
 }
 main { padding-top: 24px; padding-bottom: 120px; }
 h1, h2, .brand strong, .desk-drawer strong { font-family: var(--display); font-weight: 400; letter-spacing: 0; }
-h1, .dispatch-copy h1 { font-size: clamp(32px, 3.2vw, 40px); line-height: 1.12; }
+h1, .dispatch-copy h1 { font-size: 32px; line-height: 1.12; }
+/* Titles step between two sizes on the scale rather than sliding through every
+   value between them with the window width. */
+@media (min-width: 1200px) { h1, .dispatch-copy h1 { font-size: 40px; } }
 h2 { font-size: 24px; line-height: 1.2; }
 h3 { font: 700 20px/1.25 var(--prose); letter-spacing: 0; }
 p { line-height: 1.5; }
 .goal-copy h1 { font-size: 32px; }
-.goal-title h2 { font-size: clamp(24px, 3vw, 32px); }
+.goal-title h2 { font-size: 24px; }
+@media (min-width: 1100px) { .goal-title h2 { font-size: 32px; } }
 button, select { font-family: var(--prose); font-weight: 700; }
 button, input, select, textarea { border-radius: var(--r-sm); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: .85; }
@@ -264,7 +268,7 @@ th, .field > span, .mini-field, .eyebrow, .drawer-code, .path-head,
 .brand small { display: block; font-size: 12px; margin-top: 4px; color: var(--muted); }
 .tabs { align-items: center; gap: 4px; overflow-y: hidden; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { padding: 10px 12px; border: 1px solid transparent; border-radius: 4px; font-size: 14px; color: var(--muted); }
+.tab { padding: 12px 12px; border: 1px solid transparent; border-radius: 4px; font-size: 14px; color: var(--muted); }
 .tab.active { color: var(--text); border-color: var(--on-dim); background: var(--on-wash); box-shadow: inset 0 -2px var(--water); }
 .tab:hover { color: var(--text); background: var(--ink3); }
 .quiet-button { color: var(--text); border-color: var(--line); border-radius: var(--r-sm); font-size: 12px; padding: 8px 12px; }
@@ -308,7 +312,7 @@ th, .field > span, .mini-field, .eyebrow, .drawer-code, .path-head,
 }
 #homeGoal button[type=submit]:hover, .primary-action:hover, .primary-link:hover { background: color-mix(in srgb, var(--lantern) 85%, var(--chalk)); color: var(--dusk); }
 .desk-drawers { background: transparent; border: 0; gap: 8px; margin-top: 0; }
-.desk-drawer { min-height: 192px; padding: 20px 16px; border: 1px solid var(--line); border-radius: var(--r-md); }
+.desk-drawer { min-height: 192px; padding: 24px 16px; border: 1px solid var(--line); border-radius: var(--r-md); }
 .desk-drawer.featured { box-shadow: var(--shadow); }
 .desk-drawer strong { margin-top: 0; font-size: 20px; }
 .desk-drawer p { font-weight: 400; font-size: 14px; margin-top: 8px; }
@@ -340,7 +344,7 @@ th, .field > span, .mini-field, .eyebrow, .drawer-code, .path-head,
 .haul-chip { padding: 8px; }
 .goal-board { gap: 32px; padding: 24px 0 32px; border-color: var(--line); }
 .goal-copy p { margin-top: 12px; font-size: 14px; }
-.goal-controls { padding: 20px; }
+.goal-controls { padding: 24px; }
 .presets button { background: var(--field); color: var(--text); border: 1px solid var(--line); font: 500 12px var(--data); text-transform: none; min-height: 36px; }
 .presets button:hover { background: var(--on-wash); color: var(--text); border-color: var(--water); }
 .suggest, .sg { color: var(--text); background: var(--slate); border-color: var(--line); }
@@ -441,7 +445,7 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
 /* Floating lists are raised slate with a water-coloured binding. They must
    stay legible over any tab. Width and z-index behavior remain in tracker.css. */
 .quest-tracker { background: var(--dusk); border: 1px solid var(--on-dim); border-top: 3px solid var(--water); border-radius: 8px; box-shadow: 0 8px 32px color-mix(in srgb, var(--dusk) 90%, transparent); }
-.tracker-head { padding: 10px 12px; background: var(--slate); }
+.tracker-head { padding: 12px 12px; background: var(--slate); }
 .tracker-title b { font-size: 14px; }
 .tracker-title small, .tracker-foot { font-size: 12px; }
 .tracker-list { padding-top: 8px; padding-bottom: 8px; }
@@ -465,9 +469,12 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
   .masthead { gap: 12px; padding-left: 24px; padding-right: 24px; }
   .brand { min-width: 200px; }
   .brand strong { font-size: 20px; }
-  .tab { padding: 10px 8px; }
+  .tab { padding: 12px 8px; }
 }
-@media (max-width: 1000px) {
+/* The nav needs about 1,036px on one line beside the brand and Export (measured
+   at 1024px: 24 + 200 + 12 + 663 + 12 + 86 + 24, plus a scrollbar). Below that
+   it gets its own row, rather than scrolling out of sight with no cue. */
+@media (max-width: 1080px) {
   .masthead { height: auto; flex-wrap: wrap; padding-top: 12px; gap: 8px; }
   .tabs { order: 3; width: 100%; overflow-x: auto; padding-bottom: 8px; }
   .quest-toolbar { top: 124px; }
@@ -492,8 +499,8 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
   .dispatch-copy > p { font-size: 14px; }
   .home-standing { grid-template-columns: 1fr; }
   .home-standing a { padding: 12px 16px; }
-  .dispatch-ticket, .goal-controls { padding: 20px; }
-  .desk-drawer { min-height: 0; padding: 20px; }
+  .dispatch-ticket, .goal-controls { padding: 24px; }
+  .desk-drawer { min-height: 0; padding: 24px; }
   .desk-drawer .drawer-action { margin-top: 16px; }
   .readiness-card, .rule-card, .route-card, .gather-panel, .make-buy, .workbench, .tree-card, .assumption-card, .source-list, .acorn-lab { padding: 16px; }
   .gather-col, .mine-item { padding: 12px; }
@@ -563,12 +570,12 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
 /* The site footer, on every page rather than inside the Library view. */
 main { padding-bottom: 48px; }
 .site-footer {
-  width: min(1120px, 92vw); margin: 0 auto; padding: 20px 0 96px;
+  width: min(1120px, 92vw); margin: 0 auto; padding: 24px 0 96px;
   display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px;
   border-top: 1px solid var(--line);
 }
 .site-footer .footer { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
-.site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 24px; }
 
 /* Touch screens get thumb-sized targets; a mouse keeps the denser layout. */
 @media (pointer: coarse) {
@@ -579,8 +586,10 @@ main { padding-bottom: 48px; }
   .tracker-toggle { min-width: 40px; min-height: 40px; }
   .places-item { min-height: 40px; }
 }
-@media (max-width: 1000px) {
+@media (max-width: 620px) {
   .tab-sep { display: none; }
+}
+@media (max-width: 1080px) {
   /* The tabs become a sideways strip here. Fade its right edge so a cut-off
      tab reads as "scroll for more", and pad the end so the last tab can be
      scrolled clear of the fade. */
@@ -613,3 +622,23 @@ main { padding-bottom: 48px; }
   /* The tagline cost the sticky masthead a second line on a 375px screen. */
   .brand small { display: none; }
 }
+
+/* The Calculate page before an item is chosen: say what to do, then offer the
+   player's own next Tower masteries instead of an empty space. */
+.empty-state { min-height: 0; display: grid; justify-content: stretch; align-items: start; gap: 16px; padding: 32px 0 48px; color: var(--muted); }
+.empty-state h2 { color: var(--text); font-size: 24px; }
+.empty-copy p { margin-top: 8px; font-size: 14px; }
+.empty-suggest { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.empty-suggest[hidden] { display: none; }
+.empty-pick {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center;
+  min-height: 64px; padding: 12px 16px; text-align: left;
+  color: var(--text); background: var(--slate); border: 1px solid var(--line);
+  border-radius: var(--r-md); box-shadow: var(--shadow); cursor: pointer;
+}
+.empty-pick:hover { border-color: var(--water); background: var(--ink3); }
+.empty-pick b { display: block; font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+.empty-pick small { display: block; margin-top: 4px; color: var(--muted); font: 500 12px var(--data); }
+.item-art.empty-art { width: 40px; height: 40px; }
+.empty-note { font-size: 12px; }
+
