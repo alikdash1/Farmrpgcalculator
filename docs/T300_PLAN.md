@@ -36,7 +36,7 @@ quietly becomes 1.0 for mastery purposes.
 (`engine.js` already divides by `craftYield` — the Calculate page has always
 done this. It is hand-written plans that forget it.)
 
-Progress is from the 2026-09-06 mastery export in `data/personal-tower.js`.
+Progress is from the 2026-09-11 mastery export in `data/personal-tower.js`.
 
 ---
 
@@ -149,7 +149,33 @@ craft cycles**, not one big craft.
 
 - **T286 Aquamarine Ring / T300 Sewing Needle / T300 Water Lily** — one loop:
   Grab Bag 01 in 3,500s for Potato, Bone and Aquamarine while fishing Forest
-  Pond for Water Lily; Awl twine accrues on its own.
+  Pond for Water Lily; Awl twine accrues on its own. **Aquamarine Ring and
+  Sewing Needle both reached Mega Mastery by 2026-09-11** — the loop worked.
 - **T286 Wooden Spear** — quoted at 813,560 crafts **before the 1.45 was
   counted**; the real figure is 617,183 crafts, so 2,468,734 Straw = 45.7 hrs
   at 54,000/hr, not 60.3. Arrowhead price still unanswered.
+
+---
+
+## Progress check, 2026-09-11 export
+
+123 masteries moved since 2026-09-06. On the Tower list:
+
+| | 06 Sep | 11 Sep | Still to do |
+|---|---|---|---|
+| Aquamarine Ring (T286) | 324,168 | **MM** | — |
+| Sewing Needle (T300) | 351,291 | **MM** | — |
+| Potato (T290) | 265,745 | 831,336 | 153,331 items with Stew |
+| Wooden Bow (T291) | 109,819 | 516,399 | 333,518 crafts |
+| Water Lily (T300) | 90,247 | 223,384 | 706,015 items = **350,728 Large Nets** with Stew + Pincher |
+| Horn Canteen (T297) | 110,849 | 239,276 | 524,637 crafts |
+| Wizard Hat (T300) | 832,182 | 949,604 | **34,756 crafts — nearly done** |
+| Glass Jar (T287) | 24,761 | 97,190 | 622,628 crafts |
+
+T286 is now held only by **Wooden Spear** (105,084, untouched: 617,183 crafts).
+
+**Glass Jar, re-costed from 97,190:** 622,628 crafts. Glass Orb 2,297,281 (buy ≈ 5,743 AP);
+Shimmer Quartz 622,628 = **25,280 AP or 25,479 Apple Ciders** at Black Rock Canyon;
+Steel 622,628 items = 429,398 crafts, so Carbon Sphere 429,398 (≈ 4,294 AP). That run still drops
+about 2,033,620 Salt Rock.
+
