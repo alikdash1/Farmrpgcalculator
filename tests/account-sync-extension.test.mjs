@@ -14,9 +14,24 @@ test('extension is read-only and locally scoped', () => {
   // 'downloads' is deliberate: the snapshot is written to one file that gets
   // overwritten, instead of a blob link that piles up '(1)', '(2)' copies.
   assert.deepEqual(manifest.permissions.sort(), ['downloads', 'storage', 'tabs']);
-  assert.ok(manifest.host_permissions.every((url) => /farmrpg|127\.0\.0\.1|localhost/.test(url)));
+  assert.ok(manifest.host_permissions.every((url) => /farmrpg|127\.0\.0\.1|localhost/.test(url) || url === WEBSITE));
   assert.ok(!manifest.permissions.includes('scripting'));
   assert.ok(!manifest.permissions.includes('webRequest'));
+});
+
+// The one hosted address. The owner's site is public, so the bridge hands
+// captures to the page inside their browser and never uploads anything — and
+// it must reach this exact site, not every page on github.io.
+const WEBSITE = 'https://alikdash1.github.io/Farmrpgcalculator/*';
+test('the website is reached by its exact address, not all of github.io', () => {
+  const manifest = JSON.parse(read('manifest.json'));
+  const bridge = manifest.content_scripts.find((entry) => entry.js.includes('calculator-bridge.js'));
+  assert.ok(bridge.matches.includes(WEBSITE));
+  const every = [...bridge.matches, ...manifest.host_permissions];
+  assert.ok(!every.some((url) => /github\.io\/\*$|\*\.github\.io/.test(url)));
+  const farm = manifest.content_scripts.find((entry) => entry.js.includes('capture-page.js'));
+  assert.ok(!farm.matches.includes(WEBSITE), 'the capture script never runs on the planner');
+  assert.doesNotMatch(read('calculator-bridge.js'), /fetch\(|XMLHttpRequest|sendBeacon/);
 });
 
 test('capture parser sends data to local extension storage instead of downloading', () => {

@@ -1,4 +1,7 @@
-const DEFAULT_CALCULATOR = "http://127.0.0.1:8772/index.html";
+// The website is the one hosted address the manifest allows. The bridge feeds
+// it inside this browser only; nothing is sent to GitHub or any server.
+const SITE = "https://alikdash1.github.io/Farmrpgcalculator/";
+const DEFAULT_CALCULATOR = SITE + "index.html";
 const LABELS = {
   profile: "Profile", inventory: "Inventory", tower: "Tower", mastery: "Masteries",
   "quests-available": "Available quests", "quests-completed": "Completed quests",
@@ -123,9 +126,10 @@ $("#saveUrl").onclick = async () => {
   try {
     const url = new URL($("#calculatorUrl").value.trim());
     const localWeb = (url.protocol === "http:" || url.protocol === "https:") && (url.hostname === "127.0.0.1" || url.hostname === "localhost");
-    if (!localWeb && url.protocol !== "file:") throw new Error("Automatic sync is limited to localhost or a local file.");
+    const website = url.href.startsWith(SITE);
+    if (!localWeb && !website && url.protocol !== "file:") throw new Error("Automatic sync works with the Lantern Ledger website, localhost or a local file.");
     await chrome.storage.local.set({ calculatorUrl: url.href });
-    say("Local calculator address saved.");
+    say("Calculator address saved.");
   } catch (error) {
     say(String(error && error.message || error), true);
   }

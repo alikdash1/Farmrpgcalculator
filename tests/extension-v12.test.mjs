@@ -102,7 +102,7 @@ test("old unknown captures migrate back to their real account page type", async 
 test("manifest stays narrowly scoped and popup supports complete export", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
   assert.deepEqual(manifest.permissions.sort(), ["downloads", "storage", "tabs"]);
-  assert.ok(manifest.host_permissions.every((value) => /farmrpg|127\.0\.0\.1|localhost/.test(value)));
+  assert.ok(manifest.host_permissions.every((value) => /farmrpg|127\.0\.0\.1|localhost/.test(value) || value === "https://alikdash1.github.io/Farmrpgcalculator/*"));
   assert.equal(manifest.optional_host_permissions, undefined);
   const popup = fs.readFileSync(path.join(root, "popup.js"), "utf8");
   assert.match(popup, /farmrpg-account-save-file/);

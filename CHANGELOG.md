@@ -5,6 +5,26 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 (5) — Captures reach the website, privately
+
+The owner asked for their captures on the site and for the extension to push
+after every capture. The repo and GitHub Pages site are **public**, so pushing
+captures would publish an inventory, profile and masteries to anyone; asked,
+the owner chose private sync instead.
+
+- **Account Sync 1.10** adds exactly one hosted address,
+  `https://alikdash1.github.io/Farmrpgcalculator/*`, to the calculator bridge.
+  The live site now updates on every capture the same way the local copy did —
+  inside the owner's own browser, with nothing uploaded or committed. Not all of
+  github.io: a test pins the exact address and that the bridge makes no network
+  calls.
+- The popup opens the website by default and accepts its address; the README
+  and the on-page setup guide list the sixth site and say plainly that it stays
+  private.
+- Worth knowing: `data/personal-tower.js` and `data/personal-quests.js` are
+  already public on the site (BRIEFING rule 3 says they should not be). Left
+  as they are; the owner has been told.
+
 ## 2026-09-11 (4) — Every Farm RPG item in the Calculate search
 
 The owner: *"some of the new items arent showing in the calculate craft menu …

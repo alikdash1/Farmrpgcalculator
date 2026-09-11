@@ -47,12 +47,12 @@ Existing captures made by version 1.1 are migrated when possible. In particular,
 
 ## Local and hosted calculators
 
-Automatic live sync is intentionally limited to Farm RPG and your local Lantern Ledger address. This keeps extension permissions narrow.
+Automatic live sync is limited to Farm RPG, your local Lantern Ledger address, and **one** hosted address: `https://alikdash1.github.io/Farmrpgcalculator/*` (added in v1.10). Not all of github.io — just this site.
 
-- Default local calculator: `http://127.0.0.1:8772/index.html`
-- Change the local port/address from the popup under **Local calculator and data controls**.
-- For a hosted calculator, choose **Save account snapshot to Downloads**, then load that single JSON file from Lantern Ledger’s **Account** tab.
-- After the final public domain is chosen, that one exact domain can be added for automatic sync without granting access to every website.
+- Default calculator: `https://alikdash1.github.io/Farmrpgcalculator/index.html`
+- Change it from the popup under **Local calculator and data controls** (localhost and file addresses still work).
+- **Sync to the website is private.** The extension hands the snapshot to the open page inside your own browser, the same way it does locally. Nothing is uploaded or committed, so other people see the plain site and other devices do not get your captures.
+- Any other hosted copy: choose **Save account snapshot to Downloads**, then load that JSON file from the **Account** tab.
 
 If you open Lantern Ledger through a `file:///` address, enable **Allow access to file URLs** on the extension’s Details page.
 
@@ -62,7 +62,7 @@ If you open Lantern Ledger through a `file:///` address, enable **Allow access t
 - **Page still loading:** leave the account page open; the extension retries automatically. Press **Sync** after the page finishes if needed.
 - **Old Tower/Mastery values:** open that exact Farm RPG page and press **Sync**. The newest complete capture wins.
 - **Duplicate or missing sections:** reload version 1.2, open the popup once to run migration, then revisit any section still listed as missing.
-- **Hosted site does not update live:** export the complete snapshot and import it manually until the final domain is added.
+- **Website does not update live:** press **Reload** on the extension card (v1.10 or later is needed), then reload the website tab.
 
 ## Keeping it current (v1.3)
 

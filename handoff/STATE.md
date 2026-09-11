@@ -176,6 +176,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   (`data/workbook-rates.js`) — fishing routes now use it for net counts too.
   Explores and catches per drop come from logs (data.js, or Buddy for the new
   places). Mines have no rates anywhere.
+- **The site is public** (github.com/alikdash1/Farmrpgcalculator, served at
+  alikdash1.github.io/Farmrpgcalculator). The owner chose **private sync**:
+  Account Sync 1.10's bridge feeds that exact address inside their browser.
+  Never commit captures to make them "show on the site" — that publishes them.
+  `data/personal-tower.js` and `data/personal-quests.js` are already public.
 - `data/main-quests.js` is 1.2 MB, but that is **not** a load problem: measured
   102 ms to DOMContentLoaded with everything parsed. Do not spend a refactor on
   splitting it without measuring again first.

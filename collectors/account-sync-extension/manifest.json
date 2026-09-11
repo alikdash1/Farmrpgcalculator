@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Lantern Ledger Account Sync",
-  "version": "1.9.0",
-  "description": "Read-only local sync from visited Farm RPG pages to Lantern Ledger.",
+  "version": "1.10.0",
+  "description": "Read-only sync from visited Farm RPG pages to Lantern Ledger, on your computer or its website.",
   "permissions": [
     "storage",
     "tabs",
@@ -12,7 +12,8 @@
     "https://farmrpg.com/*",
     "https://www.farmrpg.com/*",
     "http://127.0.0.1/*",
-    "http://localhost/*"
+    "http://localhost/*",
+    "https://alikdash1.github.io/Farmrpgcalculator/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -40,7 +41,8 @@
       "matches": [
         "http://127.0.0.1/*",
         "http://localhost/*",
-        "file:///*"
+        "file:///*",
+        "https://alikdash1.github.io/Farmrpgcalculator/*"
       ],
       "js": [
         "calculator-bridge.js"

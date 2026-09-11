@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="quests.css?v=20260911-5">
   <link rel="stylesheet" href="inventory.css?v=20260911-5">
   <link rel="stylesheet" href="tracker.css?v=20260911-5">
-  <link rel="stylesheet" href="system.css?v=20260911-7">
+  <link rel="stylesheet" href="system.css?v=20260911-8">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -163,15 +163,17 @@
           </li>
           <li>
             <h3>Give it the two permissions it needs</h3>
-            <p>Open <b>Details</b> on the extension card. Under site access, these five addresses are the complete list — it asks for nothing beyond them:</p>
+            <p>Open <b>Details</b> on the extension card. Under site access, these six addresses are the complete list — it asks for nothing beyond them:</p>
             <ul class="sync-sites">
               <li><code>https://farmrpg.com/*</code><span>the pages it reads</span></li>
               <li><code>https://www.farmrpg.com/*</code><span>the same site, other spelling</span></li>
               <li><code>file:///*</code><span>this planner, opened from your disk</span></li>
               <li><code>http://localhost/*</code><span>this planner, if you serve it</span></li>
               <li><code>http://127.0.0.1/*</code><span>the same, by number</span></li>
+              <li><code>https://alikdash1.github.io/Farmrpgcalculator/*</code><span>this planner on its website — only this site, not the rest of github.io</span></li>
             </ul>
-            <p>Then switch on <b>Allow access to file URLs</b>. This one is easy to miss and nothing works without it: you open this planner by double-clicking a file on your disk, and without that switch the extension is not allowed to speak to it.</p>
+            <p>On the website, that is all. Your captures reach the page inside your own browser and are never uploaded, so nobody else sees them.</p>
+            <p>If you open this planner by double-clicking a file on your disk, also switch on <b>Allow access to file URLs</b>. It is easy to miss, and without it the extension is not allowed to speak to a file.</p>
           </li>
           <li>
             <h3>Connect it to this page</h3>
