@@ -124,7 +124,31 @@ Claim a task by adding a row before you start. Clear it when merged.
   from **every** commit because the captures held another player's name and
   trade history. Those stay on disk and are gitignored. Work on `main`.
 
+## Design system (production pass, 2026-09-11)
+
+- **The type scale is enforced, not advisory:** 12, 13, 14, 16, 20, 24, 32,
+  40px. Page titles clamp only within 32–40px. A rendered size off the scale is
+  a bug; `:where(small)` pins browser-default small text to 12px.
+- **Colour roles:** Lantern = primary action and keyboard focus, nothing else.
+  Water = selected or enabled (tabs, toggles, chips). Sage = progress and
+  covered. `--red` passes 4.5:1 on slate. `--line` is for dividers,
+  `--line-strong` for the edges of inputs, selects and switches (≥3:1).
+- **Navigation is grouped** with `.tab-sep`: plan | progress | your farm. The
+  current tab carries `aria-current="page"`; there is no ARIA tablist.
+- **The footer lives outside `<main>`** as `.site-footer`; `app.js` still writes
+  its text into `#footer`.
+- **Trackers default to folded.** A missing `frpg_tracker_*_collapsed` key now
+  reads as collapsed.
+- **To verify on screen, load `index.html?fresh=N`.** The local server's cached
+  `index.html` silently served the old build during this pass.
+
 ## Known gaps
+
+- `inventory.css` still styles `.inventory-overlay` / `.inventory-expand`, which
+  no script creates. Dead CSS, harmless.
+- Three CSS generations are still stacked (`style.css` → `v3.css` →
+  `system.css`). Values agree now; collapsing the overrides is a refactor, not a
+  visual fix.
 
 - `publish/` is a divergent copy with **none** of this work. Do not deploy it
   without reading `NEXT_PHASE.md` first.

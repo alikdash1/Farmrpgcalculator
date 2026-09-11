@@ -14,7 +14,7 @@
 .places-mode {
   font: inherit;
   font-family: var(--display);
-  font-size: 15px;
+  font-size: 14px;
   padding: 6px 14px;
   color: var(--muted);
   background: transparent;
@@ -24,9 +24,10 @@
 }
 .places-mode:hover { color: var(--text); border-color: var(--on-dim); }
 .places-mode.active {
-  color: var(--ink);
-  background: var(--on);
+  color: var(--text);
+  background: var(--on-wash);
   border-color: var(--on);
+  box-shadow: inset 0 -2px var(--water);
 }
 
 .places-pour {
@@ -54,7 +55,7 @@
   width: 100%;
 }
 .places-field input:focus-visible,
-.places-field select:focus-visible { outline: 2px solid var(--on); outline-offset: 1px; }
+.places-field select:focus-visible { outline: 2px solid var(--lantern); outline-offset: 1px; }
 
 .places-basis { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
 .places-basis-label { font-size: 12px; color: var(--muted); }
@@ -65,7 +66,7 @@
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   cursor: pointer;
 }
 .places-chip:hover:not(:disabled) { color: var(--text); }
@@ -73,7 +74,7 @@
 .places-chip:disabled { opacity: .45; cursor: not-allowed; }
 .places-basis-note {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--muted);
   max-width: 74ch;
@@ -99,15 +100,15 @@
 }
 .places-card > summary::-webkit-details-marker { display: none; }
 .places-card > summary:hover { background: var(--tile2); }
-.places-card > summary:focus-visible { outline: 2px solid var(--on); outline-offset: -2px; }
+.places-card > summary:focus-visible { outline: 2px solid var(--lantern); outline-offset: -2px; }
 
 .places-art { flex: 0 0 auto; width: 52px; height: 52px; }
 .places-art img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r-sm); }
 
 .places-headline { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
-.places-headline strong { font-family: var(--display); font-size: 17px; font-weight: 400; }
+.places-headline strong { font-family: var(--display); font-size: 16px; font-weight: 400; }
 .places-preview {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -120,8 +121,9 @@
   flex: 0 0 auto;
   font-family: var(--data);
   font-size: 13px;
-  color: var(--ink);
-  background: var(--on);
+  color: var(--text);
+  background: var(--on-wash);
+  border: 1px solid var(--on-dim);
   border-radius: var(--r-sm);
   padding: 4px 9px;
   white-space: nowrap;
@@ -155,7 +157,7 @@
 .places-effort label > span { font-size: 12px; color: var(--muted); }
 .places-effort input {
   font-family: var(--data);
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text);
   background: var(--tile);
   border: 1px solid var(--line);
@@ -163,18 +165,18 @@
   padding: 6px 9px;
   width: 96px;
 }
-.places-effort input:focus-visible { outline: 2px solid var(--on); outline-offset: 1px; }
+.places-effort input:focus-visible { outline: 2px solid var(--lantern); outline-offset: 1px; }
 .places-effort p {
   margin: 0;
   flex: 1 1 260px;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.55;
   color: var(--muted);
   align-self: center;
 }
 .places-effort p b { color: var(--text); }
 
-.places-actions { margin: 0; font-size: 13.5px; color: var(--muted); }
+.places-actions { margin: 0; font-size: 13px; color: var(--muted); }
 .places-actions b { font-family: var(--data); color: var(--text); font-weight: 500; }
 
 /* ---- the yield table --------------------------------------------------- */
@@ -191,7 +193,7 @@
 .places-table th {
   text-align: left;
   font-weight: 400;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted);
   padding: 0 var(--s2) 5px;
   border-bottom: 1px solid var(--line);
@@ -229,9 +231,9 @@
 
 .places-tag {
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   border: 1px solid var(--line);
   color: var(--muted);
   white-space: nowrap;
@@ -266,7 +268,6 @@
   .places-effort p { flex-basis: 100%; }
 }
 
-.places-chip.needed.active { border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, transparent); }
 
 /* ---- what a chest holds ------------------------------------------------ */
 .places-inchest {
@@ -290,7 +291,7 @@
 }
 .places-inchest-row strong {
   font-weight: 400;
-  font-size: 12.5px;
+  font-size: 12px;
   min-width: 128px;
 }
 .places-inchest-item {
@@ -305,16 +306,12 @@
 .places-inchest p { margin: var(--s2) 0 0; font-size: 12px; color: var(--muted); }
 
 .places-meals { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
-.places-chip.meal.active {
-  border-color: color-mix(in srgb, var(--amber) 70%, var(--line));
-  background: color-mix(in srgb, var(--amber) 14%, transparent);
-}
 .places-effort p b { color: var(--text); font-family: var(--data); font-weight: 500; }
 .places-inchest-item.wanted { color: var(--text); }
 .places-inchest-need {
   font-style: normal;
   font-family: var(--data);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);

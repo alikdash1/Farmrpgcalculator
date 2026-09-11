@@ -28,7 +28,7 @@
 
 .quest-summary span,
 .quest-summary small { display: block; color: var(--muted); }
-.quest-summary strong { display: block; margin: 3px 0; font-size: 1.45rem; font-variant-numeric: tabular-nums; }
+.quest-summary strong { display: block; margin: 3px 0; font-size: 24px; font-variant-numeric: tabular-nums; }
 
 .quest-toolbar {
   position: sticky;
@@ -45,7 +45,7 @@
 }
 
 .quest-search { flex: 1; min-width: 220px; }
-.quest-search span { display: block; margin-bottom: 6px; color: var(--muted); font-size: .75rem; letter-spacing: 0; text-transform: none; }
+.quest-search span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; letter-spacing: 0; text-transform: none; }
 .quest-search input { width: 100%; }
 .quest-filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .quest-filters button.active { color: var(--ink); background: var(--gold); border-color: var(--gold); }
@@ -77,12 +77,12 @@
 }
 .quest-line > summary::-webkit-details-marker { display: none; }
 .quest-line > summary:hover { background: var(--ink3); }
-.quest-line > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.quest-line > summary:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
 .quest-line > summary span:first-child { min-width: 0; }
 .quest-line > summary b,
 .quest-line > summary small { display: block; }
 .quest-line > summary small { margin-top: 3px; color: var(--muted); }
-.quest-line-progress { flex: none; color: var(--gold); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.quest-line-progress { flex: none; color: var(--gold); font-size: 13px; font-variant-numeric: tabular-nums; }
 
 .quest-line-body { display: grid; gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
 .quest-step { padding: 14px 16px; background: var(--ink3); }
@@ -91,7 +91,7 @@
 .quest-step-head strong,
 .quest-step-head small { display: block; overflow-wrap: anywhere; }
 .quest-step-head small { color: var(--muted); }
-.quest-step-head > span { flex: none; padding: 4px 8px; border: 1px solid var(--line); color: var(--muted); font-size: .75rem; }
+.quest-step-head > span { flex: none; padding: 4px 8px; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .quest-step.is-completed { opacity: .68; }
 .quest-step.is-ready .quest-step-head > span,
 .quest-step.is-active .quest-step-head > span { color: var(--gold); border-color: var(--gold); }
@@ -99,7 +99,7 @@
 .quest-items { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 .quest-item { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; padding: 7px 9px; border: 1px solid var(--line); background: var(--ink2); font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 4px; transition: border-color .15s, background .15s; }
 .quest-item:hover { border-color: var(--gold); background: var(--ink3); }
-.quest-item:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.quest-item:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
 .quest-item img { object-fit: contain; }
 .quest-item b,
 .quest-item small { display: block; }
@@ -118,7 +118,7 @@
 .tower-cost-mark { padding: 14px; border-right: 1px solid var(--line); background: var(--ink3); }
 .tower-cost-mark span,
 .tower-cost-mark small { display: block; color: var(--muted); }
-.tower-cost-mark strong { display: block; margin: 3px 0; font-size: 1.45rem; }
+.tower-cost-mark strong { display: block; margin: 3px 0; font-size: 24px; }
 .tower-need { padding: 12px; display: grid; gap: 10px; }
 .tower-need-grp { display: grid; gap: 6px; }
 .tower-need-grp .tower-reward-label { display: block; }
@@ -130,11 +130,11 @@
 .tower-cost-item b,
 .tower-cost-item small { display: block; overflow-wrap: anywhere; }
 .tower-cost-item small { color: var(--muted); font-variant-numeric: tabular-nums; }
-.tower-data-note { color: var(--muted); font-size: .82rem; }
+.tower-data-note { color: var(--muted); font-size: 13px; }
 
 .route-evidence { margin-top: 8px; border-top: 1px solid var(--line); }
 .route-evidence > summary { padding: 9px 0; cursor: pointer; color: var(--gold); font-weight: 700; }
-.route-evidence > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.route-evidence > summary:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
 .route-evidence-body { display: grid; gap: 8px; padding-bottom: 6px; }
 
 @media (max-width: 900px) {
@@ -155,8 +155,9 @@
 }
 
 .quest-line-actions { display: flex; align-items: center; gap: .75rem; }
-.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 .75rem var(--ui), sans-serif; cursor: pointer; }
-.quest-track:hover, .quest-track.is-tracked { color: var(--green); border-color: var(--green); }
+.quest-track { min-width: 72px; padding: .48rem .7rem; color: var(--text); background: var(--ink3); border: 1px solid var(--line); border-radius: 4px; font: 700 12px var(--ui), sans-serif; cursor: pointer; }
+.quest-track:hover { border-color: var(--water); }
+.quest-track.is-tracked { color: var(--text); border-color: var(--water); background: var(--on-wash); }
 .quest-item.is-currency { cursor: default; }
 .quest-item.is-static { cursor: default; border-color: transparent; }
 .quest-item-currency { display: block; width: 24px; height: 1px; background: var(--muted); }
@@ -179,7 +180,7 @@
   border: 1px solid var(--line);
   border-radius: 4px;
   color: var(--muted);
-  font-size: .75rem;
+  font-size: 12px;
   font-style: normal;
   letter-spacing: .02em;
   vertical-align: 1px;
@@ -188,4 +189,10 @@
 
 /* A questline that Farm RPG renames as it goes. The alternate names sit under
    the title so the chain is recognisable however the game last called it. */
-.quest-line-aka { margin-top: 2px; color: var(--muted); font-size: .75rem; }
+.quest-line-aka { margin-top: 2px; color: var(--muted); font-size: 12px; }
+
+/* The progress count and the Track button must never be what gives way. A long
+   "Also called" line was shrinking them until Track spilled out of the card;
+   the title block wraps instead. */
+.quest-line > summary > span:first-child { flex: 1 1 auto; }
+.quest-line-actions { flex: none; }

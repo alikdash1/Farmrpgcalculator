@@ -160,5 +160,11 @@ Specific items:
 - **Tower silver may be 2× low.** T276 is the only confirmed data point.
 - **Mining items dead-end in the calculator** — the planner's route index has
   no mining locations, so a mine drop cannot be costed yet.
-- **No `hashchange` listener.** `showTab` uses `replaceState`, so the browser
-  Back button leaves the site instead of returning to the previous tab.
+- **Dead CSS for a full-screen list.** `inventory.css` still styles
+  `.inventory-overlay` and `.inventory-expand`, which no script creates any
+  more — the tracker's expanded mode replaced it. Harmless; delete when next in
+  that file.
+- **Three CSS generations are still stacked** (`style.css` minified original →
+  `v3.css` → `system.css`). Since 2026-09-11 their values agree, but many
+  `system.css` rules exist only to override older ones. Collapsing them is a
+  refactor with no visual payoff — do it only alongside real work in a sheet.

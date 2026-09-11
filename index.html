@@ -5,38 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#27364B">
   <meta name="description" content="Plan Farm RPG crafting, Tower masteries, Mining, fishing, and account-aware routes in one fan-made desk.">
-  <title>Lantern Ledger - Farm RPG Planner</title>
+  <title>Lantern Ledger — Farm RPG Planner</title>
+  <meta name="color-scheme" content="dark">
   <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260905-102" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest?v=20260904-1">
-  <link rel="stylesheet" href="style.css?v=20260905-102">
-  <link rel="stylesheet" href="v3.css?v=20260905-102">
-  <link rel="stylesheet" href="tower.css?v=20260906-1">
-  <link rel="stylesheet" href="mining.css?v=20260905-1">
-  <link rel="stylesheet" href="locations.css?v=20260906-1">
-  <link rel="stylesheet" href="quests.css?v=20260905-102">
-  <link rel="stylesheet" href="inventory.css?v=20260905-102">
-  <link rel="stylesheet" href="tracker.css?v=20260905-12">
-  <link rel="stylesheet" href="system.css?v=20260905-102">
+  <link rel="stylesheet" href="style.css?v=20260911-1">
+  <link rel="stylesheet" href="v3.css?v=20260911-1">
+  <link rel="stylesheet" href="tower.css?v=20260911-2">
+  <link rel="stylesheet" href="mining.css?v=20260911-1">
+  <link rel="stylesheet" href="locations.css?v=20260911-1">
+  <link rel="stylesheet" href="quests.css?v=20260911-1">
+  <link rel="stylesheet" href="inventory.css?v=20260911-2">
+  <link rel="stylesheet" href="tracker.css?v=20260911-1">
+  <link rel="stylesheet" href="system.css?v=20260911-4">
 </head>
 <body>
-  <a class="skip-link" href="#home">Skip to planner</a>
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="masthead">
     <a class="brand" href="#home" data-open-view="home" aria-label="Lantern Ledger home"><img class="brand-logo" src="assets/lantern-ledger-mark.svg?v=20260905-102" alt="" width="44" height="44"><span><strong>Lantern Ledger</strong><small>Farm RPG planning desk</small></span></a>
     <nav class="tabs" aria-label="Planner sections">
-      <button class="tab active" data-tab="home">Home</button>
+      <button class="tab active" data-tab="home" aria-current="page">Home</button>
+      <span class="tab-sep" aria-hidden="true"></span>
       <button class="tab" data-tab="planner">Calculate</button>
-      <button class="tab" data-tab="setup">Setup <span id="perkCount"></span></button>
-      <button class="tab" data-tab="account">Account</button>
+      <button class="tab" data-tab="places">Places</button>
+      <button class="tab" data-tab="mining">Mining</button>
+      <span class="tab-sep" aria-hidden="true"></span>
       <button class="tab" data-tab="tower">Tower</button>
       <button class="tab" data-tab="quests">Quests</button>
       <button class="tab" data-tab="inventory">Inventory</button>
-      <button class="tab" data-tab="mining">Mining</button>
-      <button class="tab" data-tab="places">Places</button>
-          </nav>
+      <span class="tab-sep" aria-hidden="true"></span>
+      <button class="tab" data-tab="setup">Setup <span id="perkCount"></span></button>
+      <button class="tab" data-tab="account">Account</button>
+    </nav>
     <button id="exportPlan" class="quiet-button">Export plan</button>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section id="home" class="view active">
       <section class="dispatch-board">
         <div class="dispatch-copy">
@@ -59,11 +63,11 @@
 
       <section class="desk-drawers" aria-label="Planner work areas">
         <button class="desk-drawer featured" data-open-view="planner"><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
+        <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour drinks, nets or stamina into a spot and see what comes back — or name what you need and see what it costs.</p><span class="drawer-action">Open places →</span></button>
+        <button class="desk-drawer" data-open-view="mining"><strong>Mining</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
+        <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Every floor from where you stand to T340, and the Mega Masteries each one needs.</p><span class="drawer-action">Open Tower ledger →</span></button>
+        <button class="desk-drawer" data-open-view="quests"><strong>Quests</strong><p>Every questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="setup"><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
-        <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Your Mega Masteries, and what every floor from T300 to T340 requires.</p><span class="drawer-action">Open Tower ledger →</span></button>
-        <button class="desk-drawer" data-open-view="quests"><strong>Main quests</strong><p>Every permanent questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
-        <button class="desk-drawer" data-open-view="mining"><strong>Mines</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
-        <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour a thousand Arnold Palmers into a spot and see what comes back out.</p><span class="drawer-action">Open places →</span></button>
       </section>
       <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
 
@@ -210,7 +214,7 @@
         <div class="tower-ledger-copy">
 
           <h1>The climb to T340</h1>
-          <p>See your named Mega Mastery goals first, then the masteries every floor from T300 to T340 requires.</p>
+          <p>Every floor from where you stand to T340, and the Mega Masteries each one needs.</p>
         </div>
         <div class="tower-next-stamp"><span>Next floor</span><strong id="towerNextFloor">T277</strong><small id="towerCaptureAge">Saved account data</small></div>
       </section>
@@ -300,9 +304,15 @@
       <section class="library-grid"><article class="source-list"><h2>Route exceptions worth knowing</h2><p>Habits an experienced player has that the cheapest-price maths would miss. They steer the plan, but none of them pretend to be a measured drop rate.</p><div id="strategyRules" class="strategy-rules"></div></article><article class="source-list"><h2>What each meal actually does</h2><p>Meals that only save clicks are labelled as saving clicks — they don't change how much material you need.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
       <section class="source-list"><h2>Where the numbers come from, most trusted first</h2><ol><li><b>The game itself</b><span>Farm RPG's own Library, Farm Supply and item descriptions</span></li><li><b>Items and recipes</b><span>A full export of every item and every recipe</span></li><li><b>Buddy's Almanac</b><span>Item pages, production timings and meal effects</span></li><li><b>What the game will ask you for</b><span>Quest requirements and Tower mastery targets</span></li><li><b>Route exceptions</b><span>Habits like taking Glass Orb from Ember Lagoon — listed above so you can disagree with them</span></li><li><b>Trade prices</b><span>Farm RPG Price Check; <code>/k</code> means per 1,000</span></li><li><b>Your own measurements</b><span>Acorn Pie samples and your farm's real production rates</span></li><li><b>Community drop logs</b><span>Old shared outcome logs. Least reliable, and anything unmeasured stays marked unmeasured</span></li></ol></section>
       <section class="source-list"><h2>Recording your own data</h2><p>Save your account pages, or your own explore and fishing runs, without automating anything in the game.</p><ol><li><b>Visible page exporter</b><span><a href="collectors/collect-visible-page.js">Open the script</a> and follow <a href="collectors/README.md">the instructions</a></span></li><li><b>Account format</b><span><a href="collectors/account-snapshot.template.json">Open the account template</a>; unknown values can stay blank</span></li><li><b>Field runs</b><span><a href="collectors/field-runs.template.json">Open the run template</a> for exploration, Acorn Pie and fishing samples</span></li></ol></section>
-      <footer id="footer" class="footer">Lantern Ledger is fan-made and is not affiliated with Farm RPG.</footer>
     </section>
   </main>
+  <footer class="site-footer">
+    <p id="footer" class="footer">Lantern Ledger is fan-made and is not affiliated with Farm RPG.</p>
+    <nav aria-label="More about the numbers">
+      <button type="button" class="text-action" data-open-view="library">Where the numbers come from</button>
+      <button type="button" class="text-action" data-open-view="fieldlab">Record your own drop rates</button>
+    </nav>
+  </footer>
 
   <script src="data/data.js?v=20260906-1"></script>
   <script src="data/knowledge.js?v=20260902-9"></script>
@@ -328,13 +338,13 @@
   <script src="engine.js?v=20260904-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260906-5"></script>
+  <script src="app.js?v=20260911-2"></script>
   <script src="mining-page.js?v=20260905-1"></script>
   <script src="locations-page.js?v=20260906-5"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260905-6"></script>
   <script src="inventory-page.js?v=20260905-9"></script>
-  <script src="tracker.js?v=20260905-13"></script>
+  <script src="tracker.js?v=20260911-1"></script>
   <script src="sync-guide.js?v=20260904-2"></script>
 </body>
 </html>

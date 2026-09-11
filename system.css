@@ -107,20 +107,20 @@
   color: var(--green);
   font-variant-numeric: tabular-nums;
 }
-.sync-steps h3 { margin: 3px 0 8px; font-size: 1.02rem; }
+.sync-steps h3 { margin: 3px 0 8px; font-size: 16px; }
 .sync-steps p { max-width: 66ch; margin: 0 0 8px; }
-.sync-steps code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: .86em; }
+.sync-steps code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; }
 .sync-steps code.path { display: inline-block; padding: 5px 9px; overflow-wrap: anywhere; }
 .sync-note { color: var(--muted); }
 
 .sync-sites { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 5px; }
 .sync-sites li { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.sync-sites span { color: var(--muted); font-size: .84rem; }
+.sync-sites span { color: var(--muted); font-size: 13px; }
 
 .sync-guide-split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); }
-.sync-guide-split h3 { margin: 0 0 8px; font-size: .98rem; }
+.sync-guide-split h3 { margin: 0 0 8px; font-size: 16px; }
 .sync-guide-split p { margin: 0 0 8px; }
-.sync-guide-split code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: .86em; overflow-wrap: anywhere; }
+.sync-guide-split code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
 
 @media (max-width: 900px) {
   .sync-guide-split { grid-template-columns: 1fr; }
@@ -152,22 +152,22 @@
   text-decoration: none;
 }
 .home-standing a:hover { background: var(--ink3); }
-.home-standing a:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.home-standing a:focus-visible { outline: 2px solid var(--lantern); outline-offset: -2px; }
 .home-standing span {
   display: block;
   color: var(--muted);
-  font: 700 .62rem var(--ui), sans-serif;
+  font: 700 12px var(--ui), sans-serif;
   letter-spacing: 0;
   text-transform: none;
 }
 .home-standing strong {
   display: block;
   margin: 4px 0 2px;
-  font-size: 1.05rem;
+  font-size: 16px;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
-.home-standing small { display: block; color: var(--muted); font-size: .74rem; }
+.home-standing small { display: block; color: var(--muted); font-size: 12px; }
 
 /* Lantern Ledger after dusk. See DESIGN_PLAN.md for the decisions.
    Page styles own layout; this final sheet owns material, type and state. */
@@ -520,7 +520,7 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
   .quest-line-progress { font-size: 12px; }
   .tracker-head { padding: 8px; }
   .tracker-title b { font-size: 12px; }
-  .tracker-title small, .tracker-foot { font-size: 11px; }
+  .tracker-title small, .tracker-foot { font-size: 12px; }
   .inventory-row > :not(:first-child) { font-size: 12px; }
   .sync-steps > li { grid-template-columns: 28px minmax(0, 1fr); gap: 0 12px; }
 }
@@ -529,4 +529,87 @@ tr:hover td, .tree summary:hover, .perk-row:hover, .meal-card:hover { background
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---- Production pass, 2026-09-11 ------------------------------------------
+   What the after-dusk pass left open: error red under 4.5:1, control edges too
+   faint to find against either surface, a footer that only existed on one
+   hidden page, navigation with no grouping, and targets too small for a thumb.
+   Type sizes and leftover light-theme colours were fixed in the page sheets
+   themselves rather than overridden here. */
+:root {
+  --red: color-mix(in srgb, #D98F83 60%, var(--chalk));
+  --line-strong: color-mix(in srgb, var(--chalk) 50%, var(--slate));
+}
+
+/* An input, select or switch has to be findable before it can be used. */
+:is(input, select, textarea):not([type=checkbox]):not([type=radio]):not([type=file]) { border-color: var(--line-strong); }
+.perk-row > input, .meal-card > input, .inline-toggle input { background: var(--line-strong); }
+
+/* Navigation, grouped by what the tabs are for: plan, progress, your farm. */
+.tab-sep { flex: none; align-self: center; width: 1px; height: 20px; margin: 0 4px; background: var(--line); }
+#perkCount { margin-left: 4px; font: 500 12px var(--data); color: var(--muted); }
+.tab.active #perkCount { color: var(--text); }
+
+/* One control height and one toggle idiom: square corners, water when on.
+   Lantern stays reserved for the primary action and keyboard focus. */
+.quiet-button, .places-chip, .places-mode, .places-applyall, .quest-filters button,
+.quest-track, .inventory-expand, .presets button, .tracker-foot button,
+.meal-strip-toggle, .inventory-overlay-close {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 32px;
+}
+.primary-action, .primary-link, #homeGoal button[type=submit] { min-height: 44px; }
+
+/* The site footer, on every page rather than inside the Library view. */
+main { padding-bottom: 48px; }
+.site-footer {
+  width: min(1120px, 92vw); margin: 0 auto; padding: 20px 0 96px;
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px;
+  border-top: 1px solid var(--line);
+}
+.site-footer .footer { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+
+/* Touch screens get thumb-sized targets; a mouse keeps the denser layout. */
+@media (pointer: coarse) {
+  .tab, .quiet-button, .places-chip, .places-mode, .places-applyall, .quest-filters button,
+  .quest-track, .inventory-expand, .presets button, .tracker-foot button, .site-footer .text-action,
+  .meal-strip-toggle, .inventory-overlay-close, .route-select, .decision-controls select,
+  .location-choice select, .places-field input, .places-field select, .places-effort input { min-height: 44px; }
+  .tracker-toggle { min-width: 40px; min-height: 40px; }
+  .places-item { min-height: 40px; }
+}
+@media (max-width: 1000px) {
+  .tab-sep { display: none; }
+  /* The tabs become a sideways strip here. Fade its right edge so a cut-off
+     tab reads as "scroll for more", and pad the end so the last tab can be
+     scrolled clear of the fade. */
+  .tabs {
+    padding-right: 32px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+}
+@media (max-width: 620px) {
+  main { padding-bottom: 32px; }
+  .site-footer { width: calc(100% - 32px); flex-direction: column; padding-bottom: 88px; }
+}
+
+/* Browsers shrink an unsized <small> to about 83% of its parent, which put
+   route notes at 10.8px. The scale's floor is 12px. */
+:where(small) { font-size: 12px; }
+
+/* Standalone text buttons and checkbox rows reach the 24px minimum target. */
+.rule-card > .text-action, .site-footer .text-action { min-height: 24px; }
+.mini-check, .tower-check, .inline-toggle { min-height: 24px; }
+.buy-rate .buy-per-k, .buy-rate .buy-cur { min-height: 28px; }
+@media (pointer: coarse) {
+  .owned, .buy-rate .buy-per-k, .buy-rate .buy-cur, #towerStart, .tree summary,
+  .mini-check, .tower-check, .inline-toggle, .event-switch, .meal-chip,
+  .rule-card > .text-action, .route-evidence > summary { min-height: 44px; }
+  .route-evidence > summary { display: flex; align-items: center; }
+}
+@media (max-width: 620px) {
+  /* The tagline cost the sticky masthead a second line on a 375px screen. */
+  .brand small { display: none; }
 }

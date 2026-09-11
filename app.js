@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-06.dawn4";
+  const FRPG_BUILD = "2026-09-11.dusk1";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -263,8 +263,16 @@
     document.querySelectorAll(".tab").forEach((tab) => {
       const selected = tab.dataset.tab === id;
       tab.classList.toggle("active", selected);
-      tab.setAttribute("aria-selected", String(selected));
+      // These are page links in a nav, not an ARIA tablist, so the current one
+      // is marked with aria-current; aria-selected is not valid on a button.
+      if (selected) tab.setAttribute("aria-current", "page");
+      else tab.removeAttribute("aria-current");
     });
+    // On a phone the tabs are a sideways strip. Keep the one you are on in
+    // view instead of leaving it scrolled off the edge.
+    const activeTab = document.querySelector(`.tab[data-tab="${id}"]`);
+    const tabRow = activeTab && activeTab.parentElement;
+    if (tabRow && tabRow.scrollWidth > tabRow.clientWidth) activeTab.scrollIntoView({ block: "nearest", inline: "nearest" });
     if (id === "setup" || id === "fieldlab") renderSetup();
     if (id === "account") renderAccount();
     if (id === "tower") renderTower();
@@ -279,6 +287,15 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   document.querySelectorAll(".tab").forEach((tab) => { tab.onclick = () => showTab(tab.dataset.tab); });
+  // The skip link must move focus without touching the hash: the hash is the
+  // router here, and "#main" is not a view, so following it would throw the
+  // player back to Home from whatever tab they were on.
+  const skipLink = document.querySelector(".skip-link");
+  if (skipLink) skipLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    const main = document.querySelector("main");
+    if (main) main.focus();
+  });
   document.addEventListener("click", (event) => {
     const control = event.target.closest("[data-open-view]");
     if (!control || control.dataset.openViewBound === "1") return;
@@ -347,7 +364,7 @@
     const nextFloor = needs.filter((row) => !row.complete).sort((a, b) => a.floor - b.floor)[0];
     if (nextFloor) {
       const left = needs.filter((row) => row.floor === nextFloor.floor && !row.complete).length;
-      bits.push(`<a href="#tower" data-open-view="tower"><span>Next floor</span><strong>T${nextFloor.floor}</strong><small>${left} mastery${left === 1 ? "" : "s"} to go</small></a>`);
+      bits.push(`<a href="#tower" data-open-view="tower"><span>Next floor</span><strong>T${nextFloor.floor}</strong><small>${left} ${left === 1 ? "mastery" : "masteries"} to go</small></a>`);
     }
 
     if (gather && typeof gather.plan === "function") {
@@ -1422,7 +1439,7 @@
         const costText = decision.auto === "farm" ? farmText : decision.auto === "trade" ? directText : decision.auto === "building" ? infraText : materialText;
         const codrops = decision.farm ? coDropSentence(decision.farm) : "";
         const autoLabel = decision.auto === "building" ? "building" : decision.auto;
-        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}</select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
+        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}</select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
       }).join("")}</div>`;
       el.makeBuy.querySelectorAll("[data-make-id]").forEach((select) => {
         select.onchange = () => { state.makeChoices[select.dataset.makeId] = select.value; save(); render(); };
@@ -2287,7 +2304,7 @@
   if ($("dataSummary")) $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
   // A visible build stamp. Half the "it still does the old thing" reports are a
 // browser holding an old copy of a file, and this is the only way to tell.
-if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
+if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner, not affiliated with Farm RPG. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
 
   function renderLibrary() {
     if (!$('strategyRules') || !$('mechanicsIndex')) return;

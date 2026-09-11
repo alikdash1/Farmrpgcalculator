@@ -143,6 +143,10 @@
     panels.whole.style.height = "";
   }
 
+  // Both panels start folded down to their title bar. Opened by default they
+  // sat over the first thing anyone saw on every tab; folded, they still say
+  // which questline is tracked and open with one click. Once the player opens
+  // or closes one, that choice is stored and wins from then on.
   function render() {
     if (read("frpg_tracker_hidden", "") === "1") {
       for (const panel of Object.values(panels)) panel.hidden = true;
@@ -168,7 +172,7 @@
         subtitle: showingStep ? plan.lineName : steps,
         rows: showingStep ? nextRows : wholeRows,
         mark: showingStep ? null : new Set(nextRows.map((row) => row.name)),
-        collapsed: read("frpg_tracker_next_collapsed", "") === "1",
+        collapsed: read("frpg_tracker_next_collapsed", "1") === "1",
         canExpand: false,
         scopeSwitch: true,
       });
@@ -179,7 +183,7 @@
       title: plan.next.title,
       subtitle: plan.lineName,
       rows: nextRows,
-      collapsed: read("frpg_tracker_next_collapsed", "") === "1",
+      collapsed: read("frpg_tracker_next_collapsed", "1") === "1",
       canExpand: false,
     });
     const needle = filter.trim().toLowerCase();
@@ -189,7 +193,7 @@
       rows: big && needle ? wholeRows.filter((row) => row.name.toLowerCase().includes(needle)) : wholeRows,
       // The items this step also needs, so they stay findable in a long list.
       mark: new Set(nextRows.map((row) => row.name)),
-      collapsed: read("frpg_tracker_whole_collapsed", "") === "1",
+      collapsed: read("frpg_tracker_whole_collapsed", "1") === "1",
       big,
       canExpand: true,
     });
@@ -229,7 +233,7 @@
     }
     if (button.dataset.collapse) {
       const key = button.dataset.collapse === "next" ? "frpg_tracker_next_collapsed" : "frpg_tracker_whole_collapsed";
-      write(key, read(key, "") === "1" ? "0" : "1");
+      write(key, read(key, "1") === "1" ? "0" : "1");
       return render();
     }
     if (button.dataset.size !== undefined) {

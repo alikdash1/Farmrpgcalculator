@@ -186,10 +186,12 @@ test("effectiveness decides clicks, and the stamina perks are applied", () => {
 
 test("the yield table survives the site-wide table min-width", () => {
   const css = read("locations.css");
-  // style.css sets a bare `table { min-width: 1050px }` for the Calculate
-  // page. It applies to every table on the site and pushed this one three
-  // times past its card on a phone.
-  assert.match(read("style.css"), /table\{width:100%;border-collapse:collapse;min-width:1050px/);
+  // style.css used to set a bare `table { min-width: 1050px }` for the
+  // Calculate page. It applied to every table on the site and pushed this one
+  // three times past its card on a phone. It now belongs to that one table.
+  const style = read("style.css");
+  assert.doesNotMatch(style, /(^|\})table\{[^}]*min-width/);
+  assert.match(style, /#ingTable\{min-width:1050px\}/);
   assert.match(css, /\.places-table \{[\s\S]*?min-width: 0;/);
   assert.match(css, /\.places-scroll \{ overflow-x: auto; \}/);
   // On a phone the columns need stated widths: a nowrap tag and an unbreakable

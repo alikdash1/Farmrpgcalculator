@@ -5,6 +5,64 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-11 — Production pass: one designed site, measured
+
+The owner asked for the site to look intentionally designed and ready for
+production, "without random cosmetic changes". The after-dusk design system in
+`DESIGN_PLAN.md` was sound; what was left was execution. The goal was set up
+front as things that can be measured rather than judged:
+
+- nothing floating over the page on a first visit
+- every rendered font size on one scale: 12, 13, 14, 16, 20, 24, 32, 40px
+- no colour left over from the old light theme
+- one focus ring, one card idiom, one toggle idiom (water when on)
+- no horizontal overflow at 375px or 1366px
+- targets at least 24px, and 40–44px on touch screens
+- text contrast at least 4.5:1, control edges at least 3:1
+- Back/Forward, the skip link and the current-tab marker all working
+
+**Before:** 22 distinct rendered font sizes, text down to 10.2px; over 50
+light-theme colour literals still in the stylesheets; four competing focus
+rules; error red at 4.34:1 and input edges at 1.77:1; both quest trackers open
+over the content on every tab; the Quests "Track" button spilling out of its
+card; the footer only inside the hidden Library view; the skip link sending you
+to Home from any tab; Home's sixth card orphaned on its own row.
+
+**After, measured on a fresh load across all eleven views:** zero horizontal
+overflow at 1366px and 375px; zero targets under 24px on desktop; every
+rendered size on the scale; zero leftover colours; red 5.04:1, control edges
+3.21:1 on slate; Back, Forward and the skip link verified by script. 111 tests
+pass, `handoff.mjs check` clean.
+
+What changed:
+
+- **Type and colour were fixed at the source, not overridden.** A script snapped
+  every declared size in the nine stylesheets to the scale and swapped each
+  light-theme literal for its token, with comments protected from the rewrite.
+- **Navigation is grouped** — Home | Calculate, Places, Mining | Tower, Quests,
+  Inventory | Setup, Account — and the Home cards follow that order in three
+  columns.
+- **Quest trackers start folded** to their title bars. The player's own
+  open/closed choice still wins once made.
+- **A footer on every page**, with the non-affiliation line and links to the two
+  views that were only reachable from Home.
+- **One toggle idiom.** Places chips were pills that turned amber or green when
+  on; they are square and water now, like every other setting. Lantern is back
+  to meaning primary action and focus only.
+- **Accessibility:** `aria-current` replaces an invalid `aria-selected` on the
+  nav buttons; the per-ingredient route pickers have names; the skip link
+  focuses the content without touching the hash router; unsized `<small>` no
+  longer shrinks below 12px; touch screens get 44px targets; the current tab
+  scrolls into view in the phone's sideways nav strip.
+- **Copy that no longer matched its page:** "T300 to T340" (the Tower starts
+  where you stand), "Main quests" (it lists every questline), and the Places
+  card (it runs backwards too now).
+- The build stamp in the footer moved to `2026-09-11.dusk1`.
+
+Left alone on purpose: the tracker docks still sit over the bottom corners — the
+owner asked for exactly that layout. `inventory.css` still styles a full-screen
+list that no script creates any more; deleting dead CSS was not a visual fix.
+
 ## 2026-09-06 (last, 3) — Places runs backwards, and the craft multipliers
 
 **Places can be asked the question the owner keeps asking.** "Start from what I

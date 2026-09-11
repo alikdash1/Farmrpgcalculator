@@ -3,15 +3,15 @@
 .inventory-intro h1 { margin-top: .25rem; }
 .inventory-intro p { max-width: 680px; margin-top: .8rem; color: var(--muted); }
 .inventory-line-picker { display: grid; gap: .45rem; }
-.inventory-line-picker span, .inventory-search span { color: var(--muted); font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
+.inventory-line-picker span, .inventory-search span { color: var(--muted); font: 700 12px var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
 .inventory-line-picker select, .inventory-search input { width: 100%; min-height: 42px; padding: .7rem .8rem; color: var(--text); background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; }
 
 .inventory-owned-section { margin-top: 2rem; }
 .inventory-section-heading { display: flex; justify-content: space-between; gap: 1.5rem; align-items: end; padding-bottom: .85rem; border-bottom: 1px solid var(--line); }
-.inventory-section-heading h2 { font-size: clamp(1.45rem, 2vw, 2rem); }
+.inventory-section-heading h2 { font-size: 24px; }
 .inventory-section-heading p { color: var(--muted); margin-top: .25rem; }
-.inventory-summary { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: flex-end; color: var(--muted); font-size: .78rem; }
-.inventory-summary strong { color: var(--text); font-size: 1rem; margin-right: .22rem; }
+.inventory-summary { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: flex-end; color: var(--muted); font-size: 12px; }
+.inventory-summary strong { color: var(--text); font-size: 16px; margin-right: .22rem; }
 .inventory-toolbar { display: grid; grid-template-columns: minmax(220px, 420px) 1fr; gap: 1rem; align-items: end; padding: 1rem 0; }
 .inventory-search { display: grid; gap: .4rem; }
 .inventory-owned { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; max-height: 310px; overflow: auto; padding: .15rem .2rem .5rem 0; scrollbar-color: var(--line) var(--ink); }
@@ -21,8 +21,8 @@
 .inventory-item-link.is-static { border-color: transparent; cursor: default; }
 .inventory-item-link.is-static:hover { border-color: transparent; background: var(--ink2); }
 .inventory-item-link b, .inventory-item-link small { display: block; }
-.inventory-item-link b { font-size: .78rem; line-height: 1.25; overflow-wrap: anywhere; }
-.inventory-item-link small { margin-top: .2rem; color: var(--muted); font-size: .75rem; }
+.inventory-item-link b { font-size: 12px; line-height: 1.25; overflow-wrap: anywhere; }
+.inventory-item-link small { margin-top: .2rem; color: var(--muted); font-size: 12px; }
 .inventory-art { display: grid; place-items: center; width: 36px; height: 36px; color: var(--muted); font-weight: 800; }
 .inventory-art img { display: block; width: 36px; height: 36px; object-fit: contain; }
 .inventory-currency-art::after { content: ""; display: block; width: 18px; height: 1px; background: var(--muted); }
@@ -32,25 +32,25 @@
 .inventory-panels { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; margin-top: 1rem; align-items: start; }
 .inventory-panel { min-width: 0; padding: 1rem; background: var(--ink2); }
 .inventory-panel-heading { min-height: 76px; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
-.inventory-panel-heading span { color: var(--green); font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
-.inventory-panel-heading h2 { margin-top: .3rem; font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.15; }
+.inventory-panel-heading span { color: var(--green); font: 700 12px var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
+.inventory-panel-heading h2 { margin-top: .3rem; font-size: 24px; line-height: 1.15; }
 .inventory-requirements { overflow: visible; }
 .inventory-row { display: grid; grid-template-columns: minmax(150px, 1fr) 96px 96px 104px; gap: .45rem; align-items: center; min-height: 46px; padding: .3rem .35rem; }
 .inventory-row:nth-child(odd):not(.inventory-row-head) { background: var(--ink3); }
-.inventory-row > :not(:first-child) { text-align: right; font: 700 .75rem var(--ui), sans-serif; }
+.inventory-row > :not(:first-child) { text-align: right; font: 700 12px var(--ui), sans-serif; }
 .inventory-row.is-short > strong { color: var(--text); }
 .inventory-row.is-covered > strong { color: var(--green); }
 .inventory-row-head { position: sticky; z-index: 2; top: 0; min-height: 34px; color: var(--muted); background: var(--ink2); border-bottom: 1px solid var(--line); }
-.inventory-row-head > span { font: 700 .75rem var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
+.inventory-row-head > span { font: 700 12px var(--ui), sans-serif; letter-spacing: 0; text-transform: none; }
 .inventory-row .inventory-item-link { grid-template-columns: 30px minmax(0, 1fr); gap: .55rem; align-items: center; padding: .28rem .34rem; background: transparent; }
 .inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
 .inventory-row .inventory-item-link.is-static:hover { background: transparent; }
-.inventory-total { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .9rem; margin-top: .65rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; }
+.inventory-total { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .9rem; margin-top: .65rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .inventory-total b { color: var(--text); margin-right: auto; }
 .inventory-empty { display: grid; place-items: center; min-height: 150px; padding: 1.5rem; text-align: center; color: var(--muted); }
 .inventory-empty strong, .inventory-empty span { display: block; }
-.inventory-empty strong { color: var(--text); font-size: 1rem; }
-.inventory-empty span { max-width: 360px; margin-top: .35rem; font-size: .78rem; }
+.inventory-empty strong { color: var(--text); font-size: 16px; }
+.inventory-empty span { max-width: 360px; margin-top: .35rem; font-size: 12px; }
 .inventory-empty.is-finished strong { color: var(--green); }
 
 @media (max-width: 1100px) {
@@ -70,7 +70,7 @@
   .inventory-row { min-width: 486px; grid-template-columns: 135px 108px 108px 112px; gap: .3rem; }
   .inventory-row .inventory-item-link { grid-template-columns: 30px minmax(0, 1fr); gap: .4rem; }
   .inventory-row .inventory-art, .inventory-row .inventory-art img { width: 28px; height: 28px; }
-  .inventory-row > :not(:first-child) { font-size: .75rem; }
+  .inventory-row > :not(:first-child) { font-size: 12px; }
 }
 
 /* The Inventory tab used to open on an empty dropdown. It now names what it is
@@ -85,7 +85,7 @@
   padding: 10px 12px;
   border-left: 2px solid var(--line);
   color: var(--muted);
-  font-size: .86rem;
+  font-size: 14px;
 }
 .inventory-caveat b { color: var(--text); }
 
@@ -104,12 +104,12 @@
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 4px;
-  font: 700 .75rem var(--ui), sans-serif;
+  font: 700 12px var(--ui), sans-serif;
   letter-spacing: 0;
   text-transform: none;
   cursor: pointer;
 }
-.inventory-expand:hover { color: var(--green); border-color: var(--green); }
+.inventory-expand:hover { color: var(--text); border-color: var(--water); }
 
 .inventory-overlay {
   position: fixed;
@@ -130,8 +130,8 @@
   padding: 1.4rem clamp(1rem, 4vw, 3rem) 1rem;
   border-bottom: 1px solid var(--line);
 }
-.inventory-overlay-head h2 { font-size: clamp(1.3rem, 2.4vw, 2rem); }
-.inventory-overlay-head p { color: var(--muted); font-size: .8rem; }
+.inventory-overlay-head h2 { font-size: 24px; }
+.inventory-overlay-head p { color: var(--muted); font-size: 13px; }
 .inventory-overlay-close {
   margin-left: auto;
   padding: .45rem .9rem;
@@ -141,7 +141,7 @@
   border-radius: 4px;
   cursor: pointer;
 }
-.inventory-overlay-close:hover { border-color: var(--green); color: var(--green); }
+.inventory-overlay-close:hover { border-color: var(--water); color: var(--text); }
 .inventory-overlay-body { overflow: auto; padding: 1rem clamp(1rem, 4vw, 3rem) 3rem; }
 .inventory-wide {
   display: grid;
@@ -163,12 +163,12 @@
 .inventory-wide-nums span { display: grid; min-width: 62px; }
 .inventory-wide-nums i {
   color: var(--muted);
-  font: 700 .75rem var(--ui), sans-serif;
+  font: 700 12px var(--ui), sans-serif;
   font-style: normal;
   letter-spacing: 0;
   text-transform: none;
 }
-.inventory-wide-nums b { font: 700 .78rem var(--ui), sans-serif; }
+.inventory-wide-nums b { font: 700 12px var(--ui), sans-serif; }
 .inventory-wide-row.is-covered .inventory-wide-nums span:last-child b { color: var(--green); }
 
 @media (max-width: 620px) {
@@ -180,12 +180,12 @@
 .inventory-ignored strong { color: var(--amber); }
 
 /* What the page computed, so an empty panel can be explained rather than guessed at. */
-.inventory-diag { display: block; margin-top: 6px; color: var(--muted); font-size: .78rem; }
+.inventory-diag { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
 
-.inventory-show-tracker { margin-top: 8px; padding: 5px 11px; font-size: .78rem; }
+.inventory-show-tracker { margin-top: 8px; padding: 5px 11px; font-size: 12px; }
 
 /* Where the item comes from, under its name. */
-.inventory-source { color: var(--muted); font-size: .75rem; }
+.inventory-source { color: var(--muted); font-size: 12px; }
 
 /* Items that serve the tracked questline and an unfinished Tower mastery at
    the same time. The single most useful thing this app can tell an endgame
@@ -209,8 +209,8 @@
   border-bottom: 1px solid var(--line);
 }
 .inventory-double-need { position: relative; min-width: 0; text-align: right; }
-.inventory-double-need span { display: block; color: var(--muted); font-size: .75rem; white-space: nowrap; letter-spacing: .04em; text-transform: none; }
-.inventory-double-need b { display: block; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.inventory-double-need span { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; letter-spacing: .04em; text-transform: none; }
+.inventory-double-need b { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
 /* How far the mastery already is, drawn under its number rather than as a
    separate bar that would double the height of every row. */
 .inventory-double-need i {

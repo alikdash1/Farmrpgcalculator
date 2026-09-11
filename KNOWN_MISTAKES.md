@@ -220,3 +220,13 @@ How the units were confirmed, if this ever needs re-checking:
 - Cross-check that the method is sound: converting the workbook's *fishing*
   rates the same way reproduces the site's existing numbers almost exactly
   (Small Pond Drum 2.10 casts vs 2.09; median agreement 0.92 over 117 pairs).
+
+## Measuring a stale page (found 2026-09-11)
+
+During the production pass the local server handed the in-app browser a cached
+`index.html`, so a full audit "confirmed" the old nav order, a missing footer
+and 10px text — all already fixed on disk. The `?v=` busters protect the files
+`index.html` loads, not `index.html` itself. Before measuring or screenshotting
+a change, load `index.html?fresh=<something new>` and check that one thing you
+just changed is really there; the nav order is a quick tell.
+

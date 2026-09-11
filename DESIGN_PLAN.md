@@ -35,3 +35,22 @@ Nearest to (b), because this remains a dark, late-night tool. It differs in a vi
 
 ## Scope and verification
 Change presentation and headline copy only. Preserve all IDs, event bindings, scripts, page order, source logic and game data. Maintain file:// loading and cache versions. Run the handoff gate, entire existing test suite and bundle generator. Inspect all eight tabs at desktop and 375px, including calculator results and tracker expansion. Record findings in CHANGELOG.md and handoff/STATE.md.
+
+## Production pass, 2026-09-11
+
+Every decision above stands. This pass tightened where the build had drifted
+from it:
+
+- **13px joins the scale** for dense rows and tables. The scale is 12, 13, 14,
+  16, 20, 24, 32, 40px, and nothing renders off it.
+- **Water means "on" everywhere.** Places had pill chips that turned amber or
+  green; they are square and water now. Lantern is only the primary action and
+  focus, as this plan always said.
+- **Two line weights:** `--line` for dividers, `--line-strong` for the edges of
+  inputs, selects and switches, so a control is findable at 3:1 or better.
+- **Navigation in three groups:** plan (Calculate, Places, Mining) · progress
+  (Tower, Quests, Inventory) · your farm (Setup, Account). The Home cards
+  follow the same order.
+- **A footer on every page**, rather than inside the Library view.
+- **Trackers folded by default**, so nothing covers the first screen.
+
