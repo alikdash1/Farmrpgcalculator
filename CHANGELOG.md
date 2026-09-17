@@ -5,6 +5,64 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-17 (3) — Tower rows ranked, badged and measured
+
+The owner: *"if i have finished the thing move it down the slot and rank the
+items i still need first ... add how much mastery left on the right, a bar like
+the Farm RPG masteries bar, and whether it's a GM or MM, and if it's needed for
+a quest"*.
+
+- **A floor's rows are ranked**: what is still owed first, closest to finished
+  at the top, and anything already done drops to the bottom of its floor.
+- **GM / MM badge** on every row, so the tier is readable without parsing the
+  sentence under the name. The method line stops repeating it.
+- **A quest badge** when a quest is still asking for the same item, with the
+  amount — Wooden Spear reads "MM · Quest 16k · craft".
+- **The bar says what is left** beside it, like the game's own mastery bar:
+  "894.92k left", with "105.08k / 1m · 10%" underneath.
+
+## 2026-09-17 (2) — An Items page for the whole game
+
+The owner, aiming to hand the site to friends: *"add a new page for items, every
+item in the game and the description it has on buddy ... if i place the item it
+shows its drop rate in the areas it has ... and on the bottom show what's needed
+for quests you actually have"*.
+
+- **New Items tab.** All 1,555 items, searchable, with filters for wanted by a
+  quest, craftable, found somewhere, Tower mastery, and in your inventory. The
+  list line under each name says what it is at a glance: "grow · 178k for
+  quests · 9,000 held".
+- **One page per item**: the game's own description, what it sells and trades
+  for, crafting and cooking level, growth time and XP; how you get it (recipe
+  chips you can click through, every place it drops, the mine it comes from, or
+  the Country Store); what it makes; its Tower mastery progress; and the quests
+  that still want it.
+- **Drop rates in both units side by side** — "1 in 872.84 explores" and "6.23
+  per Arnold Palmer" — with a bar showing how the places compare, so the best
+  one is obvious without reading numbers.
+- **Quests are measured against what you hold**: "Quests want 178,000 · you hold
+  9,000 · 169,000 short", and each quest line says covered or how far short.
+  Finished quests and closed events are left out.
+- **`data/item-info.js`** (new, from `tools/build-item-info.mjs`) carries each
+  item's in-game description and its Buddy's Almanac address: 1,555 of 1,556.
+- Deep links: `#items/ancient-pickaxe` opens straight to an item, and the view
+  keeps it in the address bar. The quest lookup moved into `quest-model.js` so
+  this page and Calculate answer from one index. 128 tests pass.
+
+## 2026-09-17 — Which quests still want this item
+
+The owner: *"an item still needed for a quest ... when I press it, it expands
+and shows me the quests, all of them one by one, and how many"*. The item panel
+only said "quests in the guide ask for 6.15k total across 11 steps", which never
+said which quest wanted what, and counted quests already finished.
+
+- **"Still needed for quests"** now sits under the item on the Calculate page
+  and under every ingredient row, folded shut. Open it for one line per quest:
+  the amount, the quest, its questline, and whether it is ready, in progress or
+  available. Quests already finished are left out, and so are events whose end
+  date has passed. The 2,480 questlines are indexed by item once per load.
+- The old "Save for later" sentence is gone; the Tower note it carried stays.
+
 ## 2026-09-12 — Mastery History export, 12:18 AM
 
 `data/personal-tower.js` re-imported from "Farm RPG Mastery History (4).csv"

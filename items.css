@@ -1,0 +1,185 @@
+/* Items page — the game's whole catalogue, one page per item.
+   A fixed index on the left, the item itself on the right, so you can run down
+   the list without losing your place. */
+
+.items-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  gap: 24px;
+  align-items: end;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.items-copy h1 { margin: 0 0 8px; }
+.items-copy p { max-width: 60ch; margin: 0; color: var(--muted); }
+.items-controls { display: grid; gap: 12px; }
+.items-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.items-filter {
+  padding: 4px 12px;
+  min-height: 24px;
+  color: var(--muted);
+  font: 500 12px var(--ui), sans-serif;
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.items-filter:hover { color: var(--text); border-color: var(--line-strong); }
+.items-filter.on { color: var(--ink); background: var(--water); border-color: var(--water); }
+.items-filter:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+
+.items-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.items-count { padding: 8px 0; color: var(--muted); font: 500 12px var(--data), monospace; }
+.items-results {
+  display: grid;
+  gap: 4px;
+  max-height: 70vh;
+  overflow: auto;
+  padding-right: 4px;
+  scrollbar-color: var(--line) var(--ink);
+}
+.items-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  color: var(--text);
+  text-align: left;
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.items-row:hover { border-color: var(--water); background: var(--ink3); }
+.items-row:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+.items-row.is-open { border-color: var(--water); background: var(--ink3); }
+.items-row img { width: 32px; height: 32px; object-fit: contain; }
+.items-row b { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.items-row small { display: block; color: var(--muted); font-size: 12px; }
+.items-none { color: var(--muted); }
+
+.items-detail { display: grid; gap: 24px; align-content: start; min-width: 0; }
+.items-empty { padding: 32px; text-align: center; border: 1px dashed var(--line); border-radius: 8px; }
+.items-empty h2 { margin: 0 0 8px; }
+.items-empty p { max-width: 54ch; margin: 0 auto 16px; color: var(--muted); }
+.items-empty h3 { margin: 24px 0 8px; font-size: 13px; color: var(--muted); }
+
+.items-head {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.items-head img { width: 64px; height: 64px; object-fit: contain; }
+.items-head h2 { margin: 4px 0; font-size: 24px; overflow-wrap: anywhere; }
+.items-kind {
+  display: inline-block;
+  color: var(--muted);
+  font: 700 12px var(--ui), sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.items-desc { margin: 0; max-width: 62ch; }
+.items-actions { display: grid; gap: 4px; justify-items: stretch; }
+.items-actions .quiet-button, .items-actions .primary-action { text-align: center; text-decoration: none; }
+
+.items-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.items-facts > div { padding: 12px 16px; background: var(--ink2); }
+.items-facts span { display: block; color: var(--muted); font-size: 12px; }
+.items-facts strong { display: block; margin: 4px 0 2px; font: 500 16px var(--data), monospace; }
+.items-facts small { display: block; color: var(--muted); font-size: 12px; }
+
+.items-block { display: grid; gap: 12px; }
+.items-block h3 { margin: 0; padding-bottom: 8px; font-size: 16px; border-bottom: 1px solid var(--line); }
+.items-block h3 small { color: var(--muted); font: 500 12px var(--data), monospace; }
+.items-block h4 { margin: 0 0 8px; color: var(--muted); font-size: 12px; }
+.items-recipe p { margin: 0; color: var(--muted); }
+.items-note { margin: 0; color: var(--muted); font-size: 12px; }
+.items-muted { color: var(--muted); }
+
+.items-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.items-chip {
+  display: grid;
+  grid-template-columns: 26px auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 12px 4px 8px;
+  color: var(--text);
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.items-chip:hover { border-color: var(--water); background: var(--ink3); }
+.items-chip:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+.items-chip img { width: 26px; height: 26px; object-fit: contain; }
+.items-chip b { font-size: 12px; font-weight: 600; }
+.items-chip small { color: var(--muted); font: 500 12px var(--data), monospace; }
+
+.items-places { display: grid; gap: 8px; }
+.items-place { display: grid; gap: 4px; padding: 8px 12px; background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; }
+.items-place-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.items-place-head b { font-size: 13px; }
+.items-place-head small { color: var(--muted); font-size: 12px; }
+/* How good this place is for the item, against the best place for it. */
+.items-place-bar { height: 4px; background: var(--ink); border-radius: 4px; overflow: hidden; }
+.items-place-bar span { display: block; height: 100%; background: var(--sage); }
+.items-place-rates { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font: 500 12px var(--data), monospace; }
+.items-place-rates b { color: var(--text); }
+
+.items-quest-top { display: flex; flex-wrap: wrap; gap: 32px; }
+.items-quest-top span { display: block; color: var(--muted); font-size: 12px; }
+.items-quest-top strong { display: block; margin: 4px 0 2px; font: 500 20px var(--data), monospace; }
+.items-quest-top small { display: block; color: var(--muted); font-size: 12px; }
+/* How much of the quest total you are already holding. */
+.items-cover { height: 4px; background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.items-cover span { display: block; height: 100%; background: var(--sage); }
+
+.items-quest-rows { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.items-quest-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 12px;
+  background: var(--ink2);
+}
+.items-quest-row b { font: 500 13px var(--data), monospace; text-align: right; }
+.items-quest-row small { display: block; color: var(--muted); font-size: 12px; }
+.items-quest-row em { color: var(--lantern); font-style: normal; font-size: 12px; }
+.items-quest-row.is-covered em { color: var(--sage); }
+
+@media (max-width: 1080px) {
+  .items-board { grid-template-columns: 1fr; align-items: start; }
+  .items-layout { grid-template-columns: 1fr; }
+  .items-results { max-height: 320px; }
+}
+@media (max-width: 620px) {
+  .items-head { grid-template-columns: 48px minmax(0, 1fr); }
+  .items-head img { width: 48px; height: 48px; }
+  .items-actions { grid-column: 1 / -1; grid-auto-flow: column; justify-content: start; }
+  .items-quest-row { grid-template-columns: 64px minmax(0, 1fr); }
+  .items-quest-row em { grid-column: 2; }
+}
+@media (pointer: coarse) {
+  .items-filter, .items-chip, .items-row { min-height: 44px; }
+}

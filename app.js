@@ -289,7 +289,10 @@
     if (id === "library") renderLibrary();
     if (id === "places" && window.FRPG_renderPlaces) window.FRPG_renderPlaces();
     if (history && history.pushState) {
-      const target = "#" + id;
+      // Keep any sub-path the view owns, so returning to Items does not
+      // throw away which item was open.
+      const current = location.hash.replace(/^#/, "");
+      const target = "#" + (current.split("/")[0] === id && current.includes("/") ? current : id);
       if (fromHistory) history.replaceState(null, "", target);
       else if (location.hash !== target) history.pushState(null, "", target);
     }
@@ -609,6 +612,28 @@
     (mine.items || []).some((entry) => String(entry).toLowerCase() === String(name).toLowerCase())) || null;
   const itemFact = (name) => P.items[name] || { questSteps: 0, questTotal: 0, usedInCrafts: 0, relevance: 0, hoard: false };
   const routeRule = (name) => P.routeRules[name] || null;
+
+  // The questline lookup lives in quest-model.js so the Items page and this
+  // page answer "still needed for quests" from the same index.
+  const QUEST_MODEL = window.FRPG_QUEST_MODEL || null;
+  const questNeedsFor = (name) => QUEST_MODEL ? QUEST_MODEL.needsByItem(name, state.account) : null;
+  const QUEST_STATUS_WORD = (status) => QUEST_MODEL ? QUEST_MODEL.needStatusWord(status) : "";
+
+  function questNeedsHtml(name) {
+    const needs = questNeedsFor(name);
+    if (!needs) return "";
+    const shown = needs.rows.slice(0, 40);
+    const more = needs.rows.length - shown.length;
+    const line = (row) => {
+      const word = QUEST_STATUS_WORD(row.status);
+      const bits = [row.line, row.category === "event" ? "event" : "", word].filter(Boolean).join(" · ");
+      return `<div class="quest-need"><b>${fmt(row.quantity)}</b><span>${esc(row.title)}<small>${esc(bits)}</small></span></div>`;
+    };
+    return `<details class="quest-needs"><summary>Still needed for quests — ${fmt(needs.total)} across ${plural(needs.steps, "quest", "quests")}</summary>` +
+      `<div class="quest-needs-body">${shown.map(line).join("")}` +
+      (more > 0 ? `<p class="quest-needs-more">And ${plural(more, "quest", "quests")} more.</p>` : "") +
+      `<p class="quest-needs-note">Quests you have finished are left out. What you already hold counts towards these.</p></div></details>`;
+  }
   const farmLabel = (farm) => farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn overlay" : "Explore";
 
   function coDropSentence(route) {
@@ -1078,9 +1103,10 @@
       return `<span class="drop-chip">${itemImg(dropItem, "drop-art", drop.name)}<span><b>${fmt(drop.expected)}</b><small>${esc(drop.name)}</small>${rate ? `<small>${rate}</small>` : ""}</span></span>`;
     }).join("")}</span>`);
     if (route.location && EVENT_LOCATIONS.has(route.location)) lines.push(`<span class="event-warning"><b>Seasonal:</b> ${esc(route.location)} is only included because event locations are enabled.</span>`);
-    if (fact.hoard) {
-      const tower = fact.mastery && fact.mastery.towerRequirement ? ` · Tower MM ${fmt(fact.mastery.towerRequirement)}` : "";
-      lines.push(`<span class="hoard-note"><b>Save for later:</b> quests in the guide ask for ${fmt(fact.questTotal)} total across ${fmt(fact.questSteps)} steps${tower}. Your remaining amount may be lower.</span>`);
+    const questNeeds = questNeedsHtml(item.name);
+    if (questNeeds) lines.push(questNeeds);
+    if (fact.mastery && fact.mastery.towerRequirement) {
+      lines.push(`<span class="hoard-note"><b>Save for later:</b> this is a Tower Mega Mastery at floor ${fmt(fact.mastery.towerRequirement)}.</span>`);
     }
     const summary = route.coDrops && route.coDrops.length ? `See ${route.coDrops.length} useful drops & future uses` : "Why this route";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
@@ -1452,6 +1478,8 @@
       trail("Ingredients", fmt(rows.length), rows.length === 1 ? "one thing to get" : "things to get"),
       trail("Your farm covers", fmt(coveredRows.length), passiveHours ? `longest wait ${fmt(passiveHours)}h` : "ingredients you can skip"),
     ].join("");
+    // Every quest still asking for the item you opened, on the item itself.
+    $("goalQuests").innerHTML = questNeedsHtml(goal.name);
     $("includeEvents").checked = state.includeEvents;
     if ($("drinkPath")) $("drinkPath").value = state.drinkPath;
     const staminaField = $("staminaMeasured");
@@ -2228,6 +2256,11 @@
       if (!floors.has(row.floor)) floors.set(row.floor, []);
       floors.get(row.floor).push(row);
     }
+    // What you still owe comes first, closest to finished at the top, and
+    // anything already done drops to the bottom of its floor.
+    for (const items of floors.values()) {
+      items.sort((a, b) => Number(a.complete) - Number(b.complete) || a.remaining - b.remaining || a.name.localeCompare(b.name));
+    }
     const unfinished = rows.filter((row) => !row.complete);
     const blocked = [...floors].filter(([, items]) => items.some((row) => !row.complete));
     const nextFloor = blocked[0] ? blocked[0][0] : goal;
@@ -2258,7 +2291,7 @@
         const item = itemByName(row.name);
         const percent = Math.min(100, (row.current / row.goal) * 100);
         const tierLabel = row.tier === "gm" ? "Grand Mastery" : "Mega Mastery";
-        const method = [row.methods.join(" / "), tierLabel].filter(Boolean).join(" · ");
+        const method = row.methods.join(" / ");
         const goalLabel = row.tier === "gm" ? "100k" : "1m";
         // Pumpkin Juice only shortens a Mega Mastery.
         const pjGap = row.tier === "mm" && PUMPKIN_JUICE_MMS.has(row.name) && !row.complete ? Math.max(0, 909091 - row.current) : null;
@@ -2270,7 +2303,14 @@
         const noPlan = row.complete || plannable ? "" : `<small class="tower-noplan">No route data for this one yet</small>`;
         const ratingTag = rating ? `<small class="tower-rating is-${rating.kind}">${esc(rating.note)}</small>` : "";
         const art = itemImg(item, "tower-art", row.name, row.img);
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span>${esc(method)}</span></div><div class="tower-progress"><i style="width:${percent}%"></i></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${fmt(row.remaining)} left`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}${ratingTag}</div></div>`;
+        // Which tier the floor wants, and whether a quest is waiting on the
+        // same item — both decide whether this is worth doing next.
+        const tierTag = `<span class="tower-tier is-${row.tier}" title="${esc(tierLabel)}">${row.tier === "gm" ? "GM" : "MM"}</span>`;
+        const needs = row.complete ? null : questNeedsFor(row.name);
+        const questTag = needs
+          ? `<span class="tower-questtag" title="${esc(plural(needs.steps, "quest", "quests"))} still asking for ${esc(fmt(needs.total))}">Quest ${esc(fmt(needs.total))}</span>`
+          : "";
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span class="tower-mm-tags">${tierTag}${questTag}<span>${esc(method)}</span></span></div><div class="tower-mm-bar"><div class="tower-progress"><i style="width:${percent}%"></i></div><b class="tower-left">${row.complete ? "Done" : `${fmt(row.remaining)} left`}</b></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${Math.floor(percent)}%`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}${ratingTag}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
@@ -2440,7 +2480,8 @@ if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG 
   if (last && index.itemsById.has(last)) pick(last);
   renderHome();
   const viewFromHash = () => {
-    const id = location.hash.replace(/^#/, "");
+    // A view may carry a sub-path, as the Items page does: #items/steel-wire.
+    const id = location.hash.replace(/^#/, "").split("/")[0];
     return document.getElementById(id)?.classList.contains("view") ? id : "home";
   };
   // gather-model.js loads after this file, so the first render of the home

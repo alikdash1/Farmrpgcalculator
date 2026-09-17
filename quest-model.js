@@ -84,6 +84,52 @@
     return hasAccount ? "unknown" : "untracked";
   }
 
+  // Which quests still ask for an item, and how much each one wants. The
+  // questlines are indexed by item once; the player's finished quests and any
+  // event whose end date has passed are dropped when the list is asked for.
+  const needIndex = (() => {
+    const index = new Map();
+    for (const quest of data.quests) {
+      // One quest can list the same item on two lines; that is one ask.
+      const wanted = new Map();
+      for (const row of quest.requirements || []) {
+        const key = String(row.item || "").trim().toLowerCase();
+        if (!key || !(Number(row.quantity) > 0)) continue;
+        wanted.set(key, (wanted.get(key) || 0) + Number(row.quantity));
+      }
+      for (const [key, quantity] of wanted) {
+        if (!index.has(key)) index.set(key, []);
+        index.get(key).push({ title: quest.title, line: quest.line, category: quest.category, end: quest.end || null, quantity });
+      }
+    }
+    return index;
+  })();
+
+  const NEED_ORDER = { ready: 0, active: 1, available: 2, unknown: 3, untracked: 3, locked: 4 };
+
+  function needsByItem(name, snapshot) {
+    const rows = needIndex.get(String(name || "").trim().toLowerCase()) || [];
+    if (!rows.length) return null;
+    const sets = statusSets(snapshot);
+    const hasAccount = !!snapshot;
+    const now = Date.now();
+    const open = [];
+    for (const row of rows) {
+      const status = statusFor(row.title, sets, hasAccount);
+      if (status === "completed") continue;
+      if (row.end && Date.parse(row.end) < now) continue;
+      open.push(Object.assign({ status }, row));
+    }
+    if (!open.length) return null;
+    open.sort((a, b) => (NEED_ORDER[a.status] || 3) - (NEED_ORDER[b.status] || 3) || b.quantity - a.quantity);
+    return { rows: open, total: open.reduce((sum, row) => sum + row.quantity, 0), steps: open.length };
+  }
+
+  const NEED_STATUS_WORD = {
+    ready: "ready to hand in", active: "in progress", available: "available now",
+    locked: "not unlocked yet", unknown: "", untracked: "",
+  };
+
   window.FRPG_QUEST_MODEL = {
     quests: data.quests,
     lines: data.lines,
@@ -93,6 +139,8 @@
     completedSet,
     statusSets,
     statusFor,
+    needsByItem,
+    needStatusWord: (status) => NEED_STATUS_WORD[status] || "",
     hasPersonal: personal.size > 0,
     personalCount: personal.size,
   };

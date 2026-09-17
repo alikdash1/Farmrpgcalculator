@@ -176,6 +176,11 @@ Claim a task by adding a row before you start. Clear it when merged.
   (`data/workbook-rates.js`) — fishing routes now use it for net counts too.
   Explores and catches per drop come from logs (data.js, or Buddy for the new
   places). Mines have no rates anywhere.
+- **Items page (2026-09-17)**: `items-page.js` + `items.css` + `data/item-info.js`.
+  Every item, its description, where it drops (logged rate and sheet rate side by
+  side), what it makes, and the quests still wanting it measured against the
+  player's inventory. Deep-linked as `#items/<buddy-slug>`; `app.js` splits the
+  hash on "/" so a view can own a sub-path.
 - **The site is public** (github.com/alikdash1/Farmrpgcalculator, served at
   alikdash1.github.io/Farmrpgcalculator). The owner chose **private sync**:
   Account Sync 1.10's bridge feeds that exact address inside their browser.

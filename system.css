@@ -644,3 +644,20 @@ main { padding-bottom: 48px; }
 .item-art.empty-art { width: 40px; height: 40px; }
 .empty-note { font-size: 12px; }
 
+
+/* ---- Quests that still want this item -------------------------------------
+   Listed one by one under the item, because "6.15k across 11 steps" never
+   said which quest wanted what. */
+.quest-needs-panel:empty { display: none; }
+.quest-needs-panel { margin-top: 12px; }
+.quest-needs { border-top: 1px solid var(--line); }
+.quest-needs > summary { display: flex; align-items: center; min-height: 24px; padding: 8px 0; color: var(--water); font-size: 12px; font-weight: 700; cursor: pointer; }
+.quest-needs > summary:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.quest-needs > summary:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; }
+.quest-needs-body { display: grid; gap: 4px; padding-bottom: 8px; }
+.quest-need { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 4px 0; border-top: 1px solid var(--line); }
+.quest-need b { font-family: var(--data); font-size: 13px; text-align: right; }
+.quest-need small { display: block; color: var(--muted); font-size: 12px; }
+.quest-needs-more, .quest-needs-note { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+@media (max-width: 620px) { .quest-need { grid-template-columns: 56px minmax(0, 1fr); gap: 8px; } }
+@media (pointer: coarse) { .quest-needs > summary { min-height: 44px; } }

@@ -81,3 +81,24 @@
 .tower-rating.is-hard { color: var(--text); }
 
 @media (min-width: 1200px) { .tower-ledger-copy h1 { font-size: 40px; } }
+
+/* A floor's rows are ranked: what you still owe first, closest to done at the
+   top, finished ones at the bottom. These badges say at a glance which tier the
+   floor wants and whether a quest is waiting on the same item. */
+.tower-mm-tags { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.tower-tier, .tower-questtag {
+  padding: 1px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font: 700 12px var(--data), monospace;
+  letter-spacing: .02em;
+}
+.tower-tier.is-gm { color: var(--water); border-color: color-mix(in srgb, var(--water) 45%, var(--line)); }
+.tower-tier.is-mm { color: var(--lantern); border-color: color-mix(in srgb, var(--lantern) 45%, var(--line)); }
+.tower-questtag { color: var(--sage); border-color: color-mix(in srgb, var(--sage) 45%, var(--line)); }
+.tower-mm.complete .tower-tier { color: var(--muted); border-color: var(--line); }
+
+/* The bar carries what is left, the way the game's own mastery bar does. */
+.tower-mm-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.tower-left { color: var(--text); font: 500 12px var(--data), monospace; white-space: nowrap; }
+.tower-mm.complete .tower-left { color: var(--muted); }

@@ -11,13 +11,14 @@
   <link rel="manifest" href="site.webmanifest?v=20260904-1">
   <link rel="stylesheet" href="style.css?v=20260911-5">
   <link rel="stylesheet" href="v3.css?v=20260911-5">
-  <link rel="stylesheet" href="tower.css?v=20260911-6">
+  <link rel="stylesheet" href="tower.css?v=20260917-1">
   <link rel="stylesheet" href="mining.css?v=20260911-5">
   <link rel="stylesheet" href="locations.css?v=20260911-5">
   <link rel="stylesheet" href="quests.css?v=20260911-5">
   <link rel="stylesheet" href="inventory.css?v=20260911-6">
+  <link rel="stylesheet" href="items.css?v=20260917-1">
   <link rel="stylesheet" href="tracker.css?v=20260911-5">
-  <link rel="stylesheet" href="system.css?v=20260911-8">
+  <link rel="stylesheet" href="system.css?v=20260917-1">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -27,6 +28,7 @@
       <button class="tab active" data-tab="home" aria-current="page">Home</button>
       <span class="tab-sep" aria-hidden="true"></span>
       <button class="tab" data-tab="planner">Calculate</button>
+      <button class="tab" data-tab="items">Items</button>
       <button class="tab" data-tab="places">Places</button>
       <button class="tab" data-tab="mining">Mining</button>
       <span class="tab-sep" aria-hidden="true"></span>
@@ -63,6 +65,7 @@
 
       <section class="desk-drawers" aria-label="Planner work areas">
         <button class="desk-drawer featured" data-open-view="planner"><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
+        <button class="desk-drawer" data-open-view="items"><strong>Items</strong><p>Every item in the game: what it is, where it is found, what it makes, and which quests still want it.</p><span class="drawer-action">Open items →</span></button>
         <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour drinks, nets or stamina into a spot and see what comes back — or name what you need and see what it costs.</p><span class="drawer-action">Open places →</span></button>
         <button class="desk-drawer" data-open-view="mining"><strong>Mining</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
         <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Every floor from where you stand to <span data-tower-top>T340</span>, and the masteries each one needs.</p><span class="drawer-action">Open Tower ledger →</span></button>
@@ -97,6 +100,7 @@
       <section id="result" class="hidden">
         <section id="goalHeader" class="goal-header"></section>
         <section id="resourceTrail" class="resource-trail"></section>
+        <section id="goalQuests" class="quest-needs-panel"></section>
         <div class="planner-switches">
           <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Seasonal event locations</b><small>Off by default. Enable only while those areas are actually open.</small></span></label>
         </div>
@@ -275,6 +279,26 @@
       <section id="mineGrid" class="mine-list" aria-label="Mines"></section>
     </section>
 
+    <section id="items" class="view">
+      <section class="items-board">
+        <div class="items-copy">
+          <h1>Every item in the game</h1>
+          <p>What it is, where it comes from, what it makes, and which quests still want it — with your own inventory counted against them.</p>
+        </div>
+        <div class="items-controls">
+          <label class="field search-field"><span>Find an item</span><input id="itemsSearch" type="search" name="items-search" placeholder="Ancient Pickaxe…" autocomplete="off"></label>
+          <div id="itemsFilters" class="items-filters" role="group" aria-label="Filter items"></div>
+        </div>
+      </section>
+      <div class="items-layout">
+        <aside aria-label="Item index">
+          <div id="itemsCount" class="items-count"></div>
+          <div id="itemsResults" class="items-results"></div>
+        </aside>
+        <section id="itemsDetail" class="items-detail" aria-live="polite"></section>
+      </div>
+    </section>
+
     <section id="places" class="view">
       <section class="page-intro">
         <h1>Where you spend it</h1>
@@ -330,6 +354,7 @@
   <script src="data/quest-sagas.js?v=20260904-2"></script>
   <script src="data/item-art.js?v=20260905-1"></script>
   <script src="data/item-library.js?v=20260905-1"></script>
+  <script src="data/item-info.js?v=20260917-1"></script>
   <script src="data/location-intel.js?v=20260901-2"></script>
   <script src="data/new-items.js?v=20260831-1"></script>
   <script src="data/mining-capture-items.js?v=20260901-3"></script>
@@ -344,13 +369,14 @@
   <script src="collectors/account-importer/shared/merge.js?v=20260904-1"></script>
   <script src="engine.js?v=20260911-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
-  <script src="quest-model.js?v=20260904-1"></script>
-  <script src="app.js?v=20260911-12"></script>
+  <script src="quest-model.js?v=20260917-1"></script>
+  <script src="app.js?v=20260917-3"></script>
   <script src="mining-page.js?v=20260911-5"></script>
   <script src="locations-page.js?v=20260911-5"></script>
   <script src="quests-page.js?v=20260905-3"></script>
   <script src="gather-model.js?v=20260911-1"></script>
   <script src="inventory-page.js?v=20260905-9"></script>
+  <script src="items-page.js?v=20260917-2"></script>
   <script src="tracker.js?v=20260911-1"></script>
   <script src="sync-guide.js?v=20260904-2"></script>
 </body>

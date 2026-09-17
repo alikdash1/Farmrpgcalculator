@@ -153,6 +153,7 @@ tab-separated rows for a spreadsheet.
 | `data/personal-quests.js` | The owner's **1,952 completed quests**. Authoritative; needs no capture. Personal data. |
 | `data/item-library.js` | **The complete Farm RPG item list — 1,449 names with artwork**, from `https://buddy.farm/search.json`. See §9. |
 | `data/item-art.js` | Curated artwork for items missing from `data.js`. |
+| `data/item-info.js` | **Generated** by `tools/build-item-info.mjs`: every item's in-game description and its Buddy's Almanac slug. Feeds the Items page. |
 | `data/new-items.js` | The mining release catalogue, 67 items with their own artwork. |
 | `data/location-intel.js` | Mines, pickaxes, bags. |
 
