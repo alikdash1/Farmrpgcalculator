@@ -5,6 +5,21 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-17 (5) — The item index reads like the Tower
+
+The owner, pointing at the Items list: *"add the GM MM stuff just like tower,
+and rank them on closest tower to the farthest, not by letter, and show in a bar
+how much mastery i have ... and if i have finished the tower requirement don't
+show it"*.
+
+- **Every row a Tower floor wants** now carries its tier badge, the floor, a
+  mastery bar and what is left: "Wooden Spear · MM · T286 · 895k left".
+- **The Tower mastery filter ranks by floor**, nearest first, instead of
+  alphabetically, and says so: "128 items · nearest floor first". It starts at
+  T286 Wooden Spear and runs up the Tower.
+- **Finished masteries are out of that filter.** A mastery you have completed is
+  not a job; the item's own page still shows it, marked done.
+
 ## 2026-09-17 (4) — Quest badges count what you still owe
 
 The owner: *"does it change depending on how much is left for me or is it a

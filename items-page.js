@@ -131,6 +131,21 @@
     return fact && fact.mastery && fact.mastery.towerRequirement ? Number(fact.mastery.towerRequirement) : null;
   };
 
+  const towerByName = () => {
+    const map = new Map();
+    for (const row of window.FRPG_TOWER_NEEDS || []) {
+      const k = key(row.name);
+      const held = map.get(k);
+      // An unfinished floor beats a finished one; otherwise the lower floor.
+      if (!held || (Number(held.complete) - Number(row.complete)) > 0 || (held.complete === row.complete && row.floor < held.floor)) {
+        map.set(k, row);
+      }
+    }
+    return map;
+  };
+  let towerRows = towerByName();
+  const towerOf = (name) => towerRows.get(key(name)) || null;
+
   const questCache = new Map();
   function questNeeds(name) {
     if (!QUESTS) return null;
@@ -145,7 +160,8 @@
     { id: "quest", label: "Wanted by a quest", test: (item) => !!questNeeds(item.name) },
     { id: "craft", label: "Craftable", test: (item) => craftOf.has(item.id) || cookOf.has(item.id) },
     { id: "found", label: "Found somewhere", test: (item) => (placesOf.get(key(item.name)) || []).length > 0 || mineOf.has(key(item.name)) },
-    { id: "tower", label: "Tower mastery", test: (item) => towerFloorOf(item.name) != null },
+    // Only what the Tower still wants: a mastery you have finished is not a job.
+    { id: "tower", label: "Tower mastery", test: (item) => { const row = towerOf(item.name); return !!row && !row.complete; } },
     { id: "held", label: "In your inventory", test: (item) => heldOf(item.name) > 0 },
   ];
   const prefs = {
@@ -194,7 +210,17 @@
   }
 
   function renderList() {
+    towerRows = towerByName();
+    const byFloor = prefs.filter === "tower";
     results = items.filter(matches).sort((a, b) => {
+      if (byFloor) {
+        const rowA = towerOf(a.name), rowB = towerOf(b.name);
+        if (rowA && rowB) {
+          // Nearest floor first, and what is still owed before what is done.
+          return Number(rowA.complete) - Number(rowB.complete) || rowA.floor - rowB.floor || rowA.remaining - rowB.remaining;
+        }
+        if (rowA || rowB) return rowA ? -1 : 1;
+      }
       if (prefs.query) {
         const aStarts = key(a.name).startsWith(prefs.query), bStarts = key(b.name).startsWith(prefs.query);
         if (aStarts !== bStarts) return aStarts ? -1 : 1;
@@ -205,13 +231,25 @@
     const count = document.getElementById("itemsCount");
     if (count) {
       count.textContent = `${whole(results.length)} ${results.length === 1 ? "item" : "items"}` +
+        (byFloor ? " · nearest floor first" : "") +
         (results.length > shown.length ? ` · first ${whole(shown.length)} shown` : "");
     }
-    list.innerHTML = shown.map((item) => `
-      <button type="button" class="items-row${selected && selected.id === item.id ? " is-open" : ""}" data-item="${esc(item.name)}">
+    list.innerHTML = shown.map((item) => {
+      const tower = towerOf(item.name);
+      const pct = tower && tower.goal > 0 ? Math.min(100, Math.round(tower.current / tower.goal * 100)) : 0;
+      const towerLine = tower ? `
+        <span class="items-row-tower">
+          <em class="items-tier is-${tower.tier}">${tower.tier === "gm" ? "GM" : "MM"}</em>
+          <em class="items-floor">T${whole(tower.floor)}</em>
+          <span class="items-rowbar" aria-hidden="true"><i style="width:${pct}%"></i></span>
+          <em class="items-left">${tower.complete ? "done" : `${fmt(tower.remaining)} left`}</em>
+        </span>` : "";
+      return `
+      <button type="button" class="items-row${selected && selected.id === item.id ? " is-open" : ""}${tower && tower.complete ? " is-done" : ""}" data-item="${esc(item.name)}">
         <img src="${esc(ART.urlFor(item.name) || "")}" alt="" width="32" height="32" loading="lazy">
-        <span><b>${esc(item.name)}</b><small>${esc(summaryLine(item))}</small></span>
-      </button>`).join("") || `<p class="items-none">Nothing matches that. Try a shorter word, or another filter.</p>`;
+        <span><b>${esc(item.name)}</b><small>${esc(summaryLine(item))}</small>${towerLine}</span>
+      </button>`;
+    }).join("") || `<p class="items-none">Nothing matches that. Try a shorter word, or another filter.</p>`;
   }
 
   // ---- one item ------------------------------------------------------------

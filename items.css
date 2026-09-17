@@ -196,3 +196,15 @@
 .items-tier.is-gm { color: var(--water); border-color: color-mix(in srgb, var(--water) 45%, var(--line)); }
 .items-tier.is-mm { color: var(--lantern); border-color: color-mix(in srgb, var(--lantern) 45%, var(--line)); }
 .items-tower-numbers { display: flex; justify-content: space-between; color: var(--muted); font: 500 12px var(--data), monospace; }
+
+/* A Tower requirement in the index reads like it does on the Tower page: the
+   tier, the floor that wants it, how far the mastery has come, and what is
+   left. With the Tower filter on, the nearest floor is first. */
+.items-row-tower { display: grid; grid-template-columns: auto auto minmax(24px, 1fr) auto; gap: 8px; align-items: center; margin-top: 4px; }
+.items-row-tower em { font-style: normal; font: 700 12px var(--data), monospace; }
+.items-floor { color: var(--muted); font-weight: 500 !important; }
+.items-left { color: var(--text); font-weight: 500 !important; white-space: nowrap; }
+.items-rowbar { height: 4px; background: var(--ink); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.items-rowbar i { display: block; height: 100%; background: var(--sage); }
+.items-row.is-done .items-left, .items-row.is-done .items-tier { color: var(--muted); border-color: var(--line); }
+.items-row.is-done .items-rowbar i { background: var(--line-strong); }
