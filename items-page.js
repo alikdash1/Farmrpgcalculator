@@ -316,18 +316,37 @@
       <p class="items-note">Quests you have finished are left out, and so are events that have closed.${have == null ? " Import your account to see what you already hold against them." : ""}</p></section>`;
   }
 
+  // The Tower rows app.js builds already know the floor, the tier and the goal
+  // it is measured against — a Grand Mastery is 100,000, not a million, and
+  // one item can be wanted on two floors.
   function towerHtml(item) {
-    const floor = towerFloorOf(item.name);
-    const current = masteryOf(item.name);
-    if (floor == null && current == null) return "";
-    const goal = 1000000;
-    const pct = current != null ? Math.min(100, Math.round(current / goal * 100)) : 0;
-    return `<section class="items-block"><h3>Tower mastery</h3>
-      <div class="items-quest-top">
-        ${floor != null ? `<div><span>Wanted at</span><strong>T${whole(floor)}</strong><small>Mega Mastery</small></div>` : ""}
-        ${current != null ? `<div><span>You have</span><strong>${fmt(current)}</strong><small>${current >= goal ? "finished" : `${fmt(goal - current)} to go`}</small></div>` : ""}
-      </div>
-      ${current != null ? `<div class="items-cover" aria-hidden="true"><span style="width:${pct}%"></span></div>` : ""}</section>`;
+    const rows = (window.FRPG_TOWER_NEEDS || [])
+      .filter((row) => key(row.name) === key(item.name))
+      .sort((a, b) => a.floor - b.floor);
+    const bar = (current, goal) => {
+      const pct = goal > 0 ? Math.min(100, Math.round(current / goal * 100)) : 0;
+      return `<div class="items-cover" aria-hidden="true"><span style="width:${pct}%"></span></div>`;
+    };
+    if (!rows.length) {
+      const current = masteryOf(item.name);
+      if (current == null) return "";
+      return `<section class="items-block"><h3>Mastery</h3>
+        <div class="items-quest-top"><div><span>You have</span><strong>${fmt(current)}</strong><small>no Tower floor asks for this one</small></div></div>
+        ${bar(current, 1000000)}</section>`;
+    }
+    return `<section class="items-block"><h3>Tower mastery</h3>${rows.map((row) => {
+      const goalLabel = row.tier === "gm" ? "100k" : "1m";
+      const tier = row.tier === "gm" ? "GM" : "MM";
+      return `<div class="items-tower${row.complete ? " is-done" : ""}">
+        <div class="items-tower-head">
+          <b>Floor T${whole(row.floor)}</b>
+          <span class="items-tier is-${row.tier}" title="${row.tier === "gm" ? "Grand Mastery, 100,000" : "Mega Mastery, 1,000,000"}">${tier}</span>
+          <em>${row.complete ? "done" : `${fmt(row.remaining)} left`}</em>
+        </div>
+        ${bar(row.current, row.goal)}
+        <div class="items-tower-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.goal > 0 ? Math.floor(Math.min(100, row.current / row.goal * 100)) : 0}%</span></div>
+      </div>`;
+    }).join("")}</section>`;
   }
 
   function renderDetail(item) {

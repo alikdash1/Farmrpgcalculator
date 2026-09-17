@@ -5,6 +5,22 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-17 (4) — Quest badges count what you still owe
+
+The owner: *"does it change depending on how much is left for me or is it a
+fixed number? it should be flexible ... and the Tower mastery on the Items page,
+do it in there too"*.
+
+- **The Tower's quest badge is now what you still owe**: what the quests ask
+  for, less what the last capture says is in the barn. Wooden Spear with 9,000
+  held reads "Quest 7k" instead of "Quest 16k", and "Quest met" once you hold
+  enough. Without a capture it stays the full ask.
+- **The Items page measures a Tower mastery properly.** It was scoring every
+  item against 1,000,000, so a Grand Mastery looked a tenth done: Cotton at
+  237k now reads "Floor T301 · GM · done · 237k / 100k", not 24% of a million.
+  Each floor that wants the item gets its own row, with the tier badge, the bar
+  and the amount left, the same as the Tower page.
+
 ## 2026-09-17 (3) — Tower rows ranked, badged and measured
 
 The owner: *"if i have finished the thing move it down the slot and rank the

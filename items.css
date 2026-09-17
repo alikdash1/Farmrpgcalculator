@@ -183,3 +183,16 @@
 @media (pointer: coarse) {
   .items-filter, .items-chip, .items-row { min-height: 44px; }
 }
+
+/* Tower masteries read like the Tower page: the floor, the tier it wants, and
+   how much is left, because a Grand Mastery is 100,000 and not a million. */
+.items-tower { display: grid; gap: 4px; padding: 8px 12px; background: var(--ink2); border: 1px solid var(--line); border-radius: 4px; }
+.items-tower + .items-tower { margin-top: 8px; }
+.items-tower-head { display: flex; align-items: baseline; gap: 8px; }
+.items-tower-head b { font-size: 13px; }
+.items-tower-head em { margin-left: auto; color: var(--text); font: 500 12px var(--data), monospace; font-style: normal; }
+.items-tower.is-done .items-tower-head em { color: var(--muted); }
+.items-tier { padding: 1px 8px; border: 1px solid var(--line-strong); border-radius: 4px; font: 700 12px var(--data), monospace; }
+.items-tier.is-gm { color: var(--water); border-color: color-mix(in srgb, var(--water) 45%, var(--line)); }
+.items-tier.is-mm { color: var(--lantern); border-color: color-mix(in srgb, var(--lantern) 45%, var(--line)); }
+.items-tower-numbers { display: flex; justify-content: space-between; color: var(--muted); font: 500 12px var(--data), monospace; }

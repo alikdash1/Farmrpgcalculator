@@ -617,6 +617,14 @@
   // page answer "still needed for quests" from the same index.
   const QUEST_MODEL = window.FRPG_QUEST_MODEL || null;
   const questNeedsFor = (name) => QUEST_MODEL ? QUEST_MODEL.needsByItem(name, state.account) : null;
+  // What a quest still costs YOU: what it asks for, less what is already in
+  // the barn at the last capture. Without a capture it stays the full ask.
+  const heldOf = (name) => {
+    const rows = (state.account && state.account.inventory) || [];
+    const row = rows.find((entry) => entry && String(entry.name || "").trim().toLowerCase() === String(name).trim().toLowerCase());
+    const quantity = row ? Number(row.quantity) : NaN;
+    return Number.isFinite(quantity) ? quantity : null;
+  };
   const QUEST_STATUS_WORD = (status) => QUEST_MODEL ? QUEST_MODEL.needStatusWord(status) : "";
 
   function questNeedsHtml(name) {
@@ -2307,8 +2315,10 @@
         // same item — both decide whether this is worth doing next.
         const tierTag = `<span class="tower-tier is-${row.tier}" title="${esc(tierLabel)}">${row.tier === "gm" ? "GM" : "MM"}</span>`;
         const needs = row.complete ? null : questNeedsFor(row.name);
+        const held = needs ? heldOf(row.name) : null;
+        const owed = needs ? Math.max(0, needs.total - (held || 0)) : 0;
         const questTag = needs
-          ? `<span class="tower-questtag" title="${esc(plural(needs.steps, "quest", "quests"))} still asking for ${esc(fmt(needs.total))}">Quest ${esc(fmt(needs.total))}</span>`
+          ? `<span class="tower-questtag${owed ? "" : " is-met"}" title="${esc(plural(needs.steps, "quest", "quests"))} asking for ${esc(fmt(needs.total))}${held != null ? `, and you hold ${esc(fmt(held))}` : ""}">${owed ? `Quest ${esc(fmt(owed))}` : "Quest met"}</span>`
           : "";
         return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span class="tower-mm-tags">${tierTag}${questTag}<span>${esc(method)}</span></span></div><div class="tower-mm-bar"><div class="tower-progress"><i style="width:${percent}%"></i></div><b class="tower-left">${row.complete ? "Done" : `${fmt(row.remaining)} left`}</b></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${Math.floor(percent)}%`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}${ratingTag}</div></div>`;
       }).join("")}</div></article>`;
