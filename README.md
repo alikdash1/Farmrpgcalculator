@@ -1,4 +1,4 @@
-# Lantern Ledger
+# Farm RPG Calculator
 
 A planning tool for **Farm RPG**, built for endgame play.
 
@@ -26,7 +26,7 @@ There is no build step and no server. Clone it and open `index.html`.
 
 ```bash
 git clone <this repo>
-cd lantern-ledger
+cd Farmrpgcalculator
 # then just open index.html in a browser
 ```
 

@@ -1,4 +1,4 @@
-# Design plan — Lantern Ledger after dusk
+# Design plan — Farm RPG Calculator after dusk
 
 Written before CSS changes, 2026-09-05.
 

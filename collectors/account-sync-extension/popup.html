@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Lantern Ledger Account Sync</title>
+  <title>Farm RPG Calculator Account Sync</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <header>
-    <span>LANTERN LEDGER</span>
+    <span>FARM RPG CALCULATOR</span>
     <h1>Account Sync</h1>
     <p>Read-only memory for the Farm RPG pages you visit.</p>
   </header>
@@ -17,15 +17,15 @@
     <section class="coverage"><div><span>Account sections learned</span><b id="count">0 / 12</b></div><p id="missing"></p></section>
     <ul id="sections" class="sections"></ul>
     <button id="capture" class="primary">Capture this Farm RPG page</button>
-    <p class="hint">Captures are saved here and sent to Lantern Ledger while it is open. Nothing is downloaded unless you ask.</p>
+    <p class="hint">Captures are saved here and sent to Farm RPG Calculator while it is open. Nothing is downloaded unless you ask.</p>
     <details>
-      <summary>Open Lantern Ledger, save a file, other controls</summary>
-      <button id="open">Open Lantern Ledger Tower</button>
+      <summary>Open Farm RPG Calculator, save a file, other controls</summary>
+      <button id="open">Open the Tower page</button>
       <button id="export">Save account snapshot to Downloads</button>
       <label class="auto-save"><input id="autoSave" type="checkbox"> Keep that file updated after every capture</label>
       <label for="calculatorUrl">Local calculator address</label>
       <div class="url-row"><input id="calculatorUrl" type="url" spellcheck="false" value="https://alikdash1.github.io/Farmrpgcalculator/index.html"><button id="saveUrl">Save</button></div>
-      <p>Automatic sync works with the Lantern Ledger website, localhost or a local file. It stays inside this browser — your captures are never uploaded.</p>
+      <p>Automatic sync works with the Farm RPG Calculator website, localhost or a local file. It stays inside this browser — your captures are never uploaded.</p>
       <button id="clear" class="danger">Clear saved captures</button>
     </details>
     <p id="message" role="status"></p>

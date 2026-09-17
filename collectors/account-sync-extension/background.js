@@ -166,7 +166,7 @@ async function status() {
    kept the previous copy and added "(1)", "(2)"… to every new one. The
    downloads API with conflictAction "overwrite" keeps exactly one current
    snapshot on disk instead of a pile of near-identical files. */
-const SNAPSHOT_FILE = "lantern-ledger-account-snapshot.json";
+const SNAPSHOT_FILE = "farm-rpg-calculator-account-snapshot.json";
 
 async function saveSnapshotFile(snapshot) {
   if (!snapshot) return { ok: false, error: "Nothing captured yet." };
@@ -230,7 +230,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       await chrome.storage.local.set({ captures, snapshot, syncedAt });
       const prefs = await chrome.storage.local.get(["autoSaveFile"]);
       // Opt-in: the player asked not to keep collecting downloaded copies.
-      // A capture is already saved here and pushed to Lantern Ledger; the file
+      // A capture is already saved here and pushed to Farm RPG Calculator; the file
       // is only for moving it somewhere this extension cannot reach.
       if (prefs.autoSaveFile === true) await saveSnapshotFile(snapshot);
       return sendResponse({

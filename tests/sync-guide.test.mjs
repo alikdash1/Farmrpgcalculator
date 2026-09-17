@@ -33,7 +33,7 @@ test("the saved copy is built from the page and drops its own buttons", () => {
   const js = read("sync-guide.js");
   assert.match(js, /guide\.cloneNode\(true\)/, "the download mirrors what is on screen");
   assert.match(js, /querySelectorAll\("button"\)[\s\S]{0,60}remove\(\)/);
-  assert.match(js, /download = "lantern-ledger-account-sync-setup\.html"/);
+  assert.match(js, /download = "farm-rpg-calculator-account-sync-setup\.html"/);
   // Inlined styles: the file has to read correctly with the planner absent.
   assert.match(js, /<style>/);
   assert.doesNotMatch(js, /<link rel="stylesheet"/);

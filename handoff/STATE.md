@@ -79,7 +79,7 @@ Claim a task by adding a row before you start. Clear it when merged.
   them. Their rates and the inventory cap (15,870) are in there.
 - **The inventory cap is modelled** in Setup: production over the cap per
   collection is lost, which is why their Board and Wood both deliver 95,220/hr.
-- **Masteries are the 2026-09-11 export**, 519 items, imported with
+- **Masteries are the 2026-09-17 11:16 PM export**, 524 items, imported with
   `tools/build-personal-tower.py <csv>`. The export names carry the Tower floor
   and the importer strips it; **222 of its 224 floor labels agree with the app**
   (the two that differ are dual-floor items). Tower start floor is **286**.
@@ -181,6 +181,9 @@ Claim a task by adding a row before you start. Clear it when merged.
   side), what it makes, and the quests still wanting it measured against the
   player's inventory. Deep-linked as `#items/<buddy-slug>`; `app.js` splits the
   hash on "/" so a view can own a sub-path.
+- **The name is Farm RPG Calculator** (2026-09-17), logo `assets/red-trunk-mark.png`.
+  "Lantern Ledger" survives only in CHANGELOG history and `docs/history/`. The
+  extension's download filenames changed with it.
 - **The site is public** (github.com/alikdash1/Farmrpgcalculator, served at
   alikdash1.github.io/Farmrpgcalculator). The owner chose **private sync**:
   Account Sync 1.10's bridge feeds that exact address inside their browser.

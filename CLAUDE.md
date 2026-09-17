@@ -1,4 +1,4 @@
-# Lantern Ledger — Farm RPG planner
+# Farm RPG Calculator
 
 A static site that answers one question: **what does it actually cost to get
 an item, in the currency the player really spends?** Built for **endgame

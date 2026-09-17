@@ -280,7 +280,7 @@
     // Each view names itself in the browser tab and in history, like a page.
     const viewName = id === "home" ? "" : ((activeTab && activeTab.firstChild && activeTab.firstChild.textContent.trim())
       || ((document.querySelector(`#${id} h1`) || {}).textContent || "").trim());
-    document.title = viewName ? `${viewName} — Lantern Ledger` : "Lantern Ledger — Farm RPG Planner";
+    document.title = viewName ? `${viewName} — Farm RPG Calculator` : "Farm RPG Calculator";
     if (id === "planner" && !state.itemId) renderEmptySuggestions();
     if (id === "setup" || id === "fieldlab") renderSetup();
     if (id === "account") renderAccount();
@@ -2460,7 +2460,7 @@
   if ($("dataSummary")) $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
   // A visible build stamp. Half the "it still does the old thing" reports are a
 // browser holding an old copy of a file, and this is the only way to tell.
-if ($("footer")) $("footer").innerHTML = "Lantern Ledger is a fan-made Farm RPG planner, not affiliated with Farm RPG. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
+if ($("footer")) $("footer").innerHTML = "Farm RPG Calculator is a fan-made planner, not affiliated with Farm RPG. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
 
   function renderLibrary() {
     if (!$('strategyRules') || !$('mechanicsIndex')) return;

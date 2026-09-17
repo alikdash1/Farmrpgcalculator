@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Lantern Ledger Account Sync",
+  "name": "Farm RPG Calculator Account Sync",
   "version": "1.10.0",
-  "description": "Read-only sync from visited Farm RPG pages to Lantern Ledger, on your computer or its website.",
+  "description": "Read-only sync from visited Farm RPG pages to Farm RPG Calculator, on your computer or its website.",
   "permissions": [
     "storage",
     "tabs",
@@ -19,7 +19,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Lantern Ledger Account Sync",
+    "default_title": "Farm RPG Calculator Account Sync",
     "default_popup": "popup.html"
   },
   "content_scripts": [

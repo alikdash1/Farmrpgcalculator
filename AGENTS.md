@@ -1,6 +1,6 @@
 # Working agreement — Codex and Claude Code share this repo
 
-Two agents work on Lantern Ledger. Usage on both runs out fast, and almost all
+Two agents work on Farm RPG Calculator. Usage on both runs out fast, and almost all
 of it is wasted the same way: **re-deriving things the other one already knew.**
 Everything below exists to stop that.
 

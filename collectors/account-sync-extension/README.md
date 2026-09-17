@@ -1,8 +1,8 @@
-# Lantern Ledger Account Sync
+# Farm RPG Calculator Account Sync
 
 ## Saving to disk (v1.3)
 
-The snapshot is written to **one** file, `lantern-ledger-account-snapshot.json`
+The snapshot is written to **one** file, `farm-rpg-calculator-account-snapshot.json`
 in your Downloads folder, and each save **overwrites** it. The old export used a
 blob link, so the browser kept every previous copy and added `(1)`, `(2)`, … —
 that is what produced the pile of near-identical files.
@@ -11,7 +11,7 @@ Leave **"Keep that file updated after every capture"** ticked and the file alway
 matches what the extension has captured, with no duplicates. Untick it to save
 only when you press the button.
 
-This Brave/Chrome extension keeps Lantern Ledger updated from the Farm RPG account pages you actually visit. It is read-only: it does not click, navigate, craft, sell, explore, fish, trade, or send account data to a server.
+This Brave/Chrome extension keeps Farm RPG Calculator updated from the Farm RPG account pages you actually visit. It is read-only: it does not click, navigate, craft, sell, explore, fish, trade, or send account data to a server.
 
 ## Install or update in Brave
 
@@ -22,7 +22,7 @@ This Brave/Chrome extension keeps Lantern Ledger updated from the Farm RPG accou
 4. If it was already installed, press **Reload** on the extension card after every update.
 5. Open Farm RPG and refresh the game tab once.
 6. Visit account pages normally. The small **Account sync** pill confirms what was saved.
-7. Open Lantern Ledger at `http://127.0.0.1:8772/index.html#account`.
+7. Open Farm RPG Calculator at `http://127.0.0.1:8772/index.html#account`.
 
 ## Account sections
 
@@ -47,14 +47,14 @@ Existing captures made by version 1.1 are migrated when possible. In particular,
 
 ## Local and hosted calculators
 
-Automatic live sync is limited to Farm RPG, your local Lantern Ledger address, and **one** hosted address: `https://alikdash1.github.io/Farmrpgcalculator/*` (added in v1.10). Not all of github.io — just this site.
+Automatic live sync is limited to Farm RPG, your local Farm RPG Calculator address, and **one** hosted address: `https://alikdash1.github.io/Farmrpgcalculator/*` (added in v1.10). Not all of github.io — just this site.
 
 - Default calculator: `https://alikdash1.github.io/Farmrpgcalculator/index.html`
 - Change it from the popup under **Local calculator and data controls** (localhost and file addresses still work).
 - **Sync to the website is private.** The extension hands the snapshot to the open page inside your own browser, the same way it does locally. Nothing is uploaded or committed, so other people see the plain site and other devices do not get your captures.
 - Any other hosted copy: choose **Save account snapshot to Downloads**, then load that JSON file from the **Account** tab.
 
-If you open Lantern Ledger through a `file:///` address, enable **Allow access to file URLs** on the extension’s Details page.
+If you open Farm RPG Calculator through a `file:///` address, enable **Allow access to file URLs** on the extension’s Details page.
 
 ## Troubleshooting
 
@@ -75,5 +75,5 @@ The extension deliberately does **not** navigate the game for you. It only reads
 pages you open yourself, which is why anything you have not visited recently
 shows its real age rather than pretending to be up to date.
 
-Live sync while you play: leave Lantern Ledger open in a tab. Every capture is
+Live sync while you play: leave Farm RPG Calculator open in a tab. Every capture is
 pushed to it immediately, so the Tower and Quests pages update as you browse.

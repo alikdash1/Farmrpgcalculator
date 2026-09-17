@@ -1,4 +1,4 @@
-# Lantern Ledger — the whole briefing
+# Farm RPG Calculator — the whole briefing
 
 **Read this file first and you should not need to be taught anything else.**
 It exists so the owner stops re-explaining the project to every new AI session.
@@ -9,7 +9,7 @@ If you only read one section, read **Rules that do not bend** at the bottom.
 
 ## 1. What this is
 
-**Lantern Ledger** is a static website that answers one question about the game
+**Farm RPG Calculator** is a static website that answers one question about the game
 **Farm RPG**:
 
 > What does it actually cost to get an item — in the currency the player really

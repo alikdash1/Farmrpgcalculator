@@ -109,7 +109,7 @@ test("manifest stays narrowly scoped and popup supports complete export", () => 
   // The filename now lives in the service worker, which does the writing;
   // the popup only reports back whatever was saved.
   const background = fs.readFileSync(path.join(root, "background.js"), "utf8");
-  assert.match(background, /lantern-ledger-account-snapshot\.json/);
+  assert.match(background, /farm-rpg-calculator-account-snapshot\.json/);
   assert.match(popup, /saved\.filename/);
 });
 
@@ -118,7 +118,7 @@ test("snapshot is saved to a single overwritten file, never a growing pile", () 
   const background = fs.readFileSync(path.join(root, "background.js"), "utf8");
   // One stable name plus conflictAction overwrite is what stops Brave from
   // keeping the old copy and appending "(1)", "(2)" to each new export.
-  assert.match(background, /lantern-ledger-account-snapshot\.json/);
+  assert.match(background, /farm-rpg-calculator-account-snapshot\.json/);
   assert.match(background, /conflictAction:\s*"overwrite"/);
   assert.match(background, /saveAs:\s*false/);
   const popup = fs.readFileSync(path.join(root, "popup.js"), "utf8");

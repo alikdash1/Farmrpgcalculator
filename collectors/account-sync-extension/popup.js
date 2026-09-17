@@ -97,7 +97,7 @@ $("#capture").onclick = async () => {
   say(notes.length
     ? notes[0]
     : "Read this page" + (rows === null ? "" : " — " + rows.toLocaleString() + " row" + (rows === 1 ? "" : "s")) +
-      ". Saved here, and sent to Lantern Ledger if you have it open.",
+      ". Saved here, and sent to Farm RPG Calculator if you have it open.",
     notes.length > 0);
   setTimeout(refresh, 1200);
 };
@@ -127,7 +127,7 @@ $("#saveUrl").onclick = async () => {
     const url = new URL($("#calculatorUrl").value.trim());
     const localWeb = (url.protocol === "http:" || url.protocol === "https:") && (url.hostname === "127.0.0.1" || url.hostname === "localhost");
     const website = url.href.startsWith(SITE);
-    if (!localWeb && !website && url.protocol !== "file:") throw new Error("Automatic sync works with the Lantern Ledger website, localhost or a local file.");
+    if (!localWeb && !website && url.protocol !== "file:") throw new Error("Automatic sync works with the Farm RPG Calculator website, localhost or a local file.");
     await chrome.storage.local.set({ calculatorUrl: url.href });
     say("Calculator address saved.");
   } catch (error) {

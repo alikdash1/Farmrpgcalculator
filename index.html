@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#27364B">
   <meta name="description" content="Plan Farm RPG crafting, Tower masteries, Mining, fishing, and account-aware routes in one fan-made desk.">
-  <title>Lantern Ledger — Farm RPG Planner</title>
+  <title>Farm RPG Calculator</title>
   <meta name="color-scheme" content="dark">
-  <link rel="icon" href="assets/lantern-ledger-mark.svg?v=20260905-102" type="image/svg+xml">
-  <link rel="manifest" href="site.webmanifest?v=20260904-1">
+  <link rel="icon" href="assets/red-trunk-mark.png?v=20260917-6" type="image/png">
+  <link rel="manifest" href="site.webmanifest?v=20260917-6">
   <link rel="stylesheet" href="style.css?v=20260911-5">
   <link rel="stylesheet" href="v3.css?v=20260911-5">
   <link rel="stylesheet" href="tower.css?v=20260917-2">
@@ -18,12 +18,12 @@
   <link rel="stylesheet" href="inventory.css?v=20260911-6">
   <link rel="stylesheet" href="items.css?v=20260917-3">
   <link rel="stylesheet" href="tracker.css?v=20260911-5">
-  <link rel="stylesheet" href="system.css?v=20260917-1">
+  <link rel="stylesheet" href="system.css?v=20260917-6">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="masthead">
-    <a class="brand" href="#home" data-open-view="home" aria-label="Lantern Ledger home"><img class="brand-logo" src="assets/lantern-ledger-mark.svg?v=20260905-102" alt="" width="44" height="44"><span><strong>Lantern Ledger</strong><small>Farm RPG planning desk</small></span></a>
+    <a class="brand" href="#home" data-open-view="home" aria-label="Farm RPG Calculator home"><img class="brand-logo" src="assets/red-trunk-mark.png?v=20260917-6" alt="" width="44" height="44"><span><strong>Farm RPG Calculator</strong><small>What an item really costs</small></span></a>
     <nav class="tabs" aria-label="Planner sections">
       <button class="tab active" data-tab="home" aria-current="page">Home</button>
       <span class="tab-sep" aria-hidden="true"></span>
@@ -196,7 +196,7 @@
           </article>
           <article>
             <h3>Without leaving it running</h3>
-            <p>Nothing is downloaded unless you ask for it. If you do want a file, open the extension's <b>other controls</b> and press <b>Save account snapshot to Downloads</b>. You get one file, <code>lantern-ledger-account-snapshot.json</code>, which overwrites itself rather than piling up numbered copies.</p>
+            <p>Nothing is downloaded unless you ask for it. If you do want a file, open the extension's <b>other controls</b> and press <b>Save account snapshot to Downloads</b>. You get one file, <code>farm-rpg-calculator-account-snapshot.json</code>, which overwrites itself rather than piling up numbered copies.</p>
             <p>Bring it back here with <b>Load a saved file instead</b> above, check what it found, then press <b>Apply confirmed values</b>.</p>
             <p>Tick <b>Keep that file updated after every capture</b> only if you want that file rewritten every time.</p>
           </article>
@@ -263,7 +263,7 @@
         <div><h1>On hand. Still needed.</h1><p id="inventoryTracking" class="inventory-tracking"></p></div>
       </section>
       <section class="inventory-owned-section">
-        <header class="inventory-section-heading"><div><h2>Your inventory</h2><p>Search the items currently saved in Lantern Ledger.</p></div><div id="inventorySummary" class="inventory-summary" aria-live="polite"></div></header>
+        <header class="inventory-section-heading"><div><h2>Your inventory</h2><p>Search the items you have saved here.</p></div><div id="inventorySummary" class="inventory-summary" aria-live="polite"></div></header>
         <div class="inventory-toolbar"><label class="inventory-search"><span>Find an item</span><input id="inventorySearch" name="inventory-search" type="search" autocomplete="off" placeholder="Item name…"></label></div>
         <div id="inventoryOwned" class="inventory-owned"></div>
       </section>
@@ -337,7 +337,7 @@
     </section>
   </main>
   <footer class="site-footer">
-    <p id="footer" class="footer">Lantern Ledger is fan-made and is not affiliated with Farm RPG.</p>
+    <p id="footer" class="footer">Farm RPG Calculator is fan-made and is not affiliated with Farm RPG.</p>
     <nav aria-label="More about the numbers">
       <button type="button" class="text-action" data-open-view="library">Where the numbers come from</button>
       <button type="button" class="text-action" data-open-view="fieldlab">Record your own drop rates</button>
@@ -347,7 +347,7 @@
   <script src="data/data.js?v=20260906-1"></script>
   <script src="data/extra-items.js?v=20260911-1"></script>
   <script src="data/knowledge.js?v=20260902-9"></script>
-  <script src="data/personal-tower.js?v=20260912-1"></script>
+  <script src="data/personal-tower.js?v=20260917-6"></script>
   <script src="data/tower-floors.js?v=20260911-4"></script>
   <script src="data/main-quests.js?v=20260904-1"></script>
   <script src="data/personal-quests.js?v=20260904-1"></script>
@@ -370,7 +370,7 @@
   <script src="engine.js?v=20260911-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260917-1"></script>
-  <script src="app.js?v=20260917-4"></script>
+  <script src="app.js?v=20260917-6"></script>
   <script src="mining-page.js?v=20260911-5"></script>
   <script src="locations-page.js?v=20260911-5"></script>
   <script src="quests-page.js?v=20260905-3"></script>
@@ -378,6 +378,6 @@
   <script src="inventory-page.js?v=20260905-9"></script>
   <script src="items-page.js?v=20260917-5"></script>
   <script src="tracker.js?v=20260911-1"></script>
-  <script src="sync-guide.js?v=20260904-2"></script>
+  <script src="sync-guide.js?v=20260917-6"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # Farm RPG mechanics review — please check my calculator's assumptions
 
-I'm building a Farm RPG planning tool called **Lantern Ledger**. It answers one
+I'm building a Farm RPG planning tool called **Farm RPG Calculator**. It answers one
 question: *what does it actually cost to get an item, in the currency I really
 spend?* It's built for endgame play — Grand Mastery (100,000), Mega Mastery
 (1,000,000), and Tower floors T301–T340.

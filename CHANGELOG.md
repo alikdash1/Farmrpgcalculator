@@ -5,6 +5,29 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-17 (6) — It is called Farm RPG Calculator now, and the Red Trunk is the logo
+
+The owner is about to send the link to a friend in the game, and "Lantern
+Ledger" meant nothing to anyone who had not built it. The site is now **Farm
+RPG Calculator**, with the Red Trunk as its mark — their own million-mastery
+project, and the item the planner has always opened on.
+
+- Renamed in the masthead, the tab title, the web manifest, the footer and the
+  Account Sync extension (including the two download filenames, which now read
+  `farm-rpg-calculator-account-snapshot.json` and
+  `farm-rpg-calculator-account-sync-setup.html`). The strapline is now *"What an
+  item really costs"* instead of *"Farm RPG planning desk"* — saying "Farm RPG"
+  twice in the same breath read as filler.
+- `assets/red-trunk-mark.png` (Farm RPG's own art, saved locally so the logo and
+  the favicon still appear with no network) replaces
+  `assets/lantern-ledger-mark.svg`, which is deleted. The mark is square now, so
+  `.brand-logo` is 44x44 and no longer stretched to 48; `image-rendering` went
+  back to `auto` because a 256px render downscaled with `pixelated` looked torn.
+- Imported the 2026-09-17 11:16 PM mastery export: 524 items, 164 moved, 5 new
+  (Flarite Ring, Quench, Fairy Ring, Horn Powder, Pinecone Bird Feeder).
+  **Horn Canteen finished its Mega Mastery**, Glass Jar went 122,665 to 702,529,
+  Mystic Ring 603,970 to 864,842, Wooden Spear 105,084 to 274,057.
+
 ## 2026-09-17 (5) — The item index reads like the Tower
 
 The owner, pointing at the Items list: *"add the GM MM stuff just like tower,

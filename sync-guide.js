@@ -18,7 +18,7 @@
     body.querySelectorAll("button").forEach((node) => node.remove());
     return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lantern Ledger — account sync setup</title>
+<title>Farm RPG Calculator — account sync setup</title>
 <style>
 :root{color-scheme:dark}
 body{margin:0;padding:44px 22px 80px;background:#151619;color:#e8eae7;
@@ -45,7 +45,7 @@ code.path{display:inline-block;padding:5px 9px}
 footer{margin-top:40px;padding-top:16px;border-top:1px solid #2e3036;color:#9aa09a;font-size:.84rem}
 </style></head>
 <body><main>${body.innerHTML}
-<footer>Saved from Lantern Ledger on ${new Date().toLocaleDateString()}. The extension lives in
+<footer>Saved from Farm RPG Calculator on ${new Date().toLocaleDateString()}. The extension lives in
 <code>calculator\\collectors\\account-sync-extension</code>.</footer>
 </main></body></html>`;
   }
@@ -56,7 +56,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid #2e3036;color:#9aa0
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "lantern-ledger-account-sync-setup.html";
+      link.download = "farm-rpg-calculator-account-sync-setup.html";
       document.body.append(link);
       link.click();
       link.remove();

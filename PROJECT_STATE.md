@@ -1,4 +1,4 @@
-# FarmRPG Calculator ("Lantern Ledger") — Project State
+# Farm RPG Calculator — Project State
 
 Read this first when resuming this project in a new session. Then read, in order:
 
@@ -20,7 +20,7 @@ Read this first when resuming this project in a new session. Then read, in order
 ## What this project is
 
 A Farm RPG (browser game) calculator/planner built for the user and their
-friend group, named **Lantern Ledger**. It's a static site (`index.html` +
+friend group, named **Farm RPG Calculator**. It's a static site (`index.html` +
 `app.js` + `engine.js` + `data/*.js`), no build step, no server required
 (everything loads via `<script>` tags, so it works over `file://`).
 
