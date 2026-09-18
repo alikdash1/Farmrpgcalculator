@@ -25,6 +25,10 @@ reconstructed from the Codex chat transcript only).
   table and on the make/buy rows. The item then costs nothing and the tree stops
   there — for a stack in storage, a reward, a gift, or anything you just don't
   want costed. It shows under "covered", so "Show covered" brings it back.
+- Imported the 2026-09-19 1:01 AM mastery export: 43 moved. **Magicite
+  finished its Mega Mastery**; Wooden Spear 274,057 → 463,142, Glass Jar
+  702,529 → 794,393, Mystic Ring 864,842 → 917,764, Linked Lantern past Grand
+  Mastery (106,720).
 
 ## 2026-09-17 (6) — It is called Farm RPG Calculator now, and the Red Trunk is the logo
 

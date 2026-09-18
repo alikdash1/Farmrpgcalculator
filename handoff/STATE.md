@@ -79,7 +79,7 @@ Claim a task by adding a row before you start. Clear it when merged.
   them. Their rates and the inventory cap (15,870) are in there.
 - **The inventory cap is modelled** in Setup: production over the cap per
   collection is lost, which is why their Board and Wood both deliver 95,220/hr.
-- **Masteries are the 2026-09-17 11:16 PM export**, 524 items, imported with
+- **Masteries are the 2026-09-19 1:01 AM export**, 524 items, imported with
   `tools/build-personal-tower.py <csv>`. The export names carry the Tower floor
   and the importer strips it; **222 of its 224 floor labels agree with the app**
   (the two that differ are dual-floor items). Tower start floor is **286**.
