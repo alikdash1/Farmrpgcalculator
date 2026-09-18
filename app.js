@@ -403,6 +403,8 @@
       const amount = (v) => { const raw = v && typeof v === "object" ? v.value : v; if (raw == null || raw === "") return null; const n = Number(raw); return Number.isFinite(n) ? n : null; };
       const silver = amount(balances.silver), gold = amount(balances.gold);
       const now = amount(balances.staminaCurrent), max = amount(balances.staminaMaximum);
+      const farmhouse = (state.account.infrastructure || {}).farmhouse || {};
+      const rest = amount(farmhouse.restStamina);
       // Every page carries silver and gold, so they are as fresh as the newest
       // capture of any page — not the snapshot's generatedAt, which lags.
       const newest = ((state.account.captures || []).map((c) => Date.parse(c.capturedAt || "")).filter(Number.isFinite).sort((x, y) => y - x)[0]) || Date.parse(state.account.generatedAt || "");
@@ -411,7 +413,8 @@
       money.push(tile("Silver", silver != null ? fmt(silver) : "—", silver != null ? `as of ${when}` : "capture any Farm RPG page"));
       money.push(tile("Gold", gold != null ? gold.toLocaleString("en-US") : "—", gold != null ? `as of ${when}` : "capture any Farm RPG page"));
       money.push(tile("Stamina", now != null ? (max != null ? `${fmt(now)} / ${fmt(max)}` : fmt(now)) : (max != null ? `max ${fmt(max)}` : "—"),
-        now != null ? `as of ${when}` : max != null ? "capture an explore page for what you have now" : "capture an explore page"));
+        (now != null ? `as of ${when}` : max != null ? "capture an explore page for what you have now" : "capture an explore page")
+          + (rest != null ? ` · resting gives +${fmt(rest)}` : "")));
     }
 
     host.hidden = bits.length === 0;

@@ -73,3 +73,15 @@ test("the item Star is not the star icon", () => {
   assert.equal(T.isNoise("star"), true);
   assert.equal(T.isNoise("Star"), false);
 });
+
+test("the farmhouse page is recognised and read", () => {
+  const text = ["Rest Bonus: Right now, your stamina cap will increase by", "2", "when you rest. You have", "80,219,537",
+    "current stamina and your stamina cap is", "87,206"].join(String.fromCharCode(10));
+  assert.equal(T.detectPageType(text, [])[0], "farmhouse");
+  assert.ok(src.includes("stamina" + String.fromCharCode(92) + "s*instantly"), "reads what resting gives");
+});
+
+test("new items get their picture from their own row, not alt text", () => {
+  assert.match(src, /querySelectorAll\("img\.itemimg"\)/);
+  assert.match(src, /closest\("\.item-content, li"\)/);
+});

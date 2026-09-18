@@ -5,6 +5,28 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-19 (4) — Farmhouse, stamina and new items' pictures
+
+Checked the owner's third recapture in their Brave: **quests are right again**
+(8 active, 2 personal, 1 special available), **stamina 80,219,537 / 87,206**,
+Star = 10,281.
+
+- **The Farmhouse page was not recognised** (saved as "other"). It is now read:
+  current stamina and cap, what the next rest gives (436,030) and how much it
+  raises the cap. Home shows "resting gives +436k" on the stamina tile.
+- **Two real items were skipped as prose** for being five words long —
+  Forcepath's Book of Quest Requirements, Buddy Elf on a Shelf. Only a lower-case
+  sentence opening ("a ...", "The fish ...") counts as prose now.
+- **New items had no picture, so the site hid them.** Inventory pictures carry no
+  alt text (1 of 1,165 did), so pictures are now paired with the name in their own
+  row: 1,143 of 1,144 items on the live page, Mega Trout included. That picture is
+  what tells the site Mega Trout is a real item.
+- Account Sync 1.11.2.
+
+Noticed, not built: the farm page (`xfarm.php`) lists every building's output —
+Sawmill, Hay Field, Quarry, Steelworks, Worm Habitat — which could fill Setup's
+production numbers from a capture.
+
 ## 2026-09-19 (3) — The recapture, checked
 
 The owner recaptured Mastery, Inventory and an explore location with 1.11.

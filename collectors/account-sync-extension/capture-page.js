@@ -182,6 +182,7 @@
       [/(?:helprequests?|quests?)/, "quests", "Quests / Help Requests"],
       [/(?:pets?\.php|pet[-_ ]?shop)/, "pets", "Pets"],
       [/(?:npclevels|friendship)/, "friendships", "Friendship Levels"],
+      [/farmhouse/, "farmhouse", "Farmhouse"],
       [/(?:kitchen|cooking\.php)/, "kitchen", "My Kitchen"],
       [/(?:farm[-_ ]?supply|supply\.php)/, "farm-supply", "Farm Supply"],
       [/craftworks?/, "craftworks", "Craftworks"],
@@ -214,6 +215,7 @@
     // wiped 8 active quests and recorded one called "Help".
     if (has(/\bcompleted requests\s*\(/)) return ["quests-completed", "Completed Help Requests"];
     if (has(/\bactive requests\s*\(/)) return ["quests", "Quests / Help Requests"];
+    if (has(/current stamina and your stamina cap is/)) return ["farmhouse", "Farmhouse"];
     if (has(/\bexploring locations\b|\/\s*[\d,]+\s*stamina\b/)) return ["exploring", "Exploring"];
     if (has(/\babout pets\b/) && has(/\bmy pets\b/)) return ["pets", "Pets"];
     if (has(/\bfriendship levels\b/) && has(/\bcurrent levels\b/)) return ["friendships", "Friendship Levels"];
@@ -1458,6 +1460,22 @@
       if (!/\/img\/items\//i.test(src)) return;
       if (!art[name]) art[name] = src.replace(/^https?:\/\/[^/]+/i, "");
     });
+    // Inventory pictures carry no alt text (1 of 1,165 did), so pair each
+    // picture with the name in its own row instead. That is the only way a
+    // brand-new item like Mega Trout gets a picture, and with it a place in
+    // the planner's list of real items.
+    document.querySelectorAll("img.itemimg").forEach((img) => {
+      const src = String(img.getAttribute("src") || "").split(/[?#]/)[0];
+      if (!/\/img\/items\//i.test(src)) return;
+      const row = img.closest(".item-content, li");
+      const title = row && row.querySelector("strong");
+      if (!title) return;
+      const copy = title.cloneNode(true);
+      copy.querySelectorAll(".tw-badge").forEach((badge) => badge.remove());
+      const name = cleanWhitespace(copy.textContent || "");
+      if (!name || name.length > 60) return;
+      if (!art[name]) art[name] = src.replace(/^https?:\/\/[^/]+/i, "");
+    });
     return art;
   }
 
@@ -1480,7 +1498,10 @@
     // name is the description, not an item. Named here rather than dropped
     // silently, because a wrong inventory quietly corrupts every gather list.
     const pictured = new Set(Object.keys(harvestItemArt()).map((name) => name.trim().toLowerCase()));
-    const looksLikeProse = (name) => /^(a|an|the)\s+[a-z]/i.test(name) || name.split(/\s+/).length >= 5;
+    // Only a sentence that starts "a ...", "an ...", "the ..." in lower case.
+    // Counting words skipped real items: "Forcepath's Book of Quest
+    // Requirements", "Buddy Elf on a Shelf".
+    const looksLikeProse = (name) => /^(a|an|the)\s+[a-z]/.test(name) || /^(A|An|The)\s+[a-z]+\s+[a-z]/.test(name);
     const skipped = [];
 
     for (const item of parsed.inventory) {
@@ -1626,6 +1647,22 @@
       applyInventoryPage(fields, parseInventoryPage(lines, visibleText));
     } else if (pageType === "inventory" || pageType === "storehouse") {
       extractInventory(fields, fields.warnings);
+    }
+    // The Farmhouse says it in one sentence: "You have 80,219,537 current
+    // stamina and your stamina cap is 87,206. The next time you rest, you'll
+    // receive 436,030 stamina instantly." Rest also raises the cap by a little.
+    if (pageType === "farmhouse") {
+      const flat = visibleText.replace(/\s+/g, " ");
+      let fm = flat.match(/You have\s*([\d,]+)\s*current stamina and your stamina cap is\s*([\d,]+)/i);
+      if (fm) {
+        fields.balances.staminaCurrent = qtyScalar(fm[1], "visible-label");
+        fields.balances.staminaMaximum = qtyScalar(fm[2], "visible-label");
+      }
+      fields.infrastructure.farmhouse ||= {};
+      fm = flat.match(/you'll receive\s*([\d,]+)\s*stamina\s*instantly/i);
+      if (fm) fields.infrastructure.farmhouse.restStamina = qtyScalar(fm[1], "visible-label");
+      fm = flat.match(/stamina cap will increase by\s*([\d,]+)\s*when you rest/i);
+      if (fm) fields.infrastructure.farmhouse.restCapIncrease = qtyScalar(fm[1], "visible-label");
     }
     if (pageType === "mastery") {
       const masteryText = masteryPageText() || visibleText;
