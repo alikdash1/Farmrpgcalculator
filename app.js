@@ -985,6 +985,7 @@
 
   function sourceRoute(item, missing, m, consts) {
     if (missing <= 0) return { type: "owned", label: "Inventory", detail: "Already covered", goldEq: 0 };
+    if (state.sourceChoices[item.id] === "free") return { type: "covered", label: "You have it", detail: "Not costed — you said you have it or get it free", goldEq: 0 };
     const decision = state.decisionActions.get(item.id);
     const infra = infraFor(item, missing, m);
     if (decision === "building" || infra && !decision) {
@@ -1053,6 +1054,10 @@
     if (!isFish(item) && E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
     if (!isFish(item) && source.vendor) options.push(["vendor", "Store"]);
     if (infraFor(item, 1, m)) options.push(["covered", "Covered"]);
+    // Any item can be one you already have, get free or just don't want
+    // costed — a gift, a reward, a stack in storage. It then costs nothing and
+    // stops the tree there.
+    options.push(["free", "I have it / free"]);
     const selected = state.makeChoices[item.id] === "craft" && craftable
       ? "craft"
       : (state.sourceChoices[item.id] || "auto");
@@ -1452,8 +1457,11 @@
         const direct = E.marketQuote(index, id, node.qtyOut);
         const infra = infraFor(item, node.qtyOut, m);
         const farm = farmPlan(item, node.qtyOut, m, consts);
-        if (!direct && !infra && !farm) continue;
-        const decision = makeDecision(node, m, consts);
+        const free = state.sourceChoices[id] === "free";
+        if (!direct && !infra && !farm && !free) continue;
+        const decision = free
+          ? { action: "building", auto: "building", reason: "You have it or get it free", direct, farm, materials: { goldEq: 0, complete: true }, infra: null, manual: "free", cashWinner: "inventory", progressionWinner: "inventory" }
+          : makeDecision(node, m, consts);
         passDecisions.push({ node, item, ...decision });
         passActions.set(id, decision.action);
         if (["trade", "building", "farm"].includes(decision.action)) passStops.add(id);
@@ -1590,7 +1598,7 @@
     if (activeDecisions.length) {
       el.makeBuy.classList.remove("hidden");
       el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
-        const selected = state.makeChoices[decision.item.id] || "auto";
+        const selected = state.sourceChoices[decision.item.id] === "free" ? "free" : (state.makeChoices[decision.item.id] || "auto");
         const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients on the cheapest routes` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
         const directText = decision.direct ? quoteText(decision.direct) : "";
@@ -1598,10 +1606,15 @@
         const costText = decision.auto === "farm" ? farmText : decision.auto === "trade" ? directText : decision.auto === "building" ? infraText : materialText;
         const codrops = decision.farm ? coDropSentence(decision.farm) : "";
         const autoLabel = decision.auto === "building" ? "building" : decision.auto;
-        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}</select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
+        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}<option value="free" ${selected === "free" ? "selected" : ""}>I have it / free</option></select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
       }).join("")}</div>`;
       el.makeBuy.querySelectorAll("[data-make-id]").forEach((select) => {
-        select.onchange = () => { state.makeChoices[select.dataset.makeId] = select.value; save(); render(); };
+        select.onchange = () => {
+          const id = select.dataset.makeId;
+          if (select.value === "free") { state.sourceChoices[id] = "free"; delete state.makeChoices[id]; }
+          else { if (state.sourceChoices[id] === "free") delete state.sourceChoices[id]; state.makeChoices[id] = select.value; }
+          save(); render();
+        };
       });
     } else {
       el.makeBuy.classList.add("hidden");

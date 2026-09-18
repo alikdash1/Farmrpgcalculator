@@ -21,6 +21,10 @@ reconstructed from the Codex chat transcript only).
   and a **Plan just the N left** button sets the quantity to it (Glass Jar:
   702.53k → 297.47k left → 205.15k crafts). With the duplicate perks off, it
   tells you which ones to turn on.
+- **"I have it / free" on every ingredient in Calculate**, on the ingredient
+  table and on the make/buy rows. The item then costs nothing and the tree stops
+  there — for a stack in storage, a reward, a gift, or anything you just don't
+  want costed. It shows under "covered", so "Show covered" brings it back.
 
 ## 2026-09-17 (6) — It is called Farm RPG Calculator now, and the Red Trunk is the logo
 
