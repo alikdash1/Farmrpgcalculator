@@ -5,6 +5,20 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-19 (5) — Setup fills itself from the farm page
+
+- **Account Sync 1.12 reads My Farm** (`xfarm.php`): every building and what it
+  makes, e.g. Sawmill 60,000 Boards / 48,000 Wood / 4,000 Oak per hour,
+  Steelworks 6,000 Steel / 2,000 Wire, Hay Field 9,000 Straw per 10 min, Quarry
+  8,000 Stone per 10 min and 5,000 Coal an hour. Stored under the snapshot's
+  existing building keys.
+- **Setup fills in from it.** A new farm capture fills any production number
+  still at 0, once; numbers you typed are left alone. "Use my farm's numbers"
+  on Setup replaces them all. Setup lists what the capture says above the cards.
+- A page Farm RPG identifies by its address keeps that type. The "looks like the
+  inventory" guess used to override it, which is how the Farmhouse capture was
+  relabelled and thrown away.
+
 ## 2026-09-19 (4) — Farmhouse, stamina and new items' pictures
 
 Checked the owner's third recapture in their Brave: **quests are right again**

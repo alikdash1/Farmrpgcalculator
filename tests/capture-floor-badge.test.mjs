@@ -15,9 +15,9 @@ function grab(name) {
   throw new Error("missing " + name);
 }
 const grabConst = (name) => { const i = src.indexOf("  const " + name + " "); return src.slice(i, src.indexOf(";\n", i) + 1); };
-const T = eval("(() => {" + ["SUFFIX_EXP", "MAX_SAFE_BIG", "NOISE_LINES", "ICON_WORDS", "NAME_RE"].map(grabConst).join("\n") +
-  ["scalar", "qtyScalar", "extractBalances", "detectPageType", "stripFloor", "parseQty", "isNoise", "isPlainQty", "isPlausibleName", "parseMasteryPage", "parseInventoryPage", "parseQuestDashboard"].map(grab).join("\n") +
-  "\nreturn { parseMasteryPage, parseInventoryPage, parseQuestDashboard, extractBalances, detectPageType, isNoise }; })()");
+const T = eval("(() => {" + ["SUFFIX_EXP", "MAX_SAFE_BIG", "NOISE_LINES", "ICON_WORDS", "NAME_RE", "FARM_BUILDINGS", "FARM_HEADINGS"].map(grabConst).join("\n") +
+  ["scalar", "qtyScalar", "extractBalances", "detectPageType", "parseFarmPage", "stripFloor", "parseQty", "isNoise", "isPlainQty", "isPlausibleName", "parseMasteryPage", "parseInventoryPage", "parseQuestDashboard"].map(grab).join("\n") +
+  "\nreturn { parseMasteryPage, parseInventoryPage, parseQuestDashboard, extractBalances, detectPageType, isNoise, parseFarmPage }; })()");
 
 test("the Tower floor badge is never read as text", () => {
   // Read as text it became the quantity: Rope = 206 when 9,242 were held.
@@ -84,4 +84,18 @@ test("the farmhouse page is recognised and read", () => {
 test("new items get their picture from their own row, not alt text", () => {
   assert.match(src, /querySelectorAll\("img\.itemimg"\)/);
   assert.match(src, /closest\("\.item-content, li"\)/);
+});
+
+test("the farm page gives every building's output", () => {
+  const lines = ["Farmhouse", "Rest to increase max stamina", "2 Stamina", "Increase Per Day", "Raptor Pen", "Raise Raptors to hunt daily", "194,810 Antlers",
+    "Sawmill", "Produces Boards/Wood hourly", "60,000 Boards", "48,000 Wood", "4,000 Oak", "Ironworks", "Produces Iron/Nails every 3 mins", "1 Iron", "3 Nails",
+    "Steelworks", "Produces Steel/Wire hourly", "6,000 Steel", "2,000 Wire", "Hay Field", "Produces Straw every 10 mins", "9,000 Straw", "54,000 Hourly",
+    "Quarry", "Stone/Gems every 10 mins", "8,000 Stone", "48,000 Stone Hourly", "5,000 Coal Hourly", "Flour Mill", "Produces Flour from Wheat", "INV FULL"];
+  const farm = T.parseFarmPage(lines);
+  assert.deepEqual(farm.sawmill, { boards: "60,000", wood: "48,000", oak: "4,000" });
+  assert.deepEqual(farm.steelworks, { steel: "6,000", wire: "2,000" });
+  assert.deepEqual(farm.hayField, { straw: "9,000", hourly: "54,000" });
+  assert.deepEqual(farm.quarry, { stone: "8,000", stoneHourly: "48,000", coalHourly: "5,000" });
+  assert.equal(farm.raptorPen, undefined, "a building Setup does not track is left out, not merged into the one above");
+  assert.equal(T.detectPageType(lines.join(String.fromCharCode(10)), [])[0], "farm");
 });

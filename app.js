@@ -1740,7 +1740,42 @@
     if (types.includes("iron_depot")) return "Farm infrastructure";
     return "Special drops";
   }
+  // What a capture of the farm page says each building makes, in Setup's own
+  // units: [setting, amount, building, what it is].
+  function farmProduction() {
+    const infra = (state.account && state.account.infrastructure) || {};
+    const n = (v) => { const raw = v && typeof v === "object" ? v.value : v; if (raw == null || raw === "") return null; const x = Number(raw); return Number.isFinite(x) ? x : null; };
+    const at = (building, key) => n((infra[building] || {})[key]);
+    return [
+      ["woodHour", at("sawmill", "wood"), "Sawmill", "Wood / hr"],
+      ["boardHour", at("sawmill", "boards"), "Sawmill", "Boards / hr"],
+      ["steelHour", at("steelworks", "steel"), "Steelworks", "Steel / hr"],
+      ["wireHour", at("steelworks", "wire"), "Steelworks", "Steel Wire / hr"],
+      ["strawTen", at("hayField", "straw"), "Hay Field", "Straw / 10 min"],
+      ["stoneTen", at("quarry", "stone"), "Quarry", "Stone / 10 min"],
+      ["coalHour", at("quarry", "coalHourly"), "Quarry", "Coal / hr"],
+    ].filter((row) => row[1] != null);
+  }
+  function farmCaptureAt() {
+    const farm = ((state.account && state.account.captures) || []).find((c) => c.pageType === "farm");
+    return farm ? farm.capturedAt : null;
+  }
+  // A new farm capture fills any production number still at 0, once. A number
+  // you typed yourself is left alone; "Use my farm's numbers" replaces them all.
+  function fillFarmProduction(overwrite) {
+    const at = farmCaptureAt();
+    if (!overwrite && (!at || state.infra.farmFilledFrom === at)) return 0;
+    let changed = 0;
+    for (const [key, value] of farmProduction()) {
+      if ((overwrite || !Number(state.infra[key])) && state.infra[key] !== value) { state.infra[key] = value; changed += 1; }
+    }
+    if (at) state.infra.farmFilledFrom = at;
+    save();
+    return changed;
+  }
+
   function renderSetup() {
+    fillFarmProduction(false);
     const rows = profileRows();
     const groups = {};
     rows.forEach((row) => { (groups[perkArea(row)] ||= []).push(row); });
@@ -1767,8 +1802,14 @@
       { title: "Hay Field", art: itemByName("Straw"), body: "Straw arrives every 10 minutes. Covering it here covers every recipe that needs Straw — Twine, Rope, Yarn and the rest — so those stop sending you exploring for it.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="hayStraw" ${state.infra.hayStraw ? "checked" : ""}> Cover Straw</label><label class="mini-field">Straw / 10 min<input type="number" min="0" data-infra-number="strawTen" value="${clean(state.infra.strawTen)}"></label><fieldset class="hay-make" ${state.infra.hayStraw ? "" : "disabled"}><legend>Make these from your Straw</legend>${strawFamily().map((item) => `<label class="inline-toggle"><input type="checkbox" data-hay-make="${esc(item.name)}" ${(state.infra.hayMake || {})[item.name] ? "checked" : ""}> ${esc(item.name)}</label>`).join("")}<small>Leave one unticked if you would rather buy it.</small></fieldset>` },
       { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];
-    $("infraGrid").innerHTML = infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
+    const production = farmProduction();
+    const farmNote = production.length
+      ? `<div class="farm-capture"><div><strong>From your farm</strong><span>${production.map(([, value, building, what]) => `${esc(building)} ${fmt(value)} ${esc(what)}`).join(" · ")}</span></div><button type="button" class="quiet-button" data-use-farm>Use my farm's numbers</button></div>`
+      : `<p class="farm-capture-hint">Capture your farm page (My Farm) with Account Sync and these numbers fill in by themselves.</p>`;
+    $("infraGrid").innerHTML = farmNote + infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
     document.querySelectorAll("[data-infra]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infra] = input.checked; save(); render(); }; });
+    const useFarm = document.querySelector("[data-use-farm]");
+    if (useFarm) useFarm.onclick = () => { fillFarmProduction(true); renderSetup(); render(); };
     document.querySelectorAll("[data-hay-make]").forEach((input) => {
       input.onchange = () => {
         const next = Object.assign({}, state.infra.hayMake, { [input.dataset.hayMake]: input.checked });
@@ -2570,6 +2611,7 @@
     save();
     renderAccount();
     renderTower();
+    if (fillFarmProduction(false)) { renderSetup(); render(); }
   });
   window.postMessage({ source: "farmrpg-calculator", type: "request-snapshot" }, "*");
   $("exportPlan").onclick = () => {

@@ -173,6 +173,7 @@
       return null;
     }
     const routes = [
+      [/xfarm/, "farm", "My Farm"],
       [/questscomp/, "quests-completed", "Completed Requests"],
       [/completed(?:help|quest)|completedquests?/, "quests-completed", "Completed Help Requests"],
       [/available(?:help|quest)|availablequests?/, "quests-available", "Available Help Requests"],
@@ -215,6 +216,7 @@
     // wiped 8 active quests and recorded one called "Help".
     if (has(/\bcompleted requests\s*\(/)) return ["quests-completed", "Completed Help Requests"];
     if (has(/\bactive requests\s*\(/)) return ["quests", "Quests / Help Requests"];
+    if (has(/produces boards\/wood hourly|produces straw every 10 mins/)) return ["farm", "My Farm"];
     if (has(/current stamina and your stamina cap is/)) return ["farmhouse", "Farmhouse"];
     if (has(/\bexploring locations\b|\/\s*[\d,]+\s*stamina\b/)) return ["exploring", "Exploring"];
     if (has(/\babout pets\b/) && has(/\bmy pets\b/)) return ["pets", "Pets"];
@@ -507,6 +509,37 @@
   // " 02" is part of the name (Runestone 02), so only three-digit floors go.
   function stripFloor(name) {
     return String(name || "").replace(/\s+\d{3}(?:\s*\/\s*\d{3})*\s*$/, "").trim();
+  }
+
+  // Your farm page lists every building and what it makes:
+  //   Sawmill / Produces Boards/Wood hourly / 60,000 Boards / 48,000 Wood
+  //   Quarry / Stone/Gems every 10 mins / 8,000 Stone / 48,000 Stone Hourly
+  // Each "N Label" line under a building becomes { label: N } for it —
+  // "48,000 Stone Hourly" is stoneHourly.
+  const FARM_BUILDINGS = {
+    "Sawmill": "sawmill", "Quarry": "quarry", "Storehouse": "storehouse", "Orchard": "orchard",
+    "Vineyard": "vineyard", "Farmhouse": "farmhouse", "Ironworks": "ironworks", "Steelworks": "steelworks",
+    "Hay Field": "hayField", "Trout / Bait Farm": "troutFarm", "Worm Habitat": "wormHabitat",
+  };
+  const FARM_HEADINGS = new Set([...Object.keys(FARM_BUILDINGS), "Chicken Coop", "Cow Pasture", "Pig Pen", "Raptor Pen",
+    "Grape Juice Vat", "Roomba's Nest", "Wine Cellar", "Flour Mill", "Feed Mill", "Sugar Cane Mill", "Farm Pond",
+    "Workshop", "Forest", "Expand Farm", "Farm Supply", "Farm Settings"]);
+  function parseFarmPage(lines) {
+    const clean = lines.map((line) => line.trim()).filter(Boolean);
+    const out = {};
+    for (let i = 0; i < clean.length; i++) {
+      const key = FARM_BUILDINGS[clean[i]];
+      if (!key) continue;
+      const values = {};
+      for (let j = i + 1; j < clean.length && !FARM_HEADINGS.has(clean[j]); j++) {
+        const m = clean[j].match(/^([\d,]+)\s+([A-Za-z][A-Za-z ]{0,30})$/);
+        if (!m) continue;
+        const label = m[2].trim().toLowerCase().replace(/\s+(\w)/g, (_, c) => c.toUpperCase());
+        if (!(label in values)) values[label] = m[1];
+      }
+      if (Object.keys(values).length) out[key] = values;
+    }
+    return out;
   }
 
   function parseMasteryPage(lines, text) {
@@ -1575,9 +1608,11 @@
       .filter(Boolean);
     const routePage = pageTypeFromRoute(location.href);
     let [pageType, pageLabel] = routePage || detectPageType(visibleText, headings);
-    if (looksLikeInventoryPage(lines, visibleText)) {
+    if ((!routePage || routePage[0] === "inventory") && looksLikeInventoryPage(lines, visibleText)) {
       // The real "My Inventory" layout wins over keyword guessing (the nav
-      // cards mention Tower, Quests, etc. on every page).
+      // cards mention Tower, Quests, etc. on every page). It does not win over
+      // the page's own address: Farm RPG keeps earlier pages in the document,
+      // and a Farmhouse capture was once relabelled inventory and thrown away.
       pageType = "inventory";
       pageLabel = "Inventory";
     }
@@ -1651,6 +1686,12 @@
     // The Farmhouse says it in one sentence: "You have 80,219,537 current
     // stamina and your stamina cap is 87,206. The next time you rest, you'll
     // receive 436,030 stamina instantly." Rest also raises the cap by a little.
+    if (pageType === "farm") {
+      for (const [building, values] of Object.entries(parseFarmPage(lines))) {
+        fields.infrastructure[building] ||= {};
+        for (const [key, raw] of Object.entries(values)) fields.infrastructure[building][key] = qtyScalar(raw, "visible-label");
+      }
+    }
     if (pageType === "farmhouse") {
       const flat = visibleText.replace(/\s+/g, " ");
       let fm = flat.match(/You have\s*([\d,]+)\s*current stamina and your stamina cap is\s*([\d,]+)/i);
