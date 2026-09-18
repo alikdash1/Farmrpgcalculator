@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Farm RPG Calculator Account Sync",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Read-only sync from visited Farm RPG pages to Farm RPG Calculator, on your computer or its website.",
   "permissions": [
     "storage",

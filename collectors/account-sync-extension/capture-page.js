@@ -107,17 +107,32 @@
       .trim();
   }
 
-  /** Visible text only: skips scripts, styles, forms, inputs and hidden nodes. */
-  function getVisibleText() {
+  /**
+   * Visible text only: skips scripts, styles, forms, inputs and hidden nodes.
+   *
+   * Farm RPG puts a Tower item's floor in a badge right after its name —
+   * "Rope" then "206". Read as text, that badge became the item's quantity
+   * (Rope = 206 when 9,242 were held), the real count went to the description
+   * line under it, and on the mastery page the item was dropped altogether.
+   * The badge is never a quantity, so it is never read.
+   *
+   * `root` and `includeHidden` let the mastery page read its folded tiers: a
+   * folded "Tier V (MM)" hides every Mega Mastery row, which is how a capture
+   * came back with 300 of 524 masteries.
+   */
+  function getVisibleText(root, includeHidden) {
     const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "IFRAME", "INPUT", "SELECT", "TEXTAREA", "OPTION", "FORM", "BUTTON"]);
     const chunks = [];
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    const walker = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         let el = node.parentElement;
         while (el) {
           if (SKIP.has(el.tagName)) return NodeFilter.FILTER_REJECT;
-          const style = window.getComputedStyle(el);
-          if (style.display === "none" || style.visibility === "hidden") return NodeFilter.FILTER_REJECT;
+          if (el.classList && el.classList.contains("tw-badge")) return NodeFilter.FILTER_REJECT;
+          if (!includeHidden) {
+            const style = window.getComputedStyle(el);
+            if (style.display === "none" || style.visibility === "hidden") return NodeFilter.FILTER_REJECT;
+          }
           el = el.parentElement;
         }
         return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
@@ -459,6 +474,25 @@
     if (fields.towerProgress.currentLevel) fields.levels.tower = fields.towerProgress.currentLevel;
   }
 
+  // The page in the app's view stack that holds the mastery list. Framework7
+  // keeps earlier pages in the document, so pick the one with the most
+  // "x / y Progress" rows rather than trusting the heading, whose text
+  // ("Mastery In-Progress") is not what is drawn on screen.
+  function masteryPageText() {
+    let best = null, bestCount = 0;
+    for (const page of document.querySelectorAll(".page")) {
+      const count = ((page.textContent || "").match(/Progress/g) || []).length;
+      if (count > bestCount) { best = page; bestCount = count; }
+    }
+    return best && bestCount > 1 ? getVisibleText(best, true) : "";
+  }
+
+  // " 287" or " 304/335" after a name is a Tower floor, never part of it.
+  // " 02" is part of the name (Runestone 02), so only three-digit floors go.
+  function stripFloor(name) {
+    return String(name || "").replace(/\s+\d{3}(?:\s*\/\s*\d{3})*\s*$/, "").trim();
+  }
+
   function parseMasteryPage(lines, text) {
     const clean = lines.map((line) => line.trim()).filter(Boolean);
     const out = { stats: { mastered: null, grandMastered: null, megaMastered: null }, masteries: [] };
@@ -473,13 +507,13 @@
     let tier = null;
     const seen = new Set();
     for (let i = start + 1; i < clean.length; i++) {
-      const heading = clean[i].match(/^(Tier V \(MM\)|Tier IV \(GM\)|Tier III \(M\)|Tier II|Tier I|No Tier|Mega Mastered)$/i);
+      const heading = clean[i].match(/^(Tier V \(MM\)|Tier IV \(GM\)|Tier III \(M\)|Tier II|Tier I|No Tier|Mega Mastered)(?:\s+chevron_\w+)?$/i);
       if (heading) { tier = heading[1]; continue; }
       const progress = clean[i].match(/^([\d,.]+\s*[KMBT]?)\s*\/\s*([\d,.]+\s*[KMBT]?|∞)\s*Progress$/i);
       if (!progress || i === 0) continue;
       let nameIndex = i - 1;
       while (nameIndex > start && (/^chevron_/i.test(clean[nameIndex]) || /^\d+(?:\.\d+)?%$/.test(clean[nameIndex]))) nameIndex--;
-      const name = clean[nameIndex];
+      const name = stripFloor(clean[nameIndex]);
       if (!NAME_RE.test(name) || isNoise(name) || seen.has(name.toLowerCase())) continue;
       const currentParsed = parseQty(progress[1]);
       const targetParsed = progress[2] === "∞" ? null : parseQty(progress[2]);
@@ -550,6 +584,18 @@
       }
     }
     const personal = clean.findIndex((line, i) => i > active && /^Personal Requests\s*\(/i.test(line));
+    // Personal help requests ("Items Wanted", "Special Gift") sit under their
+    // own heading and were never read. Each is a title, "Request from X" and
+    // how far along it is.
+    if (personal >= 0) {
+      const stop = clean.findIndex((line, i) => i > personal && /^(Use a PHR Voucher|Request Totals|Requests Completed)$/i.test(line));
+      const end = stop > personal ? stop : clean.length;
+      for (let i = personal + 1; i + 1 < end; i++) {
+        if (!/^Request from\s+/i.test(clean[i + 1]) || clean[i].length < 3 || clean[i].length > 80 || /^\d/.test(clean[i])) continue;
+        const giver = clean[i + 1].replace(/^Request from\s+/i, "").replace(/\s*-\s*$/, "").trim();
+        out.quests.push({ title: clean[i], giver, status: "active", availability: null, progressPercent: pct(clean[i + 2]), requiredItems: [], rewards: [], prerequisites: null, chain: "Personal Request", confidence: "visible-label" });
+      }
+    }
     if (active >= 0) {
       const end = personal > active ? personal : clean.length;
       for (let i = active + 1; i + 1 < end; i++) {
@@ -1288,7 +1334,8 @@
     const idxStats = idxItems === -1 ? -1 : idxOf("inventory stats", idxItems + 1);
 
     const inventorySeen = new Map();
-    const addInventory = (name, qtyRaw, confidence, extra) => {
+    const addInventory = (rawName, qtyRaw, confidence, extra) => {
+      const name = stripFloor(rawName);
       const key = name.trim().toLowerCase();
       if (!inventorySeen.has(key)) {
         const entry = { name: name.trim(), quantity: qtyRaw, confidence: confidence };
@@ -1370,7 +1417,7 @@
     if (idxItems !== -1) {
       scanEntries(idxItems + 1, idxStats === -1 ? clean.length : idxStats, (e) => {
         addInventory(e.name, e.count, "visible-label", e.atCapacity ? { atCapacity: true } : null);
-        if (e.status) out.masteries.push({ itemName: e.name, status: e.status, confidence: "visible-label" });
+        if (e.status) out.masteries.push({ itemName: stripFloor(e.name), status: e.status, confidence: "visible-label" });
       });
     }
 
@@ -1560,7 +1607,18 @@
     } else if (pageType === "inventory" || pageType === "storehouse") {
       extractInventory(fields, fields.warnings);
     }
-    if (pageType === "mastery") applyMasteryPage(fields, parseMasteryPage(lines, visibleText));
+    if (pageType === "mastery") {
+      const masteryText = masteryPageText() || visibleText;
+      const masteryLines = masteryText.split("\n").map((l) => l.trim()).filter(Boolean);
+      const parsedMastery = parseMasteryPage(masteryLines, masteryText);
+      applyMasteryPage(fields, parsedMastery);
+      // The page lists every item it tracks, one "x / y Progress" line each.
+      // Say so when fewer came back than the page holds.
+      const onPage = (masteryText.match(/\/\s*(?:[\d,.]+\s*[KMBT]?|∞)\s*Progress$/gim) || []).length;
+      if (onPage && parsedMastery.masteries.length < onPage) {
+        fields.warnings.push("Read " + parsedMastery.masteries.length + " of " + onPage + " masteries on the page.");
+      }
+    }
     if (pageType.startsWith("quests")) {
       const completed = parseCompletedQuestPage(lines, visibleText);
       // The page says how many completed requests you have. If far fewer were

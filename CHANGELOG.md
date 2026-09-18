@@ -5,6 +5,38 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-19 (2) — Every capture checked against the real pages
+
+Checked in the owner's own Brave, against Farm RPG's live pages and their
+1:01 AM mastery export.
+
+- **The Tower floor badge was read as a quantity.** Farm RPG draws a Tower
+  item's floor in a `tw-badge` right after its name, and the extension read it
+  as text: the capture said Rope = 206, Stingray = 226, Puffer = 237 (the real
+  counts are 9,242 / 17,004 / 16,358). The real count went to the description
+  under it, so 97 descriptions ("Can tie things together = 9,242") were stored
+  as items and 177 of them as fake Mega Masteries. On the mastery page the
+  badge stood where the name should be, so **every Tower item was dropped**:
+  300 of 524 masteries came back, missing Wizard Hat, Glass Jar, Wooden Spear.
+  The badge is now skipped everywhere. Run on the live pages: 524 of 524
+  masteries, Rope 9,242, Glass Jar 8,219, no description rows.
+- The mastery page is read folded tiers and all, from the page that actually
+  holds the list (its heading is really "Mastery In-Progress"). A capture that
+  reads fewer rows than the page holds now says so.
+- **Personal help requests** (Items Wanted, Special Gift) are now captured;
+  they were never read. There is no separate "available quests" page on Farm
+  RPG — the one available Special Request was already captured.
+- **Inventory tab showed one item.** A single amount typed in Calculate (Straw
+  34,485) hid the whole 1,213-item capture. The capture now shows, with typed
+  amounts laid on top.
+- The Tower strips a floor off an older capture's names, and a bare "Grand
+  Mastered" label from the inventory page can no longer pull a mastery down to
+  100,000.
+- Build stamp was stuck on 2026-09-11. Extension is 1.11.0.
+
+What the capture got right: all 300 masteries it did read matched the export
+exactly; 1,984 completed quests; profile, levels and Tower progress.
+
 ## 2026-09-19 — Hay Field, and crafts counted the way mastery counts them
 
 - **Hay Field** in Setup, next to the Quarry: Straw every 10 minutes, capped per

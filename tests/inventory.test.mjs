@@ -72,16 +72,30 @@ test("every local script and link in index.html is cache-busted and model script
   assert.ok(html.indexOf("item-art.js?v=20260904-1") < html.indexOf("app.js"));
 });
 
-test("a freshly captured inventory shows without pressing Apply", () => {
-  // The arithmetic lives in gather-model.js so the Inventory tab and the
-  // floating tracker cannot disagree about what is left.
-  const source = read("gather-model.js");
-  // frpg_owned exists as {} from the app's first save, so a truthiness check
-  // alone made a captured inventory look empty until Apply was pressed.
-  assert.match(source, /Object\.keys\(saved\)\.length/);
-  const owned = source.indexOf('readJson("frpg_owned")');
-  const snapshot = source.indexOf('readJson("frpg_account_snapshot_v1")');
-  assert.ok(owned > 0 && snapshot > owned, "it still prefers hand-entered amounts when there are any");
+test("the Inventory tab shows the capture, with hand-typed amounts laid on top", () => {
+  // One amount typed in Calculate (Straw) used to hide a 1,200-item capture.
+  const store = {
+    frpg_account_snapshot_v1: JSON.stringify({ inventory: [
+      { name: "Rope", quantity: 9242 }, { name: "Wood", quantity: 100 }, { name: "Can tie things together", quantity: 9242 },
+    ] }),
+    frpg_owned: JSON.stringify({ 1: 34485, 2: 5 }),
+  };
+  const context = {
+    localStorage: { getItem: (key) => (key in store ? store[key] : null) },
+    window: {
+      FRPG_QUEST_MODEL: {},
+      FRPG_DATA: { items: { items: [{ id: 1, name: "Straw" }, { id: 2, name: "Wood" }, { id: 3, name: "Rope" }] } },
+      FRPG_ITEM_ART_HELPER: { isCurrency: () => false, isKnownItem: (name) => ["Straw", "Wood", "Rope"].includes(name) },
+    },
+  };
+  vm.createContext(context);
+  vm.runInContext(read("gather-model.js"), context);
+  const rows = context.window.FRPG_GATHER.inventoryRows();
+  const held = Object.fromEntries(rows.map((row) => [row.name, row.quantity]));
+  assert.equal(held.Rope, 9242, "the capture still shows");
+  assert.equal(held.Straw, 34485, "a hand-typed item is added");
+  assert.equal(held.Wood, 5, "a hand-typed amount wins over the capture");
+  assert.equal(held["Can tie things together"], undefined, "descriptions stay out");
 });
 
 test("description rows in an already-saved snapshot are filtered at the point of use", () => {

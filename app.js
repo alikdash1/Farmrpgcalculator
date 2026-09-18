@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-09-11.dusk1";
+  const FRPG_BUILD = "2026-09-19.1";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -2245,13 +2245,21 @@
   function towerMasteryMap() {
     const values = new Map(Object.entries(PERSONAL.masteries || {}).map(([name, value]) => [name.toLowerCase(), Number(value) || 0]));
     for (const row of masteryRowsToApply()) {
-      const name = String(row.itemName || "").trim();
+      // Older captures kept the Tower floor on the name: "Glass Jar 287".
+      const name = String(row.itemName || "").trim().replace(/\s+\d{3}(?:\s*\/\s*\d{3})*\s*$/, "");
       if (!name) continue;
+      const level = String(row.masteryLevel || row.status || "");
       let value = Number(row.masteryCount ?? row.progressCurrent);
-      if (row.megaMastery === true || /mega mastered/i.test(String(row.masteryLevel || ""))) value = 1000000;
-      else if (!Number.isFinite(value) && (row.grandMastery === true || /grand mastered/i.test(String(row.masteryLevel || "")))) value = 100000;
-      else if (!Number.isFinite(value) && /mastered/i.test(String(row.masteryLevel || ""))) value = 10000;
-      if (Number.isFinite(value)) values.set(name.toLowerCase(), Math.min(1000000, Math.max(0, value)));
+      const counted = Number.isFinite(value);
+      if (row.megaMastery === true || /mega mastered/i.test(level)) value = 1000000;
+      else if (!counted && (row.grandMastery === true || /grand mastered/i.test(level))) value = 100000;
+      else if (!counted && /mastered/i.test(level)) value = 10000;
+      if (!Number.isFinite(value)) continue;
+      value = Math.min(1000000, Math.max(0, value));
+      // A bare "Grand Mastered" label (the inventory page shows no number)
+      // only says "at least 100,000". It must never pull 450,000 down.
+      const key = name.toLowerCase();
+      values.set(key, counted ? value : Math.max(values.get(key) || 0, value));
     }
     return values;
   }

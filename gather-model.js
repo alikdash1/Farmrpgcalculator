@@ -18,24 +18,27 @@
     } catch (_) { return null; }
   }
 
-  // frpg_owned exists as an empty object from the app's first save, so
-  // "present" is not "has amounts in it". Fall through to the capture when the
-  // player has entered nothing by hand.
+  // What you hold: the latest capture, with anything you typed by hand in
+  // Calculate laid on top. It used to be one or the other — a single amount
+  // typed in Calculate (Straw, say) hid a 1,200-item capture entirely.
   function inventoryRows() {
-    const saved = readJson("frpg_owned");
-    if (saved && typeof saved === "object" && !Array.isArray(saved) && Object.keys(saved).length) {
-      return Object.entries(saved).map(([id, quantity]) => {
-        const item = byId.get(String(id));
-        return item && Number(quantity) > 0 ? { name: item.name, quantity: Number(quantity), item } : null;
-      }).filter(Boolean);
-    }
     const snapshot = readJson("frpg_account_snapshot_v1");
-    const rows = ((snapshot && snapshot.inventory) || []).map((row) => {
+    const rows = new Map();
+    for (const row of (snapshot && snapshot.inventory) || []) {
       const name = row.name || row.itemName || "";
-      const item = byName.get(keyFor(name)) || null;
-      return name && Number(row.quantity) > 0 ? { name, quantity: Number(row.quantity), item } : null;
-    }).filter(Boolean);
-    return rows.filter((row) => !isDescription(row.name));
+      if (!name || !(Number(row.quantity) > 0) || isDescription(name)) continue;
+      rows.set(keyFor(name), { name, quantity: Number(row.quantity), item: byName.get(keyFor(name)) || null });
+    }
+    const saved = readJson("frpg_owned");
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+      for (const [id, quantity] of Object.entries(saved)) {
+        const item = byId.get(String(id));
+        if (!item) continue;
+        if (Number(quantity) > 0) rows.set(keyFor(item.name), { name: item.name, quantity: Number(quantity), item });
+        else rows.delete(keyFor(item.name));
+      }
+    }
+    return [...rows.values()];
   }
 
   // Farm RPG prints a description under each item name, and older captures
@@ -55,8 +58,6 @@
 
   function ignoredCount() {
     const snapshot = readJson("frpg_account_snapshot_v1");
-    const saved = readJson("frpg_owned");
-    if (saved && typeof saved === "object" && Object.keys(saved).length) return 0;
     return ((snapshot && snapshot.inventory) || [])
       .filter((row) => isDescription(row.name || row.itemName || "")).length;
   }
