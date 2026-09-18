@@ -24,7 +24,9 @@ const PAGE_HINTS = [
   [/quarry/i, "quarry"],
   [/storehouse/i, "storehouse"],
   [/fishing/i, "fishing"],
-  [/explor/i, "exploring"]
+  [/explor/i, "exploring"],
+  [/farmhouse/i, "farmhouse"],
+  [/my farm|xfarm/i, "farm"]
 ];
 
 function inferPageType(capture) {

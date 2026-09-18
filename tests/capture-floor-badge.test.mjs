@@ -99,3 +99,10 @@ test("the farm page gives every building's output", () => {
   assert.equal(farm.raptorPen, undefined, "a building Setup does not track is left out, not merged into the one above");
   assert.equal(T.detectPageType(lines.join(String.fromCharCode(10)), [])[0], "farm");
 });
+
+test("farm and farmhouse captures keep their own type", () => {
+  // Unknown types were all stored as "unknown", one slot, so the farm capture
+  // overwrote the farmhouse one.
+  const schema = readFileSync(new URL("../collectors/account-sync-extension/shared/schema.js", import.meta.url), "utf8");
+  assert.match(schema, /"farm",\s*\n\s*"farmhouse",/);
+});

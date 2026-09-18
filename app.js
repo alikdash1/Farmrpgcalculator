@@ -1756,20 +1756,21 @@
       ["coalHour", at("quarry", "coalHourly"), "Quarry", "Coal / hr"],
     ].filter((row) => row[1] != null);
   }
-  function farmCaptureAt() {
-    const farm = ((state.account && state.account.captures) || []).find((c) => c.pageType === "farm");
-    return farm ? farm.capturedAt : null;
-  }
-  // A new farm capture fills any production number still at 0, once. A number
-  // you typed yourself is left alone; "Use my farm's numbers" replaces them all.
+  // A new set of farm numbers fills any production number still at 0, once.
+  // "New" is judged by the numbers themselves, not by which capture brought
+  // them: the extension once filed the farm page as "unknown", and Setup,
+  // waiting for a capture called "farm", never filled in. A number you typed
+  // is left alone; "Use my farm's numbers" replaces them all.
   function fillFarmProduction(overwrite) {
-    const at = farmCaptureAt();
-    if (!overwrite && (!at || state.infra.farmFilledFrom === at)) return 0;
+    const production = farmProduction();
+    if (!production.length) return 0;
+    const signature = production.map(([key, value]) => key + "=" + value).join(";");
+    if (!overwrite && state.infra.farmFilledFrom === signature) return 0;
     let changed = 0;
-    for (const [key, value] of farmProduction()) {
+    for (const [key, value] of production) {
       if ((overwrite || !Number(state.infra[key])) && state.infra[key] !== value) { state.infra[key] = value; changed += 1; }
     }
-    if (at) state.infra.farmFilledFrom = at;
+    state.infra.farmFilledFrom = signature;
     save();
     return changed;
   }

@@ -6,7 +6,8 @@ const LABELS = {
   profile: "Profile", inventory: "Inventory", tower: "Tower", mastery: "Masteries",
   "quests-available": "Available quests", "quests-completed": "Completed quests",
   perks: "Perks", "farm-supply": "Farm Supply", pets: "Pets",
-  craftworks: "Craftworks", kitchen: "Kitchen", friendships: "Friendships"
+  craftworks: "Craftworks", kitchen: "Kitchen", friendships: "Friendships",
+  farm: "My Farm", farmhouse: "Farmhouse", exploring: "Exploring", quests: "Quests"
 };
 const $ = (selector) => document.querySelector(selector);
 

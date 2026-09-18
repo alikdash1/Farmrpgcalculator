@@ -22,6 +22,8 @@
   const KNOWN_PAGE_TYPES = [
     "profile",
     "farm-overview",
+    "farm",
+    "farmhouse",
     "inventory",
     "mastery",
     "tower",

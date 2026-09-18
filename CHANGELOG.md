@@ -18,6 +18,14 @@ reconstructed from the Codex chat transcript only).
 - A page Farm RPG identifies by its address keeps that type. The "looks like the
   inventory" guess used to override it, which is how the Farmhouse capture was
   relabelled and thrown away.
+- **Checked on the owner's capture:** every building came through (Sawmill,
+  Steelworks, Hay Field, Quarry, Orchard, Trout Farm, Vineyard, Worm Habitat,
+  Ironworks), Mega Trout / Buddy Elf on a Shelf / Forcepath's Book are in the
+  inventory. But the extension's list of known page types had no "farm" or
+  "farmhouse", so both were stored as "unknown" — one slot, so the farm capture
+  replaced the farmhouse one — and Setup, waiting for a capture called "farm",
+  never filled in. Both types are known now (1.12.1), and Setup fills when the
+  farm numbers change, whatever capture brought them.
 
 ## 2026-09-19 (4) — Farmhouse, stamina and new items' pictures
 
