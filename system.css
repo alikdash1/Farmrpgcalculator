@@ -661,3 +661,13 @@ main { padding-bottom: 48px; }
 .quest-needs-more, .quest-needs-note { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 @media (max-width: 620px) { .quest-need { grid-template-columns: 56px minmax(0, 1fr); gap: 8px; } }
 @media (pointer: coarse) { .quest-needs > summary { min-height: 44px; } }
+
+/* The Hay Field lists what you make from your own Straw, one tick each. */
+.hay-make { display: flex; flex-wrap: wrap; gap: 4px 16px; flex-basis: 100%; margin: 4px 0 0; padding: 8px 0 0; border: 0; border-top: 1px solid var(--line); }
+.hay-make legend { padding: 0; color: var(--muted); font-size: 12px; }
+.hay-make small { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+.hay-make:disabled { opacity: .5; }
+/* How many crafts a goal really is, once duplicates are counted. */
+.goal-crafts { margin: 8px 0 0; max-width: 70ch; color: var(--muted); font-size: 13px; }
+.goal-crafts b { color: var(--text); font-weight: 600; }
+.goal-crafts .text-action { margin-left: 4px; }

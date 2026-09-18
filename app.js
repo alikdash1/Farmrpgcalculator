@@ -138,6 +138,9 @@
     coalHour: 0,
     forgeSteel: false,
     forgeWire: false,
+    hayStraw: false,
+    strawTen: 0,
+    hayMake: {},
     steelHour: 0,
     wireHour: 0,
   };
@@ -399,7 +402,8 @@
     const item = state.itemId ? index.itemsById.get(state.itemId) : null;
     const enabledRows = profileRows().filter((row) => row.ids.every((id) => state.enabled.has(id))).length;
     const totalRows = profileRows().length;
-    const passive = [state.infra.sawmillWood, state.infra.sawmillBoard, state.infra.quarryStone, state.infra.quarryCoal].filter(Boolean).length;
+    const passiveSources = [state.infra.sawmillWood, state.infra.sawmillBoard, state.infra.quarryStone, state.infra.quarryCoal, state.infra.hayStraw];
+    const passive = passiveSources.filter(Boolean).length;
     const activeMeals = Object.values(state.meals).filter(Boolean).length;
     const measured = state.acornTests.length;
     const readiness = [enabledRows > 0, passive > 0, activeMeals > 0, measured > 0].filter(Boolean).length;
@@ -415,7 +419,7 @@
     $("homeReadiness").textContent = `${readiness}/4 checked`;
     const readinessRows = [
       ["Permanent bonuses", `${enabledRows}/${totalRows} active`, enabledRows > 0],
-      ["Passive materials", `${passive}/4 covered`, passive > 0],
+      ["Passive materials", `${passive}/${passiveSources.length} covered`, passive > 0],
       ["Plan meals", `${activeMeals}/${MEALS.length} active`, activeMeals > 0],
       ["Personal field samples", measured ? `${measured} saved` : "None yet", measured > 0],
     ];
@@ -489,6 +493,34 @@
         : `${fmt(capped.rate)}/hr ${label}`,
     };
   }
+  // Everything that is made out of Straw and nothing you would not have anyway:
+  // Twine (Straw and Wood), then Rope and Yarn (only Twine), plus the direct
+  // Straw recipes. Worked out from the recipes, so new ones join by themselves.
+  let strawFamilyCache = null;
+  function strawFamily() {
+    if (strawFamilyCache) return strawFamilyCache;
+    const strawId = index.idByName.get("straw");
+    const woodId = index.idByName.get("wood");
+    const made = new Set([strawId]);
+    const direct = new Set();
+    for (const [itemId, rows] of index.craftByItem) if (rows.some((row) => row.reqId === strawId)) direct.add(itemId);
+    for (let grew = true; grew;) {
+      grew = false;
+      for (const [itemId, rows] of index.craftByItem) {
+        if (made.has(itemId)) continue;
+        if (rows.some((row) => made.has(row.reqId)) && rows.every((row) => made.has(row.reqId) || row.reqId === woodId)) { made.add(itemId); grew = true; }
+      }
+    }
+    made.delete(strawId);
+    for (const id of direct) made.add(id);
+    strawFamilyCache = [...made].map((id) => index.itemsById.get(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
+    return strawFamilyCache;
+  }
+  // A ticked item on the Hay Field is one you make yourself from your own Straw
+  // rather than buy. Unticked, the planner picks as usual.
+  function hayMakes(item) {
+    return !!(item && state.infra.hayStraw && (state.infra.hayMake || {})[item.name]);
+  }
   function infraFor(item, need, m) {
     if (!item) return null;
     const name = item.name.toLowerCase();
@@ -505,6 +537,12 @@
       const raw = Number(state.infra[name === "wood" ? "woodHour" : "boardHour"] || 0) * multiplier;
       const out = cappedDetail(raw, ticks, "useful output");
       return { kind: "Sawmill", detail: out.detail, hours: out.rate ? need / out.rate : null };
+    }
+    // The Hay Field drops Straw every 10 minutes, like the Quarry drops Stone.
+    // Covering Straw is what covers Twine, Rope and everything else built on it.
+    if (name === "straw" && state.infra.hayStraw) {
+      const out = cappedDetail(Number(state.infra.strawTen || 0) * 6, 6, "from 10-minute ticks");
+      return { kind: "Hay Field", detail: out.detail, hours: out.rate ? need / out.rate : null };
     }
     if (name === "stone" && state.infra.quarryStone) {
       const out = cappedDetail(Number(state.infra.stoneTen || 0) * 6, 6, "from 10-minute ticks");
@@ -873,9 +911,32 @@
     return { goldEq: totalGold, complete: count > 0 && priced === count, priced, count, routes };
   }
 
+  // Mastery counts every item a craft gives you, duplicates included. So the
+  // number that matters is crafts, not items: 1,000,000 Yarn at 1.45x per
+  // craft is 689,656 crafts. Mushroom Stew never applies to crafting.
+  function masteryCraftsHtml(goal, m) {
+    const per = m.craftYield || 1;
+    const crafts = Math.ceil(state.qty / per);
+    const lines = [per > 1
+      ? `<b>${fmt(crafts)} crafts</b> give you ${fmt(state.qty)} — your ${fmt(per)}× duplicate chance makes the other ${fmt(state.qty - crafts)}.`
+      : `<b>${fmt(crafts)} crafts</b>. If you have Resource Saver I and II and Headdress of Luna, turn them on in Setup: together they make about 1.45 items per craft.`];
+    let button = "";
+    let have = null;
+    try { have = towerMasteryMap().get(goal.name.toLowerCase()); } catch (_) { have = null; }
+    if (have != null && have < MM_GOAL) {
+      const target = have < GM_GOAL ? GM_GOAL : MM_GOAL;
+      const left = target - have;
+      lines.push(`Your mastery is ${fmt(have)}. ${target === GM_GOAL ? "Grand" : "Mega"} Mastery needs ${fmt(left)} more — about <b>${fmt(Math.ceil(left / per))} crafts</b>.`);
+      if (left !== state.qty) button = `<button type="button" class="text-action" data-plan-mastery="${left}">Plan just the ${fmt(left)} left</button>`;
+    } else if (have != null && have >= MM_GOAL) {
+      lines.push("You have already Mega Mastered this.");
+    }
+    return `<p class="goal-crafts">${lines.join(" ")} ${button}</p>`;
+  }
+
   function makeDecision(node, m, consts) {
-    const manual = state.makeChoices[node.id] || "auto";
     const item = index.itemsById.get(node.id);
+    const manual = state.makeChoices[node.id] || (hayMakes(item) ? "craft" : "auto");
     const infra = infraFor(item, node.qtyOut, m);
     const direct = E.marketQuote(index, node.id, node.qtyOut);
     const farm = farmPlan(item, node.qtyOut, m, consts);
@@ -1479,7 +1540,10 @@
     const goalSummary = goalIsCrafted
       ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted`
       : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p></div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p>${goalIsCrafted ? masteryCraftsHtml(goal, m) : ""}</div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
+    $("goalHeader").querySelectorAll("[data-plan-mastery]").forEach((button) => {
+      button.onclick = () => { state.qty = Number(button.dataset.planMastery); el.qty.value = state.qty.toLocaleString("en-US"); render(); };
+    });
     $("resourceTrail").innerHTML = [
       trail("Goal", fmt(state.qty), goal.name),
       trail("Buying part", tradeGoldEq > 0 ? fmt(tradeGoldEq) + " gold" : "nothing", tradeGoldEq > 0 ? "the pieces you're buying" : "you're not buying any of it", "violet"),
@@ -1656,10 +1720,28 @@
       { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive hourly. Hickory adds six 20% ticks during its hour; useful output can still be limited by inventory or Craftworks.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
       { title: "Inventory cap", art: itemByName("Wooden Box"), body: "Anything a building produces above this in one collection is lost. It is why Hickory is worth more than its 2.2x — six collections an hour each fit under the cap where one big one would not.", controls: `<label class="mini-field">Your cap per item<input type="number" min="0" data-infra-number="inventoryCap" value="${clean(state.infra.inventoryCap)}"></label>` },
       { title: "Steel works", art: itemByName("Steel"), body: "Steel and Steel Wire produce on their own once the building is running. Wire comes out at about a third of the Steel rate, so setting Steel fills Wire in unless you have measured it yourself.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="forgeSteel" ${state.infra.forgeSteel ? "checked" : ""}> Cover Steel</label><label class="inline-toggle"><input type="checkbox" data-infra="forgeWire" ${state.infra.forgeWire ? "checked" : ""}> Cover Steel Wire</label><label class="mini-field">Steel/hr<input type="number" min="0" data-infra-number="steelHour" data-fills="wireHour" value="${clean(state.infra.steelHour)}"></label><label class="mini-field">Steel Wire/hr<input type="number" min="0" data-infra-number="wireHour" value="${clean(state.infra.wireHour)}"></label>` },
+      { title: "Hay Field", art: itemByName("Straw"), body: "Straw arrives every 10 minutes. Covering it here covers every recipe that needs Straw — Twine, Rope, Yarn and the rest — so those stop sending you exploring for it.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="hayStraw" ${state.infra.hayStraw ? "checked" : ""}> Cover Straw</label><label class="mini-field">Straw / 10 min<input type="number" min="0" data-infra-number="strawTen" value="${clean(state.infra.strawTen)}"></label><fieldset class="hay-make" ${state.infra.hayStraw ? "" : "disabled"}><legend>Make these from your Straw</legend>${strawFamily().map((item) => `<label class="inline-toggle"><input type="checkbox" data-hay-make="${esc(item.name)}" ${(state.infra.hayMake || {})[item.name] ? "checked" : ""}> ${esc(item.name)}</label>`).join("")}<small>Leave one unticked if you would rather buy it.</small></fieldset>` },
       { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];
     $("infraGrid").innerHTML = infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
     document.querySelectorAll("[data-infra]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infra] = input.checked; save(); render(); }; });
+    document.querySelectorAll("[data-hay-make]").forEach((input) => {
+      input.onchange = () => {
+        const next = Object.assign({}, state.infra.hayMake, { [input.dataset.hayMake]: input.checked });
+        // Making Rope from your Straw means making its Twine too, so ticking an
+        // item ticks the Straw items it is made from.
+        if (input.checked) {
+          const family = new Set(strawFamily().map((item) => item.id));
+          const tickInputs = (id) => (index.craftByItem.get(id) || []).forEach((row) => {
+            const part = index.itemsById.get(row.reqId);
+            if (part && family.has(part.id) && !next[part.name]) { next[part.name] = true; tickInputs(part.id); }
+          });
+          tickInputs(index.idByName.get(input.dataset.hayMake.toLowerCase()));
+        }
+        state.infra.hayMake = next;
+        save(); render(); renderSetup();
+      };
+    });
     document.querySelectorAll("[data-infra-number]").forEach((input) => {
       input.onchange = () => {
         state.infra[input.dataset.infraNumber] = Number(input.value || 0);

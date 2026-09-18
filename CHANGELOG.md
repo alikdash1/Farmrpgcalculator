@@ -5,6 +5,23 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-19 — Hay Field, and crafts counted the way mastery counts them
+
+- **Hay Field** in Setup, next to the Quarry: Straw every 10 minutes, capped per
+  tick like the others. Under it, a tick for each item you make from your own
+  Straw — Broom, Quench, Red Brick, Rope, Snow Shoes, Twine, Yarn, Yule Goat,
+  worked out from the recipes. Ticked items get crafted down to Straw instead
+  of bought; unticked ones get picked as usual, so "I buy Rope but make Yarn"
+  works. Ticking Rope or Yarn ticks Twine too, since you can't make them without
+  it. Checked: Rope x 1m with Rope ticked → 689.66k Rope crafts, 1.43m Twine
+  crafts, 2.85m Straw "your farm covers it".
+- **Calculate says how many crafts**, not only how many items: "689.66k crafts
+  give you 1m — your 1.45x duplicate chance makes the other 310.34k". If your
+  mastery is known it adds what's left to the next Grand/Mega Mastery in crafts,
+  and a **Plan just the N left** button sets the quantity to it (Glass Jar:
+  702.53k → 297.47k left → 205.15k crafts). With the duplicate perks off, it
+  tells you which ones to turn on.
+
 ## 2026-09-17 (6) — It is called Farm RPG Calculator now, and the Red Trunk is the logo
 
 The owner is about to send the link to a friend in the game, and "Lantern
