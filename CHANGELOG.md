@@ -33,6 +33,12 @@ Checked in the owner's own Brave, against Farm RPG's live pages and their
   Mastered" label from the inventory page can no longer pull a mastery down to
   100,000.
 - Build stamp was stuck on 2026-09-11. Extension is 1.11.0.
+- **Silver, gold and stamina on Home**, in their own row under "where you
+  stand", from the last capture. The extension already read silver and gold off
+  Farm RPG's top bar and stamina off pages that print it; the site just never
+  showed them. Stamina says what to capture when it has only the max.
+- "N rows ignored" on Inventory is about the capture, not the site: it counts
+  descriptions an older capture stored as items, and goes away on recapture.
 
 What the capture got right: all 300 masteries it did read matched the export
 exactly; 1,984 completed quests; profile, levels and Tower progress.

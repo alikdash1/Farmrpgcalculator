@@ -394,8 +394,33 @@
       }
     }
 
+    // Silver, gold and stamina, as of the last capture that read them. Farm
+    // RPG prints silver and gold in its top bar on every page, and stamina on
+    // the pages that spend it.
+    const balances = (state.account && state.account.balances) || null;
+    const money = [];
+    if (balances) {
+      const amount = (v) => { const raw = v && typeof v === "object" ? v.value : v; if (raw == null || raw === "") return null; const n = Number(raw); return Number.isFinite(n) ? n : null; };
+      const silver = amount(balances.silver), gold = amount(balances.gold);
+      const now = amount(balances.staminaCurrent), max = amount(balances.staminaMaximum);
+      const when = state.account.generatedAt ? new Date(state.account.generatedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+      const tile = (label, value, note) => `<div class="standing-balance"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`;
+      money.push(tile("Silver", silver != null ? fmt(silver) : "—", silver != null ? `as of ${when}` : "capture any Farm RPG page"));
+      money.push(tile("Gold", gold != null ? gold.toLocaleString("en-US") : "—", gold != null ? `as of ${when}` : "capture any Farm RPG page"));
+      money.push(tile("Stamina", now != null ? (max != null ? `${fmt(now)} / ${fmt(max)}` : fmt(now)) : (max != null ? `max ${fmt(max)}` : "—"),
+        now != null ? `as of ${when}` : max != null ? "capture an explore page for what you have now" : "capture an explore page"));
+    }
+
     host.hidden = bits.length === 0;
     host.innerHTML = bits.join("");
+    let wallet = $("homeWallet");
+    if (!wallet && money.length) {
+      wallet = document.createElement("div");
+      wallet.id = "homeWallet";
+      wallet.className = "home-standing home-wallet";
+      host.insertAdjacentElement("afterend", wallet);
+    }
+    if (wallet) { wallet.hidden = money.length === 0; wallet.innerHTML = money.join(""); }
   }
 
   function renderHome() {

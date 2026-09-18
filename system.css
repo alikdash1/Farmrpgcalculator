@@ -671,3 +671,9 @@ main { padding-bottom: 48px; }
 .goal-crafts { margin: 8px 0 0; max-width: 70ch; color: var(--muted); font-size: 13px; }
 .goal-crafts b { color: var(--text); font-weight: 600; }
 .goal-crafts .text-action { margin-left: 4px; }
+
+/* Silver, gold and stamina sit in the same strip as the links, but they are
+   facts, not places to go, so they carry the tile without the hover. */
+.home-standing .standing-balance { display: block; padding: 12px; background: var(--ink2); }
+@media (max-width: 620px) { .home-standing .standing-balance { padding: 12px 16px; } }
+.home-wallet { margin-top: 8px; }
