@@ -403,7 +403,10 @@
       const amount = (v) => { const raw = v && typeof v === "object" ? v.value : v; if (raw == null || raw === "") return null; const n = Number(raw); return Number.isFinite(n) ? n : null; };
       const silver = amount(balances.silver), gold = amount(balances.gold);
       const now = amount(balances.staminaCurrent), max = amount(balances.staminaMaximum);
-      const when = state.account.generatedAt ? new Date(state.account.generatedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+      // Every page carries silver and gold, so they are as fresh as the newest
+      // capture of any page — not the snapshot's generatedAt, which lags.
+      const newest = ((state.account.captures || []).map((c) => Date.parse(c.capturedAt || "")).filter(Number.isFinite).sort((x, y) => y - x)[0]) || Date.parse(state.account.generatedAt || "");
+      const when = Number.isFinite(newest) ? new Date(newest).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
       const tile = (label, value, note) => `<div class="standing-balance"><span>${label}</span><strong>${value}</strong><small>${note}</small></div>`;
       money.push(tile("Silver", silver != null ? fmt(silver) : "—", silver != null ? `as of ${when}` : "capture any Farm RPG page"));
       money.push(tile("Gold", gold != null ? gold.toLocaleString("en-US") : "—", gold != null ? `as of ${when}` : "capture any Farm RPG page"));

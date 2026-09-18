@@ -192,7 +192,7 @@
       [/perks?/, "perks", "Perks"],
       [/profile/, "profile", "Profile"],
       [/fishing|fish\.php/, "fishing", "Fishing"],
-      [/explor/, "exploring", "Exploring"],
+      [/explor|area\.php/, "exploring", "Exploring"],
     ];
     for (const [pattern, type, label] of routes) {
       if (pattern.test(route)) return [type, label];
@@ -208,9 +208,13 @@
     // "The Tower" appears in the nav cards of every page; only call it the
     // tower page when a heading says Tower AND floor/tower-level text exists.
     if (/\btower\b/.test(head) && has(/\bfloor\s*\d|\btower\s+level\s*\d/)) return ["tower", "Tower"];
-    if (has(/\bcompleted\b/) && has(/\bhelp request|\bquest/)) return ["quests-completed", "Completed Help Requests"];
-    if (has(/\bhelp request|\bquest/) && has(/\bavailable\b/)) return ["quests-available", "Available Help Requests"];
-    if (has(/\bhelp request|\bquest/)) return ["quests", "Quests / Help Requests"];
+    // "Help Needed" and "Special Requests Available!" are on the home card of
+    // every page, so the word "quest" or "available" proves nothing. Only the
+    // quest pages' own headings do. A home-screen capture filed as quests once
+    // wiped 8 active quests and recorded one called "Help".
+    if (has(/\bcompleted requests\s*\(/)) return ["quests-completed", "Completed Help Requests"];
+    if (has(/\bactive requests\s*\(/)) return ["quests", "Quests / Help Requests"];
+    if (has(/\bexploring locations\b|\/\s*[\d,]+\s*stamina\b/)) return ["exploring", "Exploring"];
     if (has(/\babout pets\b/) && has(/\bmy pets\b/)) return ["pets", "Pets"];
     if (has(/\bfriendship levels\b/) && has(/\bcurrent levels\b/)) return ["friendships", "Friendship Levels"];
     if (has(/\bmy kitchen\b/) && has(/\boven\b|\bmy cookbook\b/)) return ["kitchen", "My Kitchen"];
@@ -271,6 +275,16 @@
   }
 
   function extractBalances(lines, fields) {
+    // Farm RPG prints stamina two ways: "Stamina (80,219,537 / 87,206)" on the
+    // Explore list, and "80,219,537" then "/ 87,206 Stamina" on a location.
+    for (let i = 0; i < lines.length; i++) {
+      const pair = lines[i].match(/^stamina\s*\(\s*([\d,.]+\s*[KMBT]?)\s*\/\s*([\d,.]+\s*[KMBT]?)\s*\)$/i)
+        || (/^[\d,.]+$/.test(lines[i]) && (lines[i + 1] || "").match(/^\/\s*([\d,.]+\s*[KMBT]?)\s*stamina$/i) && [null, lines[i], lines[i + 1].match(/^\/\s*([\d,.]+\s*[KMBT]?)/)[1]]);
+      if (pair) {
+        if (!fields.balances.staminaCurrent) fields.balances.staminaCurrent = qtyScalar(pair[1], "visible-label");
+        if (!fields.balances.staminaMaximum) fields.balances.staminaMaximum = qtyScalar(pair[2], "visible-label");
+      }
+    }
     for (const line of lines) {
       let m = line.match(/^silver\s*[:#\-]?\s*([\d,.]+\s*[KMBT]?)$/i);
       if (m && !fields.balances.silver) fields.balances.silver = qtyScalar(m[1], "visible-label");
@@ -1279,8 +1293,14 @@
     "cards", "super rares", "inventory stats", "unique items and", "mastery progress",
   ]);
 
+  // Material icons print their own names in lower case ("star", "heart").
+  // "Star" with a capital is the item, so an icon name only counts as noise
+  // when it is written exactly as the icon.
+  const ICON_WORDS = new Set(["heart_fill", "heart", "star", "star_border", "star_fill", "star_half", "lock", "lock_open", "search", "back"]);
   function isNoise(line) {
-    return NOISE_LINES.has(line.trim().toLowerCase());
+    const text = line.trim();
+    if (ICON_WORDS.has(text.toLowerCase())) return text === text.toLowerCase();
+    return NOISE_LINES.has(text.toLowerCase());
   }
 
   function isPlainQty(line) {

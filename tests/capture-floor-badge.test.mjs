@@ -15,9 +15,9 @@ function grab(name) {
   throw new Error("missing " + name);
 }
 const grabConst = (name) => { const i = src.indexOf("  const " + name + " "); return src.slice(i, src.indexOf(";\n", i) + 1); };
-const T = eval("(() => {" + ["SUFFIX_EXP", "MAX_SAFE_BIG", "NOISE_LINES", "NAME_RE"].map(grabConst).join("\n") +
-  ["stripFloor", "parseQty", "isNoise", "isPlainQty", "isPlausibleName", "parseMasteryPage", "parseInventoryPage", "parseQuestDashboard"].map(grab).join("\n") +
-  "\nreturn { parseMasteryPage, parseInventoryPage, parseQuestDashboard }; })()");
+const T = eval("(() => {" + ["SUFFIX_EXP", "MAX_SAFE_BIG", "NOISE_LINES", "ICON_WORDS", "NAME_RE"].map(grabConst).join("\n") +
+  ["scalar", "qtyScalar", "extractBalances", "detectPageType", "stripFloor", "parseQty", "isNoise", "isPlainQty", "isPlausibleName", "parseMasteryPage", "parseInventoryPage", "parseQuestDashboard"].map(grab).join("\n") +
+  "\nreturn { parseMasteryPage, parseInventoryPage, parseQuestDashboard, extractBalances, detectPageType, isNoise }; })()");
 
 test("the Tower floor badge is never read as text", () => {
   // Read as text it became the quantity: Rope = 206 when 9,242 were held.
@@ -48,4 +48,28 @@ test("personal help requests are read", () => {
   const quests = T.parseQuestDashboard(lines, lines.join("\n")).quests;
   assert.deepEqual(quests.map((q) => q.title).sort(), ["Distant Illusions I", "Items Wanted", "The Hardest Apples To Reach I"]);
   assert.equal(quests.find((q) => q.title === "Items Wanted").chain, "Personal Request");
+});
+
+test("stamina is read both ways Farm RPG prints it", () => {
+  const blank = () => ({ balances: {}, capacity: {} });
+  let fields = blank();
+  T.extractBalances(["Hire an Expedition to explore for you", "Stamina (80,219,537 / 87,206)"], fields);
+  assert.equal(fields.balances.staminaCurrent.value, 80219537);
+  assert.equal(fields.balances.staminaMaximum.value, 87206);
+  fields = blank();
+  T.extractBalances(["Continue...", "80,219,537", "/ 87,206 Stamina", "Eat an Apple"], fields);
+  assert.equal(fields.balances.staminaCurrent.value, 80219537);
+  assert.equal(fields.balances.staminaMaximum.value, 87206);
+});
+
+test("the home card's 'Help Needed' does not make a page the quests page", () => {
+  const text = (lines) => lines.join(String.fromCharCode(10));
+  assert.notEqual(T.detectPageType(text(["Help Needed", "Special Requests Available!", "11 Left", "The Tower", "My Inventory"]), [])[0], "quests");
+  assert.equal(T.detectPageType(text(["Active Requests (8)", "Distant Illusions I"]), [])[0], "quests");
+  assert.equal(T.detectPageType(text(["You enter into the forest...", "80,219,537", "/ 87,206 Stamina"]), [])[0], "exploring");
+});
+
+test("the item Star is not the star icon", () => {
+  assert.equal(T.isNoise("star"), true);
+  assert.equal(T.isNoise("Star"), false);
 });

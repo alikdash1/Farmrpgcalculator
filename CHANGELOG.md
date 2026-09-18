@@ -5,6 +5,27 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-19 (3) — The recapture, checked
+
+The owner recaptured Mastery, Inventory and an explore location with 1.11.
+
+- **Mastery: 524 of 524**, 515 identical to the 1:01 AM export, 9 higher (newer),
+  none lower. **Inventory: Rope 9,242, Stingray 17,004, Puffer 16,358** — right.
+  No fake mastery rows. The badge fix works on the real account.
+- **The item Star was read as the star icon**, so its description "Festoon the
+  fir" was stored in its place. Icon names only count as noise written in lower
+  case, exactly as the icon prints them.
+- **The explore capture was filed as quests** and replaced the real quests
+  capture: 8 active quests became none, plus one called "Help". The detector
+  matched the word "quest" in the "Help Needed" card that is on every page. Quest
+  pages are now recognised only by their own headings ("Active Requests (8)",
+  "Completed Requests (1,984)"), and location pages (`area.php`) are exploring.
+- **Stamina was never read.** Farm RPG prints it as "Stamina (80,219,537 /
+  87,206)" on the Explore list and as "80,219,537" / "/ 87,206 Stamina" on a
+  location; the extension only knew "Stamina: X / Y". Both forms are read now.
+- Silver and gold on Home say "as of" the newest capture, not the snapshot's
+  generatedAt, which lagged half an hour.
+
 ## 2026-09-19 (2) — Every capture checked against the real pages
 
 Checked in the owner's own Brave, against Farm RPG's live pages and their
