@@ -292,6 +292,7 @@
     if (id === "library") renderLibrary();
     if (id === "places" && window.FRPG_renderPlaces) window.FRPG_renderPlaces();
     if (id === "mm300" && window.FRPG_renderMM) window.FRPG_renderMM();
+    if (id === "plan" && window.FRPG_renderPlan) window.FRPG_renderPlan();
     if (history && history.pushState) {
       // Keep any sub-path the view owns, so returning to Items does not
       // throw away which item was open.

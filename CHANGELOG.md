@@ -5,6 +5,26 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Plan a whole questline
+
+- **New page: Plan a questline** (`#plan`, or the button on the Tower toolbar).
+  Pick a line — Distant Illusions by default — and it takes every step you have
+  left, rolls each requirement through its recipes at 1.45x, takes off what you
+  already hold, and files what is left under **where you actually get it**: one
+  block per explore location and fishing spot with the AP or Large Nets it
+  costs, one for what your farm makes and how many days that is, one for crops,
+  one for the crafting, and one for anything with no known source.
+- Each location block sizes itself by the longest job there, because one trip
+  drops everything on its table.
+- Farm production reads Setup, and falls back to a My Farm capture when Setup is
+  still empty, including the Vineyard, Orchard, Trout Farm and Worm Habitat,
+  which Setup has no fields for. Hourly buildings are capped per collection at
+  your inventory cap, which is why Boards read 16 days rather than 5.
+- Crops are grown even though the fishing tables list Corn and Sunflower at a
+  fraction of an item per net.
+- Distant Illusions, for the record: 14 steps, 3.71m pieces, 22.13m crafting
+  actions, 1.2m AP, 1.5m Large Nets, and about 20 days of farm production.
+
 ## 2026-09-20 — A page of the Mega Masteries left to a floor
 
 - **New page: Mega Masteries to T300**, reached from a button on the Tower
