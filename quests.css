@@ -196,3 +196,5 @@
    the title block wraps instead. */
 .quest-line > summary > span:first-child { flex: 1 1 auto; }
 .quest-line-actions { flex: none; }
+
+.quest-hero > .quiet-button { justify-self: start; }

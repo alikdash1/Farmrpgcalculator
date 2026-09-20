@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="tower.css?v=20260917-2">
   <link rel="stylesheet" href="mining.css?v=20260911-5">
   <link rel="stylesheet" href="locations.css?v=20260911-5">
-  <link rel="stylesheet" href="quests.css?v=20260911-5">
+  <link rel="stylesheet" href="quests.css?v=20260921-1">
   <link rel="stylesheet" href="inventory.css?v=20260911-6">
   <link rel="stylesheet" href="items.css?v=20260921-1">
   <link rel="stylesheet" href="tracker.css?v=20260911-5">
@@ -72,7 +72,7 @@
         <button class="desk-drawer" data-open-view="quests"><strong>Quests</strong><p>Every questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="setup"><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
       </section>
-      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button></p>
+      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button> · <button class="text-action" data-open-view="plan">plan a whole questline</button></p>
 
       <section class="desk-lower">
         <article class="readiness-card"><div class="section-heading compact"><div><h2>Before the grind</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
@@ -271,6 +271,7 @@
     <section id="quests" class="view">
       <section class="quest-hero">
         <div><h1>Unfinished business</h1><p>Every questline in the game, with each step’s items and the sequels kept in order. Import your account to mark what is done or available. Seasonal quests are here too, filed under Events.</p></div>
+        <button type="button" class="quiet-button" data-open-view="plan">Plan a whole questline →</button>
       </section>
       <section id="questSummary" class="quest-summary" aria-label="Main quest summary"></section>
       <section class="quest-toolbar" aria-label="Quest filters">
