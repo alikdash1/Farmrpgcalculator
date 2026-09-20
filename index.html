@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="locations.css?v=20260911-5">
   <link rel="stylesheet" href="quests.css?v=20260911-5">
   <link rel="stylesheet" href="inventory.css?v=20260911-6">
-  <link rel="stylesheet" href="items.css?v=20260917-3">
+  <link rel="stylesheet" href="items.css?v=20260920-1">
   <link rel="stylesheet" href="tracker.css?v=20260911-5">
   <link rel="stylesheet" href="system.css?v=20260919-10">
 </head>
@@ -231,11 +231,24 @@
       <section class="tower-toolbar" aria-label="Tower filters">
         <label><span>Start at floor</span><input id="towerStart" type="number" min="1" max="340" value="277"></label>
         <label class="tower-check"><input id="towerShowDone" type="checkbox"><span>Show completed floors</span></label>
+        <button type="button" class="quiet-button" data-open-view="mm300">Mega Masteries to T300 →</button>
         <div id="towerSyncState" class="tower-sync-state"><span></span><strong>Saved account</strong><small>Extension not connected</small></div>
       </section>
       <section id="towerSummary" class="tower-summary" aria-label="Tower progress summary"></section>
       <section class="tower-legend"><span><i class="tower-dot next"></i>Next blocker</span><span><i class="tower-dot work"></i>Still needed</span><span><i class="tower-dot done"></i>Requirement met</span><b>Mega Mastery = 1,000,000 · Grand Mastery = 100,000</b></section>
       <section id="towerRail" class="tower-rail"></section>
+    </section>
+
+    <section id="mm300" class="view">
+      <section class="mm-head">
+        <div>
+          <h1>Mega Masteries to <span data-mm-floor>T300</span></h1>
+          <p>Every Mega Mastery still owed between the floor you are on and <span data-mm-floor>T300</span>, furthest along first on each floor.</p>
+        </div>
+        <label class="mm-floor"><span>Up to floor</span><input id="mmFloor" type="number" min="1" max="350" value="300"></label>
+      </section>
+      <section id="mmSummary" class="mm-summary" aria-label="Mega Mastery summary"></section>
+      <section id="mmGrid" class="mm-grid"></section>
     </section>
 
     <section id="quests" class="view">
@@ -347,7 +360,7 @@
   <script src="data/data.js?v=20260906-1"></script>
   <script src="data/extra-items.js?v=20260911-1"></script>
   <script src="data/knowledge.js?v=20260902-9"></script>
-  <script src="data/personal-tower.js?v=20260919-5"></script>
+  <script src="data/personal-tower.js?v=20260920-1"></script>
   <script src="data/tower-floors.js?v=20260911-4"></script>
   <script src="data/main-quests.js?v=20260904-1"></script>
   <script src="data/personal-quests.js?v=20260904-1"></script>
@@ -370,7 +383,8 @@
   <script src="engine.js?v=20260911-1"></script>
   <script src="item-art.js?v=20260905-1"></script>
   <script src="quest-model.js?v=20260917-1"></script>
-  <script src="app.js?v=20260919-11"></script>
+  <script src="app.js?v=20260920-1"></script>
+  <script src="mm300.js?v=20260920-1"></script>
   <script src="mining-page.js?v=20260911-5"></script>
   <script src="locations-page.js?v=20260911-5"></script>
   <script src="quests-page.js?v=20260905-3"></script>

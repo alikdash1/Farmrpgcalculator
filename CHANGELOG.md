@@ -5,6 +5,20 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-20 — A page of the Mega Masteries left to a floor
+
+- **New page: Mega Masteries to T300**, reached from a button on the Tower
+  toolbar or `#mm300`. One card per outstanding Mega Mastery between the floor
+  you are on and the floor you name (300 by default): percentage first, then a
+  bar, then how much is left. Built to be screenshotted — the Items page's type,
+  colours and card idiom, nothing new invented.
+- Above the cards: how many masteries are left, the mastery still to go and how
+  far through you are, the items to make at 1.45x, and the nearest floor.
+- **Tower floor is 289.** The owner had climbed past 286, so Wooden Spear (T286)
+  and Glass Jar (T287) were still showing as owed. `towerAtCapture` and
+  `startFloor` now say 289; the mastery importer keeps them, and a Tower capture
+  only ever raises the floor.
+
 ## 2026-09-19 (5) — Setup fills itself from the farm page
 
 - **Account Sync 1.12 reads My Farm** (`xfarm.php`): every building and what it

@@ -3,9 +3,9 @@ window.FRPG_PERSONAL_TOWER = {
   "source": "Farm RPG Mastery History (5).csv",
   "sourceColumn": "9/19/2026 1:01:57 AM",
   "authoritativeMasteries": true,
-  "startFloor": 286,
+  "startFloor": 289,
   "goalFloor": 340,
-  "towerAtCapture": 286,
+  "towerAtCapture": 289,
   "capturedAt": "2026-09-19T01:01:57",
   "overrides": [],
   "masteries": {
