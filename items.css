@@ -275,6 +275,15 @@
 .plan-why ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
 .plan-why li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 500 12px var(--data), monospace; }
 .plan-why li span { font-family: var(--ui), sans-serif; color: var(--fg); }
+.plan-jump, .plan-flat { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 0; background: none; border: 0; color: inherit; font: inherit; text-align: left; }
+.plan-jump { cursor: pointer; }
+.plan-jump img, .plan-flat img { width: 20px; height: 20px; object-fit: contain; flex: none; }
+.plan-jump .plan-noart, .plan-flat .plan-noart { flex: none; }
+.plan-jump:hover span { color: var(--lantern); text-decoration: underline; }
+.plan-jump:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; border-radius: 4px; }
+.plan-why li b i { color: var(--muted); font-style: normal; margin-right: 6px; }
+.plan-flash td { animation: plan-flash 1.4s ease; }
+@keyframes plan-flash { 0%, 55% { background: color-mix(in srgb, var(--lantern) 22%, transparent); } 100% { background: transparent; } }
 .plan-why li b { color: var(--lantern); white-space: nowrap; }
 .plan-why-more span, .plan-why-none { color: var(--muted); font-style: italic; }
 .plan-why-none { margin: 0; padding: 12px 16px; font: 500 12px var(--ui), sans-serif; }

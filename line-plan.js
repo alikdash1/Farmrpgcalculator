@@ -163,13 +163,19 @@
     // Every item remembers what asked for it: which recipe it disappeared
     // into, and which step at the top of the tree was ultimately paying.
     const trace = new Map();
-    const note = (name, qty, step, path) => {
+    const note = (name, qty, step, path, parentQty) => {
       const key = String(name).toLowerCase();
       let row = trace.get(key);
       if (!row) { row = { name, steps: new Map(), via: new Map() }; trace.set(key, row); }
       row.steps.set(step, (row.steps.get(step) || 0) + qty);
       const label = path.length ? path.join(" → ") : "handed in as it is";
-      row.via.set(label, (row.via.get(label) || 0) + qty);
+      let via = row.via.get(label);
+      if (!via) {
+        via = { label, parent: path.length ? path[path.length - 1] : null, parentQty: 0, qty: 0 };
+        row.via.set(label, via);
+      }
+      via.qty += qty;
+      via.parentQty += parentQty || 0;
     };
     const base = new Map();
     const crafts = new Map();
@@ -179,7 +185,7 @@
 
     // Take what you hold off the top, once, then roll the rest through its
     // recipe. Anything the farm makes stops here — it is time, not a trip.
-    const need = (name, qty, depth, step, path) => {
+    const need = (name, qty, depth, step, path, parentQty) => {
       const key = String(name).toLowerCase();
       if (qty <= 0) return;
       const have = Math.max(0, (stock.get(key) || 0) - (spent.get(key) || 0));
@@ -189,7 +195,7 @@
         qty -= used;
         if (qty <= 0) return;
       }
-      note(name, qty, step, path);
+      note(name, qty, step, path, parentQty);
       const item = byName.get(key);
       const recipe = item && craftRows.get(item.id);
       if (!item || farm[item.name] || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
@@ -218,12 +224,12 @@
       const deeper = path.concat(item.name);
       for (const row of recipe) {
         const part = (byId.get(row.reqId) || {}).name;
-        if (part) need(part, made * row.amt, depth + 1, step, deeper);
+        if (part) need(part, made * row.amt, depth + 1, step, deeper, qty);
       }
     };
 
     let pieces = 0;
-    for (const step of open) for (const row of step.requirements || []) { pieces += row.quantity; need(row.item, row.quantity, 0, step.title, []); }
+    for (const step of open) for (const row of step.requirements || []) { pieces += row.quantity; need(row.item, row.quantity, 0, step.title, [], 0); }
 
     const places = new Map();
     const fromFarm = [];
@@ -290,9 +296,10 @@
   const fmt = (n) => Math.round(n).toLocaleString("en-US");
   const short = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "m" : n >= 1000 ? Math.round(n / 1000) + "k" : String(Math.round(n)));
   const esc = (text) => String(text == null ? "" : text).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-  function art(name) {
+  function art(name, size) {
+    const px = size || 26;
     const url = ART && ART.urlFor ? ART.urlFor(name) : "";
-    return url ? `<img src="${esc(url)}" alt="" width="26" height="26" loading="lazy">` : `<span class="plan-noart"></span>`;
+    return url ? `<img src="${esc(url)}" alt="" width="${px}" height="${px}" loading="lazy">` : `<span class="plan-noart" style="width:${px}px;height:${px}px"></span>`;
   }
   const hours = (days) => (days >= 1 ? fmt(days) + (days === 1 ? " day" : " days") : Math.round(days * 24) + " hours");
 
@@ -327,12 +334,19 @@
     // one recipe eating everything or thirteen steps each wanting a little.
     const top = (map, limit) => [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit);
     const entryList = (pairs) => pairs.map(([label, qty]) => `<li><span>${esc(label)}</span><b>${fmt(qty)}</b></li>`).join("");
+    // A line that names another item shows that item's picture and jumps to
+    // its own row, so a chain can be walked a link at a time.
+    const link = (item, label) => (item && result.trace.has(String(item).toLowerCase())
+      ? `<button type="button" class="plan-jump" data-goto="${esc(String(item).toLowerCase())}">${art(item, 20)}<span>${esc(label)}</span></button>`
+      : `<span class="plan-flat">${art(item || label, 20)}<span>${esc(label)}</span></span>`);
+    const chainList = (vias) => vias.map((via) => `<li>${link(via.parent, via.label)}<b>${via.parent ? `<i>${fmt(via.parentQty)}</i> ${fmt(via.qty)}` : fmt(via.qty)}</b></li>`).join("");
+    const partList = (lines, crafts) => lines.map((line) => `<li>${link(line.part, line.part)}<b><i>${fmt(line.amt)} each</i> ${fmt(crafts * line.amt)}</b></li>`).join("");
     const madeOf = new Map(result.everything.map((row) => [String(row.name).toLowerCase(), row]));
     const whyHtml = (name) => {
       const key = String(name).toLowerCase();
       const row = result.trace.get(key);
       if (!row) return `<tr class="plan-detail" hidden><td colspan="3"><p class="plan-why-none">Nothing in this line asks for it directly.</p></td></tr>`;
-      const via = top(row.via, 8);
+      const via = [...row.via.values()].sort((a, b) => b.qty - a.qty).slice(0, 8);
       const steps = top(row.steps, 12);
       const more = row.steps.size > steps.length ? `<li class="plan-why-more"><span>and ${fmt(row.steps.size - steps.length)} more steps</span><b></b></li>` : "";
       // The other half of the answer: what this one is built out of, in the
@@ -340,11 +354,11 @@
       const self = madeOf.get(key);
       const making = self && self.crafts > 0 && self.recipe;
       const parts = making
-        ? `<section><h4>Made from${self.recipe.length ? ` — ${fmt(self.crafts)} crafts` : ""}</h4><ul>${entryList(self.recipe.map((line) => [`${line.amt} ${line.part}`, self.crafts * line.amt]))}</ul></section>`
-        : (self && self.recipe ? `<section><h4>Could be made from</h4><ul>${entryList(self.recipe.map((line) => [`${line.amt} ${line.part}`, 0]))}</ul><p class="plan-why-none">Going for it beats making it, so the plan does not craft any.</p></section>` : "");
+        ? `<section><h4>Made from — ${fmt(self.crafts)} crafts at ${YIELD}×</h4><ul>${partList(self.recipe, self.crafts)}</ul></section>`
+        : (self && self.recipe ? `<section><h4>Could be made from</h4><ul>${partList(self.recipe, 0)}</ul><p class="plan-why-none">Going for it beats making it, so the plan does not craft any.</p></section>` : "");
       return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why${parts ? " has-three" : ""}">
         ${parts}
-        <section><h4>What it goes into</h4><ul>${entryList(via)}${row.via.size > via.length ? `<li class="plan-why-more"><span>and ${fmt(row.via.size - via.length)} more recipes</span><b></b></li>` : ""}</ul></section>
+        <section><h4>What it goes into</h4><ul>${chainList(via)}${row.via.size > via.length ? `<li class="plan-why-more"><span>and ${fmt(row.via.size - via.length)} more recipes</span><b></b></li>` : ""}</ul></section>
         <section><h4>Which steps are paying</h4><ul>${entryList(steps)}${more}</ul></section>
       </div></td></tr>`;
     };
@@ -423,6 +437,25 @@
   }
 
   body.addEventListener("click", (event) => {
+    // Clicking a part or a parent walks you to its own row in the full list.
+    const jump = event.target.closest(".plan-jump");
+    if (jump) {
+      const rows = document.getElementById("planAllRows");
+      const find = document.getElementById("planFind");
+      if (find && find.value) { find.value = ""; find.dispatchEvent(new Event("input")); }
+      const target = rows && [...rows.children].find((tr) => tr.getAttribute("data-name") === jump.getAttribute("data-goto"));
+      if (!target) return;
+      const detail = target.nextElementSibling;
+      if (detail && detail.classList.contains("plan-detail") && detail.hasAttribute("hidden")) {
+        detail.removeAttribute("hidden");
+        const opener = target.querySelector(".plan-open");
+        if (opener) opener.setAttribute("aria-expanded", "true");
+      }
+      target.scrollIntoView({ block: "center", behavior: "smooth" });
+      target.classList.add("plan-flash");
+      setTimeout(() => target.classList.remove("plan-flash"), 1400);
+      return;
+    }
     const button = event.target.closest(".plan-open");
     if (!button) return;
     const detail = button.closest("tr").nextElementSibling;

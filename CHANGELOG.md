@@ -5,6 +5,18 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Show the parent, with its picture and its count
+
+"What it goes into" gave the amount of the item you were looking at and left
+you to guess how many of the thing above it that was. Each line now carries the
+parent's picture, how many of the parent the line needs, and then the amount
+this item costs: Acorn reads "Acorn Butter 60,000 → 3,103,448". "Made from"
+shows the per-craft amount beside the total the same way.
+
+Both lists are clickable. Clicking a name jumps to that item's own row, opens
+it and flashes it, so a chain can be walked a link at a time: Acorn to Acorn
+Butter, Moonstone to Control Box to Engine.
+
 ## 2026-09-21 — Every item in the line, and what it is made of
 
 The plan listed the places you go and the thirty biggest crafts. It now carries
