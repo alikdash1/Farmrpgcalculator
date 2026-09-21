@@ -256,8 +256,30 @@
         if (index > 0) rides.add(String(row.name).toLowerCase());
       });
     }
+    // One row per item the line touches, at every depth — the raw drops, the
+    // parts those become, the parts those become, all the way up.
+    const where = new Map();
+    const mark = (name, label, kind) => where.set(String(name).toLowerCase(), { label, kind });
+    for (const [name] of crafts) mark(name, "Craft it", "craft");
+    for (const row of fromFarm) mark(row.name, row.from, "farm");
+    for (const row of grow) mark(row.name, "Grow it", "grow");
+    for (const entry of places.values()) for (const row of entry.rows) mark(row.name, entry.place, entry.kind);
+    for (const row of unknown) mark(row.name, "No source in the data", "none");
+    const everything = [...trace.values()].map((row) => {
+      const key = String(row.name).toLowerCase();
+      const item = byName.get(key);
+      const recipe = item && craftRows.get(item.id);
+      const madeHere = crafts.get(row.name) || 0;
+      return {
+        name: row.name,
+        qty: [...row.steps.values()].reduce((sum, n) => sum + n, 0),
+        where: where.get(key) || { label: "Nothing needs it", kind: "none" },
+        crafts: madeHere,
+        recipe: recipe && recipe.length ? recipe.map((line) => ({ part: (byId.get(line.reqId) || {}).name, amt: line.amt })).filter((line) => line.part) : null,
+      };
+    }).sort((a, b) => b.qty - a.qty);
     return {
-      steps, open, pieces, base, crafts, rides, trace,
+      steps, open, pieces, base, crafts, rides, trace, everything,
       instead: [...instead.values()].sort((a, b) => (b.makeAp + b.makeNets) - (a.makeAp + a.makeNets)),
       fromFarm: fromFarm.sort((a, b) => b.qty - a.qty),
       places: [...places.values()].sort((a, b) => b.ap - a.ap),
@@ -305,18 +327,28 @@
     // one recipe eating everything or thirteen steps each wanting a little.
     const top = (map, limit) => [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit);
     const entryList = (pairs) => pairs.map(([label, qty]) => `<li><span>${esc(label)}</span><b>${fmt(qty)}</b></li>`).join("");
+    const madeOf = new Map(result.everything.map((row) => [String(row.name).toLowerCase(), row]));
     const whyHtml = (name) => {
-      const row = result.trace.get(String(name).toLowerCase());
+      const key = String(name).toLowerCase();
+      const row = result.trace.get(key);
       if (!row) return `<tr class="plan-detail" hidden><td colspan="3"><p class="plan-why-none">Nothing in this line asks for it directly.</p></td></tr>`;
       const via = top(row.via, 8);
       const steps = top(row.steps, 12);
       const more = row.steps.size > steps.length ? `<li class="plan-why-more"><span>and ${fmt(row.steps.size - steps.length)} more steps</span><b></b></li>` : "";
-      return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why">
+      // The other half of the answer: what this one is built out of, in the
+      // amounts this plan actually calls for.
+      const self = madeOf.get(key);
+      const making = self && self.crafts > 0 && self.recipe;
+      const parts = making
+        ? `<section><h4>Made from${self.recipe.length ? ` — ${fmt(self.crafts)} crafts` : ""}</h4><ul>${entryList(self.recipe.map((line) => [`${line.amt} ${line.part}`, self.crafts * line.amt]))}</ul></section>`
+        : (self && self.recipe ? `<section><h4>Could be made from</h4><ul>${entryList(self.recipe.map((line) => [`${line.amt} ${line.part}`, 0]))}</ul><p class="plan-why-none">Going for it beats making it, so the plan does not craft any.</p></section>` : "");
+      return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why${parts ? " has-three" : ""}">
+        ${parts}
         <section><h4>What it goes into</h4><ul>${entryList(via)}${row.via.size > via.length ? `<li class="plan-why-more"><span>and ${fmt(row.via.size - via.length)} more recipes</span><b></b></li>` : ""}</ul></section>
         <section><h4>Which steps are paying</h4><ul>${entryList(steps)}${more}</ul></section>
       </div></td></tr>`;
     };
-    const rowsHtml = (rows, right) => rows.map((row) => `<tr><td><button type="button" class="plan-open" aria-expanded="false">${art(row.name)}<b>${esc(row.name)}</b></button></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>${whyHtml(row.name)}`).join("");
+    const rowsHtml = (rows, right) => rows.map((row) => `<tr data-name="${esc(String(row.name).toLowerCase())}"><td><button type="button" class="plan-open" aria-expanded="false">${art(row.name)}<b>${esc(row.name)}</b></button></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>${whyHtml(row.name)}`).join("");
 
     const parts = [];
     for (const entry of result.places) {
@@ -335,7 +367,7 @@
         <table><thead><tr><th>Crop</th><th>Needed</th><th>Grows in</th></tr></thead><tbody>
         ${rowsHtml(result.grow, (row) => `${fmt(row.growMin)} min`)}</tbody></table></section>`);
     }
-    const craftList = [...result.crafts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30).map(([name, qty]) => ({ name, qty }));
+    const craftList = [...result.crafts.entries()].sort((a, b) => b[1] - a[1]).map(([name, qty]) => ({ name, qty }));
     if (craftList.length) {
       parts.push(`<section class="plan-place"><header><h3>Craft</h3><em>${short(craftTotal)} actions</em><small>biggest jobs first</small></header>
         <table><thead><tr><th>Item</th><th>Crafts</th><th>Makes</th></tr></thead><tbody>
@@ -346,15 +378,50 @@
         <table><thead><tr><th>Item</th><th>Needed</th><th>Where it comes from · what making it would cost instead</th></tr></thead><tbody>
         ${rowsHtml(result.instead, (row) => `${esc(row.place)}, ${row.rides ? "already on the table there" : `${short(row.goAp || row.goNets)} ${row.goNets > row.goAp ? "nets" : "AP"}`} · crafting ${short(row.makeAp)} AP${row.makeNets > 0 ? ` and ${short(row.makeNets)} nets` : ""}`)}</tbody></table></section>`);
     }
+    if (result.everything.length) {
+      parts.push(`<section class="plan-place plan-all"><header><h3>Every item in this line</h3><em>${fmt(result.everything.length)} items</em><small>raw drops, the parts they become, and the parts those become — open any one to see what it is made of and what it feeds</small></header>
+        <div class="plan-find"><label><span>Find an item</span><input id="planFind" type="search" autocomplete="off" placeholder="Moonstone, Control Box, Engine…"></label><strong id="planFindCount"></strong></div>
+        <table><thead><tr><th>Item</th><th>Needed</th><th>Where it comes from</th></tr></thead><tbody id="planAllRows">
+        ${rowsHtml(result.everything, (row) => esc(row.where.label))}</tbody></table></section>`);
+    }
     if (result.unknown.length) {
       parts.push(`<section class="plan-place"><header><h3>No source in the data</h3><em>${result.unknown.length}</em><small>buy, open from a bag, or a quest reward</small></header>
         <table><thead><tr><th>Item</th><th>Needed</th><th></th></tr></thead><tbody>
         ${rowsHtml(result.unknown, () => "")}</tbody></table></section>`);
     }
     body.innerHTML = parts.join("");
+    wireFinder();
   }
 
   pick.innerHTML = lines.map((line) => `<option value="${esc(line)}"${line === "Distant Illusions" ? " selected" : ""}>${esc(line)}</option>`).join("");
+  // The whole-line table is long on purpose, so it gets a finder. Filtering
+  // in place keeps every open row open and costs nothing to redraw.
+  function wireFinder() {
+    const find = document.getElementById("planFind");
+    const count = document.getElementById("planFindCount");
+    const rows = document.getElementById("planAllRows");
+    if (!find || !rows) return;
+    const apply = () => {
+      const query = find.value.trim().toLowerCase();
+      let shown = 0;
+      for (const row of [...rows.children]) {
+        if (row.classList.contains("plan-detail")) continue;
+        const match = !query || (row.getAttribute("data-name") || "").includes(query);
+        row.hidden = !match;
+        if (match) shown += 1;
+        const detail = row.nextElementSibling;
+        if (detail && detail.classList.contains("plan-detail") && !match) {
+          detail.hidden = true;
+          const button = row.querySelector(".plan-open");
+          if (button) button.setAttribute("aria-expanded", "false");
+        }
+      }
+      if (count) count.textContent = query ? `${fmt(shown)} match${shown === 1 ? "" : "es"}` : "";
+    };
+    find.addEventListener("input", apply);
+    apply();
+  }
+
   body.addEventListener("click", (event) => {
     const button = event.target.closest(".plan-open");
     if (!button) return;

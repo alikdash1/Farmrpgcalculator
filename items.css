@@ -264,6 +264,13 @@
 .plan-open:focus-visible { outline: 2px solid var(--lantern); outline-offset: 2px; border-radius: 4px; }
 .plan-place .plan-detail td { display: table-cell; padding: 0; background: var(--ink2); }
 .plan-why { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; padding: 12px 16px 14px; }
+.plan-why.has-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.plan-find { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.plan-find label { display: grid; gap: 4px; flex: 1 1 260px; }
+.plan-find span { color: var(--muted); font: 500 12px var(--ui), sans-serif; }
+.plan-find input { width: 100%; }
+.plan-find strong { color: var(--lantern); font: 700 13px var(--data), monospace; }
+.plan-all tbody tr[hidden] { display: none; }
 .plan-why h4 { margin: 0 0 6px; color: var(--muted); font: 500 12px var(--ui), sans-serif; text-transform: none; }
 .plan-why ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
 .plan-why li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 500 12px var(--data), monospace; }
@@ -271,4 +278,5 @@
 .plan-why li b { color: var(--lantern); white-space: nowrap; }
 .plan-why-more span, .plan-why-none { color: var(--muted); font-style: italic; }
 .plan-why-none { margin: 0; padding: 12px 16px; font: 500 12px var(--ui), sans-serif; }
-@media (max-width: 620px) { .plan-place td, .plan-place th { padding: 6px 12px; } .plan-why { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .plan-why.has-three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .plan-place td, .plan-place th { padding: 6px 12px; } .plan-why, .plan-why.has-three { grid-template-columns: 1fr; } }

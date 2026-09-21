@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Every item in the line, and what it is made of
+
+The plan listed the places you go and the thirty biggest crafts. It now carries
+one row for every item the line touches at any depth — 211 of them for Distant
+Illusions — with a finder over the top, and nothing is capped any more.
+
+Each row opens on three panels: what it is made of, in the amounts this plan
+calls for; what it disappears into; and which steps are paying. So Moonstone
+reads "Engine to Control Box, 39,239", Control Box opens to "3 Moonstone,
+39,239" and "goes into Engine, 18,966", and Engine opens to its twelve parts.
+
 ## 2026-09-21 — Open any row and see what is paying for it
 
 Every line in the questline plan opens. Underneath it: the recipes the item
