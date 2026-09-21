@@ -25,6 +25,10 @@ Almost everything has already been established and written down:
 | `../knowledge-pack/AI_READ_FIRST.md` | How to query the knowledge database |
 | `docs/history/` | The original Codex transcript this was built in |
 
+For planning work - what to farm first, questline order, mastery order -
+use the **`farmrpg-progression`** skill. It carries the unit traps, the costing
+rules and the sequencing doctrine, and it starts from `node tools/demand.mjs`.
+
 Query the knowledge pack instead of guessing or searching the web:
 
 ```
