@@ -512,8 +512,17 @@
       const wanted = new Set(entry.rows.map((row) => String(row.name).toLowerCase()));
       const branches = pruneTo(result.tree, wanted);
       const driver = entry.rows[0];
+      // One savage drop can be the entire trip. Saying so is the difference
+      // between "this place costs 374k AP" and "Amber costs 374k AP and
+      // everything else here is free."
+      const second = entry.rows[1];
+      const unit = entry.kind === "fish" ? "Large Nets" : "AP";
+      const hog = driver && second && driver.ap > second.ap * 3;
+      const blurb = !driver ? "one trip clears the whole table"
+        : hog ? `all of it ${esc(driver.name)}. Everything else here rides along — without ${esc(driver.name)} the whole trip is ${fmt(second.ap)} ${unit}`
+        : `set by ${esc(driver.name)} — one trip clears the whole table, so everything else here comes along with it`;
       parts.push(`<section class="plan-place plan-tree">
-        <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${driver ? `set by ${esc(driver.name)} — one trip clears the whole table, so everything else here comes along with it` : "one trip clears the whole table"}</small></header>
+        <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${blurb}</small></header>
         <ul class="plan-roots">${branches.map((node) => nodeHtml(node, 0)).join("")}</ul></section>`);
     }
     const branchSection = (rows, title, figure, blurb) => {

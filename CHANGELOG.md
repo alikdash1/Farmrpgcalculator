@@ -5,6 +5,19 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Name the one drop that is the whole trip
+
+"Misty Forest 374k AP" over a list of six items reads as though the six cost
+374k between them. They do not. Amber costs all of it and the other five ride
+along. A place whose top item is more than three times the next one now says
+so, and gives the figure without it: Misty Forest is 36,475 AP once Amber is
+out, Mount Banon 35,936 without Bacon.
+
+Checked against buddy.farm while chasing this: Distant Illusions I matches
+item for item, and buddy.farm's own Amber rate of 110,742 explores per drop is
+harsher than our workbook's, not kinder. The numbers are right. The reading of
+them was the problem.
+
 ## 2026-09-21 — Say it in cider and stamina too
 
 The plan only ever priced exploring in Arnold Palmers. Every gathered row now
