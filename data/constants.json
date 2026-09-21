@@ -17,6 +17,7 @@
   "quandary_bonus": { "v": 0.1, "verified": true, "why": "Quandary Chowder gives 10% more Lemonade/AP output" },
   "neigh_stamina_save": { "v": 0.2, "verified": true, "why": "Neigh makes Cider use 20% less stamina" },
   "sea_pincher_bonus": { "v": 0.1, "verified": false, "why": "Community-documented Net/LN effectiveness boost" },
+  "crunchy_pet_bonus": { "v": 0.5, "verified": true, "why": "Crunchy Omelette: collecting from Pets results in 50% more items collected, for 2 minutes. From the meal's own text." },
   "hickory_tick_bonus": { "v": 0.2, "verified": true, "why": "Hickory Omelette adds 20% Sawmill production every 10 minutes for one hour" },
   "acorn_pie_actions": { "v": 150, "verified": true, "why": "Acorn Pie adds Hide outside Forest for 150 actions; rate varies by location and method" },
   "explore_base_stamina": { "v": 1.25, "verified": true, "why": "Stamina one explore costs before perks. The owner's stamina calculator gives a cider 1250 + 12.5 x effectiveness stamina and (1 + effectiveness/100) x 1000 explores, which is 1.25 stamina per explore at every effectiveness." },

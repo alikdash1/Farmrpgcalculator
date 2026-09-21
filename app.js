@@ -154,6 +154,7 @@
     { id: "seapincher", name: "Sea Pincher Special", area: "Fishing economy", effect: "Nets and Large Nets are more effective", calc: "Uses the editable 10% community estimate for Net requirements." },
     { id: "shrimp", name: "Shrimp-a-Plenty", area: "Selling", effect: "+10% silver at Market for 5 minutes", calc: "Included in final sell value and raw-material opportunity value." },
     { id: "mushroom", name: "Mushroom Stew", area: "Mastery", effect: "+10% Mastery for 5 minutes", calc: "Each item counts 1.1x toward a mastery, so a 1m Mega Mastery lands at about 909.09k items." },
+    { id: "crunchy", name: "Crunchy Omelette", area: "Farm production", effect: "+50% items when collecting from Pets for 2 minutes", calc: "Raises what a Pet collection returns by half, before inventory voiding. It does not change exploring or fishing." },
   ];
   const MEAL_DEFAULTS = Object.fromEntries(MEALS.map((meal) => [meal.id, false]));
 

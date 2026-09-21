@@ -10,7 +10,12 @@
 //   node tools/demand.mjs --line "Distant Illusions"   one line, still merged
 //                                                      with mastery demand
 //   node tools/demand.mjs --no-mastery    quests only
+//   node tools/demand.mjs --no-stock      ignore what the account holds
 //   node tools/demand.mjs --json          machine-readable
+//
+// Account data comes from the captures: data/personal-quests.js for what is
+// done, data/personal-tower.js for mastery counts, and the newest inventory
+// capture in raw/account-captures/ for what is already in the bag.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -44,6 +49,34 @@ const MM_GOAL = 1000000;
 const topFloor = Number(flag("--floor", 300)) || 300;
 const onlyLine = flag("--line", null);
 const wantMastery = !has("--no-mastery");
+
+// What the account already holds, from the newest inventory capture on disk.
+// The captures are gitignored account data and may be absent; that is fine.
+function heldStock() {
+  if (has("--no-stock")) return { rows: new Map(), from: null };
+  const dir = path.join(root, "raw", "account-captures");
+  if (!fs.existsSync(dir)) return { rows: new Map(), from: null };
+  const newest = fs.readdirSync(dir)
+    .filter((name) => /inventory.*\.json$/i.test(name))
+    .sort()
+    .pop();
+  if (!newest) return { rows: new Map(), from: null };
+  try {
+    const capture = JSON.parse(fs.readFileSync(path.join(dir, newest), "utf8"));
+    const list = ((capture.fields || {}).inventory) || [];
+    const rows = new Map();
+    for (const row of list) {
+      const amount = row && row.quantity && typeof row.quantity === "object" ? row.quantity.value : row && row.quantity;
+      const n = Number(amount);
+      if (row && row.name && Number.isFinite(n) && n > 0) rows.set(String(row.name).toLowerCase(), n);
+    }
+    return { rows, from: newest };
+  } catch (error) {
+    return { rows: new Map(), from: null };
+  }
+}
+const stock = heldStock();
+const spent = new Map();
 
 const D = W.FRPG_DATA || {};
 const items = ((D.items || {}).items) || [];
@@ -109,6 +142,14 @@ const note = (name, qty, goal) => {
 const need = (name, qty, depth, goal) => {
   if (qty <= 0) return;
   const key = String(name).toLowerCase();
+  // Take what is already held off the top, once, before expanding anything.
+  const have = Math.max(0, (stock.rows.get(key) || 0) - (spent.get(key) || 0));
+  if (have > 0) {
+    const used = Math.min(have, qty);
+    spent.set(key, (spent.get(key) || 0) + used);
+    qty -= used;
+    if (qty <= 0) return;
+  }
   const item = byName.get(key);
   const recipe = item && craftRows.get(item.id);
   if (!item || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
@@ -165,6 +206,7 @@ if (has("--json")) {
   }, null, 2));
 } else {
   console.log(`${openSteps.length} open quest steps${onlyLine ? ` in ${onlyLine}` : ""}, ${masteryGoals.length} masteries owed up to T${topFloor}`);
+  console.log(stock.from ? `netted against ${fmt(stock.rows.size)} held items from ${stock.from}` : "not netted against any inventory capture");
   console.log(`${base.size} base items, ${ranked.length} places\n`);
   console.log("Places, cheapest per goal advanced first:\n");
   for (const entry of ranked) {

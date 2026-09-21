@@ -5,6 +5,26 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — A progression skill, an account-wide demand graph, Crunchy Omelette
+
+Planning one questline at a time was always the wrong unit. `tools/demand.mjs`
+now rolls every unfinished quest step and every outstanding mastery down to
+base items at 1.45, nets them against the newest inventory capture, merges
+them into one graph and ranks places by **cost per goal advanced** rather than
+raw AP. It names each place's hog, what the trip costs without it, and what
+cannot be mailed.
+
+The `farmrpg-progression` skill carries the doctrine that took this whole
+session to learn: the unit traps (drops per AP is not explores per drop; an AP
+costs no stamina, so Neigh and Wanderer never touch it), the costing rules
+(one trip clears the table, name the hog, check the trade route), the
+sequencing rules (passive production first, rank by goals per AP, masteries
+are a by-product of trips rather than a phase) and when to stop questing to
+close a mastery.
+
+Crunchy Omelette added to Setup: +50% items when collecting from Pets, for two
+minutes.
+
 ## 2026-09-21 — Plan one step, not fourteen
 
 Distant Illusions steps unlock in order, so costing all fourteen at once was
