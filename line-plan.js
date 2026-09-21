@@ -11,6 +11,7 @@
   const useFarm = document.getElementById("planFarm");
   const useStock = document.getElementById("planStock");
   const compare = document.getElementById("planCompare");
+  const pickStep = document.getElementById("planStep");
 
   const D = window.FRPG_DATA || {};
   const QUESTS = ((window.FRPG_MAIN_QUESTS || {}).quests) || [];
@@ -232,7 +233,14 @@
     const base = new Map();
     const crafts = new Map();
     const steps = stepsOf(line);
-    const open = steps.filter((step) => !DONE.has(String(step.title).toLowerCase()));
+    let open = steps.filter((step) => !DONE.has(String(step.title).toLowerCase()));
+    // Steps unlock in order, so the honest unit of work is one step, not the
+    // whole line. Planning fourteen at once is what makes the numbers look mad.
+    const only = pickStep && pickStep.value;
+    if (only && only !== "*") {
+      const single = open.filter((step) => step.title === only);
+      if (single.length) open = single;
+    }
     const spent = new Map();
 
     // Take what you hold off the top, once, then roll the rest through its
@@ -556,6 +564,16 @@
     wireFinder();
   }
 
+  function fillSteps() {
+    if (!pickStep) return;
+    const open = stepsOf(pick.value).filter((step) => !DONE.has(String(step.title).toLowerCase()));
+    const held = pickStep.value;
+    pickStep.innerHTML = [`<option value="*">Everything still owed</option>`]
+      .concat(open.map((step) => `<option value="${esc(step.title)}">${esc(step.title)}</option>`)).join("");
+    pickStep.value = open.some((step) => step.title === held) ? held : "*";
+    pickStep.parentElement.hidden = open.length < 2;
+  }
+
   pick.innerHTML = lines.map((line) => `<option value="${esc(line)}"${line === "Distant Illusions" ? " selected" : ""}>${esc(line)}</option>`).join("");
   // The whole-line table is long on purpose, so it gets a finder. Filtering
   // in place keeps every open row open and costs nothing to redraw.
@@ -638,10 +656,12 @@
     if (opening) detail.removeAttribute("hidden"); else detail.setAttribute("hidden", "");
     button.setAttribute("aria-expanded", opening ? "true" : "false");
   });
-  pick.addEventListener("change", render);
+  pick.addEventListener("change", () => { fillSteps(); render(); });
+  if (pickStep) pickStep.addEventListener("change", render);
   useFarm.addEventListener("change", render);
   useStock.addEventListener("change", render);
   window.addEventListener("load", render);
   window.FRPG_renderPlan = render;
+  fillSteps();
   render();
 })();

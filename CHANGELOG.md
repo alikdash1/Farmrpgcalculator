@@ -5,6 +5,13 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Plan one step, not fourteen
+
+Distant Illusions steps unlock in order, so costing all fourteen at once was
+answering a question nobody has. A "Which step" picker now sits beside the
+questline. Distant Illusions I on its own is 127k AP, and 99k of that is Bacon
+and Gold Feather; everything else in the step is about 28k AP across ten trips.
+
 ## 2026-09-21 — Name the one drop that is the whole trip
 
 "Misty Forest 374k AP" over a list of six items reads as though the six cost
