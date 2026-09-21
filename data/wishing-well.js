@@ -30,7 +30,10 @@ window.FRPG_WISHING_WELL = {
   source: "in-game wiki WW Drops Table and WW Wants",
   sourceUpdated: "March 13rd, 2026",
   capturedAt: "2026-09-21",
-  quantityPerToss: null,
+  // One item back per toss, doubled by Reflecting Pool. With 30 tosses a day
+  // that is at most 60 items daily, whatever the chance column says.
+  quantityPerToss: 1,
+  effectivePerDay: 60,
 
   // Magic Mirror artifact, Tower floor 140. Doubles the quantity returned.
   perk: {
@@ -44,7 +47,7 @@ window.FRPG_WISHING_WELL = {
   // Free tosses per server day. About 30 all in, per the account owner. This
   // is the number that decides whether a Well route is worth anything.
   dailyLimit: {
-    total: 30,
+    total: 30,   // confirmed by the account owner
     base: null,
     perks: [{"perk":"Extra Wish","adds":1},{"perk":"Extra Wishes","adds":5},{"perk":"Extra Wishes II","adds":10},{"perk":"Extra Wishes III","adds":10}],
     perkTotal: 26,
@@ -3459,7 +3462,6 @@ window.FRPG_WISHING_WELL = {
   },
 
   unknown: [
-    "how many items come back per toss, for every row",
     "the exact split between the base limit and the Extra Wish perks",
   ],
 
