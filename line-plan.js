@@ -423,20 +423,18 @@
       const note = node.kind === "craft" ? `${fmt(node.crafts)} crafts at ${YIELD}×`
         : node.kind === "covered" ? "you get these another way"
         : whereLabel(node.name);
-      return `<li class="plan-node">
-        <div class="plan-node-row" style="--depth:${depth}">
-          ${kids ? `<button type="button" class="plan-node-toggle" aria-expanded="false" aria-label="Show what ${esc(node.name)} is made of"></button>` : `<span class="plan-node-leaf"></span>`}
-          ${art(node.name, 22)}<b>${esc(node.name)}</b><em>${fmt(node.qty)}</em><small>${esc(note)}</small>
-        </div>
-        ${kids ? `<ul class="plan-kids" hidden>${node.children.map((child) => nodeHtml(child, depth + 1)).join("")}</ul>` : ""}
-      </li>`;
+      const row = `<div class="plan-node-row${kids ? " has-kids" : ""}" style="--depth:${depth}"${kids ? ` role="button" tabindex="0" aria-expanded="false"` : ""}>
+          <span class="plan-node-mark"></span>${art(node.name, depth ? 22 : 28)}
+          <span class="plan-node-name"><b>${esc(node.name)}</b><small>${esc(note)}</small></span>
+          <em>${fmt(node.qty)}</em>
+        </div>`;
+      return `<li class="plan-node">${row}${kids ? `<ul class="plan-kids" hidden>${node.children.map((child) => nodeHtml(child, depth + 1)).join("")}</ul>` : ""}</li>`;
     };
 
     const parts = [];
     if (result.tree.length) {
       const treeHtml = result.tree.map((node) => nodeHtml(node, 0)).join("");
-      parts.push(`<section class="plan-place plan-tree"><header><h3>What the quests ask for</h3><em>${fmt(result.tree.length)} things to hand in</em><small>the amount of each one you still owe, across every step left. Open a row to see what it is made of, and keep opening down to what you pick up off the ground — every number is after ${YIELD}× duplicates.</small></header>
-        <div class="plan-tree-head"><span>Item</span><span>Needed</span><span>Where it comes from</span></div>
+      parts.push(`<section class="plan-place plan-tree"><header><h3>Everything this questline wants</h3><em>${fmt(result.tree.length)} items</em><small>what you still owe across every step left. Open a row to see how it is made, and keep going down until a row names a place — that is where you actually go. Every amount is after ${YIELD}× duplicates.</small></header>
         <ul class="plan-roots">${treeHtml}</ul></section>`);
     }
     const leftOut = [...covered].map((key) => (byName.get(key) || {}).name).filter(Boolean).sort();
@@ -515,6 +513,21 @@
     apply();
   }
 
+  // The whole row opens, not a three-pixel arrow.
+  function openBranch(row) {
+    const kids = row.parentElement.querySelector(":scope > .plan-kids");
+    if (!kids) return;
+    const opening = kids.hasAttribute("hidden");
+    if (opening) kids.removeAttribute("hidden"); else kids.setAttribute("hidden", "");
+    row.setAttribute("aria-expanded", opening ? "true" : "false");
+  }
+  body.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const row = event.target.closest(".plan-node-row.has-kids");
+    if (!row) return;
+    event.preventDefault();
+    openBranch(row);
+  });
   body.addEventListener("click", (event) => {
     const cover = event.target.closest("[data-cover]");
     if (cover) {
@@ -543,15 +556,8 @@
       setTimeout(() => target.classList.remove("plan-flash"), 1400);
       return;
     }
-    const branch = event.target.closest(".plan-node-toggle");
-    if (branch) {
-      const kids = branch.closest(".plan-node").querySelector(".plan-kids");
-      if (!kids) return;
-      const opening = kids.hasAttribute("hidden");
-      if (opening) kids.removeAttribute("hidden"); else kids.setAttribute("hidden", "");
-      branch.setAttribute("aria-expanded", opening ? "true" : "false");
-      return;
-    }
+    const branch = event.target.closest(".plan-node-row.has-kids");
+    if (branch) { openBranch(branch); return; }
     const button = event.target.closest(".plan-open");
     if (!button) return;
     const detail = button.closest("tr").nextElementSibling;

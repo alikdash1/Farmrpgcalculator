@@ -294,25 +294,32 @@
 .plan-chip i { color: var(--muted); font-style: normal; font-size: 13px; line-height: 1; }
 .plan-chip:hover { border-color: var(--muted); }
 .plan-chip:hover i { color: var(--lantern); }
-.plan-tree-head { display: grid; grid-template-columns: minmax(0, 1fr) 110px 200px; gap: 16px; padding: 8px 16px; color: var(--muted); font: 500 12px var(--ui), sans-serif; border-bottom: 1px solid var(--line); }
 .plan-roots, .plan-kids { margin: 0; padding: 0; list-style: none; }
-.plan-node-row { display: grid; grid-template-columns: 18px 22px minmax(0, 1fr) 110px 200px; gap: 8px 16px; align-items: center; padding: 6px 16px; padding-left: calc(16px + var(--depth) * 20px); border-bottom: 1px solid var(--line); }
-.plan-node-row b { min-width: 0; font: 600 13px var(--ui), sans-serif; overflow-wrap: anywhere; }
-.plan-node-row em { font: 700 13px var(--data), monospace; font-style: normal; color: var(--lantern); text-align: right; }
-.plan-node-row small { color: var(--muted); font: 500 12px var(--ui), sans-serif; overflow-wrap: anywhere; }
-.plan-node-row img { width: 22px; height: 22px; object-fit: contain; }
-.plan-node-toggle { width: 18px; height: 18px; padding: 0; background: none; border: 0; cursor: pointer; position: relative; }
-.plan-node-toggle::before { content: ""; position: absolute; top: 5px; left: 6px; width: 0; height: 0; border-left: 5px solid var(--muted); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .12s ease; transform-origin: 2px 4px; }
-.plan-node-toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
-.plan-node-toggle:hover::before { border-left-color: var(--lantern); }
-.plan-node-toggle:focus-visible { outline: 2px solid var(--lantern); outline-offset: 1px; border-radius: 3px; }
-.plan-node-leaf { width: 18px; height: 18px; }
+.plan-node-row { position: relative; display: grid; grid-template-columns: 14px 28px minmax(0, 1fr) auto; gap: 0 12px; align-items: center; padding: 10px 16px; padding-left: calc(16px + var(--depth) * 22px); border-bottom: 1px solid var(--line); }
+.plan-node:last-child > .plan-node-row { border-bottom: 0; }
+.plan-node-row.has-kids { cursor: pointer; }
 .plan-node-row:hover { background: var(--ink2); }
-.plan-kids > .plan-node > .plan-node-row { background: color-mix(in srgb, var(--ink2) 55%, transparent); }
-@media (max-width: 760px) {
-  .plan-tree-head { display: none; }
-  .plan-node-row { grid-template-columns: 18px 22px minmax(0, 1fr) auto; padding-left: calc(12px + var(--depth) * 14px); }
-  .plan-node-row small { grid-column: 3 / -1; }
+.plan-node-row:focus-visible { outline: 2px solid var(--lantern); outline-offset: -2px; }
+.plan-node-mark { justify-self: center; width: 0; height: 0; border-left: 5px solid var(--muted); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .12s ease; }
+.plan-node-row:not(.has-kids) .plan-node-mark { border-left-color: transparent; }
+.plan-node-row[aria-expanded="true"] .plan-node-mark { transform: rotate(90deg); }
+.plan-node-row img { width: 28px; height: 28px; object-fit: contain; justify-self: center; }
+.plan-node-name { min-width: 0; display: grid; gap: 1px; }
+.plan-node-name b { font: 600 15px var(--ui), sans-serif; overflow-wrap: anywhere; }
+.plan-node-name small { color: var(--muted); font: 500 12px var(--ui), sans-serif; overflow-wrap: anywhere; }
+.plan-node-row em { font: 700 15px var(--data), monospace; font-style: normal; color: var(--lantern); text-align: right; white-space: nowrap; }
+.plan-kids .plan-node-row { padding-top: 7px; padding-bottom: 7px; }
+.plan-kids .plan-node-row img { width: 22px; height: 22px; }
+.plan-kids .plan-node-name b { font-size: 13px; font-weight: 500; }
+.plan-kids .plan-node-row em { font-size: 13px; }
+.plan-kids .plan-node-row::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(16px + (var(--depth) - 1) * 22px + 6px); width: 1px; background: var(--line); }
+@media (max-width: 620px) {
+  .plan-node-row { grid-template-columns: 14px 24px minmax(0, 1fr) auto; gap: 0 8px; padding-left: calc(12px + var(--depth) * 14px); }
+  .plan-node-row img, .plan-kids .plan-node-row img { width: 24px; height: 24px; }
+  .plan-node-name b { font-size: 14px; }
+  .plan-node-row em { font-size: 14px; }
+  .plan-kids .plan-node-row::before { left: calc(12px + (var(--depth) - 1) * 14px + 6px); }
+}
 }
 @keyframes plan-flash { 0%, 55% { background: color-mix(in srgb, var(--lantern) 22%, transparent); } 100% { background: transparent; } }
 .plan-why li b { color: var(--lantern); white-space: nowrap; }

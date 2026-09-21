@@ -5,6 +5,16 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — One list, opened one layer at a time
+
+The tree was right but unreadable: a header row, three cramped columns and a
+note fighting the number for the same space.
+
+It is a plain list now. Picture, name, and the amount owed on the right. Under
+the name, in grey, the one thing worth knowing: where it comes from, or how
+many crafts it is. The whole row opens, not a three-pixel arrow, and each layer
+steps in with a hairline showing what it belongs to.
+
 ## 2026-09-21 — Read the plan the way you play it
 
 The page was built upside down. It listed raw materials and made you work
