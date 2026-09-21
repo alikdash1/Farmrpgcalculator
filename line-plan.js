@@ -94,8 +94,24 @@
   }
 
   function held() {
-    if (!useStock.checked || !GATHER || typeof GATHER.inventoryRows !== "function") return new Map();
-    return new Map(GATHER.inventoryRows().map((row) => [String(row.name).toLowerCase(), Number(row.quantity) || 0]));
+    if (!useStock.checked) return new Map();
+    const rows = GATHER && typeof GATHER.inventoryRows === "function"
+      ? new Map(GATHER.inventoryRows().map((row) => [String(row.name).toLowerCase(), Number(row.quantity) || 0]))
+      : new Map();
+    // A chest costs one key to open, so a stack of them is already supply.
+    // Credit what is inside against what you owe.
+    const boxes = ((window.FRPG_CONTAINERS || {}).byName) || {};
+    const owned = ((window.FRPG_PLAYER_FACTS || {}).containersHeld) || {};
+    for (const [name, count] of Object.entries(owned)) {
+      if (!(count > 0)) continue;
+      for (const row of (boxes[name] || {}).payout || []) {
+        const each = Number(row.min);
+        if (!Number.isFinite(each)) continue;
+        const key = String(row.item).toLowerCase();
+        rows.set(key, (rows.get(key) || 0) + each * count);
+      }
+    }
+    return rows;
   }
 
   // Drops per AP, from the owner's workbook: the best place for each item.

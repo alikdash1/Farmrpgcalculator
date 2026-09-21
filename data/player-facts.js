@@ -47,6 +47,11 @@ window.FRPG_PLAYER_FACTS = {
   // mega seeds, ducks and similar rarities.
   exchangeCenter: { reliableSupply: false, useFor: "items available nowhere else" },
 
+  // Containers held in bulk. A chest costs one key to open, so what is in it
+  // is effectively already in the bag. Distant Illusions IV hands over another
+  // 2,000 Large Chest 02 partway through.
+  containersHeld: { "Large Chest 02": 13000 },
+
   // Stamina perks are all owned.
   perks: { staminaCapAllOwned: true },
 };

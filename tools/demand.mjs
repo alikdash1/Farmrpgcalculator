@@ -29,7 +29,8 @@ vm.createContext(ctx);
 for (const file of [
   "data/data.js", "data/extra-items.js", "data/main-quests.js",
   "data/personal-quests.js", "data/personal-tower.js", "data/tower-floors.js",
-  "data/workbook-rates.js", "data/tradeable.js",
+  "data/workbook-rates.js", "data/tradeable.js", "data/wishing-well.js",
+  "data/player-facts.js",
 ]) {
   const full = path.join(root, file);
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, "utf8"), ctx, { filename: file });
@@ -76,6 +77,23 @@ function heldStock() {
   }
 }
 const stock = heldStock();
+// A chest costs one key, so what is inside a stack of them is already yours.
+// Credit it against demand the same way held items are.
+(() => {
+  const held = ((W.FRPG_PLAYER_FACTS || {}).containersHeld) || {};
+  const byName = ((W.FRPG_CONTAINERS || {}).byName) || {};
+  for (const [name, count] of Object.entries(held)) {
+    const payout = (byName[name] || {}).payout;
+    if (!payout || !count) continue;
+    for (const row of payout) {
+      const each = Number(row.min);
+      if (!Number.isFinite(each)) continue;
+      const key = String(row.item).toLowerCase();
+      stock.rows.set(key, (stock.rows.get(key) || 0) + each * count);
+    }
+    stock.containers = (stock.containers || []).concat(`${count.toLocaleString()} ${name}`);
+  }
+})();
 const spent = new Map();
 
 const D = W.FRPG_DATA || {};
@@ -207,6 +225,7 @@ if (has("--json")) {
 } else {
   console.log(`${openSteps.length} open quest steps${onlyLine ? ` in ${onlyLine}` : ""}, ${masteryGoals.length} masteries owed up to T${topFloor}`);
   console.log(stock.from ? `netted against ${fmt(stock.rows.size)} held items from ${stock.from}` : "not netted against any inventory capture");
+  if (stock.containers) console.log(`plus what is inside ${stock.containers.join(", ")}`);
   console.log(`${base.size} base items, ${ranked.length} places\n`);
   console.log("Places, cheapest per goal advanced first:\n");
   for (const entry of ranked) {
