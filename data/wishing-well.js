@@ -8,6 +8,23 @@
 // wiki has no quantity column, so HOW MANY come back per toss is unknown for
 // every row. The Reflecting Pool perk doubles the returned quantity, not the
 // chance, so these chances are the same with or without it.
+//
+// READ THIS BEFORE USING ANY OF IT. The Well is capped at about **30 tosses a
+// day**. That makes it a source of *kinds* of item, never of *quantities*, and
+// the chances below are worthless without that cap in front of them:
+//
+//   Magna Core   2,759 needed, Compass at 100%, doubled = 60/day = 46 days. Fine.
+//   Spiked Shell 30,000 needed, Salt at 50%, doubled = 30/day = 1,000 days. Absurd.
+//
+// So the Well is only worth planning around for:
+//   1. items with no other source at all - Magna Core is the case that matters,
+//      because it needs a Seeing Stone and a Seeing Stone has no source, no
+//      recipe and no trade, so the Well is the only way one ever exists;
+//   2. small quest quantities, in the tens or low hundreds;
+//   3. a modest bonus on something you happen to be holding anyway.
+//
+// Never propose it for a bulk item. Always divide by 30 tosses a day and say
+// how many days it would take before suggesting it.
 window.FRPG_WISHING_WELL = {
   schema: "farmrpg-wishing-well-v1",
   source: "in-game wiki WW Drops Table and WW Wants",
@@ -24,9 +41,10 @@ window.FRPG_WISHING_WELL = {
     appliesTo: "returned item quantity, not the listed chance",
   },
 
-  // Free tosses per server day. The base number is unknown; the Farm Supply
-  // perks add 26 between them.
+  // Free tosses per server day. About 30 all in, per the account owner. This
+  // is the number that decides whether a Well route is worth anything.
   dailyLimit: {
+    total: 30,
     base: null,
     perks: [{"perk":"Extra Wish","adds":1},{"perk":"Extra Wishes","adds":5},{"perk":"Extra Wishes II","adds":10},{"perk":"Extra Wishes III","adds":10}],
     perkTotal: 26,
@@ -3442,8 +3460,17 @@ window.FRPG_WISHING_WELL = {
 
   unknown: [
     "how many items come back per toss, for every row",
-    "the base free toss limit per server day",
+    "the exact split between the base limit and the Extra Wish perks",
   ],
+
+  // Days a Well route would take. Call this before ever recommending one.
+  // `chance` is 0 to 1, `perToss` defaults to 1 because the wiki has no
+  // quantity column, and `doubled` is the Reflecting Pool perk.
+  daysFor(qty, chance, perToss, doubled) {
+    const each = (perToss || 1) * (doubled === false ? 1 : this.perk.multiplier);
+    const perDay = this.dailyLimit.total * chance * each;
+    return perDay > 0 ? qty / perDay : Infinity;
+  },
 };
 
 // Containers. `payout` is null where the source did not state one - notably
