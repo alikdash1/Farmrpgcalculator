@@ -190,6 +190,10 @@
     };
   }
 
+  // The game will not let you mail these, so there is no trade route and no
+  // buying your way out: whatever the number says, you go and get it yourself.
+  const NO_TRADE = new Set((((window.FRPG_TRADEABLE || {}).cannotMail) || []).map((name) => String(name).toLowerCase()));
+
   const lines = [...new Set(QUESTS.map((quest) => quest.line))].sort();
 
   function stepsOf(line) {
@@ -496,7 +500,7 @@
       const kids = node.children.length;
       const note = node.kind === "craft" ? `${fmt(node.crafts)} crafts at ${YIELD}×`
         : node.kind === "covered" ? "you get these another way"
-        : whereLabel(node.name);
+        : `${whereLabel(node.name)}${NO_TRADE.has(String(node.name).toLowerCase()) ? " · cannot be traded, farm it yourself" : ""}`;
       const row = `<div class="plan-node-row${kids ? " has-kids" : ""}" style="--depth:${depth}"${kids ? ` role="button" tabindex="0" aria-expanded="false"` : ""}>
           <span class="plan-node-mark"></span>${art(node.name, depth ? 22 : 28)}
           <span class="plan-node-name"><b>${esc(node.name)}</b><small>${esc(note)}</small></span>
@@ -516,6 +520,22 @@
       parts.push(`<section class="plan-place plan-left-out"><header><h3>Left out on purpose</h3><em>${fmt(leftOut.length)}</em><small>you get these another way, so nothing underneath them is counted</small></header>
         <p class="plan-chips">${leftOut.map((name) => `<button type="button" class="plan-chip" data-cover="${esc(name.toLowerCase())}">${art(name, 20)}<span>${esc(name)}</span><i aria-hidden="true">×</i></button>`).join("")}</p></section>`);
     }
+    // A trip empties the whole drop table, not just the lines the quest wants.
+    // What else lands in your bag is mastery progress and the next quest's
+    // materials, so it is worth seeing before deciding where to go.
+    const haulHtml = (entry) => {
+      const table = ((entry.kind === "fish" ? RATES.fishing : RATES.exploring) || {})[entry.place];
+      if (!table || !(entry.ap > 0)) return "";
+      const asked = new Set(entry.rows.map((row) => String(row.name).toLowerCase()));
+      const extras = Object.entries(table)
+        .filter(([item]) => !asked.has(String(item).toLowerCase()))
+        .map(([item, rate]) => ({ item, got: rate * entry.ap }))
+        .filter((row) => row.got >= 1)
+        .sort((a, b) => b.got - a.got)
+        .slice(0, 30);
+      if (!extras.length) return "";
+      return `<div class="plan-haul"><h4>What else the same trip brings home</h4><ul>${extras.map((row) => `<li>${art(row.item, 20)}<span>${esc(row.item)}</span><b>${fmt(row.got)}</b></li>`).join("")}</ul></div>`;
+    };
     for (const entry of result.places) {
       const wanted = new Set(entry.rows.map((row) => String(row.name).toLowerCase()));
       const branches = pruneTo(result.tree, wanted);
@@ -531,7 +551,7 @@
         : `set by ${esc(driver.name)} — one trip clears the whole table, so everything else here comes along with it`;
       parts.push(`<section class="plan-place plan-tree">
         <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${blurb}</small></header>
-        <ul class="plan-roots">${branches.map((node) => nodeHtml(node, 0)).join("")}</ul></section>`);
+        <ul class="plan-roots">${branches.map((node) => nodeHtml(node, 0)).join("")}</ul>${haulHtml(entry)}</section>`);
     }
     const branchSection = (rows, title, figure, blurb) => {
       if (!rows.length) return;
