@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Open any row and see what is paying for it
+
+Every line in the questline plan opens. Underneath it: the recipes the item
+disappears into, with the amount each one swallows, and the steps that are
+ultimately paying, largest first. Small Spring reads "Engine to Control Box
+39,239, Compass to Magna Core 9,512" rather than one unexplained 48,751.
+
+Every number is the one after 1.45 duplicates, compounded at each level of the
+chain, so 27,500 Engines only ever asks for 39,239 Small Spring instead of the
+82,500 the recipe reads.
+
 ## 2026-09-21 — Go and get it, when going is cheaper
 
 The questline planner used to craft anything with a recipe. It now weighs the

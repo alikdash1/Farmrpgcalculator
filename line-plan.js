@@ -160,6 +160,17 @@
     const stock = held();
     const cost = compare && compare.checked ? costModel(farm, freeKeys) : null;
     const instead = new Map();
+    // Every item remembers what asked for it: which recipe it disappeared
+    // into, and which step at the top of the tree was ultimately paying.
+    const trace = new Map();
+    const note = (name, qty, step, path) => {
+      const key = String(name).toLowerCase();
+      let row = trace.get(key);
+      if (!row) { row = { name, steps: new Map(), via: new Map() }; trace.set(key, row); }
+      row.steps.set(step, (row.steps.get(step) || 0) + qty);
+      const label = path.length ? path.join(" → ") : "handed in as it is";
+      row.via.set(label, (row.via.get(label) || 0) + qty);
+    };
     const base = new Map();
     const crafts = new Map();
     const steps = stepsOf(line);
@@ -168,7 +179,7 @@
 
     // Take what you hold off the top, once, then roll the rest through its
     // recipe. Anything the farm makes stops here — it is time, not a trip.
-    const need = (name, qty, depth) => {
+    const need = (name, qty, depth, step, path) => {
       const key = String(name).toLowerCase();
       if (qty <= 0) return;
       const have = Math.max(0, (stock.get(key) || 0) - (spent.get(key) || 0));
@@ -178,6 +189,7 @@
         qty -= used;
         if (qty <= 0) return;
       }
+      note(name, qty, step, path);
       const item = byName.get(key);
       const recipe = item && craftRows.get(item.id);
       if (!item || farm[item.name] || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
@@ -203,14 +215,15 @@
       }
       const made = qty / YIELD;
       crafts.set(name, (crafts.get(name) || 0) + made);
+      const deeper = path.concat(item.name);
       for (const row of recipe) {
         const part = (byId.get(row.reqId) || {}).name;
-        if (part) need(part, made * row.amt, depth + 1);
+        if (part) need(part, made * row.amt, depth + 1, step, deeper);
       }
     };
 
     let pieces = 0;
-    for (const step of open) for (const row of step.requirements || []) { pieces += row.quantity; need(row.item, row.quantity, 0); }
+    for (const step of open) for (const row of step.requirements || []) { pieces += row.quantity; need(row.item, row.quantity, 0, step.title, []); }
 
     const places = new Map();
     const fromFarm = [];
@@ -244,7 +257,7 @@
       });
     }
     return {
-      steps, open, pieces, base, crafts, rides,
+      steps, open, pieces, base, crafts, rides, trace,
       instead: [...instead.values()].sort((a, b) => (b.makeAp + b.makeNets) - (a.makeAp + a.makeNets)),
       fromFarm: fromFarm.sort((a, b) => b.qty - a.qty),
       places: [...places.values()].sort((a, b) => b.ap - a.ap),
@@ -288,7 +301,22 @@
       ["Your farm", hours(farmDays), "of production, running alongside"],
     ].map(([label, value, note]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></div>`).join("");
 
-    const rowsHtml = (rows, right) => rows.map((row) => `<tr><td>${art(row.name)}<b>${esc(row.name)}</b></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>`).join("");
+    // Every row opens. A number on its own does not tell you whether it is
+    // one recipe eating everything or thirteen steps each wanting a little.
+    const top = (map, limit) => [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit);
+    const entryList = (pairs) => pairs.map(([label, qty]) => `<li><span>${esc(label)}</span><b>${fmt(qty)}</b></li>`).join("");
+    const whyHtml = (name) => {
+      const row = result.trace.get(String(name).toLowerCase());
+      if (!row) return `<tr class="plan-detail" hidden><td colspan="3"><p class="plan-why-none">Nothing in this line asks for it directly.</p></td></tr>`;
+      const via = top(row.via, 8);
+      const steps = top(row.steps, 12);
+      const more = row.steps.size > steps.length ? `<li class="plan-why-more"><span>and ${fmt(row.steps.size - steps.length)} more steps</span><b></b></li>` : "";
+      return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why">
+        <section><h4>What it goes into</h4><ul>${entryList(via)}${row.via.size > via.length ? `<li class="plan-why-more"><span>and ${fmt(row.via.size - via.length)} more recipes</span><b></b></li>` : ""}</ul></section>
+        <section><h4>Which steps are paying</h4><ul>${entryList(steps)}${more}</ul></section>
+      </div></td></tr>`;
+    };
+    const rowsHtml = (rows, right) => rows.map((row) => `<tr><td><button type="button" class="plan-open" aria-expanded="false">${art(row.name)}<b>${esc(row.name)}</b></button></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>${whyHtml(row.name)}`).join("");
 
     const parts = [];
     for (const entry of result.places) {
@@ -327,6 +355,15 @@
   }
 
   pick.innerHTML = lines.map((line) => `<option value="${esc(line)}"${line === "Distant Illusions" ? " selected" : ""}>${esc(line)}</option>`).join("");
+  body.addEventListener("click", (event) => {
+    const button = event.target.closest(".plan-open");
+    if (!button) return;
+    const detail = button.closest("tr").nextElementSibling;
+    if (!detail || !detail.classList.contains("plan-detail")) return;
+    const opening = detail.hasAttribute("hidden");
+    if (opening) detail.removeAttribute("hidden"); else detail.setAttribute("hidden", "");
+    button.setAttribute("aria-expanded", opening ? "true" : "false");
+  });
   pick.addEventListener("change", render);
   useFarm.addEventListener("change", render);
   useStock.addEventListener("change", render);
