@@ -5,6 +5,22 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Leave out what you get another way
+
+Some things never get crafted. Magna Core is the clearest case: thirty Compass
+into the Wishing Well comes back as sixty Magna Core, so the recipe is beside
+the point, and expanding it charged the plan for parts nobody was ever going
+to make.
+
+Any item can now be switched off from its own panel. The roll-up stops there:
+it still records what the item was for and which steps want it, but asks for
+nothing underneath it. What is switched off shows as chips at the top of the
+plan, and the choice is remembered.
+
+Magna Core starts switched off. Turning it off takes Black Rock Canyon from
+204k AP to 164k, because Small Spring falls from 48,751 to 39,239 and Cogwheel
+from 5,709 to 1.
+
 ## 2026-09-21 — Show the parent, with its picture and its count
 
 "What it goes into" gave the amount of the item you were looking at and left

@@ -22,6 +22,22 @@
   // together return about 1.45 for every one you would expect.
   const YIELD = 1.45;
 
+  // Items you get some other way the plan cannot see — a daily from the
+  // Wishing Well, a trade, a friend. The roll-up stops dead at these: it still
+  // records what they were for, but asks for nothing underneath them.
+  const COVERED_KEY = "frpg_plan_covered_v1";
+  const readCovered = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(COVERED_KEY) || "null");
+      if (Array.isArray(saved)) return new Set(saved.map((name) => String(name).toLowerCase()));
+    } catch (error) { /* a broken entry is the same as none */ }
+    // Magna Core is the one everybody meets first: 30 Compass into the
+    // Wishing Well comes back as 60, so nobody crafts them.
+    return new Set(["magna core"]);
+  };
+  let covered = readCovered();
+  const saveCovered = () => { try { localStorage.setItem(COVERED_KEY, JSON.stringify([...covered])); } catch (error) { /* private mode */ } };
+
   const items = ((D.items || {}).items) || [];
   const byName = new Map(items.map((item) => [String(item.name).toLowerCase(), item]));
   const byId = new Map(items.map((item) => [item.id, item]));
@@ -138,7 +154,8 @@
       // are different jobs and there is no honest rate between them, so a
       // recipe that saves AP by spending nets is left alone.
       let best;
-      if (farm[name] || (item && item.growMin > 0)) best = { ap: 0, nets: 0, how: "farm", free: false };
+      if (covered.has(key)) best = { ap: 0, nets: 0, how: "covered", free: false };
+      else if (farm[name] || (item && item.growMin > 0)) best = { ap: 0, nets: 0, how: "farm", free: false };
       else if (freeKeys.has(key) && go) best = { ap: 0, nets: 0, how: go.how, free: true };
       else if (go && make) best = (go.ap <= make.ap && go.nets <= make.nets) ? Object.assign({}, go, { free: false }) : Object.assign({}, make, { free: false });
       else best = Object.assign({ ap: 0, nets: 0, how: "unknown" }, go || make || {}, { free: false });
@@ -196,6 +213,7 @@
         if (qty <= 0) return;
       }
       note(name, qty, step, path, parentQty);
+      if (covered.has(key)) return;
       const item = byName.get(key);
       const recipe = item && craftRows.get(item.id);
       if (!item || farm[item.name] || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
@@ -271,6 +289,7 @@
     for (const row of grow) mark(row.name, "Grow it", "grow");
     for (const entry of places.values()) for (const row of entry.rows) mark(row.name, entry.place, entry.kind);
     for (const row of unknown) mark(row.name, "No source in the data", "none");
+    for (const key of covered) { const item = byName.get(key); if (item) mark(item.name, "You get it another way", "covered"); }
     const everything = [...trace.values()].map((row) => {
       const key = String(row.name).toLowerCase();
       const item = byName.get(key);
@@ -356,15 +375,23 @@
       const parts = making
         ? `<section><h4>Made from — ${fmt(self.crafts)} crafts at ${YIELD}×</h4><ul>${partList(self.recipe, self.crafts)}</ul></section>`
         : (self && self.recipe ? `<section><h4>Could be made from</h4><ul>${partList(self.recipe, 0)}</ul><p class="plan-why-none">Going for it beats making it, so the plan does not craft any.</p></section>` : "");
-      return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why${parts ? " has-three" : ""}">
-        ${parts}
+      const isCovered = covered.has(key);
+      const switchHtml = `<p class="plan-cover"><button type="button" class="plan-cover-btn${isCovered ? " is-on" : ""}" data-cover="${esc(key)}">${isCovered ? "Count it again — I do make these" : "Leave it out — I get these another way"}</button>${isCovered ? `<small>Nothing underneath it is being asked for.</small>` : ""}</p>`;
+      return `<tr class="plan-detail" hidden><td colspan="3"><div class="plan-why${parts && !isCovered ? " has-three" : ""}">
+        ${isCovered ? "" : parts}
         <section><h4>What it goes into</h4><ul>${chainList(via)}${row.via.size > via.length ? `<li class="plan-why-more"><span>and ${fmt(row.via.size - via.length)} more recipes</span><b></b></li>` : ""}</ul></section>
         <section><h4>Which steps are paying</h4><ul>${entryList(steps)}${more}</ul></section>
+        ${switchHtml}
       </div></td></tr>`;
     };
     const rowsHtml = (rows, right) => rows.map((row) => `<tr data-name="${esc(String(row.name).toLowerCase())}"><td><button type="button" class="plan-open" aria-expanded="false">${art(row.name)}<b>${esc(row.name)}</b></button></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>${whyHtml(row.name)}`).join("");
 
     const parts = [];
+    const leftOut = [...covered].map((key) => (byName.get(key) || {}).name).filter(Boolean).sort();
+    if (leftOut.length) {
+      parts.push(`<section class="plan-place plan-left-out"><header><h3>Left out on purpose</h3><em>${fmt(leftOut.length)}</em><small>you get these another way, so nothing underneath them is counted</small></header>
+        <p class="plan-chips">${leftOut.map((name) => `<button type="button" class="plan-chip" data-cover="${esc(name.toLowerCase())}">${art(name, 20)}<span>${esc(name)}</span><i aria-hidden="true">×</i></button>`).join("")}</p></section>`);
+    }
     for (const entry of result.places) {
       parts.push(`<section class="plan-place">
         <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${entry.kind === "fish" ? "casting" : "pouring"} for the longest one here covers the rest</small></header>
@@ -437,6 +464,14 @@
   }
 
   body.addEventListener("click", (event) => {
+    const cover = event.target.closest("[data-cover]");
+    if (cover) {
+      const key = cover.getAttribute("data-cover");
+      if (covered.has(key)) covered.delete(key); else covered.add(key);
+      saveCovered();
+      render();
+      return;
+    }
     // Clicking a part or a parent walks you to its own row in the full list.
     const jump = event.target.closest(".plan-jump");
     if (jump) {
