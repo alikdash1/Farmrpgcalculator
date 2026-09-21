@@ -194,6 +194,18 @@
       via.qty += qty;
       via.parentQty += parentQty || 0;
     };
+    // The tree as a player reads it: the thing you hand in at the top, its
+    // recipe underneath, all the way down to what you pick up off the ground.
+    const roots = [];
+    const mergeNode = (list, node) => {
+      let found = list.find((row) => row.name === node.name);
+      if (!found) { found = { name: node.name, qty: 0, crafts: 0, kind: node.kind, children: [] }; list.push(found); }
+      found.qty += node.qty;
+      found.crafts += node.crafts;
+      found.kind = node.kind;
+      for (const child of node.children) mergeNode(found.children, child);
+    };
+    const deepSort = (list) => { list.sort((a, b) => b.qty - a.qty); for (const row of list) deepSort(row.children); };
     const base = new Map();
     const crafts = new Map();
     const steps = stepsOf(line);
@@ -204,21 +216,22 @@
     // recipe. Anything the farm makes stops here — it is time, not a trip.
     const need = (name, qty, depth, step, path, parentQty) => {
       const key = String(name).toLowerCase();
-      if (qty <= 0) return;
+      if (qty <= 0) return null;
       const have = Math.max(0, (stock.get(key) || 0) - (spent.get(key) || 0));
       if (have > 0) {
         const used = Math.min(have, qty);
         spent.set(key, (spent.get(key) || 0) + used);
         qty -= used;
-        if (qty <= 0) return;
+        if (qty <= 0) return null;
       }
       note(name, qty, step, path, parentQty);
-      if (covered.has(key)) return;
+      const node = { name, qty, crafts: 0, kind: "base", children: [] };
+      if (covered.has(key)) { node.kind = "covered"; return node; }
       const item = byName.get(key);
       const recipe = item && craftRows.get(item.id);
       if (!item || farm[item.name] || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
         base.set(name, (base.get(name) || 0) + qty);
-        return;
+        return node;
       }
       if (cost) {
         const verdict = cost(name);
@@ -234,20 +247,29 @@
             instead.set(name, seen);
           }
           base.set(name, (base.get(name) || 0) + qty);
-          return;
+          return node;
         }
       }
       const made = qty / YIELD;
+      node.kind = "craft";
+      node.crafts = made;
       crafts.set(name, (crafts.get(name) || 0) + made);
       const deeper = path.concat(item.name);
       for (const row of recipe) {
         const part = (byId.get(row.reqId) || {}).name;
-        if (part) need(part, made * row.amt, depth + 1, step, deeper, qty);
+        if (!part) continue;
+        const child = need(part, made * row.amt, depth + 1, step, deeper, qty);
+        if (child) node.children.push(child);
       }
+      return node;
     };
 
     let pieces = 0;
-    for (const step of open) for (const row of step.requirements || []) { pieces += row.quantity; need(row.item, row.quantity, 0, step.title, [], 0); }
+    for (const step of open) for (const row of step.requirements || []) {
+      pieces += row.quantity;
+      const node = need(row.item, row.quantity, 0, step.title, [], 0);
+      if (node) mergeNode(roots, node);
+    }
 
     const places = new Map();
     const fromFarm = [];
@@ -304,7 +326,8 @@
       };
     }).sort((a, b) => b.qty - a.qty);
     return {
-      steps, open, pieces, base, crafts, rides, trace, everything,
+      steps, open, pieces, base, crafts, rides, trace, everything, where,
+      tree: (deepSort(roots), roots),
       instead: [...instead.values()].sort((a, b) => (b.makeAp + b.makeNets) - (a.makeAp + a.makeNets)),
       fromFarm: fromFarm.sort((a, b) => b.qty - a.qty),
       places: [...places.values()].sort((a, b) => b.ap - a.ap),
@@ -386,7 +409,36 @@
     };
     const rowsHtml = (rows, right) => rows.map((row) => `<tr data-name="${esc(String(row.name).toLowerCase())}"><td><button type="button" class="plan-open" aria-expanded="false">${art(row.name)}<b>${esc(row.name)}</b></button></td><td>${fmt(row.qty)}</td><td>${right(row)}</td></tr>${whyHtml(row.name)}`).join("");
 
+    // Top of the tree first: the thing you hand in, then what it is made of,
+    // one layer at a time. Reading it the other way round asks you to hold a
+    // recipe in your head backwards.
+    const whereLabel = (name) => {
+      const spot = result.where.get(String(name).toLowerCase());
+      return spot ? spot.label : "No source in the data";
+    };
+    let nodeCount = 0;
+    const nodeHtml = (node, depth) => {
+      nodeCount += 1;
+      const kids = node.children.length;
+      const note = node.kind === "craft" ? `${fmt(node.crafts)} crafts at ${YIELD}×`
+        : node.kind === "covered" ? "you get these another way"
+        : whereLabel(node.name);
+      return `<li class="plan-node">
+        <div class="plan-node-row" style="--depth:${depth}">
+          ${kids ? `<button type="button" class="plan-node-toggle" aria-expanded="false" aria-label="Show what ${esc(node.name)} is made of"></button>` : `<span class="plan-node-leaf"></span>`}
+          ${art(node.name, 22)}<b>${esc(node.name)}</b><em>${fmt(node.qty)}</em><small>${esc(note)}</small>
+        </div>
+        ${kids ? `<ul class="plan-kids" hidden>${node.children.map((child) => nodeHtml(child, depth + 1)).join("")}</ul>` : ""}
+      </li>`;
+    };
+
     const parts = [];
+    if (result.tree.length) {
+      const treeHtml = result.tree.map((node) => nodeHtml(node, 0)).join("");
+      parts.push(`<section class="plan-place plan-tree"><header><h3>What the quests ask for</h3><em>${fmt(result.tree.length)} things to hand in</em><small>the amount of each one you still owe, across every step left. Open a row to see what it is made of, and keep opening down to what you pick up off the ground — every number is after ${YIELD}× duplicates.</small></header>
+        <div class="plan-tree-head"><span>Item</span><span>Needed</span><span>Where it comes from</span></div>
+        <ul class="plan-roots">${treeHtml}</ul></section>`);
+    }
     const leftOut = [...covered].map((key) => (byName.get(key) || {}).name).filter(Boolean).sort();
     if (leftOut.length) {
       parts.push(`<section class="plan-place plan-left-out"><header><h3>Left out on purpose</h3><em>${fmt(leftOut.length)}</em><small>you get these another way, so nothing underneath them is counted</small></header>
@@ -489,6 +541,15 @@
       target.scrollIntoView({ block: "center", behavior: "smooth" });
       target.classList.add("plan-flash");
       setTimeout(() => target.classList.remove("plan-flash"), 1400);
+      return;
+    }
+    const branch = event.target.closest(".plan-node-toggle");
+    if (branch) {
+      const kids = branch.closest(".plan-node").querySelector(".plan-kids");
+      if (!kids) return;
+      const opening = kids.hasAttribute("hidden");
+      if (opening) kids.removeAttribute("hidden"); else kids.setAttribute("hidden", "");
+      branch.setAttribute("aria-expanded", opening ? "true" : "false");
       return;
     }
     const button = event.target.closest(".plan-open");

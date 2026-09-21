@@ -5,6 +5,21 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Read the plan the way you play it
+
+The page was built upside down. It listed raw materials and made you work
+backwards to what they were for, which meant reading a recipe inside out.
+
+"What the quests ask for" now opens the plan: the 88 things Distant Illusions
+still wants, with the amount owed across every step left. Open one and its
+recipe unfolds underneath, one layer at a time, down to what you pick up off
+the ground. Mystic Ring 15,000 opens to Emerald 20,690, which opens to
+Unpolished Emerald 28,537 at Mount Banon — so there is no question about which
+one you actually go and get.
+
+The place blocks stay where they were, for when the question is where to go
+rather than what to make.
+
 ## 2026-09-21 — Leave out what you get another way
 
 Some things never get crafted. Magna Core is the clearest case: thirty Compass
