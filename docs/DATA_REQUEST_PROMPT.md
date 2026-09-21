@@ -30,11 +30,17 @@ rates, shop prices and quest rewards.
 >
 > Gather these seven sections:
 >
-> **1. Wishing Well.** Every item that can be thrown in, and exactly what comes
-> back, with the odds for each outcome. Any daily limit on throws. Any item
-> that is a known profitable throw. Confirmed already: a Large Chest 02 returns
-> a Small Key, Square Key or Treasure Key at 33.3% each; 30 Compass returns 60
-> Magna Core.
+> **1. Wishing Well.** The two in-game wiki pages that hold this are
+> `farmrpg.com/index.php#!/wiki.php?page=WW+Drops+Table` and
+> `...?page=WW+Wants`. Reproduce **both tables in full**: every item that can be
+> thrown in, exactly what comes back, and the odds or quantity for each
+> outcome. Also find the **Tower perk that doubles Wishing Well output** - its
+> name, which floor grants it, and whether the wiki's numbers are stated before
+> or after that doubling. Note any daily limit on throws.
+>
+> Confirmed already, for cross-checking: Compass returns Magna Core at 100%,
+> one for one, so 30 Compass gives 60 with the perk doubled; a Large Chest 02
+> returns a Small Key, Square Key or Treasure Key at 33.3% each.
 >
 > **2. Chest and bag payouts.** For each of Small Chest 01, Small Chest 02,
 > Large Chest 01, Large Chest 02, Grab Bag 01 through 07, Cornucopia 01, Borgen
