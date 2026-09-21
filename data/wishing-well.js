@@ -3475,160 +3475,49 @@ window.FRPG_WISHING_WELL = {
   },
 };
 
-// Containers. `payout` is null where the source did not state one - notably
-// every "all listed rewards" chest, where what was published turned out to be
-// the unlock cost repeated. Never treat a null payout as zero.
+// Containers.
+//
+// A CHEST costs ONE KEY to open at the Locksmith, and the list buddy.farm
+// shows *below* the heading "Open At Locksmith For" is what comes OUT. That
+// heading reads like a price and is not one - this file had it backwards twice
+// before the account owner checked the live page on 2026-09-21. The hard part
+// is getting the chest, never the key.
+//
+// A BAG is not a Locksmith item and its list is a payout too.
 window.FRPG_CONTAINERS = {
   schema: "farmrpg-containers-v1",
   source: "buddy.farm",
   capturedAt: "2026-09-21",
-  payoutUnknownFor: ["Small Chest 01","Small Chest 02","Medium Chest 02","Large Chest 01","Large Chest 02"],
+  payoutUnknownFor: [],
   byName: {
     "Small Chest 01": {
-      "mode": "opened at the Locksmith",
-      "payout": null,
-      "locksmithCost": [
-        {
-          "item": "Amethyst",
-          "qty": 10
-        },
-        {
-          "item": "Aquamarine",
-          "qty": 10
-        },
-        {
-          "item": "Emerald",
-          "qty": 10
-        },
-        {
-          "item": "Jade",
-          "qty": 10
-        },
-        {
-          "item": "Lemon Quartz",
-          "qty": 10
-        },
-        {
-          "item": "Ruby",
-          "qty": 10
-        }
-      ],
+      "mode": "one key at the Locksmith",
+      "payout": [{"item": "Amethyst", "min": 10, "max": 10, "odds": null}, {"item": "Aquamarine", "min": 10, "max": 10, "odds": null}, {"item": "Emerald", "min": 10, "max": 10, "odds": null}, {"item": "Jade", "min": 10, "max": 10, "odds": null}, {"item": "Lemon Quartz", "min": 10, "max": 10, "odds": null}, {"item": "Ruby", "min": 10, "max": 10, "odds": null}],
+      "opensWith": "one key",
       "source": "https://buddy.farm/i/small-chest-01/"
     },
     "Small Chest 02": {
-      "mode": "opened at the Locksmith",
-      "payout": null,
-      "locksmithCost": [
-        {
-          "item": "Antler",
-          "qty": 10
-        },
-        {
-          "item": "Glass Orb",
-          "qty": 10
-        },
-        {
-          "item": "Leather",
-          "qty": 10
-        },
-        {
-          "item": "Rope",
-          "qty": 10
-        },
-        {
-          "item": "Wooden Plank",
-          "qty": 10
-        }
-      ],
+      "mode": "one key at the Locksmith",
+      "payout": [{"item": "Antler", "min": 10, "max": 10, "odds": null}, {"item": "Glass Orb", "min": 10, "max": 10, "odds": null}, {"item": "Leather", "min": 10, "max": 10, "odds": null}, {"item": "Rope", "min": 10, "max": 10, "odds": null}, {"item": "Wooden Plank", "min": 10, "max": 10, "odds": null}],
+      "opensWith": "one key",
       "source": "https://buddy.farm/i/small-chest-02/"
     },
     "Medium Chest 02": {
-      "mode": "opened at the Locksmith",
-      "payout": null,
-      "locksmithCost": [
-        {
-          "item": "Amethyst Necklace",
-          "qty": 5
-        },
-        {
-          "item": "Aquamarine Ring",
-          "qty": 5
-        },
-        {
-          "item": "Emerald Ring",
-          "qty": 5
-        },
-        {
-          "item": "Ruby Ring",
-          "qty": 5
-        },
-        {
-          "item": "Shimmer Ring",
-          "qty": 5
-        }
-      ],
+      "mode": "one key at the Locksmith",
+      "payout": [{"item": "Amethyst Necklace", "min": 5, "max": 5, "odds": null}, {"item": "Aquamarine Ring", "min": 5, "max": 5, "odds": null}, {"item": "Emerald Ring", "min": 5, "max": 5, "odds": null}, {"item": "Ruby Ring", "min": 5, "max": 5, "odds": null}, {"item": "Shimmer Ring", "min": 5, "max": 5, "odds": null}],
+      "opensWith": "one key",
       "source": "https://buddy.farm/i/medium-chest-02/"
     },
     "Large Chest 01": {
-      "mode": "opened at the Locksmith",
-      "payout": null,
-      "locksmithCost": [
-        {
-          "item": "Ancient Coin",
-          "qty": 100
-        },
-        {
-          "item": "Emerald",
-          "qty": 50
-        },
-        {
-          "item": "Jade",
-          "qty": 50
-        },
-        {
-          "item": "Pearl",
-          "qty": 50
-        },
-        {
-          "item": "Ruby",
-          "qty": 50
-        },
-        {
-          "item": "Shimmer Topaz",
-          "qty": 50
-        }
-      ],
+      "mode": "one key at the Locksmith",
+      "payout": [{"item": "Ancient Coin", "min": 100, "max": 100, "odds": null}, {"item": "Emerald", "min": 50, "max": 50, "odds": null}, {"item": "Jade", "min": 50, "max": 50, "odds": null}, {"item": "Pearl", "min": 50, "max": 50, "odds": null}, {"item": "Ruby", "min": 50, "max": 50, "odds": null}, {"item": "Shimmer Topaz", "min": 50, "max": 50, "odds": null}],
+      "opensWith": "one key",
       "source": "https://buddy.farm/i/large-chest-01/"
     },
     "Large Chest 02": {
-      "mode": "opened at the Locksmith",
-      "payout": null,
-      "locksmithCost": [
-        {
-          "item": "Cogwheel",
-          "qty": 2
-        },
-        {
-          "item": "Hammer",
-          "qty": 1
-        },
-        {
-          "item": "Small Gear",
-          "qty": 3
-        },
-        {
-          "item": "Small Screw",
-          "qty": 8
-        },
-        {
-          "item": "Small Spring",
-          "qty": 2
-        },
-        {
-          "item": "Steel",
-          "qty": 5
-        }
-      ],
+      "mode": "one key at the Locksmith",
+      "payout": [{"item": "Cogwheel", "min": 2, "max": 2, "odds": null}, {"item": "Hammer", "min": 1, "max": 1, "odds": null}, {"item": "Small Gear", "min": 3, "max": 3, "odds": null}, {"item": "Small Screw", "min": 8, "max": 8, "odds": null}, {"item": "Small Spring", "min": 2, "max": 2, "odds": null}, {"item": "Steel", "min": 5, "max": 5, "odds": null}],
+      "opensWith": "one key",
       "source": "https://buddy.farm/i/large-chest-02/"
     },
     "Grab Bag 01": {

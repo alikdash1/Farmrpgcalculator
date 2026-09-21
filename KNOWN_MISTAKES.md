@@ -230,3 +230,22 @@ and 10px text — all already fixed on disk. The `?v=` busters protect the files
 a change, load `index.html?fresh=<something new>` and check that one thing you
 just changed is really there; the nav order is a quick tell.
 
+## A chest's listed items are its contents, not its price
+
+buddy.farm shows a chest's contents under the heading **"Open At Locksmith
+For"**. The heading reads like a price. It is not one: a chest costs **one
+key**, and keys are easy - getting the chest is the hard part.
+
+This was got backwards twice in one session, the second time after "verifying"
+it with a web fetch whose summary repeated the same misreading. The owner
+settled it by reading the live page.
+
+Large Chest 02 **gives** 2 Cogwheel, 1 Hammer, 3 Small Gear, 8 Small Screw,
+2 Small Spring and 5 Steel. The 13,000 of them this account holds cover 81% of
+Distant Illusions' Small Screw and 66% of its Small Spring - and the owner had
+said exactly that from the start, before being talked out of it twice.
+
+**The lesson is broader than chests.** A summarised fetch is not verification
+when the question is which of two columns a list belongs to. Ask the person who
+can see the page.
+
