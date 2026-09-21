@@ -5,6 +5,22 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Go and get it, when going is cheaper
+
+The questline planner used to craft anything with a recipe. It now weighs the
+trip against the recipe for every item and takes whichever is the smaller job,
+counting AP and Large Nets separately because there is no honest exchange rate
+between them. It also knows that one trip clears the whole drop table, so an
+item riding along behind a bigger job at the same place costs nothing — which
+is why Glass Orb now comes home from Ember Lagoon instead of being built out of
+Sandstone. Distant Illusions drops from 32.96m crafting actions to 24m.
+
+A new block, "Go and get it, do not make it", shows what changed and why, and
+the toggle beside it turns the comparison off.
+
+The planner is also reachable now: it was only on the Tower toolbar, and is now
+on the Quests page and the home tools line too.
+
 ## 2026-09-21 — Plan a whole questline
 
 - **New page: Plan a questline** (`#plan`, or the button on the Tower toolbar).

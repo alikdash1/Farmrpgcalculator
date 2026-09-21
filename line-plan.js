@@ -10,6 +10,7 @@
   const body = document.getElementById("planBody");
   const useFarm = document.getElementById("planFarm");
   const useStock = document.getElementById("planStock");
+  const compare = document.getElementById("planCompare");
 
   const D = window.FRPG_DATA || {};
   const QUESTS = ((window.FRPG_MAIN_QUESTS || {}).quests) || [];
@@ -98,15 +99,67 @@
     return best;
   })();
 
+  // What one of a thing costs if you go and get it, weighed against what it
+  // costs to make it out of things you also have to go and get. Farm
+  // buildings and crops cost days rather than AP, so they count as nothing
+  // here and the summary counts those days on their own. Anything already
+  // riding along on a trip you are making anyway is free too, which is the
+  // point of going to Cane Pole Ridge once and coming home with everything
+  // on the table.
+  function costModel(farm, freeKeys) {
+    const memo = new Map();
+    const walk = (key, depth, seen) => {
+      if (memo.has(key)) return memo.get(key);
+      if (seen.has(key) || depth > 12) return { ap: Infinity, nets: Infinity, how: "loop", go: null, make: null };
+      const item = byName.get(key);
+      const name = item ? item.name : key;
+      const spot = bestPlace.get(key);
+      const fishing = spot && spot.kind === "fish";
+      const go = spot ? { ap: fishing ? 0 : 1 / spot.rate, nets: fishing ? 1 / spot.rate : 0, how: fishing ? "fish" : "explore", spot } : null;
+      let make = null;
+      const recipe = item && craftRows.get(item.id);
+      if (recipe && recipe.length && !cookIds.has(item.id)) {
+        seen.add(key);
+        let ap = 0;
+        let nets = 0;
+        let ok = true;
+        for (const row of recipe) {
+          const part = (byId.get(row.reqId) || {}).name;
+          if (!part) continue;
+          const sub = walk(String(part).toLowerCase(), depth + 1, seen);
+          if (!Number.isFinite(sub.ap) || !Number.isFinite(sub.nets)) { ok = false; break; }
+          ap += sub.ap * row.amt;
+          nets += sub.nets * row.amt;
+        }
+        seen.delete(key);
+        if (ok) make = { ap: ap / YIELD, nets: nets / YIELD, how: "craft" };
+      }
+      // Going only wins when it is no worse on both counts. AP and Large Nets
+      // are different jobs and there is no honest rate between them, so a
+      // recipe that saves AP by spending nets is left alone.
+      let best;
+      if (farm[name] || (item && item.growMin > 0)) best = { ap: 0, nets: 0, how: "farm", free: false };
+      else if (freeKeys.has(key) && go) best = { ap: 0, nets: 0, how: go.how, free: true };
+      else if (go && make) best = (go.ap <= make.ap && go.nets <= make.nets) ? Object.assign({}, go, { free: false }) : Object.assign({}, make, { free: false });
+      else best = Object.assign({ ap: 0, nets: 0, how: "unknown" }, go || make || {}, { free: false });
+      const out = { ap: best.ap, nets: best.nets, how: best.how, free: best.free, go, make };
+      memo.set(key, out);
+      return out;
+    };
+    return (name) => walk(String(name).toLowerCase(), 0, new Set());
+  }
+
   const lines = [...new Set(QUESTS.map((quest) => quest.line))].sort();
 
   function stepsOf(line) {
     return QUESTS.filter((quest) => quest.line === line).sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
   }
 
-  function plan(line) {
+  function plan(line, freeKeys) {
     const farm = useFarm.checked ? production() : {};
     const stock = held();
+    const cost = compare && compare.checked ? costModel(farm, freeKeys) : null;
+    const instead = new Map();
     const base = new Map();
     const crafts = new Map();
     const steps = stepsOf(line);
@@ -130,6 +183,23 @@
       if (!item || farm[item.name] || !recipe || !recipe.length || depth > 12 || cookIds.has(item.id)) {
         base.set(name, (base.get(name) || 0) + qty);
         return;
+      }
+      if (cost) {
+        const verdict = cost(name);
+        if (verdict.how !== "craft" && verdict.go) {
+          if (verdict.make && Number.isFinite(verdict.make.ap) && Number.isFinite(verdict.make.nets)) {
+            const seen = instead.get(name) || { name, qty: 0, place: verdict.go.spot.place, goAp: 0, goNets: 0, makeAp: 0, makeNets: 0, rides: false };
+            seen.rides = seen.rides || !!verdict.free;
+            seen.qty += qty;
+            seen.goAp += qty * verdict.go.ap;
+            seen.goNets += qty * verdict.go.nets;
+            seen.makeAp += qty * verdict.make.ap;
+            seen.makeNets += qty * verdict.make.nets;
+            instead.set(name, seen);
+          }
+          base.set(name, (base.get(name) || 0) + qty);
+          return;
+        }
       }
       const made = qty / YIELD;
       crafts.set(name, (crafts.get(name) || 0) + made);
@@ -163,9 +233,20 @@
       }
       unknown.push({ name, qty });
     }
-    for (const entry of places.values()) entry.rows.sort((a, b) => b.ap - a.ap);
+    // One trip covers every line on the table, so whatever is not the reason
+    // you went is riding along — and that is what makes the next pass cheaper.
+    const rides = new Set();
+    for (const entry of places.values()) {
+      entry.rows.sort((a, b) => b.ap - a.ap);
+      entry.rows.forEach((row, index) => {
+        row.rides = index > 0;
+        if (index > 0) rides.add(String(row.name).toLowerCase());
+      });
+    }
     return {
-      steps, open, pieces, base, crafts, fromFarm: fromFarm.sort((a, b) => b.qty - a.qty),
+      steps, open, pieces, base, crafts, rides,
+      instead: [...instead.values()].sort((a, b) => (b.makeAp + b.makeNets) - (a.makeAp + a.makeNets)),
+      fromFarm: fromFarm.sort((a, b) => b.qty - a.qty),
       places: [...places.values()].sort((a, b) => b.ap - a.ap),
       grow: grow.sort((a, b) => b.qty - a.qty), unknown: unknown.sort((a, b) => b.qty - a.qty),
     };
@@ -182,7 +263,17 @@
 
   function render() {
     const line = pick.value;
-    const result = plan(line);
+    // Settle it: the first pass decides routes blind, then each pass knows
+    // which items were already riding along and can reconsider.
+    let result = plan(line, new Set());
+    if (compare && compare.checked) {
+      for (let pass = 0; pass < 2; pass += 1) {
+        const next = plan(line, result.rides);
+        const settled = next.rides.size === result.rides.size && [...next.rides].every((key) => result.rides.has(key));
+        result = next;
+        if (settled) break;
+      }
+    }
     const craftTotal = [...result.crafts.values()].reduce((sum, n) => sum + n, 0);
     const apTotal = result.places.filter((entry) => entry.kind === "explore").reduce((sum, entry) => sum + entry.ap, 0);
     const netTotal = result.places.filter((entry) => entry.kind === "fish").reduce((sum, entry) => sum + entry.ap, 0);
@@ -204,7 +295,7 @@
       parts.push(`<section class="plan-place">
         <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${entry.kind === "fish" ? "casting" : "pouring"} for the longest one here covers the rest</small></header>
         <table><thead><tr><th>Item</th><th>Needed</th><th>${entry.kind === "fish" ? "Per net · nets" : "Per AP · AP"}</th></tr></thead><tbody>
-        ${rowsHtml(entry.rows, (row) => `${row.rate.toFixed(row.rate < 1 ? 3 : 1)} · ${fmt(row.ap)}`)}</tbody></table></section>`);
+        ${rowsHtml(entry.rows, (row) => `${row.rate.toFixed(row.rate < 1 ? 3 : 1)} · ${row.rides ? "rides along" : fmt(row.ap)}`)}</tbody></table></section>`);
     }
     if (result.fromFarm.length) {
       parts.push(`<section class="plan-place"><header><h3>Your farm</h3><em>${hours(farmDays)}</em><small>production, not a trip. An hourly building drops everything above your inventory cap in one go — Hickory's six collections an hour keep most of it.</small></header>
@@ -221,6 +312,11 @@
       parts.push(`<section class="plan-place"><header><h3>Craft</h3><em>${short(craftTotal)} actions</em><small>biggest jobs first</small></header>
         <table><thead><tr><th>Item</th><th>Crafts</th><th>Makes</th></tr></thead><tbody>
         ${rowsHtml(craftList, (row) => `${fmt(row.qty * YIELD)} items`)}</tbody></table></section>`);
+    }
+    if (result.instead && result.instead.length) {
+      parts.push(`<section class="plan-place"><header><h3>Go and get it, do not make it</h3><em>${result.instead.length} items</em><small>you can craft all of these — going is the cheaper job, or the trip is one you are making anyway</small></header>
+        <table><thead><tr><th>Item</th><th>Needed</th><th>Where it comes from · what making it would cost instead</th></tr></thead><tbody>
+        ${rowsHtml(result.instead, (row) => `${esc(row.place)}, ${row.rides ? "already on the table there" : `${short(row.goAp || row.goNets)} ${row.goNets > row.goAp ? "nets" : "AP"}`} · crafting ${short(row.makeAp)} AP${row.makeNets > 0 ? ` and ${short(row.makeNets)} nets` : ""}`)}</tbody></table></section>`);
     }
     if (result.unknown.length) {
       parts.push(`<section class="plan-place"><header><h3>No source in the data</h3><em>${result.unknown.length}</em><small>buy, open from a bag, or a quest reward</small></header>
