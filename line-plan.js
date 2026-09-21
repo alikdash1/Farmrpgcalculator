@@ -412,10 +412,30 @@
     // Top of the tree first: the thing you hand in, then what it is made of,
     // one layer at a time. Reading it the other way round asks you to hold a
     // recipe in your head backwards.
+    // A gathered item says what the trip costs, not just where it is.
+    const placeNote = new Map();
+    for (const entry of result.places) {
+      for (const row of entry.rows) {
+        const cost = row.rides ? "rides along" : `${fmt(row.ap)} ${entry.kind === "fish" ? "nets" : "AP"}`;
+        placeNote.set(String(row.name).toLowerCase(), `${entry.place} · ${cost}`);
+      }
+    }
+    for (const row of result.fromFarm) placeNote.set(String(row.name).toLowerCase(), `${row.from} · ${row.perDay ? hours(row.qty / row.perDay) : "buy it"}`);
+    for (const row of result.grow) placeNote.set(String(row.name).toLowerCase(), `Grow it · ${fmt(row.growMin)} min a harvest`);
     const whereLabel = (name) => {
-      const spot = result.where.get(String(name).toLowerCase());
+      const key = String(name).toLowerCase();
+      if (placeNote.has(key)) return placeNote.get(key);
+      const spot = result.where.get(key);
       return spot ? spot.label : "No source in the data";
     };
+    // The same tree, cut back to the branches that end at one place. Amber
+    // stops being a number on its own and becomes "Amber Cane, and this is
+    // the Amber it takes".
+    const pruneTo = (nodes, wanted) => nodes.map((node) => {
+      const kids = pruneTo(node.children, wanted);
+      if (!kids.length && !wanted.has(String(node.name).toLowerCase())) return null;
+      return { name: node.name, qty: node.qty, crafts: node.crafts, kind: node.kind, children: kids };
+    }).filter(Boolean);
     let nodeCount = 0;
     const nodeHtml = (node, depth) => {
       nodeCount += 1;
@@ -443,21 +463,22 @@
         <p class="plan-chips">${leftOut.map((name) => `<button type="button" class="plan-chip" data-cover="${esc(name.toLowerCase())}">${art(name, 20)}<span>${esc(name)}</span><i aria-hidden="true">×</i></button>`).join("")}</p></section>`);
     }
     for (const entry of result.places) {
-      parts.push(`<section class="plan-place">
-        <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${entry.kind === "fish" ? "casting" : "pouring"} for the longest one here covers the rest</small></header>
-        <table><thead><tr><th>Item</th><th>Needed</th><th>${entry.kind === "fish" ? "Per net · nets" : "Per AP · AP"}</th></tr></thead><tbody>
-        ${rowsHtml(entry.rows, (row) => `${row.rate.toFixed(row.rate < 1 ? 3 : 1)} · ${row.rides ? "rides along" : fmt(row.ap)}`)}</tbody></table></section>`);
+      const wanted = new Set(entry.rows.map((row) => String(row.name).toLowerCase()));
+      const branches = pruneTo(result.tree, wanted);
+      const driver = entry.rows[0];
+      parts.push(`<section class="plan-place plan-tree">
+        <header><h3>${esc(entry.place)}</h3><em>${short(entry.ap)} ${entry.kind === "fish" ? "Large Nets" : "AP"}</em><small>${driver ? `set by ${esc(driver.name)} — one trip clears the whole table, so everything else here comes along with it` : "one trip clears the whole table"}</small></header>
+        <ul class="plan-roots">${branches.map((node) => nodeHtml(node, 0)).join("")}</ul></section>`);
     }
-    if (result.fromFarm.length) {
-      parts.push(`<section class="plan-place"><header><h3>Your farm</h3><em>${hours(farmDays)}</em><small>production, not a trip. An hourly building drops everything above your inventory cap in one go — Hickory's six collections an hour keep most of it.</small></header>
-        <table><thead><tr><th>Item</th><th>Needed</th><th>Where · how long</th></tr></thead><tbody>
-        ${rowsHtml(result.fromFarm, (row) => `${esc(row.from)} · ${row.perDay ? hours(row.qty / row.perDay) : "silver"}`)}</tbody></table></section>`);
-    }
-    if (result.grow.length) {
-      parts.push(`<section class="plan-place"><header><h3>Grow</h3><em>${result.grow.length} crops</em><small>plant, water, harvest</small></header>
-        <table><thead><tr><th>Crop</th><th>Needed</th><th>Grows in</th></tr></thead><tbody>
-        ${rowsHtml(result.grow, (row) => `${fmt(row.growMin)} min`)}</tbody></table></section>`);
-    }
+    const branchSection = (rows, title, figure, blurb) => {
+      if (!rows.length) return;
+      const wanted = new Set(rows.map((row) => String(row.name).toLowerCase()));
+      const branches = pruneTo(result.tree, wanted);
+      parts.push(`<section class="plan-place plan-tree"><header><h3>${esc(title)}</h3><em>${esc(figure)}</em><small>${esc(blurb)}</small></header>
+        <ul class="plan-roots">${branches.map((node) => nodeHtml(node, 0)).join("")}</ul></section>`);
+    };
+    branchSection(result.fromFarm, "Your farm", hours(farmDays), "production, not a trip. An hourly building drops everything above your inventory cap in one go — Hickory's six collections an hour keep most of it.");
+    branchSection(result.grow, "Grow", `${result.grow.length} crops`, "plant, water, harvest");
     const craftList = [...result.crafts.entries()].sort((a, b) => b[1] - a[1]).map(([name, qty]) => ({ name, qty }));
     if (craftList.length) {
       parts.push(`<section class="plan-place"><header><h3>Craft</h3><em>${short(craftTotal)} actions</em><small>biggest jobs first</small></header>
@@ -475,11 +496,7 @@
         <table><thead><tr><th>Item</th><th>Needed</th><th>Where it comes from</th></tr></thead><tbody id="planAllRows">
         ${rowsHtml(result.everything, (row) => esc(row.where.label))}</tbody></table></section>`);
     }
-    if (result.unknown.length) {
-      parts.push(`<section class="plan-place"><header><h3>No source in the data</h3><em>${result.unknown.length}</em><small>buy, open from a bag, or a quest reward</small></header>
-        <table><thead><tr><th>Item</th><th>Needed</th><th></th></tr></thead><tbody>
-        ${rowsHtml(result.unknown, () => "")}</tbody></table></section>`);
-    }
+    branchSection(result.unknown, "No source in the data", String(result.unknown.length), "buy them, open them from a bag, or take them as a quest reward");
     body.innerHTML = parts.join("");
     wireFinder();
   }

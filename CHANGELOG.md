@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Every block reads the same way down
+
+The place blocks were still the old shape: raw drops, and you worked out for
+yourself what they were for. Each one now shows the things you hand in that
+depend on that place, and opens down to the drop and what the trip costs.
+Misty Forest leads with Amber Cane 10,000; open it and there is Amber 6,897 at
+374,106 AP. Your farm, Grow and "No source in the data" follow the same shape.
+
+A gathered row now names its cost wherever it appears, so "Amber — Misty
+Forest · 374,106 AP" reads the same in the main list as in the place block.
+
 ## 2026-09-21 — One list, opened one layer at a time
 
 The tree was right but unreadable: a header row, three cramped columns and a
