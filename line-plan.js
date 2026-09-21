@@ -166,6 +166,29 @@
     return (name) => walk(String(name).toLowerCase(), 0, new Set());
   }
 
+  // Exploring costs two different things and the page only ever said one of
+  // them. An Arnold Palmer is an item you buy; a cider is stamina out of your
+  // own bar. The workbook measures drops per AP, data.js measures explores per
+  // drop, and Setup already resolves what an explore and a cider cost you.
+  const denomBy = new Map();
+  for (const loc of ((D.sources || {}).locations) || []) {
+    if (loc.mode === "fishes") continue;
+    for (const [item, info] of Object.entries(loc.drops || {})) {
+      if (info.denom == null) continue;
+      denomBy.set(`${String(loc.name).toLowerCase()}|${String(item).toLowerCase()}`, info.denom);
+    }
+  }
+  function spend() {
+    const m = (typeof window.FRPG_MODS === "function" && window.FRPG_MODS()) || {};
+    const neighOn = window.FRPG_MEALS && typeof window.FRPG_MEALS.get === "function" ? window.FRPG_MEALS.get("neigh") : false;
+    return {
+      perExplore: Number(m.exploreStaminaPer) > 0 ? Number(m.exploreStaminaPer) : 1.25,
+      ciderRolls: Number(m.drinks && m.drinks.ciderRolls) > 0 ? Number(m.drinks.ciderRolls) : 1000,
+      neigh: neighOn ? 0.8 : 1,
+      neighOn: !!neighOn,
+    };
+  }
+
   const lines = [...new Set(QUESTS.map((quest) => quest.line))].sort();
 
   function stepsOf(line) {
@@ -296,6 +319,12 @@
     // you went is riding along — and that is what makes the next pass cheaper.
     const rides = new Set();
     for (const entry of places.values()) {
+      for (const row of entry.rows) {
+        const denom = entry.kind === "explore" ? denomBy.get(`${entry.place.toLowerCase()}|${String(row.name).toLowerCase()}`) : null;
+        row.explores = denom > 0 ? row.qty * denom : null;
+        if (row.explores != null) entry.explores = Math.max(entry.explores || 0, row.explores);
+        else if (entry.kind === "explore") entry.someUnmeasured = true;
+      }
       entry.rows.sort((a, b) => b.ap - a.ap);
       entry.rows.forEach((row, index) => {
         row.rides = index > 0;
@@ -336,7 +365,10 @@
   }
 
   const fmt = (n) => Math.round(n).toLocaleString("en-US");
-  const short = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "m" : n >= 1000 ? Math.round(n / 1000) + "k" : String(Math.round(n)));
+  const short = (n) => (n >= 1e9 ? (n / 1e9).toFixed(2).replace(/\.?0+$/, "") + "bn"
+    : n >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "m"
+    : n >= 1000 ? Math.round(n / 1000) + "k"
+    : String(Math.round(n)));
   const esc = (text) => String(text == null ? "" : text).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
   function art(name, size) {
     const px = size || 26;
@@ -360,6 +392,18 @@
     }
     const craftTotal = [...result.crafts.values()].reduce((sum, n) => sum + n, 0);
     const apTotal = result.places.filter((entry) => entry.kind === "explore").reduce((sum, entry) => sum + entry.ap, 0);
+    const cost = spend();
+    const exploreTotal = result.places.filter((entry) => entry.kind === "explore").reduce((sum, entry) => sum + (entry.explores || 0), 0);
+    const staminaTotal = exploreTotal * cost.perExplore * cost.neigh;
+    const ciderTotal = exploreTotal / cost.ciderRolls;
+    // Cider and Arnold Palmers are not the same job. An AP finds items on its
+    // own; a cider spends your stamina bar. Both are shown per item so the
+    // choice is yours, and neither is totalled across the line, because one
+    // brutally rare drop would swallow the sum and tell you nothing.
+    const drinkNote = (explores) => {
+      if (!(explores > 0)) return "";
+      return `${short(explores / cost.ciderRolls)} cider, ${short(explores * cost.perExplore * cost.neigh)} stamina`;
+    };
     const netTotal = result.places.filter((entry) => entry.kind === "fish").reduce((sum, entry) => sum + entry.ap, 0);
     const farmDays = result.fromFarm.reduce((most, row) => Math.max(most, row.perDay ? row.qty / row.perDay : 0), 0);
 
@@ -416,8 +460,10 @@
     const placeNote = new Map();
     for (const entry of result.places) {
       for (const row of entry.rows) {
-        const cost = row.rides ? "rides along" : `${fmt(row.ap)} ${entry.kind === "fish" ? "nets" : "AP"}`;
-        placeNote.set(String(row.name).toLowerCase(), `${entry.place} · ${cost}`);
+        const trip = row.rides
+          ? "rides along"
+          : `${fmt(row.ap)} ${entry.kind === "fish" ? "nets" : "AP"}${row.explores ? ` or ${drinkNote(row.explores)}` : ""}`;
+        placeNote.set(String(row.name).toLowerCase(), `${entry.place} · ${trip}`);
       }
     }
     for (const row of result.fromFarm) placeNote.set(String(row.name).toLowerCase(), `${row.from} · ${row.perDay ? hours(row.qty / row.perDay) : "buy it"}`);

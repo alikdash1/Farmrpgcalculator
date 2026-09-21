@@ -5,6 +5,22 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-21 — Say it in cider and stamina too
+
+The plan only ever priced exploring in Arnold Palmers. Every gathered row now
+also carries what the same job costs in Apple Cider and stamina, from the
+measured explores-per-drop in data.js and the stamina numbers Setup already
+resolves, Neigh included.
+
+The two are deliberately kept apart and never summed into one figure. An AP is
+an item you buy and a cider is your own stamina bar, and the two sources agree
+to about twenty per cent on common drops but not on rare ones: Amber is 374,106
+AP by the workbook and 1.6m cider by the explore logs. Totalling either across
+a line lets one brutal drop swallow the sum, so the numbers stay per item where
+they mean something.
+
+`short()` now reads billions, because some of these honestly are.
+
 ## 2026-09-21 — Every block reads the same way down
 
 The place blocks were still the old shape: raw drops, and you worked out for
