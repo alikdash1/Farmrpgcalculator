@@ -47,6 +47,14 @@ window.FRPG_PLAYER_FACTS = {
   // mega seeds, ducks and similar rarities.
   exchangeCenter: { reliableSupply: false, useFor: "items available nowhere else" },
 
+  // Things the farm hands over for nothing. These cost DAYS, never AP, and
+  // must never appear in a "what to stockpile" list: the buildings do it.
+  farmMakes: [
+    "Wood", "Board", "Straw", "Stone", "Coal", "Steel", "Steel Wire",
+    "Iron", "Nails", "Grapes", "Apple", "Orange", "Lemon", "Milk",
+    "Eggs", "Feathers", "Bacon",
+  ],
+
   // Containers held in bulk. A chest costs one key to open, so what is in it
   // is effectively already in the bag. Distant Illusions IV hands over another
   // 2,000 Large Chest 02 partway through.

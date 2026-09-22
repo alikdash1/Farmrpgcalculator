@@ -107,6 +107,9 @@ for (const row of ((D.recipes || {}).craft || [])) {
 }
 const cookIds = new Set(((D.recipes || {}).cook || []).map((row) => row.itemId));
 const RATES = W.FRPG_WORKBOOK_RATES || {};
+// The farm makes these. They cost days, not AP, so they never belong in a
+// place's cost and never in a stockpile list.
+const FARM_MADE = new Set((((W.FRPG_PLAYER_FACTS || {}).farmMakes) || []).map((n) => String(n).toLowerCase()));
 const NO_TRADE = new Set((((W.FRPG_TRADEABLE || {}).cannotMail) || []).map((n) => String(n).toLowerCase()));
 
 // Best place per item, exploring preferred over fishing when both list it.
@@ -191,7 +194,9 @@ for (const row of masteryGoals) note(row.name, row.remaining, `${row.tier.toUppe
 // ---- file by place -------------------------------------------------------
 const places = new Map();
 const noSource = [];
+const fromFarm = [];
 for (const row of base.values()) {
+  if (FARM_MADE.has(String(row.name).toLowerCase())) { fromFarm.push(row); continue; }
   const spot = bestPlace.get(String(row.name).toLowerCase());
   if (!spot) { noSource.push(row); continue; }
   if (!places.has(spot.place)) places.set(spot.place, { place: spot.place, kind: spot.kind, rows: [], cost: 0 });
@@ -238,6 +243,9 @@ if (has("--json")) {
     }
     if (entry.rows.length > 6) console.log(`   … and ${entry.rows.length - 6} more here`);
     console.log("");
+  }
+  if (fromFarm.length) {
+    console.log("Your farm makes these, so they cost days and not AP: " + fromFarm.sort((a, b) => b.qty - a.qty).slice(0, 12).map((r) => r.name + " " + fmt(r.qty)).join(", "));
   }
   if (noSource.length) {
     console.log(`No place in the data (${noSource.length}): ` + noSource.sort((a, b) => b.qty - a.qty).slice(0, 20).map((row) => `${row.name} ${fmt(row.qty)}`).join(", "));
