@@ -90,6 +90,13 @@ window.FRPG_COMMUNITY_EXTRAS = {
     },
   },
 
+  // Recipes the app's own data is missing. Verified on buddy.farm.
+  // A missing recipe makes an item look gather-only and can cost tens of
+  // thousands of AP, so check buddy.farm before calling anything ungatherable.
+  missingRecipes: {
+    "Small Bolt": { level: 80, station: "Workshop", ingredients: [["Coal", 5], ["Emberstone", 1], ["Hammer", 1], ["Scrap Metal", 3]], source: "https://buddy.farm/i/small-bolt/" },
+  },
+
   // Still completely absent. Do not guess any of it.
   stillMissing: [
     "the WW Drops Table and WW Wants tables in full",
