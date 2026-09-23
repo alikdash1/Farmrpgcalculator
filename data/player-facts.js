@@ -72,6 +72,12 @@ window.FRPG_PLAYER_FACTS = {
     perDay: 1,
     resetItem: "Temple Voucher",
     input: "manual clicking, the same black-dot minigame as fishing",
+    // The Temple itself has NO cap - you pour in as much as you like, in as
+    // many goes as you like. So the 17,274 inventory cap never blocks a
+    // turn-in, however large the requirement gets: gather a bagful, pour it,
+    // repeat. The real limits are one a day, and the owner's hand.
+    holdsPartialDeposits: true,
+    bindingLimit: "once a day, and clicking time - never the inventory cap",
   },
 
   // Apple Bobbing: an event location, roughly three days. Measured by the
