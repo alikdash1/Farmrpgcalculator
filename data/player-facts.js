@@ -71,6 +71,10 @@ window.FRPG_PLAYER_FACTS = {
     doubleChance: 0.15,
     perDay: 1,
     resetItem: "Temple Voucher",
+    // Vouchers come only from Lorn's Expedition Bag and are getting dearer as
+    // more players chase them, so treat once a day as the real rule.
+    voucherSource: "Lorn's Expedition Bag",
+    voucherScarce: true,
     input: "manual clicking, the same black-dot minigame as fishing",
     // The Temple itself has NO cap - you pour in as much as you like, in as
     // many goes as you like. So the 17,274 inventory cap never blocks a
@@ -88,6 +92,11 @@ window.FRPG_PLAYER_FACTS = {
     neverMoved: ["Ant Apple", "Bitten Apple", "Apple Slice"],
     note: "rarer than 1 in 5,000 - they did not move once in five minutes",
     inventoryCapObserved: 17274,
+    // King Apple has no drop table anywhere in the data and cannot be mailed,
+    // so an Apple Bobbing event is the only time it is available at all. The
+    // Temple ladder is permanent and only advances when used, which means the
+    // cheap early rungs should be spent while an event is running.
+    kingAppleIsEventOnly: true,
   },
 
   // Stamina perks are all owned.
