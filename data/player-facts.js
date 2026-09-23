@@ -14,7 +14,8 @@ window.FRPG_PLAYER_FACTS = {
   craftworks: { auto: true, tickSeconds: 1, dailyCap: null, isBottleneck: false },
 
   // Not a fixed number. It climbs every day, and resting adds about 18.
-  inventoryCap: { approx: 17200, growsDaily: true, perRest: 18, note: "other items raise it too" },
+  // Read off the game on 2026-09-23: 17,274.
+  inventoryCap: { approx: 17274, growsDaily: true, perRest: 18, note: "other items raise it too" },
 
   // 30 wishes a day. Every item thrown returns ONE item, and the Tower perk
   // doubles it, so a toss returns two of the same thing. That, with the cap,
@@ -59,6 +60,29 @@ window.FRPG_PLAYER_FACTS = {
   // is effectively already in the bag. Distant Illusions IV hands over another
   // 2,000 Large Chest 02 partway through.
   containersHeld: { "Large Chest 02": 13000 },
+
+  // The Temple. Nothing in any data source covers this - not the knowledge
+  // pack, not buddy.farm - so it is here on the owner's word, 2026-09-23.
+  temple: {
+    offer: "King Apple",
+    firstRequirement: 15000,
+    stepUp: 1500,              // a flat tenth of the FIRST number, not compounding
+    reward: "Cranberry Juice",
+    doubleChance: 0.15,
+    perDay: 1,
+    resetItem: "Temple Voucher",
+    input: "manual clicking, the same black-dot minigame as fishing",
+  },
+
+  // Apple Bobbing: an event location, roughly three days. Measured by the
+  // owner from two screenshots five minutes apart, 2026-09-23. This place is
+  // in no drop table anywhere, and none of its items have a known sell price.
+  appleBobbing: {
+    perMinute: { "Apple": 752, "King Apple": 235, "Apple Core": 3.4 },
+    neverMoved: ["Ant Apple", "Bitten Apple", "Apple Slice"],
+    note: "rarer than 1 in 5,000 - they did not move once in five minutes",
+    inventoryCapObserved: 17274,
+  },
 
   // Stamina perks are all owned.
   perks: { staminaCapAllOwned: true },

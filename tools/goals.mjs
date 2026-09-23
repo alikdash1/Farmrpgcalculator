@@ -12,6 +12,7 @@
 //
 //   node tools/goals.mjs                    what you actually have to make
 //   node tools/goals.mjs --floor 340
+//   node tools/goals.mjs --no-quests        masteries only
 //   node tools/goals.mjs --item "Small Bolt"
 
 import fs from "node:fs";
@@ -47,7 +48,11 @@ const cook = new Set((D.recipes.cook || []).map((r) => r.itemId));
 const YIELD = 1.45;
 
 const DONE = new Set((((W.FRPG_PERSONAL_QUESTS || {}).completed) || []).map((t) => String(t).toLowerCase()));
-const questSteps = (W.FRPG_MAIN_QUESTS.quests || []).filter((s) => !DONE.has(String(s.title).toLowerCase()));
+// --no-quests: the owner has paused questing to work masteries only. Far
+// fewer masteries then finish as exhaust, because the quests were making most
+// of it.
+const noQuests = argv.includes("--no-quests");
+const questSteps = noQuests ? [] : (W.FRPG_MAIN_QUESTS.quests || []).filter((s) => !DONE.has(String(s.title).toLowerCase()));
 
 const held = W.FRPG_PERSONAL_TOWER.masteries || {};
 const masteries = new Map();
@@ -112,7 +117,7 @@ if (only) {
   process.exit(0);
 }
 
-console.log(`${questSteps.length} open quest steps, ${masteries.size} masteries owed to T${topFloor}.`);
+console.log(noQuests ? `Masteries only - quests paused. ${masteries.size} owed to T${topFloor}.` : `${questSteps.length} open quest steps, ${masteries.size} masteries owed to T${topFloor}.`);
 console.log(`${free.length} of those masteries finish on their own. ${active.size} need work.\n`);
 console.log("Finish by themselves - never craft for these:");
 for (const m of free.sort((a, b) => b.left - a.left).slice(0, 18)) {
