@@ -18,7 +18,7 @@ test("the setup guide is on the page, not only in the repo README", () => {
 test("the guide lists every site the extension actually asks for", () => {
   const html = read("index.html");
   const manifest = JSON.parse(read("collectors/account-sync-extension/manifest.json"));
-  const shown = [...html.matchAll(/<li><code>([^<]+)<\/code><span>/g)].map((m) => m[1]);
+  const shown = [...html.matchAll(/<li(?: data-site-row)?><code>([^<]+)<\/code><span>/g)].map((m) => m[1]);
   const asked = manifest.host_permissions.slice();
   // file:///* is granted by a switch rather than host_permissions, so it is
   // listed on the page but never appears in the manifest.
@@ -37,4 +37,17 @@ test("the saved copy is built from the page and drops its own buttons", () => {
   // Inlined styles: the file has to read correctly with the planner absent.
   assert.match(js, /<style>/);
   assert.doesNotMatch(js, /<link rel="stylesheet"/);
+});
+
+test("the guide's website address is one the extension can actually reach", () => {
+  const js = read("js/sync-guide.js");
+  const manifest = JSON.parse(read("collectors/account-sync-extension/manifest.json"));
+  const sites = JSON.parse(js.match(/const KNOWN_SITES = (\[[^\]]*\])/)[1].replace(/'/g, '"'));
+  const bridge = manifest.content_scripts.find((c) => c.js.includes("calculator-bridge.js"));
+  for (const site of sites) {
+    assert.ok(manifest.host_permissions.includes(site + "*"), site + " missing from host_permissions");
+    assert.ok(bridge.matches.includes(site + "*"), site + " missing from the bridge's matches");
+  }
+  // The row must not read as someone's personal page.
+  assert.match(read("index.html"), /<li data-site-row>/);
 });

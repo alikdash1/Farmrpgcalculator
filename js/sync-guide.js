@@ -4,6 +4,33 @@
   const jump = document.getElementById("goGuide");
   if (!guide) return;
 
+  // The website address the extension may talk to. It must match
+  // collectors/account-sync-extension/manifest.json, which lists exactly these.
+  const KNOWN_SITES = ["https://alikdash1.github.io/Farmrpgcalculator/"];
+  const DOWNLOAD = KNOWN_SITES[0] + "downloads/farm-rpg-account-sync.zip";
+
+  // Show the address this planner was actually opened from, so nobody reads the
+  // row as "link it to someone else's page". Opened from disk or localhost, the
+  // public site stays listed, because those have rows of their own.
+  const onWeb = /^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  const siteRow = guide.querySelector("[data-site-row]");
+  if (onWeb && siteRow) {
+    const here = location.origin + location.pathname.replace(/[^/]*$/, "");
+    siteRow.querySelector("code").textContent = here + "*";
+    siteRow.querySelector("span").textContent = "this planner — the address in your address bar right now. Only this one site, nothing else on the same host";
+    if (!KNOWN_SITES.includes(here)) {
+      // A copy hosted somewhere else. The extension cannot reach it until its
+      // manifest names this address - say exactly what to change.
+      const note = document.createElement("p");
+      note.className = "sync-note";
+      note.innerHTML = "This copy of the planner is at an address the extension does not know yet. " +
+        "Open the extension's <code>manifest.json</code>, add <code></code> to <code>host_permissions</code> " +
+        "and to the second <code>content_scripts</code> entry's <code>matches</code>, then press the reload arrow on its card.";
+      note.querySelectorAll("code")[1].textContent = here + "*";
+      siteRow.parentElement.after(note);
+    }
+  }
+
   if (jump) {
     jump.addEventListener("click", () => {
       guide.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -45,8 +72,8 @@ code.path{display:inline-block;padding:5px 9px}
 footer{margin-top:40px;padding-top:16px;border-top:1px solid #2e3036;color:#9aa09a;font-size:.84rem}
 </style></head>
 <body><main>${body.innerHTML}
-<footer>Saved from Farm RPG Calculator on ${new Date().toLocaleDateString()}. The extension lives in
-<code>calculator\\collectors\\account-sync-extension</code>.</footer>
+<footer>Saved from Farm RPG Calculator on ${new Date().toLocaleDateString()}. Download the extension from
+<code>${DOWNLOAD}</code>.</footer>
 </main></body></html>`;
   }
 
