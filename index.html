@@ -9,16 +9,16 @@
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="assets/red-trunk-mark.png?v=20260917-6" type="image/png">
   <link rel="manifest" href="site.webmanifest?v=20260917-6">
-  <link rel="stylesheet" href="style.css?v=20260911-5">
-  <link rel="stylesheet" href="v3.css?v=20260911-5">
-  <link rel="stylesheet" href="tower.css?v=20260917-2">
-  <link rel="stylesheet" href="mining.css?v=20260911-5">
-  <link rel="stylesheet" href="locations.css?v=20260911-5">
-  <link rel="stylesheet" href="quests.css?v=20260921-1">
-  <link rel="stylesheet" href="inventory.css?v=20260911-6">
-  <link rel="stylesheet" href="items.css?v=20260921-10">
-  <link rel="stylesheet" href="tracker.css?v=20260911-5">
-  <link rel="stylesheet" href="system.css?v=20260919-10">
+  <link rel="stylesheet" href="css/style.css?v=20260911-5">
+  <link rel="stylesheet" href="css/v3.css?v=20260911-5">
+  <link rel="stylesheet" href="css/tower.css?v=20260917-2">
+  <link rel="stylesheet" href="css/mining.css?v=20260911-5">
+  <link rel="stylesheet" href="css/locations.css?v=20260911-5">
+  <link rel="stylesheet" href="css/quests.css?v=20260921-1">
+  <link rel="stylesheet" href="css/inventory.css?v=20260911-6">
+  <link rel="stylesheet" href="css/items.css?v=20260921-10">
+  <link rel="stylesheet" href="css/tracker.css?v=20260911-5">
+  <link rel="stylesheet" href="css/system.css?v=20260929-1">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -146,24 +146,26 @@
       <section class="page-intro"><h1>Bring your farm along.</h1><p>Load one complete snapshot to fill inventory, Tower, masteries, quests, perks, pets, and other progress. Your data stays in this browser.</p></section>
       <section class="account-import-panel">
         <div class="account-import-copy"><h2>Use the account sync extension</h2><p>It reads the Farm RPG pages you visit, keeps the newest local capture for each page, and sends the merged snapshot to this calculator. It never clicks or plays for you.</p><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><button class="primary-link" type="button" id="goGuide">How to install and connect it</button></div></div>
-        <div class="account-import-copy"><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button></div>
+        <div class="account-import-copy"><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong><small>They're checked and combined right here in this tab. Nothing is uploaded anywhere.</small></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button><p class="owner-farm"><label><input id="ownerFarm" type="checkbox"> The example farm is mine</label><small>Only for the author. It keeps the built-in account as your real one. Everyone else, leave it off.</small></p></div>
       </section>
       <section id="syncGuide" class="sync-guide">
         <div class="sync-guide-head">
           <div>
 
             <h2>Installing and connecting the account sync</h2>
-            <p>Three short steps, done once. After that it keeps itself current while you play.</p>
+            <p>Four short steps, done once, in Chrome, Brave or Edge. After that it keeps itself current while you play.</p>
           </div>
           <button id="saveGuide" class="quiet-button" type="button">Save this guide</button>
         </div>
 
         <ol class="sync-steps">
           <li>
-            <h3>Install it</h3>
-            <p>Open <code>brave://extensions</code> and switch on <b>Developer mode</b> (top right). Choose <b>Load unpacked</b> and pick this folder:</p>
-            <p><code class="path">calculator\collectors\account-sync-extension</code></p>
-            <p class="sync-note">If it is already installed, press the reload arrow on its card instead — an older copy will not have the newest behaviour.</p>
+            <h3>Download and install it</h3>
+            <p><a class="primary-link" href="downloads/farm-rpg-account-sync.zip" download>Download the extension</a></p>
+            <p>Unzip it somewhere you will keep it, such as your Documents folder. The browser runs it from that folder, so do not delete it afterwards.</p>
+            <p>Open <code>chrome://extensions</code> — or <code>brave://extensions</code>, <code>edge://extensions</code> — and switch on <b>Developer mode</b> (top right). Choose <b>Load unpacked</b> and pick the <code>farm-rpg-account-sync</code> folder you just unzipped.</p>
+            <p class="sync-note">It is not in the Chrome Web Store, which is why it goes in this way. The browser may remind you that a developer-mode extension is on; that is expected.</p>
+            <p class="sync-note">To update it later, download the new zip, replace the folder's contents, and press the reload arrow on its card.</p>
           </li>
           <li>
             <h3>Give it the two permissions it needs</h3>
@@ -183,6 +185,11 @@
             <h3>Connect it to this page</h3>
             <p>Leave this planner open in a tab. The status panel above changes from <b>Waiting for extension</b> as soon as they find each other, and every later capture arrives here on its own.</p>
             <p class="sync-note">Still waiting? Reload the extension, check the file URL switch, then reload this page.</p>
+          </li>
+          <li>
+            <h3>Visit your own pages once</h3>
+            <p>Until your farm arrives, this planner shows the author's farm as an example. The moment your first capture lands, the example is dropped completely — nothing of it is mixed into your numbers.</p>
+            <p>To fill everything in, open these Farm RPG pages once each: <b>your profile</b>, <b>Inventory</b>, <b>the Tower</b>, <b>Mastery</b>, <b>Quests</b> and <b>your farm</b>. After that, whatever you visit while playing keeps them fresh.</p>
           </li>
         </ol>
 
@@ -391,31 +398,33 @@
   <script src="data/location-intel.js?v=20260901-2"></script>
   <script src="data/new-items.js?v=20260831-1"></script>
   <script src="data/mining-capture-items.js?v=20260901-3"></script>
-  <script src="data/workbook-rates.js?v=20260906-1"></script>
+  <script src="data/workbook-rates.js?v=20260929-1"></script>
+  <script src="data/place-order.js?v=20260929-1"></script>
   <script src="data/owner-workbook.js?v=20260906-2"></script>
   <script src="data/location-rates.js?v=20260905-1"></script>
   <script src="data/tradeable.js?v=20260903-1"></script>
   <script src="data/community-extras.js?v=20260922-1"></script>
   <script src="data/wishing-well.js?v=20260921-3"></script>
   <script src="data/player-facts.js?v=20260922-1"></script>
+  <script src="js/account-source.js?v=20260929-1"></script>
   <script src="collectors/account-importer/shared/numbers.js?v=20260904-1"></script>
   <script src="collectors/account-importer/shared/sanitize.js?v=20260904-1"></script>
   <script src="collectors/account-importer/shared/textparse.js?v=20260904-1"></script>
   <script src="collectors/account-importer/shared/schema.js?v=20260904-1"></script>
   <script src="collectors/account-importer/shared/merge.js?v=20260904-1"></script>
-  <script src="engine.js?v=20260911-1"></script>
-  <script src="item-art.js?v=20260905-1"></script>
-  <script src="quest-model.js?v=20260917-1"></script>
-  <script src="app.js?v=20260921-2"></script>
-  <script src="mm300.js?v=20260920-1"></script>
-  <script src="line-plan.js?v=20260921-19"></script>
-  <script src="mining-page.js?v=20260911-5"></script>
-  <script src="locations-page.js?v=20260911-5"></script>
-  <script src="quests-page.js?v=20260905-3"></script>
-  <script src="gather-model.js?v=20260919-5"></script>
-  <script src="inventory-page.js?v=20260905-9"></script>
-  <script src="items-page.js?v=20260917-5"></script>
-  <script src="tracker.js?v=20260911-1"></script>
-  <script src="sync-guide.js?v=20260917-6"></script>
+  <script src="js/engine.js?v=20260911-1"></script>
+  <script src="js/item-art.js?v=20260905-1"></script>
+  <script src="js/quest-model.js?v=20260917-1"></script>
+  <script src="js/app.js?v=20260929-1"></script>
+  <script src="js/mm300.js?v=20260920-1"></script>
+  <script src="js/line-plan.js?v=20260921-19"></script>
+  <script src="js/mining-page.js?v=20260911-5"></script>
+  <script src="js/locations-page.js?v=20260929-1"></script>
+  <script src="js/quests-page.js?v=20260905-3"></script>
+  <script src="js/gather-model.js?v=20260919-5"></script>
+  <script src="js/inventory-page.js?v=20260905-9"></script>
+  <script src="js/items-page.js?v=20260917-5"></script>
+  <script src="js/tracker.js?v=20260911-1"></script>
+  <script src="js/sync-guide.js?v=20260917-6"></script>
 </body>
 </html>

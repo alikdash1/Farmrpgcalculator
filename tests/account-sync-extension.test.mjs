@@ -43,7 +43,7 @@ test('capture parser sends data to local extension storage instead of downloadin
 
 test('calculator bridge and Tower listener share the same message contract', () => {
   const bridge = read('calculator-bridge.js');
-  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
   assert.match(bridge, /source: "farmrpg-account-sync"/);
   assert.match(app, /message\.source !== "farmrpg-account-sync"/);
   assert.match(app, /validAccountSnapshot\(message\.snapshot\)/);
@@ -145,7 +145,7 @@ test("only the real inventory page can be saved as the inventory", () => {
 });
 
 test("a mastery capture newer than the imported file is allowed to update it", () => {
-  const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
+  const app = fs.readFileSync(path.join(root, "js/app.js"), "utf8");
   // authoritativeMasteries made the code skip captured masteries entirely, so
   // re-capturing them silently did nothing at all.
   assert.match(app, /function masteryRowsToApply\(\)/);

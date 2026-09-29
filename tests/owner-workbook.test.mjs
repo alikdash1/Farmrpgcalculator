@@ -37,7 +37,7 @@ test("every masterable item is rated, as a floor or as a reason not to", () => {
 });
 
 test("the Tower rail shows the rating instead of only admitting ignorance", () => {
-  const app = read("app.js");
+  const app = read("js/app.js");
   // It used to say "No route data for this one yet" and stop there.
   assert.match(app, /const MASTERY_RATING = /);
   assert.match(app, /function masteryRating\(name\)/);
@@ -45,7 +45,7 @@ test("the Tower rail shows the rating instead of only admitting ignorance", () =
   // Names are matched case-insensitively, because the workbook types them by
   // hand ("water lily", "acorn pie") and the game data does not.
   assert.match(app, /key\.toLowerCase\(\) === String\(name\)\.toLowerCase\(\)/);
-  assert.match(read("tower.css"), /\.tower-rating\.is-blocked/);
+  assert.match(read("css/tower.css"), /\.tower-rating\.is-blocked/);
 });
 
 test("the workbook agrees with the fishing rate the site already used", () => {

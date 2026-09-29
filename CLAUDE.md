@@ -13,11 +13,11 @@ Almost everything has already been established and written down:
 
 | File | What it holds |
 |---|---|
-| **`BRIEFING.md`** | **The whole project in one file — game, player, app, files, decisions, mistakes. Start here.** |
+| **`docs/BRIEFING.md`** | **The whole project in one file — game, player, app, files, decisions, mistakes. Start here.** |
 | `handoff/STATE.md` | What is true right now |
-| `PROJECT_STATE.md` | What this project is, where things live |
-| `NEXT_PHASE.md` | What's left to do, and the open decisions |
-| `KNOWN_MISTAKES.md` | Corrections the user made; regressions not to reintroduce |
+| `docs/PROJECT_STATE.md` | What this project is, where things live |
+| `docs/NEXT_PHASE.md` | What's left to do, and the open decisions |
+| `docs/KNOWN_MISTAKES.md` | Corrections the user made; regressions not to reintroduce |
 | `CHANGELOG.md` | Dated log of real work sessions |
 | `docs/HOW_THE_OWNER_PLAYS.md` | **How to cost a job so it is actually useful to them. Read before planning anything.** |
 | `docs/STAMINA_AND_EFFECTIVENESS.md` | **Every stamina and effectiveness fact, in the game's own words** |
@@ -44,12 +44,12 @@ specifically so sessions don't burn usage re-reading raw spreadsheets.
   `<script src>` tags. There is no `fetch()` and no ES module anywhere.
 - `index.html` therefore **opens directly from disk** — double-click
   it. Do not tell the user to start a web server; they don't need one.
-- `engine.js` — pure crafting/route resolution (buildIndex, resolveTree,
+- `js/engine.js` — pure crafting/route resolution (buildIndex, resolveTree,
   sourcesFor, coDropsFor, marketQuote).
-- `app.js` — all UI, state and rendering. State persists in `localStorage`.
+- `js/app.js` — all UI, state and rendering. State persists in `localStorage`.
 - `data/*.js` — game data as globals (`window.FRPG_DATA`, `FRPG_KNOWLEDGE`, …).
 - `publish/` — a **second, divergent copy** of the app. See the
-  warning in `NEXT_PHASE.md`. Don't deploy it without reading that first.
+  warning in `docs/NEXT_PHASE.md`. Don't deploy it without reading that first.
 
 ## Verifying changes — this matters
 
@@ -58,8 +58,8 @@ Pie toggle, and route labels rendered invisible in near-black on the dark
 theme) were invisible in source and obvious on screen. So:
 
 ```bash
-node --check app.js                  # syntax
-node --test tests/*.mjs              # 40 tests, all should pass
+node --check js/app.js               # syntax
+node --test tests/*.mjs              # every test should pass
 python3 build/bundle.py              # inline everything into one file
 ```
 
@@ -78,7 +78,7 @@ network access — that is the sandbox, not a bug.
   confident wrong answers about game mechanics.
 - Write player-facing copy, never developer-facing. Internal vocabulary,
   engine directives and changelog notes have leaked into the live UI before.
-- Update `CHANGELOG.md` and `NEXT_PHASE.md` at the end of a real work session.
+- Update `CHANGELOG.md` and `docs/NEXT_PHASE.md` at the end of a real work session.
 
 ## Git
 

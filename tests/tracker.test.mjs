@@ -7,7 +7,7 @@ const read = (p) => readFileSync(new URL(p, root), "utf8");
 
 test("the tracker is on every tab, not only the Inventory page", () => {
   const html = read("index.html");
-  const js = read("tracker.js");
+  const js = read("js/tracker.js");
   // It appends itself to the body rather than living inside one view, which is
   // what makes it survive a tab change.
   assert.match(js, /document\.body\.append\(panel\)/);
@@ -17,8 +17,8 @@ test("the tracker is on every tab, not only the Inventory page", () => {
   // It may read the Inventory view to know when to step aside, but it must
   // never render into it — that is what would tie it to one tab.
   assert.doesNotMatch(js, /getElementById\("inventory"\)\.(?:innerHTML|append)/);
-  assert.match(html, /<script src="tracker\.js/);
-  assert.match(html, /<link rel="stylesheet" href="tracker\.css/);
+  assert.match(html, /<script src="js\/tracker\.js/);
+  assert.match(html, /<link rel="stylesheet" href="css\/tracker\.css/);
   // It can be collapsed and dismissed, and the choice is remembered.
   for (const key of ["frpg_tracker_next_collapsed", "frpg_tracker_whole_collapsed", "frpg_tracker_hidden", "frpg_tracker_big"]) {
     assert.ok(js.includes(key), `${key} is remembered`);
@@ -26,9 +26,9 @@ test("the tracker is on every tab, not only the Inventory page", () => {
 });
 
 test("the tracker and the Inventory tab share one calculation", () => {
-  const gather = read("gather-model.js");
-  const tracker = read("tracker.js");
-  const page = read("inventory-page.js");
+  const gather = read("js/gather-model.js");
+  const tracker = read("js/tracker.js");
+  const page = read("js/inventory-page.js");
   assert.match(gather, /window\.FRPG_GATHER = \{/);
   for (const source of [tracker, page]) {
     assert.match(source, /window\.FRPG_GATHER/);
@@ -38,15 +38,15 @@ test("the tracker and the Inventory tab share one calculation", () => {
   }
   // Load order: the shared model has to be defined before either reads it.
   const html = read("index.html");
-  assert.ok(html.indexOf("gather-model.js") < html.indexOf("inventory-page.js"));
-  assert.ok(html.indexOf("gather-model.js") < html.indexOf("tracker.js"));
+  assert.ok(html.indexOf("js/gather-model.js") < html.indexOf("js/inventory-page.js"));
+  assert.ok(html.indexOf("js/gather-model.js") < html.indexOf("js/tracker.js"));
 });
 
 test("a capture teaches the planner artwork it does not have", () => {
   const capture = read("collectors/account-sync-extension/capture-page.js");
   const schema = read("collectors/account-sync-extension/shared/schema.js");
   const merge = read("collectors/account-sync-extension/shared/merge.js");
-  const helper = read("item-art.js");
+  const helper = read("js/item-art.js");
 
   assert.match(capture, /function harvestItemArt\(\)/);
   assert.match(capture, /itemArt: harvestItemArt\(\)/);
@@ -58,8 +58,8 @@ test("a capture teaches the planner artwork it does not have", () => {
 });
 
 test("this quest docks bottom-left, the whole line bottom-right", () => {
-  const js = read("tracker.js");
-  const css = read("tracker.css");
+  const js = read("js/tracker.js");
+  const css = read("css/tracker.css");
   // The player asked for this layout from the first message; both lists lived
   // in one corner on the right for far too long.
   assert.match(css, /\.quest-tracker\.is-next \{ left: 14px; \}/);
@@ -75,8 +75,8 @@ test("this quest docks bottom-left, the whole line bottom-right", () => {
   assert.doesNotMatch(css, /^\s*transition:[^;]*width/m);
 });
 test("Track toggles off, and an explicit none is not auto-filled again", () => {
-  const quests = read("quests-page.js");
-  const gather = read("gather-model.js");
+  const quests = read("js/quests-page.js");
+  const gather = read("js/gather-model.js");
   // Pressing Track on the line already being tracked used to re-set the same
   // value, so there was no way to stop.
   assert.match(quests, /trackedLine\(\) === tracker\.dataset\.trackLine \? "" :/);
@@ -88,7 +88,7 @@ test("Track toggles off, and an explicit none is not auto-filled again", () => {
 });
 
 test("the inventory filter trusts the item list instead of guessing at prose", () => {
-  const gather = read("gather-model.js");
+  const gather = read("js/gather-model.js");
   // "Adds 100 Stamina" is Title Case with no lowercase word, so every
   // shape-based heuristic let it through. The complete library answers it.
   assert.match(gather, /ART\.isKnownItem\(text\)/);
@@ -97,8 +97,8 @@ test("the inventory filter trusts the item list instead of guessing at prose", (
 });
 
 test("dismissing the tracker is never a dead end", () => {
-  const quests = read("quests-page.js");
-  const page = read("inventory-page.js");
+  const quests = read("js/quests-page.js");
+  const page = read("js/inventory-page.js");
   // ✕ set a flag with no way back, so a later Track press showed nothing
   // anywhere and looked like tracking was broken.
   assert.match(quests, /localStorage\.setItem\("frpg_tracker_hidden", "0"\)/);
@@ -107,7 +107,7 @@ test("dismissing the tracker is never a dead end", () => {
 });
 
 test("tracker rows open the item, and Escape closes the expanded list", () => {
-  const js = read("tracker.js");
+  const js = read("js/tracker.js");
   // Every other list in the app opens an item on click; this one did not.
   assert.match(js, /data-open-item="\$\{esc\(row\.name\)\}"/);
   assert.match(js, /const openable = !row\.currency && ART\.itemFor\(row\.name\)/);
@@ -117,7 +117,7 @@ test("tracker rows open the item, and Escape closes the expanded list", () => {
 });
 
 test("the whole-line list can be copied into a spreadsheet", () => {
-  const js = read("tracker.js");
+  const js = read("js/tracker.js");
   // The player keeps a sheet for this questline, so tab-separated rows paste
   // straight in. navigator.clipboard needs a secure context and this app opens
   // from disk, so the textarea path is the one that actually runs.
@@ -129,8 +129,8 @@ test("the whole-line list can be copied into a spreadsheet", () => {
 });
 
 test("the expanded list is dense and filterable", () => {
-  const js = read("tracker.js");
-  const css = read("tracker.css");
+  const js = read("js/tracker.js");
+  const css = read("css/tracker.css");
   // 189 rows at panel size reads as a wall; smaller rows and a filter make it
   // something you can take in.
   assert.match(css, /\.quest-tracker\.is-big \.tracker-list \{[\s\S]*?font-size: 12px/);
@@ -145,21 +145,21 @@ test("the expanded list is dense and filterable", () => {
 });
 
 test("gather lists say where an item comes from", () => {
-  const gather = read("gather-model.js");
-  const page = read("inventory-page.js");
+  const gather = read("js/gather-model.js");
+  const page = read("js/inventory-page.js");
   assert.match(gather, /function whereFor\(name\)/);
   // For a meal, growMin is the cooking time. Labelling meals "Grow" would be
   // an invented mechanic, so the meal test has to come first.
   assert.match(gather, /if \(item\.type === "meal" \|\| item\.cookLevel != null\) bits\.push\("Cook"\);/);
   assert.match(gather, /else if \(item\.growMin > 0\) bits\.push\("Grow"\);/);
   // Built on the index app.js already made, not a second copy.
-  assert.match(read("app.js"), /window\.FRPG_INDEX = index;/);
+  assert.match(read("js/app.js"), /window\.FRPG_INDEX = index;/);
   assert.match(page, /function sourceHint\(name\)/);
 });
 
 test("a phone gets one panel with a switch, not two stacked", () => {
-  const js = read("tracker.js");
-  const css = read("tracker.css");
+  const js = read("js/tracker.js");
+  const css = read("css/tracker.css");
   // Two docked panels stacked took two thirds of a phone screen.
   assert.match(js, /matchMedia\("\(max-width: 620px\)"\)/);
   assert.match(js, /if \(narrow\.matches && !big\)/);
@@ -171,7 +171,7 @@ test("a phone gets one panel with a switch, not two stacked", () => {
 });
 
 test("the expanded list is about half the screen, not all of it", () => {
-  const css = read("tracker.css");
+  const css = read("css/tracker.css");
   // Stretched to the full width, every row had a hand's width of nothing
   // between the item and its number.
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?width: min\(1020px, calc\(100vw - 24px\)\)/);
@@ -184,7 +184,7 @@ test("the expanded list is about half the screen, not all of it", () => {
   assert.match(css, /\.quest-tracker\.is-big \{[\s\S]*?height: min\(78vh, 820px\)/);
   // The column count is measured, not guessed: content-sized columns came out
   // wider than any estimate and ran off the side of the panel.
-  const js = read("tracker.js");
+  const js = read("js/tracker.js");
   assert.match(js, /function fitColumns\(\)/);
   assert.match(js, /list\.scrollWidth > list\.clientWidth \+ 1/);
   // The box is sized to what is in it: a 53-item questline was being shown in

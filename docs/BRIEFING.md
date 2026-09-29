@@ -1,5 +1,8 @@
 # Farm RPG Calculator — the whole briefing
 
+> **Layout since 2026-09-29:** page scripts live in `js/`, stylesheets in `css/`, and the
+> project notes (this file included) in `docs/`. File names below are unchanged.
+
 **Read this file first and you should not need to be taught anything else.**
 It exists so the owner stops re-explaining the project to every new AI session.
 

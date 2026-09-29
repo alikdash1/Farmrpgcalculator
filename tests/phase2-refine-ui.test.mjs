@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 
 const root = new URL("../", import.meta.url);
 const html = readFileSync(new URL("index.html", root), "utf8");
-const app = readFileSync(new URL("app.js", root), "utf8");
-const css = readFileSync(new URL("v3.css", root), "utf8");
+const app = readFileSync(new URL("js/app.js", root), "utf8");
+const css = readFileSync(new URL("css/v3.css", root), "utf8");
 
 test("the removed workshop economics card stays removed", () => {
   assert.doesNotMatch(html, /id=["']craftRoute["']/);

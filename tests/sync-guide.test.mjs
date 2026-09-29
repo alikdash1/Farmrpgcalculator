@@ -10,7 +10,7 @@ test("the setup guide is on the page, not only in the repo README", () => {
   assert.match(html, /id="syncGuide"/);
   assert.match(html, /id="saveGuide"/);
   assert.match(html, /id="goGuide"/);
-  assert.match(html, /<script src="sync-guide\.js/);
+  assert.match(html, /<script src="js\/sync-guide\.js/);
   // The old link opened a raw markdown file in the browser; it must stay gone.
   assert.doesNotMatch(html, /href="collectors\/account-sync-extension\/README\.md"/);
 });
@@ -30,7 +30,7 @@ test("the guide lists every site the extension actually asks for", () => {
 });
 
 test("the saved copy is built from the page and drops its own buttons", () => {
-  const js = read("sync-guide.js");
+  const js = read("js/sync-guide.js");
   assert.match(js, /guide\.cloneNode\(true\)/, "the download mirrors what is on screen");
   assert.match(js, /querySelectorAll\("button"\)[\s\S]{0,60}remove\(\)/);
   assert.match(js, /download = "farm-rpg-calculator-account-sync-setup\.html"/);

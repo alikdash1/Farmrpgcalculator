@@ -11,7 +11,7 @@ function load() {
   vm.createContext(context);
   for (const file of [
     "data/data.js", "data/item-art.js", "data/item-library.js",
-    "data/new-items.js", "data/tower-floors.js", "data/location-intel.js", "item-art.js",
+    "data/new-items.js", "data/tower-floors.js", "data/location-intel.js", "js/item-art.js",
   ]) vm.runInContext(read(file), context);
   return context.window;
 }
@@ -51,7 +51,7 @@ test("a complete item list is what tells an item from a line of prose", () => {
 });
 
 test("an item's own name decides its artwork; fallbackName only fills a gap", () => {
-  const app = read("app.js");
+  const app = read("js/app.js");
   // Read the other way round, a Setup card looked up its building ("Iron
   // Depot") instead of the item it produces ("Iron"), and drew a letter.
   assert.match(app, /const name = \(item && item\.name\) \|\| fallbackName \|\| "";/);
@@ -63,7 +63,7 @@ test("an item's own name decides its artwork; fallbackName only fills a gap", ()
 });
 
 test("capture text that is not an item never renders as one", () => {
-  const app = read("app.js");
+  const app = read("js/app.js");
   // gather-model.js filtered the gather lists; the Account tab rendered the
   // same description rows as masteries, consumables and active effects.
   assert.match(app, /const isRealItem = \(name\)/);

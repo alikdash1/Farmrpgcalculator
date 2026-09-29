@@ -15,7 +15,7 @@ function helper() {
     "data/tower-floors.js",
     "data/new-items.js",
     "data/item-art.js",
-    "item-art.js",
+    "js/item-art.js",
   ]) vm.runInContext(read(file), context);
   return { art: context.window.FRPG_ITEM_ART_HELPER, W: context.window };
 }

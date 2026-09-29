@@ -13,3 +13,8 @@ raw/.buddy-cache-*/
 # A stale, divergent copy of the whole app. Keeping it out of the public repo
 # so nobody deploys or edits the wrong one by mistake.
 publish/
+
+# Rollback copies tools/update-data.ps1 leaves next to each raw file, and old
+# local backups. Useful on your own disk; noise in the public repo.
+*.bak
+raw/*-backup.zip

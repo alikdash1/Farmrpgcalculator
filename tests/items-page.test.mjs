@@ -43,15 +43,15 @@ test("the page is wired into the app", () => {
   assert.match(html, /id="itemsSearch"/);
   assert.match(html, /id="itemsResults"/);
   assert.match(html, /id="itemsDetail"/);
-  assert.match(html, /<script src="items-page\.js\?v=/);
+  assert.match(html, /<script src="js\/items-page\.js\?v=/);
   assert.match(html, /<script src="data\/item-info\.js\?v=/);
-  assert.match(html, /<link rel="stylesheet" href="items\.css\?v=/);
+  assert.match(html, /<link rel="stylesheet" href="css\/items\.css\?v=/);
   // A view may carry the item in the hash: #items/steel-wire.
-  assert.match(read("app.js"), /location\.hash\.replace\(\/\^#\/, ""\)\.split\("\/"\)\[0\]/);
+  assert.match(read("js/app.js"), /location\.hash\.replace\(\/\^#\/, ""\)\.split\("\/"\)\[0\]/);
 });
 
 test("the item page reads rates and holdings from data already loaded", () => {
-  const page = read("items-page.js");
+  const page = read("js/items-page.js");
   assert.match(page, /FRPG_WORKBOOK_RATES/);
   assert.match(page, /frpg_account_snapshot_v1/);
   assert.doesNotMatch(page, /fetch\(|XMLHttpRequest/);

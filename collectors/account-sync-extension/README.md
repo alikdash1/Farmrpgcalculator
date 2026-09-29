@@ -1,28 +1,38 @@
 # Farm RPG Calculator Account Sync
 
-## Saving to disk (v1.3)
+Keeps [Farm RPG Calculator](https://alikdash1.github.io/Farmrpgcalculator/) filled
+with your own account, from the Farm RPG pages you actually visit.
 
-The snapshot is written to **one** file, `farm-rpg-calculator-account-snapshot.json`
-in your Downloads folder, and each save **overwrites** it. The old export used a
-blob link, so the browser kept every previous copy and added `(1)`, `(2)`, … —
-that is what produced the pile of near-identical files.
+It is read-only. It does not click, navigate, craft, sell, explore, fish or
+trade, and it has no network code: nothing it reads leaves your browser.
 
-Leave **"Keep that file updated after every capture"** ticked and the file always
-matches what the extension has captured, with no duplicates. Untick it to save
-only when you press the button.
+## Install
 
-This Brave/Chrome extension keeps Farm RPG Calculator updated from the Farm RPG account pages you actually visit. It is read-only: it does not click, navigate, craft, sell, explore, fish, trade, or send account data to a server.
+1. Unzip `farm-rpg-account-sync.zip` somewhere you will keep it. The browser
+   runs the extension from that folder, so do not delete it.
+2. Open `chrome://extensions` — or `brave://extensions`, `edge://extensions`.
+3. Turn on **Developer mode**.
+4. Choose **Load unpacked** and select the `farm-rpg-account-sync` folder.
+5. If you open the planner from a file on your disk, open **Details** and switch
+   on **Allow access to file URLs**.
+6. Open Farm RPG and refresh the game tab once.
+7. Open the planner in another tab and leave it open. Its Account page says
+   when the two have found each other.
 
-## Install or update in Brave
+Visit your profile, Inventory, Tower, Mastery, Quests and farm pages once each.
+After that, the pages you visit while playing keep everything fresh.
 
-1. Open `brave://extensions`.
-2. Turn on **Developer mode**.
-3. Choose **Load unpacked** and select:
-   `C:\Users\user\Desktop\FarmRPG Calculator Research\calculator\collectors\account-sync-extension`
-4. If it was already installed, press **Reload** on the extension card after every update.
-5. Open Farm RPG and refresh the game tab once.
-6. Visit account pages normally. The small **Account sync** pill confirms what was saved.
-7. Open Farm RPG Calculator at `http://127.0.0.1:8772/index.html#account`.
+## Update
+
+Download the new zip, replace the folder's contents, and press **Reload** on the
+extension's card.
+
+## Saving to disk
+
+Nothing is written unless you ask. **Save account snapshot to Downloads**
+writes one file, `farm-rpg-calculator-account-snapshot.json`, and each save
+overwrites it rather than piling up numbered copies. Tick **Keep that file
+updated after every capture** to have it rewritten automatically.
 
 ## Account sections
 

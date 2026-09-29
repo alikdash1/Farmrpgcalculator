@@ -1,5 +1,22 @@
 # Next Phase
 
+## Open after 2026-09-29 — sharing it
+
+- **Push, then check GitHub Pages serves `downloads/farm-rpg-account-sync.zip`**
+  at https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-account-sync.zip.
+- **The author must tick "The example farm is mine"** on the Account page once
+  in each browser they use, or their own bundled mastery export is set aside as
+  soon as the extension connects.
+- `data/player-facts.js` still mixes game rules with one farm's facts; visitor
+  mode clears only `containersHeld`, `inventoryCap` and `farm`. Splitting the
+  file would be cleaner.
+- The Chrome Web Store would remove the Developer-mode step for players. It
+  needs a developer account and a privacy policy; the extension already has no
+  network code, which makes review simple.
+- The questline planner still sorts places by cost, deliberately (biggest job
+  first). If players expect game order there too, `FRPG_PLACE_ORDER.rank` is
+  ready.
+
 ## Completed 2026-09-04 — Inventory planning
 
 The root app now has an Inventory tab that compares the saved `frpg_owned`

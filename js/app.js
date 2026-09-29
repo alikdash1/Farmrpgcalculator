@@ -1310,7 +1310,7 @@
     if (best) runLines.push([words.actTitle, fmt(best.actions), best.denom != null ? `${fmt(round2(best.denom))} per ${esc(goal.name)}` : "rate not measured yet"]);
     // The shared workbook quotes the same drops per Arnold Palmer / per Large
     // Net. Shown as-is beside our own figure, never converted into it — the two
-    // use different rate semantics (see KNOWN_MISTAKES.md).
+    // use different rate semantics (see docs/KNOWN_MISTAKES.md).
     const wbRates = window.FRPG_WORKBOOK_RATES;
     if (best && wbRates) {
       const table = plan.type === "fish" ? wbRates.fishing : wbRates.exploring;
@@ -2564,6 +2564,13 @@
     else state.overrides.explore_stamina_measured = Math.min(100, percent) / 100;
     save(); render();
   };
+  // The author's account files are an example until someone brings their own
+  // farm, and must then drop out entirely. js/account-source.js decides that
+  // before this file runs, so a change of owner needs a reload to take effect.
+  function accountSourceChanged() {
+    const source = window.FRPG_ACCOUNT_SOURCE;
+    if (source) source.accountChanged(!!state.account);
+  }
   $("accountFile").onchange = async (event) => {
     const files = [...(event.target.files || [])];
     if (!files.length) return;
@@ -2593,6 +2600,7 @@
       }
       save();
       renderAccount();
+      accountSourceChanged();
     } catch (error) {
       state.account = null;
       save();
@@ -2601,7 +2609,7 @@
     }
     event.target.value = "";
   };
-  $("clearAccount").onclick = () => { state.account = null; save(); renderAccount(); };
+  $("clearAccount").onclick = () => { state.account = null; save(); renderAccount(); accountSourceChanged(); };
   $("applyAccount").onclick = applyAccountSnapshot;
   $("towerStart").onchange = (event) => { state.towerStart = Number(event.target.value) || currentTowerFloor(); state.towerStartChosen = true; save(); renderTower(); };
   $("towerShowDone").onchange = (event) => { state.towerShowDone = event.target.checked; save(); renderTower(); };
@@ -2613,6 +2621,7 @@
     state.account = message.snapshot;
     state.extensionConnectedAt = message.syncedAt || new Date().toISOString();
     save();
+    accountSourceChanged();
     renderAccount();
     renderTower();
     if (fillFarmProduction(false)) { renderSetup(); render(); }

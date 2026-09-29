@@ -3,7 +3,7 @@
 //
 // Two rate sets cover these locations, in different units, because they
 // measure different activities. Which one answers follows from what is being
-// spent - see the note above FINDS, and KNOWN_MISTAKES.md "Arnold Palmer is
+// spent - see the note above FINDS, and docs/KNOWN_MISTAKES.md "Arnold Palmer is
 // not exploring".
 //
 //   * window.FRPG_WORKBOOK_RATES - drops per Arnold Palmer (exploring) and per
@@ -119,7 +119,12 @@
   };
   attachWorkbook(WB && WB.exploring, "explore");
   attachWorkbook(WB && WB.fishing, "fishing");
-  places.sort((a, b) => a.name.localeCompare(b.name));
+  // The game's own order, not the alphabet - see data/place-order.js.
+  const ORDER = window.FRPG_PLACE_ORDER;
+  places.sort((a, b) => {
+    if (!ORDER) return a.name.localeCompare(b.name);
+    return (ORDER.rank(a.mode, a.name) - ORDER.rank(b.mode, b.name)) || a.name.localeCompare(b.name);
+  });
 
   // ---- what a pour is worth here ------------------------------------------
   // Fishing costs bait, not stamina — Worms are type "bait" and say "Use this
@@ -159,7 +164,7 @@
   // So AP and Lemonade read the workbook's drops-per-AP, and Cider, OJ, raw
   // stamina and plain explores all read the logged explores-per-drop, because
   // all four are just exploring paid for in different ways. Pricing an AP as
-  // exploring was a tenfold error once — see KNOWN_MISTAKES.md, "Arnold Palmer
+  // exploring was a tenfold error once — see docs/KNOWN_MISTAKES.md, "Arnold Palmer
   // is not exploring".
   const FINDS = new Set(["ap", "lemonade", "largenet", "fishingnet"]);
   const byRod = () => prefs.kind === "casts";
@@ -645,7 +650,7 @@
       // is counted in finds and never restated as a number of explores.
       const line = missing
           // Falling back to the explore rates here would be the very error
-          // KNOWN_MISTAKES.md warns about, so say what would work instead.
+          // docs/KNOWN_MISTAKES.md warns about, so say what would work instead.
           ? "Nobody has measured " + esc(place.name) + " per " +
             (place.mode === "fishing" ? "net" : "Arnold Palmer") + "." +
             (Object.keys(denomTable(place)).length

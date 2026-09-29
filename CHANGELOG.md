@@ -5,6 +5,38 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-09-29 — Ready to share: other players' farms, a download, a tidy repo
+
+**Other players no longer see the author's farm mixed into theirs.** The
+bundled account files were overlaid, not replaced: a visitor's Tower floor was
+the higher of theirs and 289, masteries they had not captured kept the author's
+counts, the planner hid quests the author had finished, and everyone was
+credited 13,000 Large Chest 02. `js/account-source.js` now decides before the
+app runs: a first visit shows the author's farm with a banner saying it is an
+example; the first capture of the visitor's own account drops it entirely; and
+the author ticks "The example farm is mine" once to keep today's behaviour.
+Verified in the browser for all three.
+
+**The extension is downloadable.** `tools/pack-extension.ps1` builds
+`downloads/farm-rpg-account-sync.zip` (portable forward-slash paths; Windows
+PowerShell's own zipper writes backslashes that break on a Mac). The Account
+page guide and the extension README now start from the download, not from a
+folder on the author's desktop. Only the account sync is packed - the
+exploration logger watches the game's own network traffic and stays local.
+
+**Places are in the game's order** (`data/place-order.js`), Small Cave to
+Sinking Swamp, events after. They were alphabetical.
+
+**The repo reads like a project.** Page scripts moved to `js/`, styles to
+`css/`, notes to `docs/`, `update-data.ps1` to `tools/` (and its root fixed).
+The README has screenshots, a download link and setup steps;
+`tools/screenshot.mjs` refreshes them. Rollback `.bak` files and an old
+extension backup are untracked (still on disk). A sweep of tracked files and
+history found no secrets, no personal infrastructure, no other player's data.
+
+Also `tools/place.mjs`: judges a place by what its drops become, not by what
+they are - Whispering Creek looked empty the old way.
+
 ## 2026-09-21 — A progression skill, an account-wide demand graph, Crunchy Omelette
 
 Planning one questline at a time was always the wrong unit. `tools/demand.mjs`
@@ -590,7 +622,7 @@ hundreds of "pending" images on Calculate are that working, not a bug.
 
 The owner asked for the site to look intentionally designed and ready for
 production, "without random cosmetic changes". The after-dusk design system in
-`DESIGN_PLAN.md` was sound; what was left was execution. The goal was set up
+`docs/DESIGN_PLAN.md` was sound; what was left was execution. The goal was set up
 front as things that can be measured rather than judged:
 
 - nothing floating over the page on a first visit
@@ -1022,7 +1054,7 @@ entirely.
   in underneath that syntax error.
 - Fixed 3 test files that hardcoded an absolute Windows path instead of
   resolving relative to the test file (broke portability; see
-  KNOWN_MISTAKES.md).
+  docs/KNOWN_MISTAKES.md).
 - Updated one stale test assertion (Tower goal floor 300 → 340) to match the
   intended T340 extension.
 - All 38 `calculator/tests/*.mjs` tests pass; `knowledge-pack` self-test
@@ -1032,7 +1064,7 @@ entirely.
   quests") — the project had zero version-control history despite months of
   work across many AI sessions. Set a local (not global) git identity since
   none existed on this machine.
-- Wrote `PROJECT_STATE.md`, `KNOWN_MISTAKES.md`, `NEXT_PHASE.md`, and this
+- Wrote `docs/PROJECT_STATE.md`, `docs/KNOWN_MISTAKES.md`, `docs/NEXT_PHASE.md`, and this
   file, consolidating the ~120-turn Codex chat transcript so future sessions
   don't need to re-read it. (`knowledge-pack/PLAYER_KNOWLEDGE.md`,
   `AI_READ_FIRST.md`, and `docs/FARM_RPG_PLAYER_SKILL_BLUEPRINT.md` already
@@ -1056,7 +1088,7 @@ entirely.
   player-facing trim (no Field lab, no Strategy library, home shortcuts
   pointing at Tower T340 / main quests / mining) that a previous session
   built and never merged back. The root copy — the one actually opened — is
-  still the developer-facing version. See NEXT_PHASE.md; needs a user
+  still the developer-facing version. See docs/NEXT_PHASE.md; needs a user
   decision before merging.
 - Archived the original Codex transcript to `docs/history/` so no future
   session ever re-fetches the ChatGPT share link.
@@ -1724,7 +1756,7 @@ Merged the redesign produced from the brief: a blue-slate ground (#27364B)
 instead of near-black, three colours with separate jobs (Lantern for actions,
 Water for selection, Sage for progress), and three real typefaces bundled as
 local WOFF2 — Bree Serif for titles, Atkinson Hyperlegible for prose, IBM Plex
-Mono for numbers. Its `DESIGN_PLAN.md` is kept alongside. The repeated uppercase
+Mono for numbers. Its `docs/DESIGN_PLAN.md` is kept alongside. The repeated uppercase
 kickers are gone.
 
 Merged rather than copied: the redesign forked before the last few fixes, so

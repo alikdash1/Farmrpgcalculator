@@ -8,8 +8,8 @@ const read = (p) => readFileSync(new URL(p, root), "utf8");
 // Endgame players are spending the same hours on quests and on Tower
 // masteries, and nothing in the app put the two lists next to each other.
 test("the gather model can name items that also finish a Tower mastery", () => {
-  const gather = read("gather-model.js");
-  const app = read("app.js");
+  const gather = read("js/gather-model.js");
+  const app = read("js/app.js");
   assert.match(gather, /function towerOverlap\(rows\)/);
   // Finished masteries are not an opportunity, and currency cannot be mastered.
   assert.match(gather, /if \(need\.complete\) continue;/);
@@ -23,7 +23,7 @@ test("the gather model can name items that also finish a Tower mastery", () => {
   assert.doesNotMatch(read("index.html"), /id="inventoryDouble"/);
 });
 test("the home page says where you stand", () => {
-  const app = read("app.js");
+  const app = read("js/app.js");
   const html = read("index.html");
   assert.match(html, /id="homeStanding"/);
   assert.match(app, /function renderStanding\(\)/);
@@ -38,7 +38,7 @@ test("the home page says where you stand", () => {
 });
 
 test("finished Tower rows stop competing with the ones still ahead", () => {
-  const css = read("tower.css");
+  const css = read("css/tower.css");
   // Green marked both "done" and "in progress", so it distinguished nothing.
   assert.match(css, /\.tower-mm\.complete \.tower-progress i \{ background: var\(--line\); \}/);
   assert.match(css, /\.tower-mm\.working \.tower-progress i \{ background: var\(--green\); \}/);

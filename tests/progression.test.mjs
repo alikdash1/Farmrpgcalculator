@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const Engine = require("../engine.js");
+const Engine = require("../js/engine.js");
 const load = (file) => JSON.parse(readFileSync(new URL(`../data/${file}`, import.meta.url), "utf8"));
 const data = { items: load("items.json"), recipes: load("recipes.json"), sources: load("sources.json"), market: load("market.json") };
 const progression = load("progression.json");

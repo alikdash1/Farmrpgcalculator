@@ -12,7 +12,7 @@ function load() {
   vm.createContext(context);
   vm.runInContext(read("data/main-quests.js"), context);
   vm.runInContext(read("data/quest-sagas.js"), context);
-  vm.runInContext(read("quest-model.js"), context);
+  vm.runInContext(read("js/quest-model.js"), context);
 
   return {
     raw: context.window.FRPG_MAIN_QUESTS,

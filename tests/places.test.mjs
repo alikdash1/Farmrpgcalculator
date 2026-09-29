@@ -16,17 +16,17 @@ test("the Places tab is wired into the page", () => {
   assert.match(html, /<button class="tab" data-tab="places">Places<\/button>/);
   assert.match(html, /<section id="places" class="view">/);
   assert.match(html, /id="placesBody"/);
-  assert.match(html, /<script src="locations-page\.js\?v=\d{8}-\d+"><\/script>/);
-  assert.match(html, /<link rel="stylesheet" href="locations\.css\?v=\d{8}-\d+">/);
+  assert.match(html, /<script src="js\/locations-page\.js\?v=\d{8}-\d+"><\/script>/);
+  assert.match(html, /<link rel="stylesheet" href="css\/locations\.css\?v=\d{8}-\d+">/);
   assert.match(html, /<script src="data\/location-rates\.js\?v=\d{8}-\d+"><\/script>/);
   // Its numbers depend on Setup, the tracked questline and the Tower, so it
   // has to be redrawn when the tab is opened rather than only at load.
-  assert.match(read("app.js"), /if \(id === "places" && window\.FRPG_renderPlaces\) window\.FRPG_renderPlaces\(\);/);
+  assert.match(read("js/app.js"), /if \(id === "places" && window\.FRPG_renderPlaces\) window\.FRPG_renderPlaces\(\);/);
 });
 
 test("Places reads Setup's perks instead of keeping its own copy", () => {
-  const app = read("app.js");
-  const page = read("locations-page.js");
+  const app = read("js/app.js");
+  const page = read("js/locations-page.js");
   assert.match(app, /window\.FRPG_MODS = mods;/);
   assert.match(page, /window\.FRPG_MODS/);
   // Every currency turns into actions through the engine's own numbers.
@@ -37,7 +37,7 @@ test("Places reads Setup's perks instead of keeping its own copy", () => {
 });
 
 test("what you spend decides which rate table can answer", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // Farm RPG's own item text is the authority, and it splits these apart:
   //   Arnold Palmer "Quicker than regular Lemonade"  -> finds, no stamina
   //   Lemonade      "Finds items while exploring"    -> finds, no stamina
@@ -62,7 +62,7 @@ test("what you spend decides which rate table can answer", () => {
 });
 
 test("fishing costs bait, so it is never offered a stamina option", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // Worms are type "bait" and say "Use this to catch fish". Stamina buys
   // nothing when fishing, and Exploring Effectiveness is an exploring
   // mechanic, so neither belongs on a fishing card.
@@ -74,13 +74,13 @@ test("fishing costs bait, so it is never offered a stamina option", () => {
 });
 
 test("the workbook is scaled to this account, in its own unit", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   assert.match(page, /const WORKBOOK_FINDS = 500;/);
   assert.match(page, /function setupScale\(place\)/);
 });
 
 test("a chest is not a drop, and the table is un-expanded before it is shown", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // The workbook lists a chest AND everything inside it, as if the contents
   // were drops of the place. Detected by arithmetic, never by name.
   assert.match(page, /function containersIn\(table\)/);
@@ -88,7 +88,7 @@ test("a chest is not a drop, and the table is un-expanded before it is shown", (
   assert.match(page, /function chestMarkup\(result, quests, tower\)/);
 
   // The proof: pull the detected contents back out and the affected
-  // locations land on exactly the totals KNOWN_MISTAKES.md documents.
+  // locations land on exactly the totals docs/KNOWN_MISTAKES.md documents.
   const data = dataGlobal("FRPG_DATA");
   const nameById = new Map(data.items.items.map((item) => [item.id, item.name]));
   const parts = new Map();
@@ -163,11 +163,11 @@ test("Iron Depot has its own drop denominators, and they are real", () => {
   assert.deepEqual(rarer, ["Mount Banon / Dragon Skull"]);
 
   // And the page only reaches for them when Setup says the player owns it.
-  assert.match(read("locations-page.js"), /if \(mods\(\)\.ironDepot && place\.ironDepot\) return place\.ironDepot;/);
+  assert.match(read("js/locations-page.js"), /if \(mods\(\)\.ironDepot && place\.ironDepot\) return place\.ironDepot;/);
 });
 
 test("effectiveness decides clicks, and the stamina perks are applied", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // Farm RPG prints effectiveness per location, and Protein Bars, Jill and
   // Sprint Shoes all raise it, so it is typed in rather than defaulted.
   assert.match(page, /Exploring Effectiveness/);
@@ -185,11 +185,11 @@ test("effectiveness decides clicks, and the stamina perks are applied", () => {
 });
 
 test("the yield table survives the site-wide table min-width", () => {
-  const css = read("locations.css");
+  const css = read("css/locations.css");
   // style.css used to set a bare `table { min-width: 1050px }` for the
   // Calculate page. It applied to every table on the site and pushed this one
   // three times past its card on a phone. It now belongs to that one table.
-  const style = read("style.css");
+  const style = read("css/style.css");
   assert.doesNotMatch(style, /(^|\})table\{[^}]*min-width/);
   assert.match(style, /#ingTable\{min-width:1050px\}/);
   assert.match(css, /\.places-table \{[\s\S]*?min-width: 0;/);
@@ -200,7 +200,7 @@ test("the yield table survives the site-wide table min-width", () => {
 });
 
 test("Places says what the workbook assumes that your account may not", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // "Every perk on" is a number Setup already knows, so the gap is stated
   // rather than left for the player to discover in-game.
   assert.match(page, /function sourceNote\(\)/);
@@ -211,7 +211,7 @@ test("Places says what the workbook assumes that your account may not", () => {
 });
 
 test("a pour is scored against what you still need", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   assert.match(page, /window\.FRPG_GATHER/);
   assert.match(page, /window\.FRPG_TOWER_NEEDS/);
   assert.match(page, /Only what I still need/);
@@ -249,8 +249,8 @@ test("the stamina facts match what the game actually says", () => {
 });
 
 test("the meals that change a pour are on the page, sharing Setup's store", () => {
-  const page = read("locations-page.js");
-  const app = read("app.js");
+  const page = read("js/locations-page.js");
+  const app = read("js/app.js");
   // Writing to localStorage directly would leave app.js's in-memory
   // state.meals stale until a reload, so both pages go through one bridge.
   assert.match(app, /window\.FRPG_MEALS = \{/);
@@ -266,7 +266,7 @@ test("the meals that change a pour are on the page, sharing Setup's store", () =
 });
 
 test("each meal is applied where the workbook does not already include it", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // Exploring rates sum to 550 = 500 finds x 1.1, so Quandary Chowder is
   // already IN them and comes back out when the meal is off. Fishing sums to
   // exactly 500, which is perks only, so Sea Pincher goes ON TOP. Getting
@@ -283,7 +283,7 @@ test("each meal is applied where the workbook does not already include it", () =
 });
 
 test("what a pour costs in stamina is stated, not left to be worked out", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // A cider's stamina moves with effectiveness, so the total for THIS pour is
   // the number worth showing, next to the field that changes it.
   assert.match(page, /Your ' \+ whole\(spend\(\)\) \+ " " \+ esc\(kindLabel\(\)\)/);
@@ -293,7 +293,7 @@ test("what a pour costs in stamina is stated, not left to be worked out", () => 
 });
 
 test("chest contents keep the flags that followed them out of the table", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // They count toward quests and masteries exactly like a drop does; moving
   // them out of the drop table must not lose that.
   assert.match(page, /function chestMarkup\(result, quests, tower\)/);
@@ -302,7 +302,7 @@ test("chest contents keep the flags that followed them out of the table", () => 
 });
 
 test("the page runs backwards: name what you need and it prices the pour", () => {
-  const page = read("locations-page.js");
+  const page = read("js/locations-page.js");
   // Every figure is linear in the amount, so one probe at a single unit gives
   // the rate. If that stops being true this solver quietly starts lying.
   assert.match(page, /let solved = null;/);

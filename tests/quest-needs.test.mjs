@@ -9,7 +9,7 @@ const read = (file) => readFileSync(new URL(file, root), "utf8");
 const context = {};
 context.window = context;
 vm.createContext(context);
-for (const file of ["data/main-quests.js", "data/quest-sagas.js", "data/personal-quests.js", "quest-model.js"]) {
+for (const file of ["data/main-quests.js", "data/quest-sagas.js", "data/personal-quests.js", "js/quest-model.js"]) {
   vm.runInContext(read(file), context, { filename: file });
 }
 const model = context.FRPG_QUEST_MODEL;
@@ -53,12 +53,12 @@ test("the model answers which quests still want an item", () => {
 });
 
 test("both pages ask the model, and the item panel has somewhere to put it", () => {
-  const app = read("app.js");
+  const app = read("js/app.js");
   // The old line said "6.15k across 11 steps" and never which quest wanted what.
   assert.match(app, /QUEST_MODEL\.needsByItem\(name, state\.account\)/);
   assert.match(app, /Still needed for quests/);
   assert.match(app, /\$\("goalQuests"\)\.innerHTML = questNeedsHtml\(goal\.name\)/);
   assert.match(app, /const questNeeds = questNeedsHtml\(item\.name\)/);
   assert.match(read("index.html"), /id="goalQuests"/);
-  assert.match(read("items-page.js"), /QUESTS\.needsByItem\(name, account\)/);
+  assert.match(read("js/items-page.js"), /QUESTS\.needsByItem\(name, account\)/);
 });

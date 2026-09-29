@@ -9,7 +9,7 @@ const read = (path) => readFileSync(new URL(path, root), "utf8");
 function modelContext() {
   const context = { window: {}, localStorage: { getItem: () => null } };
   vm.createContext(context);
-  for (const file of ["data/main-quests.js", "data/personal-quests.js", "data/quest-sagas.js", "quest-model.js"]) {
+  for (const file of ["data/main-quests.js", "data/personal-quests.js", "data/quest-sagas.js", "js/quest-model.js"]) {
     vm.runInContext(read(file), context);
   }
   return context;
@@ -23,7 +23,7 @@ test("the shared quest model owns saga order and exact title normalization", () 
   const known = new Set(model.quests.map((quest) => model.normalizeTitle(quest.title)));
   assert.equal([...model.completedSet(null)].filter((title) => known.has(title)).length, 1952);
   assert.equal(model.quests.filter((quest) => quest.line === "Problems Start Arising").length, 33);
-  assert.doesNotMatch(read("quests-page.js"), /function applySagas/);
+  assert.doesNotMatch(read("js/quests-page.js"), /function applySagas/);
 });
 
 test("the player's pirate saga case stays readable as a very large remaining list", () => {
@@ -40,7 +40,7 @@ test("the player's pirate saga case stays readable as a very large remaining lis
 test("the shared art helper uses base art first, then verified supplemental art, but never art for Silver", () => {
   const context = { window: {} };
   vm.createContext(context);
-  for (const file of ["data/data.js", "data/location-intel.js", "data/tower-floors.js", "data/item-art.js", "item-art.js"]) vm.runInContext(read(file), context);
+  for (const file of ["data/data.js", "data/location-intel.js", "data/tower-floors.js", "data/item-art.js", "js/item-art.js"]) vm.runInContext(read(file), context);
   const helper = context.window.FRPG_ITEM_ART_HELPER;
   // Pinning an exact entry count only says the file did not change. What has
   // to hold is that nothing the player looks at falls back to a bare initial.
@@ -67,9 +67,9 @@ test("every local script and link in index.html is cache-busted and model script
     if (/^https?:/.test(path)) continue;
     assert.match(path, /\?v=\d{8}-\d+$/, `${path} has a version query`);
   }
-  assert.ok(html.indexOf("quest-model.js") < html.indexOf("quests-page.js"));
-  assert.ok(html.indexOf("quest-model.js") < html.indexOf("inventory-page.js"));
-  assert.ok(html.indexOf("item-art.js?v=20260904-1") < html.indexOf("app.js"));
+  assert.ok(html.indexOf("js/quest-model.js") < html.indexOf("js/quests-page.js"));
+  assert.ok(html.indexOf("js/quest-model.js") < html.indexOf("js/inventory-page.js"));
+  assert.ok(html.indexOf("item-art.js?v=20260904-1") < html.indexOf("js/app.js"));
 });
 
 test("the Inventory tab shows the capture, with hand-typed amounts laid on top", () => {
@@ -89,7 +89,7 @@ test("the Inventory tab shows the capture, with hand-typed amounts laid on top",
     },
   };
   vm.createContext(context);
-  vm.runInContext(read("gather-model.js"), context);
+  vm.runInContext(read("js/gather-model.js"), context);
   const rows = context.window.FRPG_GATHER.inventoryRows();
   const held = Object.fromEntries(rows.map((row) => [row.name, row.quantity]));
   assert.equal(held.Rope, 9242, "the capture still shows");
@@ -99,7 +99,7 @@ test("the Inventory tab shows the capture, with hand-typed amounts laid on top",
 });
 
 test("description rows in an already-saved snapshot are filtered at the point of use", () => {
-  const gather = read("gather-model.js");
+  const gather = read("js/gather-model.js");
   // Fixing this only in the collector left every snapshot already sitting in
   // a browser still full of prose, so the site filters them as well.
   assert.match(gather, /function isDescription\(name\)/);
@@ -109,24 +109,24 @@ test("description rows in an already-saved snapshot are filtered at the point of
   assert.match(gather, /ART\.isKnownItem/);
   assert.match(gather, /function ignoredCount\(\)/);
   // And the count is shown rather than the total silently shrinking.
-  assert.match(read("inventory-page.js"), /rows ignored — Farm RPG description text/);
+  assert.match(read("js/inventory-page.js"), /rows ignored — Farm RPG description text/);
 });
 
 test("a half-cached mix of files degrades instead of blanking the page", () => {
-  const page = read("inventory-page.js");
+  const page = read("js/inventory-page.js");
   // One missing helper threw and took the whole tab with it, which looks
   // exactly like "tracking does not work".
   assert.match(page, /typeof GATHER\.hasStoredChoice === "function"/);
   assert.match(page, /typeof GATHER\.ignoredCount === "function"/);
   // And the page says what it computed, so an empty panel is explainable.
   assert.match(page, /in your inventory/);
-  assert.match(read("app.js"), /const FRPG_BUILD = "/);
-  assert.match(read("app.js"), /build-stamp/);
+  assert.match(read("js/app.js"), /const FRPG_BUILD = "/);
+  assert.match(read("js/app.js"), /build-stamp/);
 });
 
 test("the Inventory tab is only what you hold", () => {
   const html = read("index.html");
-  const source = read("inventory-page.js");
+  const source = read("js/inventory-page.js");
   assert.match(html, /data-tab="inventory"/);
   assert.match(html, /id="inventoryOwned"/);
   // The gather lists live in the floating tracker; having both meant reading
@@ -138,5 +138,5 @@ test("the Inventory tab is only what you hold", () => {
   // It still refreshes from every live path.
   assert.match(source, /window\.addEventListener\("storage", render\)/);
   assert.match(source, /source === "farmrpg-account-sync"/);
-  assert.match(read("quests-page.js"), /data-track-line/);
+  assert.match(read("js/quests-page.js"), /data-track-line/);
 });

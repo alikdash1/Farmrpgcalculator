@@ -7,7 +7,7 @@ window.FRPG_WORKBOOK_RATES = {
  "sourceUrl": "https://docs.google.com/spreadsheets/d/1N4FdpTC3G2vjf7cn0mhcvZF2odP-_W8tSFUjiI1xjUs/edit",
  "exploringUnit": "drops per Arnold Palmer",
  "fishingUnit": "drops per Large Net",
- "note": "Rates exactly as the workbook states them. Its Fishing Rates tab cites buddy.farm as its origin. The workbook assumes every beneficial perk is active. These are NOT the same unit as the explores-per-drop denominators in data/data.js and must not be swapped in without resolving that first - see KNOWN_MISTAKES.md. Exploring rates were replaced from the owner's own workbook on 2026-09-06 where it lists the item; that tab states it assumes Quandary Chowder, Monster Hunter complete and T200. Per-location totals still land near 550 per AP.",
+ "note": "Rates exactly as the workbook states them. Its Fishing Rates tab cites buddy.farm as its origin. The workbook assumes every beneficial perk is active. These are NOT the same unit as the explores-per-drop denominators in data/data.js and must not be swapped in without resolving that first - see docs/KNOWN_MISTAKES.md. Exploring rates were replaced from the owner's own workbook on 2026-09-06 where it lists the item; that tab states it assumes Quandary Chowder, Monster Hunter complete and T200. Per-location totals still land near 550 per AP.",
  "exploring": {
   "Small Cave": {
    "Stone": 212.971,

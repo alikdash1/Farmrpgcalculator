@@ -29,7 +29,7 @@ test("Phase 2 exposes focused top-level work areas", () => {
 });
 
 test("fresh profiles do not assume ownership or active meals", () => {
-  const app = readFileSync(new URL("app.js", root), "utf8");
+  const app = readFileSync(new URL("js/app.js", root), "utf8");
   assert.match(app, /new Set\(read\("frpg_effects_v2", \[\]\)\)/);
   assert.match(app, /MEALS\.map\(\(meal\) => \[meal\.id, false\]\)/);
   assert.match(app, /sawmillWood: false/);
@@ -37,7 +37,7 @@ test("fresh profiles do not assume ownership or active meals", () => {
 });
 
 test("the Back button moves between tabs instead of leaving the site", () => {
-  const source = readFileSync(new URL("app.js", root), "utf8");
+  const source = readFileSync(new URL("js/app.js", root), "utf8");
   // Every tab change used replaceState, so the browser kept no history at all.
   assert.match(source, /history\.pushState\(null, "", target\)/);
   assert.match(source, /addEventListener\("popstate"/);
@@ -47,7 +47,7 @@ test("the Back button moves between tabs instead of leaving the site", () => {
 });
 
 test("a craftable ingredient can be told to be crafted", () => {
-  const source = readFileSync(new URL("app.js", root), "utf8");
+  const source = readFileSync(new URL("js/app.js", root), "utf8");
   // The ingredient dropdown offered Auto/farm/trade/store/covered and never
   // Craft, so an item with a recipe -- Twine, Rope, the dyes -- could be listed
   // as something to go and get with no way to say "I will make it".

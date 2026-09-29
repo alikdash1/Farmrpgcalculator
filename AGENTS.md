@@ -6,7 +6,7 @@ Everything below exists to stop that.
 
 ## Read these, in this order, and stop
 
-1. **`BRIEFING.md`** — the whole project in one file: the game, the player, the
+1. **`docs/BRIEFING.md`** — the whole project in one file: the game, the player, the
    app, every file, the decisions already made, and the mistakes already made.
    If you read nothing else, read that.
 2. `CLAUDE.md` — how the app is built and the rules that break it. Applies to
@@ -66,8 +66,8 @@ and is always better than being wrong.
 Conflicts in this repo are expensive because the files are large. So:
 
 - **New behaviour goes in a new file.** `quests-page.js`, `inventory-page.js`,
-  `mining-page.js` and `sync-guide.js` are all separate for this reason.
-- `index.html`, `app.js` and `system.css` are the shared spine. **Only one
+  `js/mining-page.js` and `js/sync-guide.js` are all separate for this reason.
+- `index.html`, `js/app.js` and `css/system.css` are the shared spine. **Only one
   agent edits those per task.** If you need a change there and it is not your
   task, write down what you need in `handoff/TASKS.md` instead of making it.
 - Claim your task in `handoff/STATE.md` before you start, in one line.

@@ -249,3 +249,20 @@ said exactly that from the start, before being talked out of it twice.
 when the question is which of two columns a list belongs to. Ask the person who
 can see the page.
 
+## A place is worth what its drops become (2026-09-25)
+
+Whispering Creek was called empty for the Tower because no mastery sits on Oak,
+Slimestone or Striped Feather themselves. The owner listed from memory what
+they feed - Barbed Wire, Red Trunk, the Red Dye chain, the Oak furniture - and
+thirteen of its fifteen drops turned out to be owed: 36 million Oak for the
+Canoe, Gazebo and Oak Table GMs alone. Use `node tools/place.mjs "<place>"`,
+which rolls every open goal down to base items first.
+
+## The author's account is an example, never a base layer (2026-09-29)
+
+The bundled `data/personal-*.js` files were blended under every visitor's
+captures - Tower floor as `max(theirs, 289)`, the author's mastery counts for
+anything not captured, the author's chests credited to all. Anything that
+describes one player must be replaced by the visitor's data, not overlaid.
+`js/account-source.js` enforces it; `tests/account-source.test.mjs` guards it.
+

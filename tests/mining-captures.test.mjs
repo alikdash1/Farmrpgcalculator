@@ -35,8 +35,8 @@ test("corrected mine assignments do not regress to the old community map", () =>
 
 
 test("one mine reads in about a screen, not four", () => {
-  const source = fs.readFileSync(new URL("../mining-page.js", import.meta.url), "utf8");
-  const css = fs.readFileSync(new URL("../mining.css", import.meta.url), "utf8");
+  const source = fs.readFileSync(new URL("../js/mining-page.js", import.meta.url), "utf8");
+  const css = fs.readFileSync(new URL("../css/mining.css", import.meta.url), "utf8");
   // Each drop nested its crafts, and those nested theirs, so the same recipe
   // appeared several times and Spring Cave ran to 3.44 screens. Drops are a
   // chip grid at the top; the crafts they reach are one de-duplicated grid.

@@ -13,8 +13,8 @@ param([switch]$BuildOnly)
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$Root = $PSScriptRoot
-if (-not $Root) { $Root = (Get-Location).Path }
+# This script lives in tools\, one level below the project root.
+$Root = if ($PSScriptRoot) { Split-Path -Parent $PSScriptRoot } else { (Get-Location).Path }
 $Raw = Join-Path $Root "raw"
 New-Item -ItemType Directory -Force -Path $Raw | Out-Null
 

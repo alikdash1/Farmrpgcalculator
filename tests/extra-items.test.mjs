@@ -5,7 +5,7 @@ import vm from "node:vm";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const Engine = require("../engine.js");
+const Engine = require("../js/engine.js");
 const root = new URL("../", import.meta.url);
 const read = (file) => readFileSync(new URL(file, root), "utf8");
 
