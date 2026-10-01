@@ -5,6 +5,35 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-01 — Planning tools that cannot see stale numbers, and a rebuilt skill
+
+The owner asked for the farmrpg-progression skill to stop repeating mistakes.
+Most of the repeats traced to the tools, so they were fixed first.
+
+- **Live account everywhere.** `tools/prepare.mjs` runs in every planning tool:
+  it swaps in the newest live capture (`raw/account-captures/live-*.json` or a
+  snapshot saved to Downloads), prints which and how old, reads the inventory
+  cap off the fullest stacks, and takes containers held from the bag. The
+  bundled mastery file was twelve days stale (Pitchfork 595k low; Spoon shown
+  unfinished when it was done). `docs/PULL_LIVE_ACCOUNT.md` covers getting the
+  numbers out of the browser.
+- **83 container "recipes" dropped.** `data/data.js` lists what bags, chests and
+  presents give as their recipe; that invented demand for 3-leaf Clover and
+  Bone. "One of" bags are now credited one line at a time.
+- **Floors below T300** reach every tool through `tools/tower.mjs` (Fancy
+  Guitar T295, Fancy Drum T295, Red Trunk T299 MM were invisible).
+- **`tools/tower-plan.mjs`** answers "what is left to T300": per floor, with
+  Pumpkin Juice, shared trips (507k AP against 770k farmed separately for the
+  current push - Salt Rock rides on the Whispering Creek feather trip), building
+  hours (Steel Wire 59 days, Oak 54, Steel 28), and crafting Steel from Carbon.
+- **`tools/costing.mjs`** is the one craft-versus-go model; crops are field time.
+- **player-facts** gains the schedule (12 active hours), every building rate
+  (Oak is a Sawmill product - a session had told the owner otherwise), quoted
+  AP-per-thousand prices, Pumpkin Juice plan, and masteries the owner calls free.
+- **The skill** was rewritten around the tools: a question-to-tool table, the
+  checks behind every past wrong answer, and how this owner wants answers.
+  Tested old against new on five real questions from the session.
+
 ## 2026-09-29 — Ready to share: other players' farms, a download, a tidy repo
 
 **Other players no longer see the author's farm mixed into theirs.** The
