@@ -22,6 +22,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { towerFloors } from "./tower.mjs";
+import { prepare, inventoryOf, containerYield } from "./prepare.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
@@ -37,6 +38,8 @@ for (const file of [
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, "utf8"), ctx, { filename: file });
 }
 const W = ctx.window;
+// Live account numbers and no container 'recipes' - see tools/prepare.mjs.
+prepare(W);
 
 const argv = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -56,6 +59,7 @@ const wantMastery = !has("--no-mastery");
 // The captures are gitignored account data and may be absent; that is fine.
 function heldStock() {
   if (has("--no-stock")) return { rows: new Map(), from: null };
+  if (W.FRPG_LIVE_ACCOUNT) return { rows: inventoryOf(W), from: path.basename(W.FRPG_LIVE_ACCOUNT.file) };
   const dir = path.join(root, "raw", "account-captures");
   if (!fs.existsSync(dir)) return { rows: new Map(), from: null };
   const newest = fs.readdirSync(dir)
@@ -84,13 +88,11 @@ const stock = heldStock();
   const held = ((W.FRPG_PLAYER_FACTS || {}).containersHeld) || {};
   const byName = ((W.FRPG_CONTAINERS || {}).byName) || {};
   for (const [name, count] of Object.entries(held)) {
-    const payout = (byName[name] || {}).payout;
-    if (!payout || !count) continue;
-    for (const row of payout) {
-      const each = Number(row.min);
-      if (!Number.isFinite(each)) continue;
-      const key = String(row.item).toLowerCase();
-      stock.rows.set(key, (stock.rows.get(key) || 0) + each * count);
+    if (!(byName[name] || {}).payout || !count) continue;
+    // "one of" bags hand over a single line each, not every line at once.
+    for (const [item, qty] of containerYield(W, name, count)) {
+      const key = String(item).toLowerCase();
+      stock.rows.set(key, (stock.rows.get(key) || 0) + qty);
     }
     stock.containers = (stock.containers || []).concat(`${count.toLocaleString()} ${name}`);
   }

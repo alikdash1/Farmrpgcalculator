@@ -15,6 +15,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { towerFloors } from "./tower.mjs";
+import { prepare, inventoryOf, containerYield } from "./prepare.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
@@ -30,6 +31,8 @@ for (const file of [
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, "utf8"), ctx, { filename: file });
 }
 const W = ctx.window;
+// Live account numbers and no container 'recipes' - see tools/prepare.mjs.
+prepare(W);
 const argv = process.argv.slice(2);
 const has = (n) => argv.includes(n);
 const flag = (n, d) => { const i = argv.indexOf(n); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : d; };
@@ -47,7 +50,8 @@ if (has("--list") || !place) {
 const stock = new Map();
 (() => {
   const dir = path.join(root, "raw", "account-captures");
-  if (fs.existsSync(dir)) {
+  if (W.FRPG_LIVE_ACCOUNT) for (const [k, q] of inventoryOf(W)) stock.set(k, q);
+  else if (fs.existsSync(dir)) {
     const newest = fs.readdirSync(dir).filter((n) => /inventory.*\.json$/i.test(n)).sort().pop();
     if (newest) {
       try {
@@ -62,10 +66,10 @@ const stock = new Map();
   const held = ((W.FRPG_PLAYER_FACTS || {}).containersHeld) || {};
   const boxes = ((W.FRPG_CONTAINERS || {}).byName) || {};
   for (const [name, count] of Object.entries(held)) {
-    for (const row of (boxes[name] || {}).payout || []) {
-      if (!Number.isFinite(Number(row.min))) continue;
-      const key = String(row.item).toLowerCase();
-      stock.set(key, (stock.get(key) || 0) + Number(row.min) * count);
+    if (!(boxes[name] || {}).payout) continue;
+    for (const [item, qty] of containerYield(W, name, count)) {
+      const key = String(item).toLowerCase();
+      stock.set(key, (stock.get(key) || 0) + qty);
     }
   }
 })();

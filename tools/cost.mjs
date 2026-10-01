@@ -16,6 +16,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { towerFloors } from "./tower.mjs";
+import { prepare } from "./prepare.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
@@ -26,6 +27,8 @@ for (const file of ["data/data.js", "data/extra-items.js", "data/personal-tower.
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, "utf8"), ctx, { filename: file });
 }
 const W = ctx.window;
+// Live account numbers and no container 'recipes' - see tools/prepare.mjs.
+prepare(W);
 const D = W.FRPG_DATA;
 const items = D.items.items;
 const byName = new Map(items.map((i) => [i.name.toLowerCase(), i]));

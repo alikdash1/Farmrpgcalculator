@@ -101,4 +101,43 @@ window.FRPG_PLAYER_FACTS = {
 
   // Stamina perks are all owned.
   perks: { staminaCapAllOwned: true },
+
+  // How the owner actually plays - the throughput limits that turn a rate
+  // into days. Told to Claude 2026-09-24 to 2026-10-01. A plan that assumes
+  // twenty-four hours a day of anything is a wrong plan.
+  schedule: {
+    activeHoursPerDay: 12,          // "probably can do 12 hours a day"
+    sleepsThroughCap: true,         // buildings fill to the cap overnight, the rest is lost
+    apPerDay: null,                 // UNKNOWN - ask before saying a goal fits in a month
+  },
+
+  // Farm buildings as the owner reported them. Steelworks is the wall on
+  // anything made of Steel or Steel Wire.
+  buildings: {
+    steelworks: { steelPerHour: 8000, steelWirePerHour: 2000, upgradeTo: { steelWirePerHour: 2333, silver: 5e12 } },
+    sawmill: { hickoryAlmostAlwaysOn: true },
+  },
+
+  // Iron comes off the farm in amounts the owner calls free - do not cost it.
+  ironIsFree: true,
+
+  // Prices the owner quoted, in AP per THOUSAND items ("10apk" = 10 AP buys
+  // 1,000). Market prices drift; these are the owner's numbers and dates.
+  apPerThousand: {
+    "Carbon Sphere": { buy: 10, at: "2026-09-24" },
+    "Spider": { buy: 50, at: "2026-09-23" },
+    "Caterpillar": { buy: 60, at: "2026-09-23" },
+    "Scrap Metal": { buy: 3, high: 5, at: "2026-09-22" },
+    "Bone": { sell: 7, at: "2026-10-01" },
+    "3-leaf Clover": { sell: 7, at: "2026-10-01" },
+  },
+
+  // Masteries the owner says will finish anyway and should not be planned.
+  treatAsFree: ["Hammer", "Axe", "Shovel"],
+
+  // Pumpkin Juice: one makes a Mega Mastery finish at 909,091. Whether a
+  // second stacks (finishing at 833,334) is NOT confirmed - say so when used.
+  pumpkinJuice: { perJuice: 0.1, stackingConfirmed: false },
+  // Owner's choice for the T300 push, 2026-10-01.
+  pumpkinJuicePlan: { "Salt": 2, "Water Lily": 2, "Red Trunk": 1 },
 };
