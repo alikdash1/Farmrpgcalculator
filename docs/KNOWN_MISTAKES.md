@@ -286,3 +286,13 @@ not what it costs. The owner caught it by saying they get the bags while
 fishing Water Lily. The same shape as the Large Chest 02 mistake - but in the
 data itself, so every tool inherited it.
 
+## 2026-10-02 - a stamina budget that ignored the fruit
+
+T300 was reported ~240k AP short because the plan charged Whispering Creek's
+full 0.67 stamina per explore and never credited what the trip drops: Apples
+(15 stamina), Oranges (OJ, 100 stamina, 3 oranges each) and Lemons (AP, 30
+each). Those refund ~41% of the stamina and return AP; with them, plus the
+orchard and the 800k/day Farmhouse, the whole Salt + Red Trunk feather trip fit
+the owner's budget. The owner caught it: "Whispering Creek apple orange and
+lemon take out some of the cost". Always credit co-drops that are themselves
+stamina or AP.
