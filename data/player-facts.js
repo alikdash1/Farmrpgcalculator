@@ -148,6 +148,14 @@ window.FRPG_PLAYER_FACTS = {
     "3-leaf Clover": { sell: 7, at: "2026-10-01" },
   },
 
+  // Gold prices the owner quoted, in gold per THOUSAND items.
+  goldPerThousand: {
+    "Large Net": { buy: 10, high: 11, at: "2026-10-01" },
+    "Arnold Palmer": { sell: 42.5, high: 45, at: "2026-10-01" },
+  },
+  // Bone: sell the Grab Bag haul, buy back what quests need later (2026-10-01).
+  boneBuyBackLater: true,
+
   // Masteries the owner says will finish anyway and should not be planned.
   treatAsFree: ["Hammer", "Axe", "Shovel"],
 
