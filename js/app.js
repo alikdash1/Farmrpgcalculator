@@ -2360,7 +2360,11 @@
     if (!fromPage.length) return "no mastery capture has arrived yet";
     const readAt = fromPage.reduce((latest, row) => Math.max(latest, Date.parse(row.capturedAt || "") || 0), 0);
     const items = `${fmt(fromPage.length)} ${fromPage.length === 1 ? "item" : "items"}`;
-    if (readAt > Date.parse(PERSONAL.capturedAt || "")) return `from your mastery capture (${items})`;
+    // No built-in export to compare against (a visitor's own farm): the
+    // capture is simply the source. Comparing against a missing date is NaN,
+    // which used to fall through and call a fresh capture "older".
+    const fileAt = Date.parse(PERSONAL.capturedAt || "");
+    if (!Number.isFinite(fileAt) || readAt > fileAt) return `from your mastery capture (${items})`;
     const when = new Date(readAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
     return `your mastery capture (${when}, ${items}) is older than the mastery export`;
   }
