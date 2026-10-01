@@ -156,7 +156,18 @@ window.FRPG_PLAYER_FACTS = {
     // selling for 10". Treat 10 as a floor, not a number you can fill at.
     "Large Net": { buy: 10, high: 11, scarce: true, at: "2026-10-02" },
     "Arnold Palmer": { sell: 42.5, high: 45, at: "2026-10-01" },
+    "Apple Cider": { buy: 12.5, at: "2026-10-02" },
+    "Orange Juice": { sell: 6, at: "2026-10-02" },
   },
+  // How the owner explores, 2026-10-02: stamina plus Apple Cider at 104
+  // effectiveness at Whispering Creek, buying Cider when low. Oranges are
+  // crafted to OJ and Lemons to Arnold Palmer, and both are sold.
+  exploring: { effectiveness: 104, usesCider: true, buysCiderWhenLow: true,
+               craftsAndSells: ["Orange Juice", "Arnold Palmer"] },
+  // The owner's own read, 2026-10-02: Wrench is a couple of days (1 Steel per
+  // craft), Pitchfork is 600k+ in. The hard ones are Red Trunk, Salt, Fancy
+  // Drum and Fancy Guitar.
+  hardMasteries: ["Red Trunk", "Salt", "Fancy Drum", "Fancy Guitar"],
   // Bone: sell the Grab Bag haul, buy back what quests need later (2026-10-01).
   boneBuyBackLater: true,
 
@@ -175,5 +186,7 @@ window.FRPG_PLAYER_FACTS = {
   // second stacks (finishing at 833,334) is NOT confirmed - say so when used.
   pumpkinJuice: { perJuice: 0.1, stackingConfirmed: false },
   // Owner's choice for the T300 push, 2026-10-01.
+  // 2026-10-02: Salt 2, Water Lily "maybe 2", Red Trunk "1 or 2".
   pumpkinJuicePlan: { "Salt": 2, "Water Lily": 2, "Red Trunk": 1 },
+  pumpkinJuiceMaybe: { "Red Trunk": 2 },
 };
