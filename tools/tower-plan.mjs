@@ -40,6 +40,10 @@ const facts = W.FRPG_PLAYER_FACTS || {};
 const coster = makeCoster(W);
 
 const argv = process.argv.slice(2);
+if (argv.includes("--help") || argv.includes("-h")) {
+  console.log("node tools/tower-plan.mjs --to <floor> [--pj plan | --pj \"Salt=2,Water Lily=1\"] [--include-free] [--json]");
+  process.exit(0);
+}
 const flag = (n, d) => { const i = argv.indexOf(n); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[i + 1] : d; };
 const to = Number(flag("--to", facts.goalFloor || 300));
 const asJson = argv.includes("--json");
@@ -126,24 +130,33 @@ for (const m of active) {
 // rest of its table rides along. Start every item at its best rate, then move
 // items to whichever place carries them more cheaply until nothing improves.
 const E = coster.E;
-const want = [...demand].filter(([n]) => !coster.farm.has(n.toLowerCase()) && (coster.spot.get(n.toLowerCase()) || {}).kind === "explore");
-const placesFor = new Map(want.map(([n]) => [n, Object.keys(E).filter((p) => E[p][n] > 0)]));
-const assign = new Map(want.map(([n]) => [n, coster.spot.get(n.toLowerCase()).place]));
-const tripOf = (p, a) => Math.max(0, ...want.filter(([n]) => a.get(n) === p).map(([n, q]) => q / E[p][n]));
-const total = (a) => Object.keys(E).reduce((s, p) => s + tripOf(p, a), 0);
-let best = total(assign);
-for (let round = 0; round < 30; round += 1) {
-  let moved = false;
-  for (const [n] of want) {
-    for (const p of placesFor.get(n)) {
-      if (p === assign.get(n)) continue;
-      const trial = new Map(assign); trial.set(n, p);
-      const t = total(trial);
-      if (t < best - 1) { assign.clear(); for (const [k, v] of trial) assign.set(k, v); best = t; moved = true; }
+function shareTrips(dem) {
+  const want = [...dem].filter(([n]) => !coster.farm.has(n.toLowerCase()) && (coster.spot.get(n.toLowerCase()) || {}).kind === "explore");
+  const placesFor = new Map(want.map(([n]) => [n, Object.keys(E).filter((p) => E[p][n] > 0)]));
+  const assign = new Map(want.map(([n]) => [n, coster.spot.get(n.toLowerCase()).place]));
+  const tripOf = (p, a) => Math.max(0, ...want.filter(([n]) => a.get(n) === p).map(([n, q]) => q / E[p][n]));
+  const total = (a) => Object.keys(E).reduce((sum, p) => sum + tripOf(p, a), 0);
+  let best = total(assign);
+  for (let round = 0; round < 30; round += 1) {
+    let moved = false;
+    for (const [n] of want) {
+      for (const p of placesFor.get(n)) {
+        if (p === assign.get(n)) continue;
+        const trial = new Map(assign); trial.set(n, p);
+        const t = total(trial);
+        if (t < best - 1) { assign.clear(); for (const [k, v] of trial) assign.set(k, v); best = t; moved = true; }
+      }
     }
+    if (!moved) break;
   }
-  if (!moved) break;
+  return { want, assign, tripOf, best };
 }
+function demandOf(list) {
+  const dem = new Map();
+  for (const m of list) for (const [n, q] of coster.roll(m.name, m.left).base) dem.set(n, (dem.get(n) || 0) + q);
+  return dem;
+}
+const { want, assign, tripOf } = shareTrips(demand);
 const trips = Object.keys(E).map((p) => {
   const items = want.filter(([n]) => assign.get(n) === p);
   if (!items.length) return null;
@@ -154,6 +167,17 @@ const trips = Object.keys(E).map((p) => {
   return { place: p, ap, driver: driver.n, riders, goals: [...goals] };
 }).filter(Boolean).sort((a, b) => b.ap - a.ap);
 const fishNeeds = [...demand].filter(([n]) => (coster.spot.get(n.toLowerCase()) || {}).kind === "fish");
+
+const rateFacts = facts.perHour || {};
+const sawmillHickory = ((facts.buildings || {}).sawmill || {}).hickoryAlmostAlwaysOn;
+function buildingHours(dem) {
+  const out = new Map();
+  for (const [item, r] of Object.entries(rateFacts)) {
+    const qty = dem.get(item) || 0;
+    if (qty) out.set(item, qty / (r.rate * (r.hickory && sawmillHickory ? 2.2 : 1)));
+  }
+  return out;
+}
 
 // ---- Steel and Steel Wire --------------------------------------------------
 const steel = active.reduce((s, m) => s + m.steel, 0);
@@ -170,11 +194,30 @@ const craftWire = (qty) => {
 };
 
 // ---- Pumpkin Juice value ---------------------------------------------------
+// Rerun the whole shared plan with one more juice on each mastery. Judging a
+// juice by its own mastery's AP overstates it whenever the item rides on a
+// trip that something else already sets - a third juice on Salt "saved" 27k
+// that way and really saved about 6k, because the feather trip is as long.
+// Building time is counted too: a juice on Fancy Guitar saves little AP but
+// over a week of Steelworks.
+const baseShared = shareTrips(demand).best;
+const baseHours = buildingHours(demand);
 const pjValue = active.filter((m) => m.tier === "MM" && m.left > 0).map((m) => {
-  const perItem = (m.ap || 0) / m.left;
   const nextLeft = Math.max(0, finishAt(m.goal, m.juice + 1) - m.cur);
-  return { name: m.name, juice: m.juice, saves: (m.left - nextLeft) * perItem };
-}).sort((a, b) => b.saves - a.saves);
+  const trial = active.map((x) => (x === m ? { ...x, left: nextLeft } : x));
+  const dem = demandOf(trial);
+  const hours = buildingHours(dem);
+  let hoursSaved = 0; let hoursItem = null;
+  for (const [item, h] of baseHours) {
+    const d = h - (hours.get(item) || 0);
+    if (d > hoursSaved) { hoursSaved = d; hoursItem = item; }
+  }
+  return { name: m.name, juice: m.juice, saves: baseShared - shareTrips(dem).best, hoursSaved, hoursItem };
+}).sort((a, b) => (b.saves + b.hoursSaved * 100) - (a.saves + a.hoursSaved * 100));
+// The same plan with no juice at all, for "what is the juice worth".
+const noJuice = Object.keys(pj).length
+  ? shareTrips(demandOf(active.map((m) => ({ ...m, left: Math.max(0, m.goal - m.cur) })))).best
+  : null;
 
 if (asJson) {
   console.log(JSON.stringify({ account: prep.source, from, to, pj, owed: active, passThrough, skipped, trips, steel, wire }, null, 1));
@@ -201,6 +244,7 @@ const alone = active.reduce((s, m) => s + (m.ap || 0), 0);
 const shared = trips.reduce((s, t) => s + t.ap, 0);
 console.log(`\nAP if each mastery were farmed on its own: ${fmt(alone)}`);
 console.log(`AP with shared trips:                      ${fmt(shared)}`);
+if (noJuice != null) console.log(`  (without the Pumpkin Juice it would be ${fmt(noJuice)} - the juice saves ${fmt(noJuice - shared)})`);
 for (const t of trips.slice(0, 8)) {
   console.log(`  ${t.place.padEnd(18)} ${fmt(t.ap).padStart(9)} AP   set by ${t.driver}${t.riders.length ? `; brings ${t.riders.slice(0, 5).join(", ")}${t.riders.length > 5 ? "..." : ""}` : ""}`);
 }
@@ -231,7 +275,11 @@ if (carbonAPk) console.log(`  Craft it all instead: ${fmt(cs.carbon + cw.carbon)
 if (pjValue.length) {
   const pjHeld = ((W.FRPG_LIVE_ACCOUNT || {}).inventory || {})["Pumpkin Juice"];
   console.log(`\nOne more Pumpkin Juice would save${pjHeld != null ? ` (you hold ${fmt(pjHeld)})` : ""}:`);
-  for (const p of pjValue.slice(0, 5)) console.log(`  ${p.name.padEnd(20)} ${fmt(p.saves).padStart(8)} AP${p.juice ? `  (already ${p.juice})` : ""}`);
+  for (const p of pjValue.slice(0, 6)) {
+    const days = p.hoursSaved >= 12 ? ` and ${(p.hoursSaved / 24).toFixed(1)} days of ${p.hoursItem}` : "";
+    console.log(`  ${p.name.padEnd(20)} ${fmt(p.saves).padStart(8)} AP${days}${p.juice ? `  (already ${p.juice})` : ""}`);
+  }
+  console.log("  (measured on the whole shared plan, not the mastery alone)");
 }
 const ap = (facts.schedule || {}).apPerDay;
 console.log(ap ? `\nAt ${fmt(ap)} AP a day the shared plan is ${fmt(shared / ap)} days.` : "\nAP per day is unknown - ask before saying this fits in a month.");
