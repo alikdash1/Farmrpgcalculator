@@ -266,3 +266,14 @@ anything not captured, the author's chests credited to all. Anything that
 describes one player must be replaced by the visitor's data, not overlaid.
 `js/account-source.js` enforces it; `tests/account-source.test.mjs` guards it.
 
+
+## The tools could not see the floors the owner stands on (2026-10-01)
+
+`data/tower-floors.js` covers T300-T350 only. T289-T299 live in the mastery
+records in `data/data.js` (`FRPG_PROGRESSION.items[name].mastery.towerRequirement`),
+which the Tower page merges in and every tool ignored. So Fancy Guitar was
+reported as "no floor needs it" (it is T295 MM), Fancy Drum as "zero demand"
+(T295 MM, 879,086 left), and Red Trunk was costed as a GM when it is a T299
+MM. Every tool now reads floors through `tools/tower.mjs`, which merges both
+sources, treats a towerRequirement of 0 as "no floor", and drops floors below
+the one the player is on - exactly as the Tower page does.

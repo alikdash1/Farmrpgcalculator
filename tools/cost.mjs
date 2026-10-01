@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
+import { towerFloors } from "./tower.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
@@ -112,7 +113,7 @@ function need(name, qty, depth) {
 
 const held = (W.FRPG_PERSONAL_TOWER || {}).masteries || {};
 const goalFloors = new Map();
-for (const row of W.FRPG_TOWER_FLOORS.floors || []) {
+for (const row of towerFloors(W)) {
   for (const [tier, list, goal] of [["GM", row.gms || [], 100000], ["MM", row.mms || [], 1000000]]) {
     for (const e of list) if (!goalFloors.has(e.name)) goalFloors.set(e.name, { tier, goal, floor: row.floor });
   }

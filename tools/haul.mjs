@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
+import { towerFloors } from "./tower.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
@@ -120,7 +121,7 @@ for (const step of QUESTS) {
 // ---- outstanding masteries up to the goal floor -------------------------
 const heldMast = ((W.FRPG_PERSONAL_TOWER || {}).masteries) || {};
 const masteryLeft = new Map();
-for (const row of ((W.FRPG_TOWER_FLOORS || {}).floors) || []) {
+for (const row of towerFloors(W)) {
   if (row.floor > topFloor) continue;
   for (const [tier, list] of [["gm", row.gms || []], ["mm", row.mms || []]]) {
     const goal = tier === "gm" ? 100000 : 1000000;
