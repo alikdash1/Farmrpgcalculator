@@ -154,6 +154,10 @@ window.FRPG_PLAYER_FACTS = {
   // Daily income the owner reported, 2026-10-02. Orchard (Lemon, Orange,
   // Apple per day) is NOT captured anywhere yet - ask, or read it live.
   daily: { staminaFromFarmhouse: 800000, antlers: "inventory cap twice a day" },
+  // Orchard, read off the game by the owner 2026-10-02 (production with perks,
+  // per day): ~7,080 trees of each kind.
+  orchard: { applesPerDay: 9200, orangesPerDay: 9197, lemonsPerDay: 9210, at: "2026-10-02",
+             note: "Apples are eaten (15 stamina each); Oranges become OJ, Lemons become AP" },
 
   // Gold prices the owner quoted, in gold per THOUSAND items.
   goldPerThousand: {
