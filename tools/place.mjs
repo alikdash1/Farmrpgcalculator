@@ -180,6 +180,12 @@ for (const g of goals) {
   }
 }
 
+// What one AP finds at the workbook places: the median of each table's total.
+const ITEMS_PER_AP = (() => {
+  const totals = Object.values(E).map((t) => Object.values(t).reduce((a, b) => a + b, 0)).sort((a, b) => a - b);
+  return totals[Math.floor(totals.length / 2)] || 500;
+})();
+
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
 if (!places.length) {
   console.log('Give a place, e.g.  node tools/place.mjs "Whispering Creek"');
@@ -187,18 +193,37 @@ if (!places.length) {
 }
 
 for (const want of places) {
-  const key = Object.keys(E).find((p) => p.toLowerCase() === want.toLowerCase())
+  let key = Object.keys(E).find((p) => p.toLowerCase() === want.toLowerCase())
     || Object.keys(E).find((p) => p.toLowerCase().includes(want.toLowerCase()));
-  if (!key) { console.log('No place matching "' + want + '".'); continue; }
-  const rows = Object.entries(E[key]).map(([item, rate]) => {
+  let table = key && E[key];
+  let converted = false;
+  if (!key) {
+    // Event places (Haunted House, Santa's Workshop) are not in the workbook,
+    // only in the logged drop data as EXPLORES per drop. An Arnold Palmer
+    // finds a fixed number of ITEMS, not explores - so convert through each
+    // item's share of what the place finds, scaled to what an AP finds at the
+    // workbook places. Never divide AP by an explore count directly.
+    const loc = (D.sources.locations || []).find((l) => l.type === "explore" && l.name.toLowerCase().includes(want.toLowerCase()));
+    if (!loc) { console.log('No place matching "' + want + '".'); continue; }
+    const per = Object.entries(loc.drops || {}).filter(([, d]) => d.denom > 0);
+    const found = per.reduce((sum, [, d]) => sum + 1 / d.denom, 0);
+    key = loc.name;
+    table = Object.fromEntries(per.map(([item, d]) => [item, ITEMS_PER_AP * (1 / d.denom) / found]));
+    converted = true;
+  }
+  const rows = Object.entries(table).map(([item, rate]) => {
     const need = demand.get(item) || 0;
     const best = spot.get(item.toLowerCase());
-    return { item, rate, need, ap: need / rate, hereIsBest: best && best.place === key, best };
+    // An event place's converted rate can beat every workbook place, so compare
+    // rates, not just names. No workbook place at all means it drops only here.
+    const hereIsBest = !best || best.place === key || rate >= best.rate;
+    return { item, rate, need, ap: need / rate, hereIsBest, onlyHere: !best, best };
   }).sort((a, b) => b.ap - a.ap);
 
   const wanted = rows.filter((r) => r.need > 0);
   const trip = wanted.length ? wanted[0].ap : 0;
   console.log("\n=== " + key);
+  if (converted) console.log("Not in the workbook. Rates converted from the logged drop data at " + Math.round(ITEMS_PER_AP) + " items per AP - treat rare drops as rough.");
   console.log(wanted.length + " of " + rows.length + " drops are things you still owe.");
   console.log("One trip that clears the whole table: " + fmt(trip) + " AP" + (wanted.length ? "  (set by " + wanted[0].item + ")" : ""));
   if (wanted.length > 1 && wanted[0].ap > wanted[1].ap * 3) {
@@ -207,10 +232,10 @@ for (const want of places) {
   console.log("");
   console.log("item".padEnd(26) + "per AP".padStart(8) + "you need".padStart(14) + "alone".padStart(13) + "   best place");
   for (const r of rows) {
-    const here = r.hereIsBest ? "here" : (r.best ? r.best.place + " is better (" + r.best.rate.toFixed(1) + "/AP)" : "-");
+    const here = r.onlyHere ? "only here" : r.hereIsBest ? "here" : r.best.place + " is better (" + r.best.rate.toFixed(1) + "/AP)";
     const needTxt = r.need > 0 ? fmt(r.need) : "-";
     const apTxt = r.need > 0 ? fmt(r.ap) + " AP" : "-";
-    console.log("  " + r.item.padEnd(26) + r.rate.toFixed(2).padStart(8) + needTxt.padStart(14) + apTxt.padStart(13) + "   " + here);
+    console.log("  " + r.item.padEnd(26) + (r.rate < 1 ? r.rate.toFixed(3) : r.rate.toFixed(2)).padStart(8) + needTxt.padStart(14) + apTxt.padStart(13) + "   " + here);
   }
   for (const r of wanted.slice(0, 5)) {
     const d = [...drivers.get(r.item).entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
