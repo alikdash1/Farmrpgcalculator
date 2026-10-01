@@ -108,3 +108,23 @@ test("tower-plan merges trips and never sums a place's items", () => {
   assert.ok(shared < alone, `shared trips (${Math.round(shared)}) beat farming each mastery alone (${Math.round(alone)})`);
   for (const t of plan.trips) assert.ok(Number.isFinite(t.ap) && t.ap >= 0);
 });
+
+test("the app drops container 'recipes' before engine.js reads them", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const at = (f) => html.indexOf(`src="${f}?v=`);
+  for (const f of ["data/data.js", "data/extra-items.js", "data/item-info.js", "data/wishing-well.js"]) {
+    assert.ok(at(f) >= 0 && at(f) < at("js/containers.js"), `${f} loads before js/containers.js`);
+  }
+  assert.ok(at("js/containers.js") < at("js/engine.js"), "js/containers.js loads before js/engine.js");
+  // The page's own load order, as plain scripts with no prepare() step.
+  const W = load(["data/data.js", "data/extra-items.js", "data/item-info.js", "data/wishing-well.js", "js/containers.js"]);
+  const D = W.FRPG_DATA;
+  const byId = new Map(D.items.items.map((i) => [i.id, i]));
+  const made = new Set(D.recipes.craft.map((r) => byId.get(r.itemId).name));
+  assert.ok(!made.has("Grab Bag 01") && !made.has("Large Chest 02"), "bags and chests are not crafts in the app");
+  assert.ok(made.has("Wooden Box") && made.has("Red Berry Pie"), "real recipes survive");
+  // The tools and the app share one rule and one list.
+  const T = load();
+  const { dropped } = prepare(T, { quiet: true });
+  assert.deepEqual([...dropped], [...W.FRPG_DROPPED_CONTAINERS]);
+});

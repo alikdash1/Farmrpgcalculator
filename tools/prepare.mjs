@@ -41,35 +41,21 @@ function ensure(W, file, global) {
 
 // ---- 1. containers ---------------------------------------------------------
 
-const CONTAINER_NAME = /(^(Box|Bag|Bags?) of )|(\b(Bag|Basket|Present|Chest|Crate|Bundle|Cornucopia|Envelope|Tote|Stocking|Box|Snack Pack)( \d+)?$)/;
+// The rule itself lives in js/containers.js, which the browser app loads too,
+// so the tools and the app can never disagree about what is a container.
+function rule(W) {
+  ensure(W, "data/wishing-well.js", "FRPG_CONTAINERS");
+  ensure(W, "data/item-info.js", "FRPG_ITEM_INFO");
+  ensure(W, "js/containers.js", "FRPG_CONTAINER_RULE");
+  return W.FRPG_CONTAINER_RULE;
+}
 
 export function isContainer(W, item) {
-  if (!item) return false;
-  const boxes = ((W.FRPG_CONTAINERS || {}).byName) || {};
-  if (boxes[item.name]) return true;
-  const info = ((W.FRPG_ITEM_INFO || {}).items || {})[item.name] || {};
-  // The Locksmith hint lives in either field - "desc" is the game text, "note"
-  // is buddy.farm's, and Green Backpack only says it in the note.
-  const desc = `${info.desc || ""} ${info.note || ""}`;
-  if (/locksmith|open to receive/i.test(desc)) return true;
-  // Never made at a workbench, and either named like a container or described
-  // by what is inside it ("Includes bait, fishing nets", "Contains 5 Playing
-  // Cards"). Not "full of": Red Berry Pie is full of red berries. Wooden Box and Sturdy Box have a craft level, so they stay real.
-  if (item.craftLevel != null) return false;
-  return CONTAINER_NAME.test(item.name) || /\b(includes|contains)\b/i.test(desc);
+  return rule(W).isContainer(W, item);
 }
 
 function dropContainerRecipes(W) {
-  const D = W.FRPG_DATA;
-  if (!D || !D.recipes || !Array.isArray(D.recipes.craft)) return [];
-  const byId = new Map(D.items.items.map((i) => [i.id, i]));
-  const dropped = new Set();
-  D.recipes.craft = D.recipes.craft.filter((r) => {
-    const out = byId.get(r.itemId);
-    if (isContainer(W, out)) { dropped.add(out.name); return false; }
-    return true;
-  });
-  return [...dropped].sort();
+  return rule(W).dropContainerRecipes(W);
 }
 
 // What N of a container actually hand over. "one of" bags give a single
@@ -183,8 +169,6 @@ const days = (iso) => (Date.now() - (Date.parse(iso || "") || 0)) / 86400000;
 const when = (iso) => (iso ? String(iso).replace("T", " ").slice(0, 16) : "unknown");
 
 export function prepare(W, { quiet = false } = {}) {
-  ensure(W, "data/wishing-well.js", "FRPG_CONTAINERS");
-  ensure(W, "data/item-info.js", "FRPG_ITEM_INFO");
   const dropped = dropContainerRecipes(W);
 
   const tower = W.FRPG_PERSONAL_TOWER || (W.FRPG_PERSONAL_TOWER = { masteries: {} });

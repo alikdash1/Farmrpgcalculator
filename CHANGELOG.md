@@ -5,6 +5,15 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-01 (later) — The app stops treating bags as recipes
+
+- **`js/containers.js`** holds the one container rule and drops those 83
+  "recipes" from `FRPG_DATA.recipes.craft` at load, before `js/engine.js`.
+  Every page (Calculate, Items, Places, Mining, quest and line plans) inherits
+  it; Grab Bag 01 no longer shows as made from Bone. `tools/prepare.mjs` now
+  runs the same file, so the tools and the app cannot drift. Test added in
+  `tests/planning-tools.test.mjs`; build stamp 2026-10-01.1.
+
 ## 2026-10-01 — Planning tools that cannot see stale numbers, and a rebuilt skill
 
 The owner asked for the farmrpg-progression skill to stop repeating mistakes.

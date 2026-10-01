@@ -20,11 +20,9 @@ is from 2026-09-19 and stale. Counts below are the 2026-10-01 capture.
 - Water Lily by Large Net: 225,982 LN with Sea Pincher + Mushroom Stew, which
   also drops ~454,900 Grab Bag 01 (Bone, 3-leaf Clover, Aquamarine, Gold
   Cucumber, Mushroom, Potato, Catfish - one of, 10-50; odds unknown).
-- **Data bug to fix first:** `data/data.js` lists container CONTENTS as craft
-  RECIPES (Grab Bag 01 = 50 Bone + 50 3-leaf Clover; also Christmas Present 04,
-  Spring Basket, Treat Bags...). This is the chest mistake again, in the data.
-  It invents demand (550,800 "owed" 3-leaf Clover) and must be excluded in every
-  tool and the app.
+- **Fixed 2026-10-01:** container contents listed as craft recipes (Grab Bag 01
+  = 50 Bone + 50 3-leaf Clover) are dropped in the tools and the app alike, by
+  `js/containers.js`. If a new bag still shows a recipe, extend that rule.
 
 ## Open after 2026-09-29 — sharing it
 
