@@ -140,7 +140,9 @@ window.FRPG_PLAYER_FACTS = {
   // Prices the owner quoted, in AP per THOUSAND items ("10apk" = 10 AP buys
   // 1,000). Market prices drift; these are the owner's numbers and dates.
   apPerThousand: {
-    "Carbon Sphere": { buy: 10, at: "2026-09-24" },
+    // Rising and getting hard to source: 10 on 2026-09-24, 12 on 2026-10-02,
+    // and the owner reports sellers are scarce at that price.
+    "Carbon Sphere": { buy: 12, was: 10, scarce: true, at: "2026-10-02" },
     "Spider": { buy: 50, at: "2026-09-23" },
     "Caterpillar": { buy: 60, at: "2026-09-23" },
     "Scrap Metal": { buy: 3, high: 5, at: "2026-09-22" },
@@ -150,11 +152,21 @@ window.FRPG_PLAYER_FACTS = {
 
   // Gold prices the owner quoted, in gold per THOUSAND items.
   goldPerThousand: {
-    "Large Net": { buy: 10, high: 11, at: "2026-10-01" },
+    // Scarce at this price on 2026-10-02 - the owner can "barely find anyone
+    // selling for 10". Treat 10 as a floor, not a number you can fill at.
+    "Large Net": { buy: 10, high: 11, scarce: true, at: "2026-10-02" },
     "Arnold Palmer": { sell: 42.5, high: 45, at: "2026-10-01" },
   },
   // Bone: sell the Grab Bag haul, buy back what quests need later (2026-10-01).
   boneBuyBackLater: true,
+
+  // The budget the owner set for the T300 push, 2026-10-02. They do not want
+  // to spend past this. Stamina converts to AP-equivalent only through the
+  // derivation in docs/STAMINA_AND_EFFECTIVENESS.md (1.25 stamina per explore,
+  // 500 items per AP with Lemon Squeezer = ~625 stamina per AP) - no tool
+  // carries that conversion, so say it is derived whenever you use it.
+  t300Budget: { stamina: 50e6, gold: 3000, ap: 8000, at: "2026-10-02",
+                deadline: "2026-10-31", why: "monthly pack worth 700g+" },
 
   // Masteries the owner says will finish anyway and should not be planned.
   treatAsFree: ["Hammer", "Axe", "Shovel"],
