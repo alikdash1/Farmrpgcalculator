@@ -118,6 +118,22 @@ window.FRPG_PLAYER_FACTS = {
     sawmill: { hickoryAlmostAlwaysOn: true },
   },
 
+  // Items per hour from the farm, the shape tools read. Hickory Omelette adds
+  // six 20% ticks an hour to the Sawmill only (x2.2). Wood, Board, Straw and
+  // Stone rates are from docs/HOW_THE_OWNER_PLAYS.md (2026-09-06); Steel and
+  // Steel Wire are the owner's 2026-09-25 numbers. Oak IS a Sawmill product -
+  // a session once told the owner it was not.
+  perHour: {
+    "Wood": { rate: 48000, building: "Sawmill", hickory: true },
+    "Board": { rate: 60000, building: "Sawmill", hickory: true },
+    "Oak": { rate: 4000, building: "Sawmill", hickory: true },
+    "Straw": { rate: 54000, building: "Hay Field" },
+    "Stone": { rate: 48000, building: "Quarry" },
+    "Coal": { rate: 5000, building: "Quarry" },
+    "Steel": { rate: 8000, building: "Steelworks" },
+    "Steel Wire": { rate: 2000, building: "Steelworks" },
+  },
+
   // Iron comes off the farm in amounts the owner calls free - do not cost it.
   ironIsFree: true,
 

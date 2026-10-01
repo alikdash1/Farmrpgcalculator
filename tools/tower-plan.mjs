@@ -206,11 +206,25 @@ for (const t of trips.slice(0, 8)) {
 }
 if (fishNeeds.length) console.log(`  fishing: ${fishNeeds.map(([n, q]) => `${n} ${fmt(q)}`).join(", ")} - priced in Large Nets above, not in AP`);
 
-console.log(`\nSteel ${fmt(steel)} and Steel Wire ${fmt(wire)}.`);
-if (steelRate || wireRate) {
-  const h = Math.max(steel / (steelRate || Infinity), wire / (wireRate || Infinity));
-  console.log(`  Steelworks alone: ${steelRate ? fmt(steel / steelRate) + " h of Steel" : ""}${steelRate && wireRate ? ", " : ""}${wireRate ? fmt(wire / wireRate) + " h of Wire" : ""} - ${fmt(h / 24)} days non-stop.`);
+// Everything a building makes is time, not AP. Report it in hours so the
+// wall shows up - Steel Wire at 2,000 an hour is a month on its own.
+const rates = facts.perHour || {};
+const hickory = ((facts.buildings || {}).sawmill || {}).hickoryAlmostAlwaysOn;
+const fromBuildings = Object.entries(rates).map(([item, r]) => {
+  const qty = demand.get(item) || 0;
+  const perHour = r.rate * (r.hickory && hickory ? 2.2 : 1);
+  return qty ? { item, qty, building: r.building, perHour, hours: qty / perHour } : null;
+}).filter(Boolean).sort((a, b) => b.hours - a.hours);
+if (fromBuildings.length) {
+  console.log("\nFrom your buildings (time, not AP):");
+  for (const b of fromBuildings) {
+    const flagWall = b.hours > 24 * 7 ? "   <- a wall" : "";
+    console.log(`  ${b.item.padEnd(11)} ${fmt(b.qty).padStart(11)}   ${b.building} ${fmt(b.perHour)}/h = ${fmt(b.hours)} h (${(b.hours / 24).toFixed(1)} days non-stop)${flagWall}`);
+  }
+  const oak = fromBuildings.find((b) => b.item === "Oak");
+  if (oak) console.log("  Oak is also on the Whispering Creek trip above, so the Sawmill only has to cover what that trip does not.");
 }
+void steelRate; void wireRate;
 const cs = craftSteel(steel); const cw = craftWire(wire);
 if (carbonAPk) console.log(`  Craft it all instead: ${fmt(cs.carbon + cw.carbon)} Carbon Sphere (${carbonAPk} AP/k) + ${fmt(cs.glassOrb)} Glass Orb${glass ? ` (${glass.place})` : ""} = about ${fmt(cs.ap + cw.ap)} AP. Iron and Stone are farm-made.`);
 
