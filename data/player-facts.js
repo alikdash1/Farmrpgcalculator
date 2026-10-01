@@ -148,7 +148,12 @@ window.FRPG_PLAYER_FACTS = {
     "Scrap Metal": { buy: 3, high: 5, at: "2026-09-22" },
     "Bone": { sell: 7, at: "2026-10-01" },
     "3-leaf Clover": { sell: 7, at: "2026-10-01" },
+    // "too cheap" - buy Leather rather than farm Hide (2026-10-02).
+    "Leather": { buy: 5, at: "2026-10-02" },
   },
+  // Daily income the owner reported, 2026-10-02. Orchard (Lemon, Orange,
+  // Apple per day) is NOT captured anywhere yet - ask, or read it live.
+  daily: { staminaFromFarmhouse: 800000, antlers: "inventory cap twice a day" },
 
   // Gold prices the owner quoted, in gold per THOUSAND items.
   goldPerThousand: {
@@ -176,7 +181,11 @@ window.FRPG_PLAYER_FACTS = {
   // derivation in docs/STAMINA_AND_EFFECTIVENESS.md (1.25 stamina per explore,
   // 500 items per AP with Lemon Squeezer = ~625 stamina per AP) - no tool
   // carries that conversion, so say it is derived whenever you use it.
-  t300Budget: { stamina: 50e6, gold: 3000, ap: 8000, at: "2026-10-02",
+  // Updated later on 2026-10-02: 9k AP, 18 Pumpkin Juice held - and NOT all for
+  // T300, harder masteries later need them. Red Trunk Steel and Fancy Guitar
+  // Steel Wire will be crafted from bought Carbon + Glass Orb.
+  t300Budget: { stamina: 50e6, gold: 3000, ap: 9000, pumpkinJuice: 18, at: "2026-10-02",
+                craftFromCarbon: ["Red Trunk", "Fancy Guitar"],
                 deadline: "2026-10-31", why: "monthly pack worth 700g+" },
 
   // Masteries the owner says will finish anyway and should not be planned.
