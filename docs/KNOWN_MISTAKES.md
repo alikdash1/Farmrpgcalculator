@@ -277,3 +277,12 @@ reported as "no floor needs it" (it is T295 MM), Fancy Drum as "zero demand"
 MM. Every tool now reads floors through `tools/tower.mjs`, which merges both
 sources, treats a towerRequirement of 0 as "no floor", and drops floors below
 the one the player is on - exactly as the Tower page does.
+
+## Bags and presents are listed as recipes in the data (2026-10-01)
+
+`data/data.js` carries container contents as craft recipes: "Grab Bag 01 = 50
+Bone + 50 3-leaf Clover" is what the bag GIVES (one of seven items, 10-50 each),
+not what it costs. The owner caught it by saying they get the bags while
+fishing Water Lily. The same shape as the Large Chest 02 mistake - but in the
+data itself, so every tool inherited it.
+

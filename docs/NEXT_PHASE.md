@@ -1,5 +1,31 @@
 # Next Phase
 
+## Open after 2026-10-01 — T300 by the end of October
+
+Read the owner's live numbers from their Brave (Claude in Chrome, the planner's
+localStorage `frpg_account_snapshot_v1`) - the bundled `data/personal-tower.js`
+is from 2026-09-19 and stale. Counts below are the 2026-10-01 capture.
+
+- Owed to T300: Pitchfork 396,031 (T290) · Salt 576,496 + Pickaxe 732,434 (T294)
+  · Fancy Drum 878,011 + Fancy Guitar 685,011 (T295) · Leather Bag 785,546 +
+  Beet 783,358 (T296) · Essence of Slime 784,397 + Wrench 407,079 + Hourglass
+  826,814 (T298) · Red Trunk 906,113 (T299) · Wizard Hat 25,941 + Water Lily
+  667,057 (T300). Hammer, Axe, Shovel: owner says free, leave out. Wooden Bow
+  and Mystic Ring are done.
+- Owner's Pumpkin Juice: 2 on Salt (409,830 left), 2 on Water Lily (500,391),
+  1 on Red Trunk (815,204). One PJ = finish at 909,091; two stacking to
+  833,334 is ASSUMED, not confirmed.
+- Steel 5.83m and Steel Wire 2.83m are wall-clock bound; the advice is to
+  craft both from bought Carbon (10 AP/k) + Glass Orb, Iron is free.
+- Water Lily by Large Net: 225,982 LN with Sea Pincher + Mushroom Stew, which
+  also drops ~454,900 Grab Bag 01 (Bone, 3-leaf Clover, Aquamarine, Gold
+  Cucumber, Mushroom, Potato, Catfish - one of, 10-50; odds unknown).
+- **Data bug to fix first:** `data/data.js` lists container CONTENTS as craft
+  RECIPES (Grab Bag 01 = 50 Bone + 50 3-leaf Clover; also Christmas Present 04,
+  Spring Basket, Treat Bags...). This is the chest mistake again, in the data.
+  It invents demand (550,800 "owed" 3-leaf Clover) and must be excluded in every
+  tool and the app.
+
 ## Open after 2026-09-29 — sharing it
 
 - **Push, then check GitHub Pages serves `downloads/farm-rpg-account-sync.zip`**
