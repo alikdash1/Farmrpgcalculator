@@ -171,7 +171,8 @@ window.FRPG_PLAYER_FACTS = {
   // How the owner explores, 2026-10-02: stamina plus Apple Cider at 104
   // effectiveness at Whispering Creek, buying Cider when low. Oranges are
   // crafted to OJ and Lemons to Arnold Palmer, and both are sold.
-  exploring: { effectiveness: 104, usesCider: true, buysCiderWhenLow: true,
+  exploring: { effectiveness: 104, usesCider: true, buysCiderWhenLow: true, neighAlwaysOn: true, wandererAlwaysOn: true,
+               staminaPerCider: 1367, exploresPerCider: 2040,
                craftsAndSells: ["Orange Juice", "Arnold Palmer"] },
   // The owner's own read, 2026-10-02: Wrench is a couple of days (1 Steel per
   // craft), Pitchfork is 600k+ in. The hard ones are Red Trunk, Salt, Fancy
