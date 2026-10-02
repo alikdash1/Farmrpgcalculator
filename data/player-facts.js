@@ -150,6 +150,9 @@ window.FRPG_PLAYER_FACTS = {
     "3-leaf Clover": { sell: 7, at: "2026-10-01" },
     // "too cheap" - buy Leather rather than farm Hide (2026-10-02).
     "Leather": { buy: 5, at: "2026-10-02" },
+    // Owner sells Ember Lagoon's Glass Orb surplus and buys it back for
+    // Hourglass later: Craftworks is busy on Steel, and the cap fills.
+    "Glass Orb": { sell: 2.5, at: "2026-10-02", sellSurplusBuyBackLater: true },
   },
   // Daily income the owner reported, 2026-10-02. Orchard (Lemon, Orange,
   // Apple per day) is NOT captured anywhere yet - ask, or read it live.
