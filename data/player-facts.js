@@ -7,11 +7,17 @@ window.FRPG_PLAYER_FACTS = {
   schema: "farmrpg-player-facts-v1",
   toldAt: "2026-09-21",
 
-  // Craftworks is an auto-crafter. It runs every second as long as the
+  // Craftworks is an auto-crafter. It runs every few seconds as long as the
   // ingredients are there, so crafting is NOT a bottleneck and a crafting
   // action count is not a time estimate. Supply is the constraint, not the
   // machine.
-  craftworks: { auto: true, tickSeconds: 1, dailyCap: null, isBottleneck: false },
+  craftworks: {
+    auto: true,
+    tickSeconds: "a few seconds",
+    dailyCap: null,
+    isBottleneck: false,
+    note: "No daily craft cap. It keeps crafting while inputs are in inventory; paid Craftworks slots are only a queue/QoL limit.",
+  },
 
   // Not a fixed number. It climbs every day, and resting adds about 18.
   // Read off the game on 2026-09-23: 17,274.
@@ -36,8 +42,11 @@ window.FRPG_PLAYER_FACTS = {
   // Cheap enough to buy rather than plan around when in a hurry.
   buyWhenRushed: ["Milk", "Grapes", "Eggs"],
 
-  // The Tower target.
+  // T350 is the long-term target. Work in shorter checkpoints instead of
+  // pricing all sixty-one floors as one job: T300 first, then PSA and Distant
+  // Illusions before the next Tower push.
   goalFloor: 350,
+  currentMilestone: { towerFloor: 300, thenQuestlines: ["PSA", "Distant Illusions"], at: "2026-10-05" },
 
   // Of the 527 open quest steps, roughly 100 are main-quest steps and the rest
   // are events. Rank main-quest lines first; do not let event lines steer a
@@ -99,8 +108,12 @@ window.FRPG_PLAYER_FACTS = {
     kingAppleIsEventOnly: true,
   },
 
-  // Stamina perks are all owned.
+  // Stamina perks are all owned. This is the daily max-stamina figure shown by
+  // the game, not the amount currently banked.
   perks: { staminaCapAllOwned: true },
+  staminaCap: { amount: 103834, at: "2026-10-05" },
+
+  farming: { cropPlots: 48, at: "2026-10-05" },
 
   // How the owner actually plays - the throughput limits that turn a rate
   // into days. Told to Claude 2026-09-24 to 2026-10-01. A plan that assumes
@@ -154,13 +167,23 @@ window.FRPG_PLAYER_FACTS = {
     // Hourglass later: Craftworks is busy on Steel, and the cap fills.
     "Glass Orb": { sell: 2.5, at: "2026-10-02", sellSurplusBuyBackLater: true },
   },
-  // Daily income the owner reported, 2026-10-02. Orchard (Lemon, Orange,
-  // Apple per day) is NOT captured anywhere yet - ask, or read it live.
-  daily: { staminaFromFarmhouse: 800000, antlers: "inventory cap twice a day" },
+  // Guaranteed daily income reported by the owner. Trading income is variable,
+  // so never turn an AP requirement into days without a separate AP/day input.
+  daily: {
+    staminaFromFarmhouse: 800000,
+    antlers: "about one full inventory every 12 hours, around game-time 00:00 and 12:00",
+  },
   // Orchard, read off the game by the owner 2026-10-02 (production with perks,
   // per day): ~7,080 trees of each kind.
-  orchard: { applesPerDay: 9200, orangesPerDay: 9197, lemonsPerDay: 9210, at: "2026-10-02",
+  orchard: { appleTrees: 7077, orangeTrees: 7075, lemonTrees: 7085,
+             applesPerDay: 9200, orangesPerDay: 9197, lemonsPerDay: 9210, at: "2026-10-05",
              note: "Apples are eaten (15 stamina each); Oranges become OJ, Lemons become AP" },
+
+  marketReference: {
+    url: "https://farmrpg-pricecheck.free.nf/",
+    checkedAt: "2026-10-05",
+    note: "Community price ranges are a fallback only. The owner's quoted deal always overrides the generic range.",
+  },
 
   // Gold prices the owner quoted, in gold per THOUSAND items.
   goldPerThousand: {
@@ -199,9 +222,11 @@ window.FRPG_PLAYER_FACTS = {
   // Masteries the owner says will finish anyway and should not be planned.
   treatAsFree: ["Hammer", "Axe", "Shovel"],
 
-  // Pumpkin Juice: one makes a Mega Mastery finish at 909,091. Whether a
-  // second stacks (finishing at 833,334) is NOT confirmed - say so when used.
-  pumpkinJuice: { perJuice: 0.1, stackingConfirmed: false },
+  // Pumpkin Juice adds 10% of the CURRENT mastery count, so repeated uses
+  // compound. MM thresholds: 909,091 before one; 826,447 before two; 751,315
+  // before three (rounded up to whole items).
+  pumpkinJuice: { perJuice: 0.1, stackingConfirmed: true, mode: "compound-current-count",
+                  thresholds: { one: 909091, two: 826447, three: 751315 }, at: "2026-10-05" },
   // Owner's choice for the T300 push, 2026-10-01.
   // 2026-10-02: Salt 2, Water Lily "maybe 2", Red Trunk "1 or 2".
   pumpkinJuicePlan: { "Salt": 2, "Water Lily": 2, "Red Trunk": 1 },

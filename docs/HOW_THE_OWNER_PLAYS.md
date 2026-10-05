@@ -51,9 +51,10 @@ on its own is the mistake this document exists to stop.
 Iron Depot covers them. They never appear in a cost.
 
 **6. The inventory cap is the real limit, not the buildings.**
-Cap is **15,870 per item**. They deliberately upgraded the Sawmill only until
-the Hickory 20% tick fills the cap every 10 minutes, then stopped — further
-Sawmill upgrades are wasted until the cap rises. Board already overshoots.
+The cap grows daily, so always read it from the newest live capture. They
+deliberately upgraded the Sawmill only until the Hickory 20% tick fills the
+cap every 10 minutes, then stopped — further upgrades are wasted until the cap
+rises. Board already overshoots.
 
 **7. Co-drops beat headline rates.**
 Salt reached 357k with no deliberate effort because Salt Rock rides along with
@@ -69,7 +70,10 @@ stacks down a chain: intermediate crafts duplicate too.
 
 ---
 
-## Their numbers, as of 2026-09-06
+## Historical throughput calibration (2026-09-06)
+
+The production rates remain useful, but the 15,870-cap loss column is a dated
+example. Recalculate overflow using the newest live cap before answering.
 
 | | Rate | Per 10-min tick | Against the 15,870 cap |
 |---|---|---|---|
@@ -85,7 +89,15 @@ stacks down a chain: intermediate crafts duplicate too.
 multiplier — it is that six collections an hour each fit under the cap where one
 hourly drop would overflow it.
 
-Tower position: **T286**, goal T340. Inventory cap 15,870. Max stamina 83,334.
+Long-term goal: **T350**. The current checkpoint is **T300**, then PSA and
+Distant Illusions before the next Tower push. The live account capture, not
+this prose file, is authoritative for the current floor and inventory cap.
+Daily max stamina is **103,834** as of 2026-10-05. The farm has **48 crop
+plots**.
+
+Craftworks has no daily craft ceiling. It runs every few seconds while the
+ingredients are present; paid slots limit how many recipes can be queued and
+are a quality-of-life constraint, not production throughput.
 
 ---
 

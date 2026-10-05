@@ -65,7 +65,9 @@ The essentials, so you are not lost:
   thousands of a thing. There are 2,479 in 569 questlines.
 - **Silver** is the game's currency, not an item. It has no picture and cannot
   be mastered. Several bugs here came from treating it as an item.
-- **Craftworks** is a crafting queue; the owner has 10 slots.
+- **Craftworks** is an uncapped automatic crafting queue. It runs every few
+  seconds while ingredients are in inventory; paid slots are a queue/QoL
+  limit, not a daily production limit.
 - Passive production on a developed account: Iron and Nails from the Iron
   Depot, Stone from the Quarry, Wood and Boards from an upgraded Sawmill. Coal
   is hourly, not free.
@@ -82,8 +84,9 @@ them; that is intended.
 ## 3. Who uses it
 
 The owner is an **endgame player**: hundreds of hours in, **92 quests left in
-the entire game**, climbing the Tower around floor T282 toward T340. They keep
-spreadsheets. They do not need beginner explanations.
+the entire game**, climbing from T289 toward T350. The current checkpoint is
+T300, followed by PSA and Distant Illusions. They keep spreadsheets. They do
+not need beginner explanations.
 
 **31 of those 92 remaining quests are one chain** — see the pirate saga below.
 
@@ -321,7 +324,8 @@ test is protecting before you change it.
   in the engine index and the knowledge pack has no recipes for them. Do not
   infer recipes from item names.
 - **`publish/` is a divergent copy** with none of this work. Do not deploy it.
-- **Large Net base 400 vs the workbook's 500** — two sources disagree, unresolved.
+- **Large Nets are resolved:** base 250, +150 from Reinforced Netting = 400,
+  then +100 from the T70 Trigon Knot artifact = 500 for this account.
 - Mined items can be searched and crafted but not costed: no mine has drop rates.
 - Sinking Swamp's exploring sheet adds to 500/AP, not 550 — possibly measured without Quandary (see NEXT_PHASE).
 

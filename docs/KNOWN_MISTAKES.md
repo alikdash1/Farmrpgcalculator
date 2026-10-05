@@ -4,6 +4,18 @@ Real bugs this project already made once. Each has (or should have) a test.
 Check new work against this list before shipping; if you touch the related
 code, re-run the named test.
 
+## Resolved mechanic contradictions
+
+- **Large Net 400 versus 500:** both describe different perk states. The base
+  is 250; Reinforced Netting adds 150; Trigon Knot adds 100. This account has
+  both bonuses, so planning uses 500.
+- **Pumpkin Juice stacking:** repeated uses compound by adding 10% of the
+  current mastery count. Exact pre-use thresholds for one/two/three juices are
+  909,091 / 826,447 / 751,315.
+- **Calculate Cider conversion:** Calculate used to divide explores only by the
+  base Cider rolls. It now reads the same per-location effectiveness value as
+  Places and applies `base rolls × (1 + effectiveness/100)`.
+
 ## Fixed, has a regression test
 
 1. **Glass Orb defaulted to a crafting route (via Emberstone) instead of the

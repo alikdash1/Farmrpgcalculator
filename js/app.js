@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-01.1";
+  const FRPG_BUILD = "2026-10-05.1";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -205,6 +205,12 @@
   function c(key, fallback) {
     const value = constants()[key];
     return value && value.v != null ? Number(value.v) : fallback;
+  }
+  function locationEffectiveness(location) {
+    const effort = read("frpg_location_effort_v1", {});
+    const saved = effort && effort[`explore:${location}`];
+    const value = Number(saved && typeof saved === "object" ? saved.stamina : saved);
+    return value > 0 ? value : 0;
   }
   function mods() {
     const base = E.computeMods(BASE_EFFECTS.filter((effect) => state.enabled.has(effect.id)), constants());
@@ -763,7 +769,12 @@
     const dropPlans = sources.drops.filter((row) => row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).map((drop) => {
       const qc = state.meals.quandary ? 1 + c("quandary_bonus", 0.1) : 1;
       const neigh = state.meals.neigh ? 1 - c("neigh_stamina_save", 0.2) : 1;
-      const ciderUses = drop.explores / m.drinks.ciderRolls;
+      // Places stores the effectiveness printed by Farm RPG for each location.
+      // Calculate must use the same number instead of treating every Cider as
+      // if it were used at effectiveness 0.
+      const effectiveness = locationEffectiveness(drop.location);
+      const exploresPerCider = m.drinks.ciderRolls * (1 + effectiveness / 100);
+      const ciderUses = exploresPerCider > 0 ? drop.explores / exploresPerCider : null;
       const stamina = drop.explores * m.exploreStaminaPer * neigh;
       const oj = stamina / c("oj_stamina", 100);
       // Arnold Palmer is NOT exploring. Exploring spends stamina; an AP finds
@@ -805,6 +816,7 @@
         stamina,
         oj,
         ciders: ciderUses,
+        effectiveness,
         aps: apUses,
         goldEq: useAp ? apGold : ciderGold,
         // Keep both sides of the drink comparison so the plan can show its
@@ -820,7 +832,7 @@
         reason: preferred ? rule.why : coDrops.length ? `Also advances ${coDrops.slice(0, 3).map((co) => co.name).join(", ")}` : "Fastest known direct drop",
         detail: useAp
           ? `${esc(drop.location)} · ${fmt(apUses)} AP with${state.meals.quandary ? "" : "out"} Quandary`
-          : `${esc(drop.location)} · ${fmt(ciderUses)} Cider + ${fmt(oj)} OJ-equivalent stamina`,
+          : `${esc(drop.location)} · ${fmt(ciderUses)} Cider at ${fmt(effectiveness)}% effectiveness + ${fmt(oj)} OJ-equivalent stamina`,
       };
     }).sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.explores - b.explores);
     const chosenLocation = state.farmLocations[item.id];

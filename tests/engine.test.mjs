@@ -69,6 +69,16 @@ test("market translation also honors /k units", () => {
   assert.equal(translated.market.ap, 5);
 });
 
+test("cider translation uses the saved effectiveness for its location", () => {
+  const hide = index.idByName.get("hide");
+  const leaves = new Map([[hide, { id: hide, name: "Hide", total: 1000 }]]);
+  const base = Engine.translateCosts(leaves, index, mods, consts);
+  const boosted = Engine.translateCosts(leaves, index, mods, consts, {}, { "explore:Forest": { stamina: 104 } });
+  assert.ok(base.effort.ciders > 0);
+  assert.ok(boosted.effort.ciders > 0);
+  assert.ok(Math.abs(base.effort.ciders / boosted.effort.ciders - 2.04) < 1e-9);
+});
+
 test("fishing denominators produce catches and are not indexed twice", () => {
   const id = index.idByName.get("blue catfish");
   const sources = Engine.sourcesFor(index, id, 100, mods, consts).fish;

@@ -235,8 +235,12 @@ test("the stamina facts match what the game actually says", () => {
   const baked = dataGlobal("FRPG_EFFECTS").effects.find((row) => row.id === "wanderer");
   assert.deepEqual(baked, wanderer);
 
-  // The Places page is the only thing that models a cider, and the reference
-  // for all of this has to stay where the next session will find it.
+  // Places and Calculate share the saved per-location effectiveness instead
+  // of Calculate silently treating every location as effectiveness 0.
+  const app = read("js/app.js");
+  assert.match(app, /frpg_location_effort_v1/);
+  assert.match(app, /m\.drinks\.ciderRolls \* \(1 \+ effectiveness \/ 100\)/);
+  // The reference for all of this has to stay where the next session finds it.
   const doc = read("docs/STAMINA_AND_EFFECTIVENESS.md");
   assert.match(doc, /1000\+ Stamina Use/);
   assert.match(doc, /depends on your \*\*exploring effectiveness in each explore location\*\*/);

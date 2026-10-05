@@ -115,7 +115,7 @@ for (const m of active) {
   const top = priced.lines.filter((l) => l.cost).sort((a, b) => b.cost - a.cost)[0];
   const crop = priced.lines.find((l) => l.crop);
   m.driver = top ? `${top.name} at ${top.spot.place}`
-    : crop ? `a crop - ${fmt(crop.qty)} ${crop.name} from your fields (plots and grow time not modelled; ask)`
+    : crop ? `a crop - ${fmt(crop.qty)} ${crop.name} from your ${Number(facts.farming?.cropPlots) || "known"}-plot field (grow-time schedule not modelled)`
     : (m.ap === 0 && m.nets === 0 ? "farm buildings and crafting only" : "-");
   m.unknown = priced.lines.filter((l) => l.unknown).map((l) => l.name);
   for (const [n, q] of r.base) {

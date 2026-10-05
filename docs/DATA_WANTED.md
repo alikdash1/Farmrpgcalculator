@@ -13,16 +13,14 @@ Parsing it is cheap; guessing it is what breaks plans.
 Every wrong answer this project has produced was a rate quoted without its
 limit. These are the limits.
 
-**1. Craftworks — crafts per day.**
-Distant Illusions is 24m crafting actions and nobody knows how long that is.
-Open Craftworks and note how many crafts it runs at once, how long a batch
-takes, and any daily ceiling.
-→ Turns "24m crafting actions" into a number of days.
+**1. Craftworks — resolved.**
+There is no daily ceiling. It runs every few seconds while ingredients are in
+inventory; the paid slot count is a queue/QoL limit. Supply and inventory
+rounds, not Craftworks throughput, set the duration.
 
-**2. Inventory cap — the real one.**
-I have been using 17,004 all session on an assumption. Open the inventory page
-and read the cap off it, plus the Storehouse level.
-→ Decides how many gather-craft rounds every big job takes.
+**2. Inventory cap — read it from the newest full capture.**
+It grows daily, so no prose value is permanent. `tools/prepare.mjs` infers it
+from several full stacks in the newest snapshot and reports the source/date.
 
 **3. Farm production, per building.**
 How much each makes and how often: **Sawmill** (wood, boards), **Hay Field**
@@ -33,25 +31,26 @@ How much each makes and how often: **Sawmill** (wood, boards), **Hay Field**
 is the single biggest line in Distant Illusions I and I cannot say how many
 days that is.
 
-**4. Wishing Well — exact free tosses a day.**
-You said about 30. Which Extra Wish perks do you own, and what does the page
-actually say?
-→ Every Well route is `qty / (tosses x chance x 2)`. The cap is the whole sum.
+**4. Wishing Well — resolved for this account.**
+30 tosses per day. One returned item per successful toss, doubled by Reflecting
+Pool, so at most 60 returned items/day before the outcome chance is applied.
 
 **5. Stamina and effectiveness.**
-Current stamina cap, and your exploring effectiveness per location. Which
-Wanderer tiers, Lemon Squeezer, Iron Depot, Cinnamon Sticks you have.
-→ Every cider and stamina figure I have given is a default-perks estimate.
+Daily max stamina is 103,834 as of 2026-10-05. Exploring effectiveness still
+varies by location and is stored in `frpg_location_effort_v1`; it must be
+entered or captured for exact Cider/stamina answers.
 
 ---
 
 ## Tier 2 — fresh captures
 
-Everything on disk is from **26–27 August**. One extension click each.
+Use one full current snapshot. Each new same-day snapshot overwrites the prior
+same-day file; planning tools automatically select the newest dated snapshot.
 
 **6. Inventory** — the netting on every number uses August stock.
 **7. Quests** — what is done and what is available now.
-**8. Farm and Farmhouse** — fills tier 1 item 3 automatically.
+**8. Farm and Farmhouse** — partially known: 48 crop plots, 800,000 farmhouse
+stamina/day, and the orchard numbers below. Other building captures still help.
 **9. Pets** — levels, and which items each pet has unlocked.
 
 ---
@@ -65,9 +64,9 @@ places across all of it.
 → A list of 5–10 lines turns the ordering from noise into a plan. **Cheapest
 big improvement available.**
 
-**11. Goal floor — 300 or 340?**
-`personal-tower.js` says 340; the tool defaults to 300 and finds only 2
-masteries owed. To 340 the list is far longer and reorders everything.
+**11. Goal order — resolved.**
+T350 is the long-term goal. Current checkpoint: T300, then PSA and Distant
+Illusions, then continue the Tower push.
 
 **12. Does your Pig Pen give Bacon?** → deletes 214,000 AP.
 
@@ -75,10 +74,10 @@ masteries owed. To 340 the list is far longer and reorders everything.
 buddy.farm says **Lemur at level 6 collects Amber**. Do you have that, and how
 much does it give? → 374k AP hangs on this, and Amber cannot be mailed.
 
-**14. What you pay.** Arnold Palmer, Apple Cider, OJ — your real prices, and
-what you sell into. The AP price is missing from the shop data entirely.
-→ Turns every AP figure into gold and makes buy-versus-farm decidable instead
-of a judgement call.
+**14. What you pay.** The community checker at
+`https://farmrpg-pricecheck.free.nf/` supplies current ranges, but the owner's
+actual quoted deal overrides it. Variable buying/selling means AP/day remains
+unknown unless the owner gives a budget for the specific plan.
 
 ---
 

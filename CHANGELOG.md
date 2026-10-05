@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-05 — Current account facts and one Cider formula
+
+- Recorded T350 as the long-term goal, T300 then PSA/Distant Illusions as the
+  current sequence, 103,834 daily max stamina, 48 plots, twice-daily antlers,
+  the three orchard totals, and uncapped Craftworks.
+- Resolved the Large Net perk states (250 base, 400 with Reinforced Netting,
+  500 with Trigon Knot), Pumpkin Juice compounding, and this account's 30 daily
+  Wishing Well tosses.
+- Calculate now uses the same saved per-location effectiveness as Places when
+  converting explores to Apple Ciders. Added regression coverage.
+
 ## 2026-10-01 (later) — The app stops treating bags as recipes
 
 - **`js/containers.js`** holds the one container rule and drops those 83

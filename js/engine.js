@@ -306,12 +306,13 @@
     return { itemName, options, best: comparable[0] || options[0] };
   }
 
-  function translateCosts(leaves, index, mods, consts, owned) {
+  function translateCosts(leaves, index, mods, consts, owned, locationEffort) {
     owned = owned || {};
     consts = consts || {};
+    locationEffort = locationEffort || {};
     let vendorSilver = 0;
     let marketGold = 0, marketAp = 0, marketOj = 0;
-    let explores = 0, stamina = 0, fishCatches = 0, plants = 0;
+    let explores = 0, stamina = 0, ciders = 0, fishCatches = 0, plants = 0;
     for (const [, leaf] of leaves) {
       const missing = Math.max(0, leaf.total - (owned[leaf.id] || 0));
       if (missing <= 0 || leaf.id == null) continue;
@@ -320,6 +321,10 @@
       if (bestDrop) {
         explores += bestDrop.explores;
         stamina += bestDrop.stamina;
+        const saved = locationEffort[`explore:${bestDrop.location}`] ?? locationEffort[bestDrop.location] ?? 0;
+        const effectiveness = Number(saved && typeof saved === "object" ? saved.stamina : saved) || 0;
+        const exploresPerCider = mods.drinks.ciderRolls * (1 + Math.max(0, effectiveness) / 100);
+        if (exploresPerCider > 0) ciders += bestDrop.explores / exploresPerCider;
       }
       const bestFish = sources.fish.filter((f) => f.catches != null).sort((a, b) => a.catches - b.catches)[0];
       if (bestFish) fishCatches += bestFish.catches;
@@ -338,7 +343,7 @@
       effort: {
         explores,
         stamina,
-        ciders: mods.drinks.ciderRolls > 0 ? explores / mods.drinks.ciderRolls : 0,
+        ciders,
         fishCatches,
         largeNets: mods.nets.lnCatch > 0 ? fishCatches / mods.nets.lnCatch : 0,
         fishingNets: mods.nets.fnCatch > 0 ? fishCatches / mods.nets.fnCatch : 0,
