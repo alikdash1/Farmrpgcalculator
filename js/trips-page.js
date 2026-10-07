@@ -170,8 +170,8 @@
       (totals.size
         ? '<section class="trip-haul"><div class="section-heading compact"><div><h2>What you bring home</h2></div>' +
             "<p>" + (spentLine ? "Spending " + spentLine + (stamina > 0 ? " · " + whole(stamina) + " stamina in all" : "") + ". " : "") +
-            (hold.has ? "Counted against what your account holds." : "Load your farm on the Account page to see it next to what you already hold.") + "</p></div>" +
-            '<label class="places-field grow trip-filter"><span>Find an item</span><input type="search" data-filter value="' + esc(filter) + '" placeholder="anything — try Salt Rock"></label>' +
+            (hold.has ? "Counted against what your account holds." : "") + "</p></div>" +
+            '<label class="places-field grow trip-filter"><span>Find an item</span><input type="search" data-filter value="' + esc(filter) + '" placeholder="Find an item…"></label>' +
             '<div class="places-scroll"><table class="places-table trip-table"><thead><tr><th>Item</th><th class="num">From these trips</th>' +
             (hold.has ? '<th class="num">You hold</th><th class="num">After</th>' : "") +
             "<th>From</th></tr></thead><tbody>" + (table || '<tr><td colspan="5">Nothing matches.</td></tr>') + "</tbody></table></div></section>"

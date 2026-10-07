@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.4";
+  const FRPG_BUILD = "2026-10-08.5";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -465,7 +465,7 @@
       return;
     }
     $("homeSearch").setCustomValidity("");
-    const qty = parseInt($("homeQty").value.replace(/\D/g, ""), 10) || 0;
+    const qty = parseQty($("homeQty").value);
     if (!qty) return;
     state.qty = qty;
     el.qty.value = String(qty);
@@ -480,11 +480,8 @@
       if (first) pick(Number(first.dataset.id));
     }
   };
-  el.qty.oninput = () => { state.qty = parseInt(el.qty.value.replace(/\D/g, ""), 10) || 0; render(); };
+  el.qty.oninput = () => { state.qty = parseQty(el.qty.value); render(); };
   el.qty.onblur = () => { if (state.qty > 0) el.qty.value = state.qty.toLocaleString("en-US"); };
-  document.querySelectorAll("[data-q]").forEach((button) => {
-    button.onclick = () => { state.qty = Number(button.dataset.q); el.qty.value = state.qty.toLocaleString("en-US"); render(); };
-  });
   $("clearOwned").onclick = () => { state.owned = {}; save(); render(); };
   $("collapseTree").onclick = () => {
     state.treeOpen = !state.treeOpen;
@@ -1126,6 +1123,15 @@
 
     const pick = (value, label, off) => `<label class="path-mini${chosen === value ? " on" : ""}${off ? " muted" : ""}"><input type="radio" name="drink-${item.id}" value="${value}" ${chosen === value ? "checked" : ""} ${off ? "disabled" : ""} data-drink-id="${item.id}"> ${label}</label>`;
     return `<div class="path-choices compact">${pick("cider", "Cider", route.ciders == null)}${pick("ap", "Arnold Palmer", route.aps == null)}</div>`;
+  }
+
+  // "1m", "250k", "1.5m" or "1,000,000" — the quick buttons were replaced by
+  // letting the box read shorthand.
+  function parseQty(value) {
+    const text = String(value || "").toLowerCase().replace(/[,\s_]/g, "");
+    const short = text.match(/^(\d*\.?\d+)([km])$/);
+    if (short) return Math.round(parseFloat(short[1]) * (short[2] === "m" ? 1e6 : 1e3));
+    return parseInt(text.replace(/\D/g, ""), 10) || 0;
   }
 
   // What one ingredient costs, in one line, in what the player chose to spend.

@@ -5,6 +5,25 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — New look, no labels the box already explains
+
+The owner asked for the whole site to look cleaner and "not AI slop", and to
+delete the Item / Target quantity labels and the 1k–1m buttons on Calculate.
+
+- `css/clean.css` (loaded last) now owns the look: deeper night palette, the
+  serif only on page titles, section titles in bold sans, tabs as words with
+  an underline, one surface style with hairlines instead of boxed rows, pill
+  buttons, a slim example-farm note.
+- Calculate is one bar: item × how many. The box reads `1m`, `250k`, `1.5m`
+  (`parseQty` in app.js), so the preset buttons are gone. Same on Home.
+- Labels that only repeat a box's placeholder are hidden visually (kept for
+  screen readers) on every page: Calculate, Home, Places, Trips, Quests,
+  Inventory, Items.
+- Removed: the duplicate route badge beside each dropdown, the Tower legend,
+  the Places source note, the Setup kickers, the quest "Also called" lines;
+  Quests totals are one line; the corner panel no longer repeats the
+  questline name.
+
 ## 2026-10-08 — Less text, fewer boxes
 
 The tester found the site overwhelming; the owner agreed it was "too much useless

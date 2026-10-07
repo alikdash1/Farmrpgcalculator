@@ -169,7 +169,7 @@
       panels.whole.hidden = true;
       draw("next", {
         title: showingStep ? plan.next.title : plan.lineName,
-        subtitle: showingStep ? plan.lineName : steps,
+        subtitle: showingStep ? (plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} short` : plan.lineName) : steps,
         rows: showingStep ? nextRows : wholeRows,
         mark: showingStep ? null : new Set(nextRows.map((row) => row.name)),
         collapsed: read("frpg_tracker_next_collapsed", "1") === "1",

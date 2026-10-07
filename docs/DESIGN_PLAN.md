@@ -54,3 +54,12 @@ from it:
 - **A footer on every page**, rather than inside the Library view.
 - **Trackers folded by default**, so nothing covers the first screen.
 
+
+## Refresh, 2026-10-08
+
+The owner asked for a cleaner, less generic look. `css/clean.css` overrides
+the tokens: page #18212C, surface #212C39, chalk #ECE8DA, the same three accents
+with the same jobs. Bree Serif is now only for page titles and the brand;
+section titles are Atkinson bold. Surfaces are one fill with a hairline and a
+12px radius; rows inside them are divided, not boxed. Labels that repeat a
+placeholder are visually hidden. Tabs are underlined words.

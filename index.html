@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="css/items.css?v=20260921-10">
   <link rel="stylesheet" href="css/tracker.css?v=20260911-5">
   <link rel="stylesheet" href="css/system.css?v=20261008-1">
-  <link rel="stylesheet" href="css/clean.css?v=20261008-1">
+  <link rel="stylesheet" href="css/clean.css?v=20261008-4">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -56,7 +56,7 @@
         <form id="homeGoal" class="dispatch-ticket">
           <div class="ticket-stub"><span>Cost an item</span></div>
           <label class="field"><span>Item</span><input id="homeSearch" name="home-item" list="itemOptions" autocomplete="off" placeholder="Red Trunk" required></label>
-          <label class="field"><span>Quantity</span><input id="homeQty" name="home-quantity" type="text" inputmode="numeric" value="1,000,000" required></label>
+          <label class="field"><span>Quantity</span><input id="homeQty" name="home-quantity" type="text" inputmode="text" value="1,000,000" placeholder="1m, 250k…" required></label>
           <datalist id="itemOptions"></datalist>
           <button type="submit" class="primary-action">Open calculation <span>→</span></button>
         </form>
@@ -70,8 +70,7 @@
         <div class="goal-copy"><h1>What will it cost?</h1></div>
         <div class="goal-controls">
           <label class="field search-field"><span>Item</span><input id="search" type="search" name="item-search" placeholder="Red Trunk…" autocomplete="off"><div id="suggest" class="suggest hidden"></div></label>
-          <label class="field quantity-field"><span>How many</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
-          <div class="presets"><button data-q="1000">1k</button><button data-q="10000">10k</button><button data-q="100000">100k</button><button data-q="1000000">1m</button></div>
+          <label class="field quantity-field"><span>How many</span><input id="qty" name="target-quantity" type="text" inputmode="text" value="1,000,000" placeholder="1m, 250k…" title="Type 1m, 250k or an exact number"></label>
         </div>
       </section>
 
@@ -106,13 +105,13 @@
       <section class="page-intro"><h1>Your setup</h1><p>Turn off anything you don't have.</p></section>
 
 
-      <div class="setup-heading"><div><span class="scope-label">Permanent</span><h2>Perks and artifacts</h2><div id="profileSummary"></div></div><div><button id="maxProfile" class="quiet-button">Endgame: enable all</button><button id="zeroProfile" class="quiet-button">Disable all</button></div></div>
+      <div class="setup-heading"><div><h2>Perks and artifacts</h2><div id="profileSummary"></div></div><div><button id="maxProfile" class="quiet-button">Endgame: enable all</button><button id="zeroProfile" class="quiet-button">Disable all</button></div></div>
       <div id="perkGroups" class="perk-groups"></div>
 
       <div class="section-heading setup-section"><div><h2>Farm production</h2></div><p>Tick what your farm makes for you. Add a rate to see how long it takes.</p></div>
       <div id="infraGrid" class="infra-grid"></div>
 
-      <div class="section-heading setup-section"><div><span class="scope-label">Temporary effects</span><h2>Meals used for this plan</h2></div><p>Tick the meals you will have running.</p></div>
+      <div class="section-heading setup-section"><div><h2>Meals</h2></div><p>Tick the meals you will have running.</p></div>
       <div id="mealGrid" class="meal-grid"></div>
 
     </section>
@@ -187,7 +186,6 @@
         <div id="towerSyncState" class="tower-sync-state"><span></span><strong>Saved account</strong><small>Extension not connected</small></div>
       </section>
       <section id="towerSummary" class="tower-summary" aria-label="Tower progress summary"></section>
-      <section class="tower-legend"><span><i class="tower-dot next"></i>Next blocker</span><span><i class="tower-dot work"></i>Still needed</span><span><i class="tower-dot done"></i>Requirement met</span><b>Mega Mastery = 1,000,000 · Grand Mastery = 100,000</b></section>
       <section id="towerRail" class="tower-rail"></section>
     </section>
 
@@ -319,15 +317,15 @@
   <script src="js/engine.js?v=20261005-1"></script>
   <script src="js/item-art.js?v=20260905-1"></script>
   <script src="js/quest-model.js?v=20260917-1"></script>
-  <script src="js/app.js?v=20261008-4"></script>
+  <script src="js/app.js?v=20261008-5"></script>
   <script src="js/mining-page.js?v=20260911-5"></script>
-  <script src="js/locations-page.js?v=20261008-1"></script>
-  <script src="js/trips-page.js?v=20261008-1"></script>
+  <script src="js/locations-page.js?v=20261008-2"></script>
+  <script src="js/trips-page.js?v=20261008-2"></script>
   <script src="js/quests-page.js?v=20261008-2"></script>
   <script src="js/gather-model.js?v=20261007-1"></script>
   <script src="js/inventory-page.js?v=20261008-1"></script>
   <script src="js/items-page.js?v=20261008-1"></script>
-  <script src="js/tracker.js?v=20261008-1"></script>
+  <script src="js/tracker.js?v=20261008-2"></script>
   <script src="js/sync-guide.js?v=20260929-2"></script>
 </body>
 </html>

@@ -450,7 +450,7 @@
       '<div class="places-pour">' +
         '<label class="places-field"><span>Spend</span><input id="placesAmount" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.amount) + '"></label>' +
         '<label class="places-field"><span>of</span><select id="placesKind">' + options + "</select></label>" +
-        '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="anything — try Iron"></label>' +
+        '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="Looking for… e.g. Iron"></label>' +
       "</div>" +
       '<div class="places-basis">' +
         (FINDS.has(prefs.kind)
@@ -459,13 +459,12 @@
         '<button type="button" class="places-chip needed' + (prefs.onlyNeeded ? " active" : "") + '" data-only aria-pressed="' + !!prefs.onlyNeeded + '">Only what I still need</button>' +
       "</div>" +
       '<div class="places-meals">' +
-        '<span class="places-basis-label">Meals running</span>' +
+        '<span class="places-basis-label">Meals</span>' +
         (MEALS_FOR[prefs.mode] || []).map((row) =>
           '<button type="button" class="places-chip meal' + (meal(row[0]) ? " active" : "") +
           '" data-meal="' + row[0] + '" aria-pressed="' + meal(row[0]) + '" title="' + esc(row[2]) + '">' +
           esc(row[1]) + "</button>").join("") +
       "</div>" +
-      '<p class="places-basis-note">' + esc(sourceNote()) + "</p>" +
     "</div>";
   }
 
