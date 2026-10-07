@@ -85,10 +85,14 @@
   const wireOwner = () => {
     const box = document.getElementById("ownerFarm");
     if (!box) return;
-    if (clean) {
+    // Only the author ever needs this. It stays hidden unless the page was
+    // opened with ?owner in the address, or it is already ticked - and a
+    // clean download never shows it at all.
+    const asked = /[?&]owner\b/.test(location.search || "");
+    if (clean || (!asked && !isOwner)) {
       const row = box.closest(".owner-farm");
       if (row) { row.hidden = true; row.style.display = "none"; }
-      return;
+      if (clean) return;
     }
     box.checked = isOwner;
     box.addEventListener("change", () => window.FRPG_ACCOUNT_SOURCE.setOwner(box.checked));

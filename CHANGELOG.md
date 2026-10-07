@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-07 (evening) — Ready for the public: the build tools come out of the UI
+
+- **Removed:** the "Record your own drop rates" page (Acorn Pie samples and the
+  editable "numbers behind the plan"), "Recording your own data" links to the
+  collector scripts, the Setup "Open local importer" card, the Export plan
+  button, the "Best fit" route card, and "Personal field samples" on Home.
+- **Author-only:** "The example farm is mine" is hidden unless the page is
+  opened with `?owner` in the address (or it is already ticked).
+- **Plain words:** Setup, meals, Places notes, the account sync guide (now three
+  short steps) and "Where the numbers come from" were rewritten for players.
+
 ## 2026-10-07 (later) — The site stops deciding; a Trips page instead
 
 The owner: "the website shouldn't decide anything, the people choose their path."

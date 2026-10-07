@@ -175,7 +175,9 @@ test("effectiveness decides clicks, and the stamina perks are applied", () => {
   // But it is stamina per CLICK, not per explore. One explore is one stamina,
   // so it changes how much clicking a pour takes and nothing else. It must
   // therefore never gate a card, and never multiply a bill.
-  assert.match(page, /it is your ciders it stretches, not your stamina/);
+  // The long explanation of how effectiveness works was cut for players; the
+  // numbers themselves stay.
+  assert.match(page, /one Apple Cider is <b>/);
   assert.doesNotMatch(page, /Nothing to work out until that number is in/);
   // Wanderer IV is a 13% chance an explore is free, so stamina goes further.
   // Places was not applying it at all.
@@ -204,7 +206,7 @@ test("Places says what the workbook assumes that your account may not", () => {
   // "Every perk on" is a number Setup already knows, so the gap is stated
   // rather than left for the player to discover in-game.
   assert.match(page, /function sourceNote\(\)/);
-  assert.match(page, /count\(100 \* mine \/ WORKBOOK_FINDS\)/);
+  assert.match(page, /scaled to your Setup: your " \+ unit/);
   // The long version explained the workbook's internals and the player could
   // not tell what it was for. Keep it to one line.
   assert.doesNotMatch(page, /which is what makes scaling them sound/);

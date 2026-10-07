@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-07.3";
+  const FRPG_BUILD = "2026-10-07.5";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -145,16 +145,16 @@
     wireHour: 0,
   };
   const MEALS = [
-    { id: "neigh", name: "Neigh", area: "Exploring economy", effect: "Cider uses 20% less stamina", calc: "Lowers stamina and OJ opportunity cost. It does not reduce the number of Ciders used." },
-    { id: "quandary", name: "Quandary Chowder", area: "Exploring economy", effect: "+10% Lemonade / AP output", calc: "Reduces the Lemonade or Arnold Palmer count needed for a route." },
-    { id: "cabbage", name: "Cabbage Stew", area: "Bulk actions", effect: "Use 5 Ciders per click", calc: "Saves clicks. With Acorn Pie, five Ciders consume one of its 150 action charges." },
-    { id: "lemoncream", name: "Lemon Cream Pie", area: "Bulk actions", effect: "Use 5 AP per click", calc: "Saves clicks. With Acorn Pie, five AP consume one of its 150 action charges." },
-    { id: "hickory", name: "Hickory Omelette", area: "Farm production", effect: "+20% Sawmill every 10 min for 1 hour", calc: "Adds six 20% ticks on top of the normal hourly Sawmill collection, before inventory voiding." },
-    { id: "acorn", name: "Acorn Pie", img: "/img/items/acorn_pie.png", area: "Exploring special", effect: "Adds Hide outside Forest for 150 actions", calc: "Uses your own measured samples because the Hide rate changes by location and bulk method." },
-    { id: "seapincher", name: "Sea Pincher Special", area: "Fishing economy", effect: "Nets and Large Nets are more effective", calc: "Uses the editable 10% community estimate for Net requirements." },
-    { id: "shrimp", name: "Shrimp-a-Plenty", area: "Selling", effect: "+10% silver at Market for 5 minutes", calc: "Included in final sell value and raw-material opportunity value." },
+    { id: "neigh", name: "Neigh", area: "Exploring economy", effect: "Cider uses 20% less stamina", calc: "Same number of Ciders, less stamina." },
+    { id: "quandary", name: "Quandary Chowder", area: "Exploring economy", effect: "+10% Lemonade / AP output", calc: "Fewer Lemonades or Arnold Palmers for the same haul." },
+    { id: "cabbage", name: "Cabbage Stew", area: "Bulk actions", effect: "Use 5 Ciders per click", calc: "Saves clicks only - it does not change how many you need." },
+    { id: "lemoncream", name: "Lemon Cream Pie", area: "Bulk actions", effect: "Use 5 AP per click", calc: "Saves clicks only - it does not change how many you need." },
+    { id: "hickory", name: "Hickory Omelette", area: "Farm production", effect: "+20% Sawmill every 10 min for 1 hour", calc: "Six extra 20% collections during that hour." },
+    { id: "acorn", name: "Acorn Pie", img: "/img/items/acorn_pie.png", area: "Exploring special", effect: "Adds Hide outside Forest for 150 actions", calc: "How much Hide it adds has never been measured, so it does not change any number here." },
+    { id: "seapincher", name: "Sea Pincher Special", area: "Fishing economy", effect: "Nets and Large Nets are more effective", calc: "Counted as +10% catch - a community estimate." },
+    { id: "shrimp", name: "Shrimp-a-Plenty", area: "Selling", effect: "+10% silver at Market for 5 minutes", calc: "Counted in every sell value." },
     { id: "mushroom", name: "Mushroom Stew", area: "Mastery", effect: "+10% Mastery for 5 minutes", calc: "Each item counts 1.1x toward a mastery, so a 1m Mega Mastery lands at about 909.09k items." },
-    { id: "crunchy", name: "Crunchy Omelette", area: "Farm production", effect: "+50% items when collecting from Pets for 2 minutes", calc: "Raises what a Pet collection returns by half, before inventory voiding. It does not change exploring or fishing." },
+    { id: "crunchy", name: "Crunchy Omelette", area: "Farm production", effect: "+50% items when collecting from Pets for 2 minutes", calc: "Pets only - it does not change exploring or fishing." },
   ];
   const MEAL_DEFAULTS = Object.fromEntries(MEALS.map((meal) => [meal.id, false]));
 
@@ -449,8 +449,7 @@
     const passiveSources = [state.infra.sawmillWood, state.infra.sawmillBoard, state.infra.quarryStone, state.infra.quarryCoal, state.infra.hayStraw];
     const passive = passiveSources.filter(Boolean).length;
     const activeMeals = Object.values(state.meals).filter(Boolean).length;
-    const measured = state.acornTests.length;
-    const readiness = [enabledRows > 0, passive > 0, activeMeals > 0, measured > 0].filter(Boolean).length;
+    const readiness = [enabledRows > 0, passive > 0, activeMeals > 0].filter(Boolean).length;
 
     $("homeRecent").innerHTML = item
       ? `<button class="recent-button" data-home-recent><span>Last calculation</span><strong>${itemImg(item, "small")}${esc(item.name)} × ${fmt(state.qty)}</strong><b>Continue →</b></button>`
@@ -460,12 +459,11 @@
 
     renderStanding();
     $("homeSetupSummary").textContent = `${enabledRows}/${totalRows} permanent bonuses on · ${passive} passive sources · ${activeMeals} meals active.`;
-    $("homeReadiness").textContent = `${readiness}/4 checked`;
+    $("homeReadiness").textContent = `${readiness}/3 checked`;
     const readinessRows = [
       ["Permanent bonuses", `${enabledRows}/${totalRows} active`, enabledRows > 0],
       ["Passive materials", `${passive}/${passiveSources.length} covered`, passive > 0],
       ["Plan meals", `${activeMeals}/${MEALS.length} active`, activeMeals > 0],
-      ["Personal field samples", measured ? `${measured} saved` : "None yet", measured > 0],
     ];
     $("homeReadinessRows").innerHTML = readinessRows.map(([label, value, ready]) => `<div><span class="readiness-dot ${ready ? "ready" : "review"}"></span><strong>${esc(label)}</strong><b>${esc(value)}</b></div>`).join("");
 
@@ -1191,7 +1189,7 @@
     if (fact.mastery && fact.mastery.towerRequirement) {
       lines.push(`<span class="hoard-note"><b>Save for later:</b> this is a Tower Mega Mastery at floor ${fmt(fact.mastery.towerRequirement)}.</span>`);
     }
-    const summary = route.coDrops && route.coDrops.length ? `See ${route.coDrops.length} useful drops & future uses` : "Why this route";
+    const summary = route.coDrops && route.coDrops.length ? `See ${route.coDrops.length} useful drops & future uses` : "Good to know";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
   }
   // Everything hanging off a craft used to render bare, which made fished and
@@ -1578,14 +1576,13 @@
     }
     const acornNotice = $("acornNotice");
     if (state.meals.acorn && !state.acornTests.length) {
-      acornNotice.innerHTML = 'Acorn Pie is on, but it cannot change these numbers yet. It needs at least one of your own measured samples \u2014 how many Hide you got from how many uses \u2014 because the rate differs by location and method. <button class="text-action" data-open-view="fieldlab">Add a sample</button>';
+      acornNotice.textContent = "Acorn Pie is on, but it does not change these numbers: how much Hide it adds has never been measured, and it differs by place and by what you spend.";
       acornNotice.hidden = false;
     } else {
       acornNotice.hidden = true;
     }
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
-    $("bestRoute").innerHTML = `<span class="route-label">Best fit</span><h3>Use a mixed route</h3><p class="verdict">${plural(cashBuyCount, "ingredient is", "ingredients are")} cheaper to buy than to craft. ${plural(progressionFarmCount, "ingredient is", "ingredients are")} worth farming anyway, because the same run also feeds masteries, quests or other drops you want.</p>${metric("Most-used route", bestText ? decisionLabel(bestText[0]) : "Use inventory")}${metric("Exploring saved by combining runs", fmt(sharedExploreSavings))}${metric("Longest passive wait", passiveHours ? fmt(passiveHours) + " hours" : "None")}`;
     $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${explores > 0 ? metric("Explores", fmt(explores)) : ""}${ciders > 0 ? metric("Apple Cider", fmt(ciders), "spends stamina") : ""}${aps > 0 ? metric("Arnold Palmer", fmt(aps), "no stamina") : ""}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">Anything from the same location comes out of one trip — the biggest requirement carries the rest.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
     $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
 
@@ -1773,12 +1770,12 @@
     $("profileSummary").innerHTML = `<span class="profile-score"><b>${enabledRows}</b> of ${rows.length} permanent bonuses active</span>`;
 
     const infraCards = [
-      { title: "Iron Depot", art: itemByName("Iron"), body: "Keeps Iron and Nails full by auto-buying with silver. These stay out of the main bottleneck list when enabled.", controls: `<label class="inline-toggle"><input type="checkbox" data-effect-direct="iron_depot" ${state.enabled.has("iron_depot") ? "checked" : ""}> I own Iron Depot</label>` },
-      { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive hourly. Hickory adds six 20% ticks during its hour; useful output can still be limited by inventory or Craftworks.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
-      { title: "Inventory cap", art: itemByName("Wooden Box"), body: "Anything a building produces above this in one collection is lost. It is why Hickory is worth more than its 2.2x — six collections an hour each fit under the cap where one big one would not.", controls: `<label class="mini-field">Your cap per item<input type="number" min="0" data-infra-number="inventoryCap" value="${clean(state.infra.inventoryCap)}"></label>` },
-      { title: "Steel works", art: itemByName("Steel"), body: "Steel and Steel Wire produce on their own once the building is running. Wire comes out at about a third of the Steel rate, so setting Steel fills Wire in unless you have measured it yourself.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="forgeSteel" ${state.infra.forgeSteel ? "checked" : ""}> Cover Steel</label><label class="inline-toggle"><input type="checkbox" data-infra="forgeWire" ${state.infra.forgeWire ? "checked" : ""}> Cover Steel Wire</label><label class="mini-field">Steel/hr<input type="number" min="0" data-infra-number="steelHour" data-fills="wireHour" value="${clean(state.infra.steelHour)}"></label><label class="mini-field">Steel Wire/hr<input type="number" min="0" data-infra-number="wireHour" value="${clean(state.infra.wireHour)}"></label>` },
-      { title: "Hay Field", art: itemByName("Straw"), body: "Straw arrives every 10 minutes. Covering it here covers every recipe that needs Straw — Twine, Rope, Yarn and the rest — so those stop sending you exploring for it.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="hayStraw" ${state.infra.hayStraw ? "checked" : ""}> Cover Straw</label><label class="mini-field">Straw / 10 min<input type="number" min="0" data-infra-number="strawTen" value="${clean(state.infra.strawTen)}"></label><fieldset class="hay-make" ${state.infra.hayStraw ? "" : "disabled"}><legend>Make these from your Straw</legend>${strawFamily().map((item) => `<label class="inline-toggle"><input type="checkbox" data-hay-make="${esc(item.name)}" ${(state.infra.hayMake || {})[item.name] ? "checked" : ""}> ${esc(item.name)}</label>`).join("")}<small>Leave one unticked if you would rather buy it.</small></fieldset>` },
-      { title: "Quarry", art: itemByName("Stone"), body: "Stone is a 10-minute production item. Coal is only an occasional secondary output, so it has its own separate switch and measured rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
+      { title: "Iron Depot", art: itemByName("Iron"), body: "Auto-buys Iron and Nails with silver, so you never need to go and get them.", controls: `<label class="inline-toggle"><input type="checkbox" data-effect-direct="iron_depot" ${state.enabled.has("iron_depot") ? "checked" : ""}> I own Iron Depot</label>` },
+      { title: "Sawmill", art: itemByName("Wood"), body: "Wood and Boards arrive every hour. Hickory Omelette adds 20% every 10 minutes for an hour.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="sawmillWood" ${state.infra.sawmillWood ? "checked" : ""}> Cover Wood</label><label class="inline-toggle"><input type="checkbox" data-infra="sawmillBoard" ${state.infra.sawmillBoard ? "checked" : ""}> Cover Boards</label><label class="mini-field">Useful Wood/hr<input type="number" min="0" data-infra-number="woodHour" value="${clean(state.infra.woodHour)}"></label><label class="mini-field">Useful Boards/hr<input type="number" min="0" data-infra-number="boardHour" value="${clean(state.infra.boardHour)}"></label>` },
+      { title: "Inventory cap", art: itemByName("Wooden Box"), body: "Anything over your cap is lost when it is collected.", controls: `<label class="mini-field">Your cap per item<input type="number" min="0" data-infra-number="inventoryCap" value="${clean(state.infra.inventoryCap)}"></label>` },
+      { title: "Steel works", art: itemByName("Steel"), body: "Steel and Steel Wire are made on their own. Wire comes out at about a third of the Steel rate.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="forgeSteel" ${state.infra.forgeSteel ? "checked" : ""}> Cover Steel</label><label class="inline-toggle"><input type="checkbox" data-infra="forgeWire" ${state.infra.forgeWire ? "checked" : ""}> Cover Steel Wire</label><label class="mini-field">Steel/hr<input type="number" min="0" data-infra-number="steelHour" data-fills="wireHour" value="${clean(state.infra.steelHour)}"></label><label class="mini-field">Steel Wire/hr<input type="number" min="0" data-infra-number="wireHour" value="${clean(state.infra.wireHour)}"></label>` },
+      { title: "Hay Field", art: itemByName("Straw"), body: "Straw arrives every 10 minutes. Covering it also covers what you make from it — Twine, Rope, Yarn and the rest.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="hayStraw" ${state.infra.hayStraw ? "checked" : ""}> Cover Straw</label><label class="mini-field">Straw / 10 min<input type="number" min="0" data-infra-number="strawTen" value="${clean(state.infra.strawTen)}"></label><fieldset class="hay-make" ${state.infra.hayStraw ? "" : "disabled"}><legend>Make these from your Straw</legend>${strawFamily().map((item) => `<label class="inline-toggle"><input type="checkbox" data-hay-make="${esc(item.name)}" ${(state.infra.hayMake || {})[item.name] ? "checked" : ""}> ${esc(item.name)}</label>`).join("")}<small>Leave one unticked if you would rather buy it.</small></fieldset>` },
+      { title: "Quarry", art: itemByName("Stone"), body: "Stone arrives every 10 minutes. Coal only comes now and then, so it has its own switch.", controls: `<label class="inline-toggle"><input type="checkbox" data-infra="quarryStone" ${state.infra.quarryStone ? "checked" : ""}> Cover Stone</label><label class="inline-toggle"><input type="checkbox" data-infra="quarryCoal" ${state.infra.quarryCoal ? "checked" : ""}> Cover Coal too</label><label class="mini-field">Stone / 10 min<input type="number" min="0" data-infra-number="stoneTen" value="${clean(state.infra.stoneTen)}"></label><label class="mini-field">Average Coal/hr<input type="number" min="0" data-infra-number="coalHour" value="${clean(state.infra.coalHour)}"></label>` },
     ];
     const production = farmProduction();
     const farmNote = production.length
@@ -1828,25 +1825,8 @@
     }).join("");
     document.querySelectorAll("[data-meal]").forEach((input) => { input.onchange = () => { state.meals[input.dataset.meal] = input.checked; save(); renderSetup(); render(); }; });
 
-    if (!$("acornTests") || !$("acornForm") || !$("assumptionGrid")) return;
-    $("acornTests").innerHTML = state.acornTests.length ? state.acornTests.map((test, idx) => {
-      const bulk = test.method === "ap" && state.meals.lemoncream ? 5 : test.method === "cider" && state.meals.cabbage ? 5 : 1;
-      const hidesPerUse = Number(test.hides) / Number(test.uses);
-      return `<div class="sample-row"><span><b>${esc(test.location)}</b><small>${fmt(test.hides)} Hide from ${fmt(test.uses)} ${esc(test.method.toUpperCase())} · ${fmt(hidesPerUse)} Hide/use · current bulk ${bulk}×</small></span><button data-remove-sample="${idx}" aria-label="Remove sample">Remove</button></div>`;
-    }).join("") : `<div class="empty-samples">No samples yet. The calculator will use normal Hide routes or the trade price until you add one.</div>`;
-    document.querySelectorAll("[data-remove-sample]").forEach((button) => { button.onclick = () => { state.acornTests.splice(Number(button.dataset.removeSample), 1); save(); renderSetup(); render(); }; });
-    $("acornForm").onsubmit = (event) => {
-      event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      const sample = { location: String(form.get("location") || "Unknown location"), method: String(form.get("method") || "ap"), uses: Number(form.get("uses")), hides: Number(form.get("hides")) };
-      if (sample.uses > 0 && sample.hides > 0) { state.acornTests.push(sample); save(); event.currentTarget.reset(); renderSetup(); render(); }
-    };
-
-    // These rows used to be titled with the raw storage key ("crop qf is
-    // reduction", "net ln base catch"), which is unreadable to anyone but the
-    // person who wrote it.
-    $("assumptionGrid").innerHTML = Object.entries(BASE_CONSTS).filter(([, value]) => value && typeof value.v === "number").map(([key, value]) => `<label class="assumption-row ${value.verified ? "" : "unverified"}"><span><strong>${esc(ASSUMPTION_LABELS[key] || key.replaceAll("_", " "))}</strong><small>${esc(value.why || "")}</small></span><input type="number" step="any" data-assumption="${esc(key)}" aria-label="${esc(ASSUMPTION_LABELS[key] || key.replaceAll("_", " "))}" value="${clean(state.overrides[key] ?? value.v)}"></label>`).join("");
-    document.querySelectorAll("[data-assumption]").forEach((input) => { input.onchange = () => { state.overrides[input.dataset.assumption] = Number(input.value); save(); render(); }; });
+    // The Acorn Pie sample form and the editable "numbers behind the plan"
+    // were tools for building this site, not for players, and are gone.
   }
 
   function accountScalar(value) {
@@ -2605,15 +2585,6 @@
     if (fillFarmProduction(false)) { renderSetup(); render(); }
   });
   window.postMessage({ source: "farmrpg-calculator", type: "request-snapshot" }, "*");
-  $("exportPlan").onclick = () => {
-    if (!state.lastPlan) { showTab("planner"); el.error.textContent = "Choose an item before exporting a plan."; el.error.classList.remove("hidden"); return; }
-    const blob = new Blob([JSON.stringify(state.lastPlan, null, 2)], { type: "application/json" });
-    const anchor = document.createElement("a");
-    anchor.href = URL.createObjectURL(blob);
-    anchor.download = `farmrpg-${state.lastPlan.goal.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-plan.json`;
-    anchor.click();
-    URL.revokeObjectURL(anchor.href);
-  };
 
   const itemCount = D.items.items.filter((item) => item.active).length;
   const recipeCount = D.recipes.craft.length + D.recipes.cook.length;
@@ -2635,7 +2606,7 @@ if ($("footer")) $("footer").innerHTML = "Farm RPG Calculator is a fan-made plan
     // names, "21 parsed · 24 incomplete". None of that is a player's problem.
     // What is worth saying plainly: not every part of the game is covered.
     const status = $("knowledgeStatus");
-    if (status) status.innerHTML = `<p>Not everything in Farm RPG is in here yet. Where a drop rate or a price has never been measured, the planner says so rather than guessing — the notes below say so and ask for your own numbers instead.</p>`;
+    if (status) status.innerHTML = `<p>Not everything in Farm RPG is in here yet. Where a drop rate or a price has never been measured, the site says so instead of guessing.</p>`;
 
     if ($("strategyRules")) $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs your own numbers</b>` : `<b class="supported">Confirmed</b>`}</div><p>${esc(rule.rule)}</p></article>`).join("") : `<div class="empty-samples">No route rules yet.</div>`;
 

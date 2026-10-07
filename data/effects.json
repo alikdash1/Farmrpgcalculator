@@ -27,6 +27,6 @@
     { "id": "reinforced_ln", "family": "reinforced_netting", "name": "Reinforced Netting", "kind": "Farm Supply", "type": "ln_bonus", "value": 150, "plain": "Large Nets catch 400 items before artifacts." },
     { "id": "trigonn", "name": "Trigon Knot", "kind": "Artifact", "type": "ln_bonus", "value": 100, "plain": "Adds 100 items per Large Net." },
     { "id": "iron_depot", "name": "Iron Depot", "kind": "Farm Supply", "type": "iron_depot", "value": 1, "plain": "Auto-buys Iron and Nails with silver and keeps them full." },
-    { "id": "runecube", "name": "Runecube", "kind": "Artifact", "type": "rare_boost", "value": 0.2, "plain": "Boosts some rare drops; only used where the exact formula is known." }
+    { "id": "runecube", "name": "Runecube", "kind": "Artifact", "type": "rare_boost", "value": 0.2, "plain": "Boosts some rare drops." }
   ]
 }

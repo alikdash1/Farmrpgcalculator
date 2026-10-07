@@ -427,16 +427,14 @@
       const mine = prefs.mode === "fishing" ? m.nets.lnCatch : m.drinks.apItems;
       const verb = prefs.mode === "fishing" ? "catches " : "finds ";
       if (prefs.scaled && mine > 0 && mine !== WORKBOOK_FINDS) {
-        return "Rates per " + unit + " from the shared community workbook, which had every perk on. " +
-          "Setup says yours " + verb + whole(mine) + ", so these are " + count(100 * mine / WORKBOOK_FINDS) + "% of what it measured.";
+        return "Rates per " + unit + " from the community Tower spreadsheet, scaled to your Setup: your " + unit + " " + verb + whole(mine) + " items.";
       }
-      return "Rates per " + unit + " from the shared community workbook, which had every perk on.";
+      return "Rates per " + unit + " from the community Tower spreadsheet.";
     }
     if (prefs.mode === "fishing") {
-      return byRod() ? "Rates from community logs of manual rod fishing." : "Rates from community logs.";
+      return "Rates from community drop logs.";
     }
-    return "Rates from community logs of ordinary exploring" +
-      (m.ironDepot ? ", counted with Iron Depot on since Setup says you own it" : "") + ".";
+    return "Rates from community drop logs" + (m.ironDepot ? ", with Iron Depot on" : "") + ".";
   }
   function controls() {
     const list = KINDS[prefs.mode] || [];
@@ -484,12 +482,9 @@
     // is one stamina either way. It changes how many clicks it takes, which is
     // the whole reason Protein Bars, Jill and Sprint Shoes exist.
     const said = per > 0
-      ? "At " + whole(per) + "% effectiveness one Apple Cider does <b>" + whole(cider) + "</b> explores for <b>" +
-        whole(ciderStaminaEach(place) * perkFactor() * neighFactor()) + "</b> stamina. Raising this gives a cider " +
-        "proportionally more explores for proportionally more stamina — the rate stays at " +
-        constant("explore_base_stamina", 1.25) + " stamina an explore either way, so it is your ciders it stretches, not your stamina."
-      : "Farm RPG shows this on the location page: <i>you are currently using N stamina every time you continue exploring this location</i>. " +
-        "Protein Bars, Jill and Sprint Shoes all <b>raise</b> it. Without it, a cider is counted at its effectiveness-0 value.";
+      ? "At " + whole(per) + "% one Apple Cider is <b>" + whole(cider) + "</b> explores for <b>" +
+        whole(ciderStaminaEach(place) * perkFactor() * neighFactor()) + "</b> stamina here."
+      : "Your exploring effectiveness here — Farm RPG shows it on the location page. It only changes the Cider numbers.";
     const bill = spent > 0
       ? '<p class="places-effort-bill">Your ' + whole(spend()) + " " + esc(kindLabel()) +
         " here: <b>" + whole(spent) + "</b> stamina" +
