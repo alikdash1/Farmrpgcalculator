@@ -5,6 +5,12 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — "Where the numbers come from" removed
+
+The owner asked for the page and everything leading to it to go: the Library
+view (meal list, source ranking, coverage counters), its footer link, and
+`renderLibrary`. An old `#library` link now lands on Home.
+
 ## 2026-10-08 — Tiers from the extension, a plainer Account guide, shorter gathered goals
 
 - The perks capture lists "Artisan I" … "IV" one by one with `owned`, so

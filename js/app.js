@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.9";
+  const FRPG_BUILD = "2026-10-08.10";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -347,7 +347,6 @@
     if (id === "account") renderAccount();
     if (id === "tower") renderTower();
     if (id === "home") renderHome();
-    if (id === "library") renderLibrary();
     if (id === "places" && window.FRPG_renderPlaces) window.FRPG_renderPlaces();
     if (id === "trips" && window.FRPG_renderTrips) window.FRPG_renderTrips();
     if (history && history.pushState) {
@@ -2422,39 +2421,12 @@
   });
   window.postMessage({ source: "farmrpg-calculator", type: "request-snapshot" }, "*");
 
-  const itemCount = D.items.items.filter((item) => item.active).length;
-  const recipeCount = D.recipes.craft.length + D.recipes.cook.length;
-  const locCount = D.sources.locations.length;
-  const marketCount = Object.keys(D.market.items || {}).length;
-  const progressionCount = Object.keys(P.items || {}).length;
-  const strategyRuleCount = Object.keys(P.routeRules || {}).length;
-  // Was a row of build counters (recipe rows, progression profiles, source
-  // parse status). Players don't need the shape of the database — they need to
-  // know how much of the game is covered.
-  if ($("dataSummary")) $("dataSummary").innerHTML = [["Items", itemCount], ["Recipes", recipeCount], ["Places to gather", locCount], ["Items with a trade price", marketCount]].map(([label, value]) => `<div class="data-card"><span>${label}</span><strong>${fmt(value)}</strong></div>`).join("");
   // A visible build stamp. Half the "it still does the old thing" reports are a
 // browser holding an old copy of a file, and this is the only way to tell.
 if ($("footer")) $("footer").innerHTML = "Farm RPG Calculator is a fan-made planner, not affiliated with Farm RPG. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
 
-  function renderLibrary() {
-    if (!$('mechanicsIndex')) return;
-    // This used to print build diagnostics — database integrity, unresolved
-    // names, "21 parsed · 24 incomplete". None of that is a player's problem.
-    // What is worth saying plainly: not every part of the game is covered.
-    const status = $("knowledgeStatus");
-    if (status) status.innerHTML = `<p>Not everything in Farm RPG is in here yet. Where a drop rate or a price has never been measured, the site says so instead of guessing.</p>`;
-
-    if ($("strategyRules")) $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs your own numbers</b>` : `<b class="supported">Confirmed</b>`}</div><p>${esc(rule.rule)}</p></article>`).join("") : `<div class="empty-samples">No route rules yet.</div>`;
-
-    const mealByName = new Map(K.meals.map((meal) => [meal.name.toLowerCase(), meal]));
-    $("mechanicsIndex").innerHTML = MEALS.map((meal) => {
-      const known = mealByName.get(meal.name.toLowerCase());
-      return `<article><div>${itemImg(itemByName(meal.name), "table-art", meal.name, meal.img)}<span><strong>${esc(meal.name)}</strong><small>${esc(meal.area)}</small></span></div><p>${esc((known && known.effect) || meal.effect)}</p><b>${esc(meal.calc)}</b></article>`;
-    }).join("");
-  }
 
   renderSetup();
-  renderLibrary();
   renderTower();
   // Reopen the item this player last costed. With none saved, Calculate starts
   // empty and offers their own next Tower masteries. It used to open Red Trunk

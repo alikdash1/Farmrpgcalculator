@@ -20,7 +20,7 @@ test("generated knowledge export is healthy and repaired", () => {
 
 test("Phase 2 exposes focused top-level work areas", () => {
   const html = readFileSync(new URL("index.html", root), "utf8");
-  for (const id of ["home", "planner", "setup", "trips", "library"]) {
+  for (const id of ["home", "planner", "setup", "trips"]) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(html, /data\/knowledge\.js/);
