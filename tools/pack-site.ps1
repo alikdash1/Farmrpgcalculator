@@ -27,7 +27,7 @@ $top = Join-Path $stage "farm-rpg-calculator"
 # What index.html loads, plus the licence. Keep in step with index.html.
 # Windows' own tar. Run from Git Bash, plain "tar" is GNU tar, which reads
 # "C:\..." as a remote host and fails.
-$tarExe = Join-Path $env:SystemRoot "System32	ar.exe"
+$tarExe = Join-Path $env:SystemRoot "System32\tar.exe"
 if (-not (Test-Path $tarExe)) { $tarExe = "tar" }
 
 $sitePaths = @("index.html", "site.webmanifest", "LICENSE", "js", "css", "data", "assets",
