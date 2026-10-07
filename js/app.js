@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.5";
+  const FRPG_BUILD = "2026-10-08.6";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -127,6 +127,41 @@
   };
 
   const allEffectIds = BASE_EFFECTS.map((effect) => effect.id);
+  // Skill perks bought one tier at a time. Values are the game's own perk text
+  // from the owner's capture (raw/account-captures/live-2026-10-05.json).
+  // Artisan and Wanderer tiers add up (4+7+9+13 = 33, the workbook's x0.67);
+  // Negotiator stays at its strongest tier, as the planner has always counted it.
+  const PERK_TIERS = {
+    artisan: { steps: [0.05, 0.10, 0.15, 0.20], stack: true, text: (p) => `Workshop silver cost ${p}% lower.` },
+    negotiator: { steps: [0.05, 0.10, 0.15, 0.20], stack: false, text: (p) => `Items sell for ${p}% more silver.` },
+    wanderer: { steps: [0.04, 0.07, 0.09, 0.13], stack: true, text: (p) => `${p}% of explores cost no stamina.` },
+  };
+  const TIER_NAMES = ["Off", "I", "II", "III", "IV"];
+  function tierValue(id, level) {
+    const tier = PERK_TIERS[id];
+    if (!tier || level <= 0) return 0;
+    const steps = tier.steps.slice(0, level);
+    return tier.stack ? steps.reduce((sum, v) => sum + v, 0) : steps[steps.length - 1];
+  }
+  // A perk that is on with no tier saved is all four - how it was stored
+  // before tiers could be picked.
+  function tierLevel(id) {
+    if (!state.enabled.has(id)) return 0;
+    const saved = Number(state.perkTiers[id]);
+    return saved >= 1 && saved <= 4 ? saved : 4;
+  }
+  // The perks are not items, so most have no picture of their own. Artifacts
+  // do; the rest show the thing they work on.
+  const PERK_ART = {
+    artisan: "Hammer", toolbox: "Wrench", rs1: "Wooden Box", rs2: "Wooden Box",
+    fert: "Treasure Chest", negotiator: "Treasure Chest", lemon_squeezer: "Lemonade",
+    cinnamon: "Apple Cider", reinforced_netting: "Large Net", iron_depot: "Iron",
+  };
+  const perkArt = (row) => {
+    const name = PERK_ART[row.key] || row.name;
+    if (row.key === "wanderer") return `<span class="item-art perk-art"><img loading="lazy" width="32" height="32" src="assets/locations/explore-forest.png?v=20260905-102" alt=""></span>`;
+    return itemImg(itemByName(name), "perk-art", name);
+  };
   const INFRA_DEFAULTS = {
     sawmillWood: false,
     sawmillBoard: false,
@@ -177,6 +212,7 @@
     drinkPath: read("frpg_drink_path_v1", "auto"),
     makeChoices: read("frpg_make_v2", {}),
     account: read("frpg_account_snapshot_v1", null),
+    perkTiers: read("frpg_perk_tiers_v1", {}),
     acornTests: read("frpg_acorn_tests_v2", []),
     towerStart: Number(read("frpg_tower_start_v1", PERSONAL.startFloor || 277)),
     // save() wrote the start floor on every save, so the 277 from a first visit
@@ -213,8 +249,18 @@
     const value = Number(saved && typeof saved === "object" ? saved.stamina : saved);
     return value > 0 ? value : 0;
   }
+  // One store for effectiveness: Places, Trips and Calculate all write here.
+  function setLocationEffectiveness(location, value) {
+    if (window.FRPG_PLACES && window.FRPG_PLACES.setEffectiveness) return window.FRPG_PLACES.setEffectiveness(location, value);
+    const effort = read("frpg_location_effort_v1", {}) || {};
+    const v = Math.max(0, Number(value) || 0);
+    if (v > 0) effort[`explore:${location}`] = { stamina: v }; else delete effort[`explore:${location}`];
+    localStorage.setItem("frpg_location_effort_v1", JSON.stringify(effort));
+  }
   function mods() {
-    const base = E.computeMods(BASE_EFFECTS.filter((effect) => state.enabled.has(effect.id)), constants());
+    const chosen = BASE_EFFECTS.filter((effect) => state.enabled.has(effect.id))
+      .map((effect) => (PERK_TIERS[effect.id] ? { ...effect, value: tierValue(effect.id, tierLevel(effect.id)) } : effect));
+    const base = E.computeMods(chosen, constants());
     if (state.meals.shrimp) base.saleMult += 0.1;
     // The perk list above knows about Wanderer and little else, so it can badly
     // overstate stamina for an endgame account. If the player has told us what
@@ -245,6 +291,7 @@
   function save() {
     localStorage.setItem("frpg_owned", JSON.stringify(state.owned));
     localStorage.setItem("frpg_effects_v2", JSON.stringify([...state.enabled]));
+    localStorage.setItem("frpg_perk_tiers_v1", JSON.stringify(state.perkTiers));
     localStorage.setItem("frpg_assumptions", JSON.stringify(state.overrides));
     localStorage.setItem("frpg_infra_v2", JSON.stringify(state.infra));
     localStorage.setItem("frpg_meals_v2", JSON.stringify(state.meals));
@@ -293,6 +340,7 @@
       || ((document.querySelector(`#${id} h1`) || {}).textContent || "").trim());
     document.title = viewName ? `${viewName} — Farm RPG Calculator` : "Farm RPG Calculator";
     if (id === "planner" && !state.itemId) renderEmptySuggestions();
+    if (id === "planner" && state.itemId) render();
     if (id === "setup" || id === "fieldlab") renderSetup();
     if (id === "account") renderAccount();
     if (id === "tower") renderTower();
@@ -1139,9 +1187,10 @@
     if (!route || route.type === "choose") return "";
     if (route.type === "explore" || route.type === "acorn") {
       const ap = state.drinkChoices[item.id] === "ap" && route.aps != null;
-      return ap
-        ? `${fmt(route.aps)} Arnold Palmer at ${esc(route.location)}`
-        : `${fmt(route.ciders)} Cider · ${fmt(route.stamina)} stamina at ${esc(route.location)}`;
+      if (ap) return `${fmt(route.aps)} Arnold Palmer at ${esc(route.location)}`;
+      const eff = locationEffectiveness(route.location);
+      return `${fmt(route.ciders)} Cider · ${fmt(route.stamina)} stamina at ${esc(route.location)}` +
+        `<label class="eff-inline" title="Your exploring effectiveness at ${esc(route.location)}, shared with Places and Trips">Effectiveness <input type="number" min="0" step="1" inputmode="numeric" data-eff-place="${esc(route.location)}" value="${eff || ""}" placeholder="0"></label>`;
     }
     return route.detail || "";
   }
@@ -1597,6 +1646,9 @@
         save(); render();
       };
     });
+    el.ingBody.querySelectorAll("[data-eff-place]").forEach((input) => {
+      input.onchange = () => { setLocationEffectiveness(input.dataset.effPlace, input.value); render(); };
+    });
     el.ingBody.querySelectorAll("[data-source-id]").forEach((select) => {
       select.onchange = () => {
         const id = select.dataset.sourceId;
@@ -1719,8 +1771,25 @@
     rows.forEach((row) => { (groups[perkArea(row)] ||= []).push(row); });
     $("perkGroups").innerHTML = Object.entries(groups).map(([name, groupRows]) => `<section class="perk-group"><h2>${esc(name)}</h2>${groupRows.map((row) => {
       const checked = row.ids.every((id) => state.enabled.has(id));
-      return `<label class="perk-row"><input type="checkbox" data-effect-family="${esc(row.key)}" ${checked ? "checked" : ""}><span><strong>${esc(row.name)}</strong><small>${esc(row.kind || "Bonus")}</small><p>${row.plain.map(esc).join(" ")}</p></span></label>`;
+      const tier = PERK_TIERS[row.key];
+      if (tier) {
+        const level = tierLevel(row.key);
+        const name = row.name.replace(/\s+I-IV$/, "");
+        const pct = Math.round(tierValue(row.key, level) * 100);
+        const picks = TIER_NAMES.map((label, i) => `<button type="button" class="tier-btn${level === i ? " on" : ""}" data-tier="${esc(row.key)}" data-level="${i}" aria-pressed="${level === i}">${label}</button>`).join("");
+        return `<div class="perk-row tiered"><span class="tier-spacer"></span><span><span class="perk-head">${perkArt(row)}<span><strong>${esc(name)}</strong><small>${esc(row.kind || "Bonus")} · highest tier you have</small></span></span><span class="tier-pick" role="group" aria-label="${esc(name)} tier">${picks}</span><p>${level ? esc(tier.text(pct)) : "Off."}</p></span></div>`;
+      }
+      return `<label class="perk-row"><input type="checkbox" data-effect-family="${esc(row.key)}" ${checked ? "checked" : ""}><span><span class="perk-head">${perkArt(row)}<span><strong>${esc(row.name)}</strong><small>${esc(row.kind || "Bonus")}</small></span></span><p>${row.plain.map(esc).join(" ")}</p></span></label>`;
     }).join("")}</section>`).join("");
+    document.querySelectorAll("[data-tier]").forEach((button) => {
+      button.onclick = () => {
+        const id = button.dataset.tier;
+        const level = Number(button.dataset.level) || 0;
+        if (level > 0) { state.enabled.add(id); state.perkTiers[id] = level; }
+        else { state.enabled.delete(id); delete state.perkTiers[id]; }
+        save(); renderSetup(); render();
+      };
+    });
     document.querySelectorAll("[data-effect-family]").forEach((input) => {
       input.onchange = () => {
         const row = rows.find((candidate) => candidate.key === input.dataset.effectFamily);
@@ -2115,75 +2184,18 @@
     return enrichKitchenCapture(enrichFriendshipCapture(enrichPetCapture(enrichFarmSupplyCapture(enrichPerkCapture(enrichQuestCapture(enrichMasteryCapture(enrichTowerCapture(enrichInventoryCapture(enrichProfileCapture(capture))))))))));
   }
 
+  // One line: whose farm is loaded and when. What it holds is applied as it
+  // arrives, so there is nothing to review or confirm.
   function renderAccount() {
     const snapshot = state.account;
     $("accountEmpty").classList.toggle("hidden", !!snapshot);
     $("accountResult").classList.toggle("hidden", !snapshot);
     if (!snapshot) return;
-    const q = snapshot.quests || {};
-    const questBuckets = ["available", "active", "ready", "completed", "locked"];
-    const questCount = questBuckets.reduce((sum, key) => sum + ((q[key] || []).length), 0);
-    const inventory = (snapshot.inventory || []).filter((row) => isRealItem(row.name || row.itemName));
-    const masteries = (snapshot.masteries || []).filter((row) => isRealItem(row.itemName));
-    const consumables = Object.entries(snapshot.consumables || {}).filter(([name]) => isRealItem(name)).sort((a, b) => a[0].localeCompare(b[0]));
-    const activeEffects = (snapshot.activeEffects || []).filter((row) => isRealItem(row.name));
-    const perks = snapshot.perks || [];
-    const supply = snapshot.farmSupply || [];
-    const pets = snapshot.pets || [];
-    const friendships = snapshot.friendships || [];
-    const kitchen = snapshot.kitchenStats || {};
-    $("accountSummary").innerHTML = [
-      ["Player", snapshot.player && snapshot.player.name || "Unknown", "from your import"],
-      ["Tower", accountScalar(snapshot.levels.tower), "current floor"],
-      ["Inventory", fmt(snapshot.inventoryStats && snapshot.inventoryStats.uniqueItems || inventory.length), snapshot.inventoryStats && snapshot.inventoryStats.totalItems ? `${fmt(snapshot.inventoryStats.totalItems)} total held` : "items captured"],
-      ["Quests", fmt(questCount), "statuses captured"],
-      ["Masteries", fmt(masteries.length), "items captured"],
-      ["Active now", fmt(activeEffects.length), "at capture time"],
-      ["Perks", fmt(perks.filter((perk) => perk.owned === true).length), fmt(perks.filter((perk) => perk.owned === null || perk.owned === undefined).length) + " ownership states unknown"],
-      ["Farm Supply", fmt(supply.filter((perk) => perk.owned === true).length), fmt(supply.filter((perk) => perk.owned === null || perk.owned === undefined).length) + " ownership states unknown"],
-      ["Pets", fmt(pets.length), fmt(pets.filter((pet) => pet.species && pet.level !== null && pet.level !== undefined).length) + " identified with levels"],
-      ["Friendships", fmt(friendships.length), "townsfolk levels captured"],
-      ["Kitchen", kitchen.ovensOwned == null ? "Unknown" : fmt(kitchen.ovensOwned) + " ovens", kitchen.fruitPunchLeft == null ? "Fruit Punch unknown" : fmt(kitchen.fruitPunchLeft) + " Fruit Punch left"],
-      ["Not captured", fmt((snapshot.unknownFields || []).length), "details the import could not find"],
-    ].map(([label, value, note]) => `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></article>`).join("");
-    const questStats = snapshot.questStats || {};
-    $("accountQuests").innerHTML = `<div class="account-kv">${questBuckets.map((key) => `<div><span>${esc(key)}</span><b>${fmt((q[key] || []).length)}</b></div>`).join("")}${questStats.requestsCompleted != null ? `<div><span>Lifetime completed</span><b>${fmt(Number(questStats.requestsCompleted))}</b></div>` : ""}${questStats.personalCompleted != null ? `<div><span>Personal completed</span><b>${fmt(Number(questStats.personalCompleted))}</b></div>` : ""}${questStats.completedListed != null ? `<div><span>Diary titles captured</span><b>${fmt(Number(questStats.completedCaptured || 0))} / ${fmt(Number(questStats.completedListed))}${questStats.completedHistoryTruncated ? " · partial" : ""}</b></div>` : ""}</div>${["active", "ready", "available"].map((key) => {
-      const rows = (q[key] || []).slice(0, 8);
-      return rows.length ? `<div class="account-list"><strong>${esc(key)}</strong>${rows.map((quest) => {
-        const detail = [quest.giver, quest.progressPercent != null ? fmt(Number(quest.progressPercent)) + "%" : null, quest.availability].filter(Boolean).join(" · ");
-        return `<span>${esc(quest.title || "Untitled quest")}${detail ? ` <small>${esc(detail)}</small>` : ""}</span>`;
-      }).join("")}</div>` : "";
-    }).join("")}`;
-    const unfinished = masteries.filter((entry) => entry.megaMastery !== true).slice(0, 16);
-    const masteryStats = snapshot.masteryStats || {};
-    $("accountMasteries").innerHTML = `<div class="account-kv"><div><span>Mastered</span><b>${fmt(Number(masteryStats.mastered ?? masteries.filter((m2) => m2.mastered === true).length))}</b></div><div><span>Grand mastered</span><b>${fmt(Number(masteryStats.grandMastered ?? masteries.filter((m2) => m2.grandMastery === true).length))}</b></div><div><span>Mega mastered</span><b>${fmt(Number(masteryStats.megaMastered ?? masteries.filter((m2) => m2.megaMastery === true).length))}</b></div></div><div class="account-list"><strong>Closest to next tier</strong>${unfinished.length ? unfinished.map((entry) => {
-      const item = itemByName(entry.itemName);
-      const target = entry.progressTarget != null ? ` / ${fmt(Number(entry.progressTarget))}` : "";
-      return `<span class="account-item">${itemImg(item, "drop-art", entry.itemName)}<span>${esc(entry.itemName)}${entry.masteryCount != null ? ` · ${fmt(Number(entry.masteryCount))}${target}` : ""}</span></span>`;
-    }).join("") : "<span>No unfinished mastery entries were captured.</span>"}</div>`;
-    const tower = snapshot.towerProgress || {};
-    const nextRewards = tower.nextRewards || [];
-    $("accountTower").innerHTML = tower.currentLevel != null ? `<div class="account-kv">
-      <div><span>Current level</span><b>${fmt(Number(tower.currentLevel))}</b></div>
-      <div><span>Ascension Knowledge</span><b>${fmt(Number(tower.ascensionKnowledge || 0))}</b></div>
-      <div><span>Daily silver</span><b>${fmt(Number(tower.dailySilver || 0))}</b></div>
-      <div><span>Next level</span><b>${fmt(Number(tower.nextLevel || 0))}</b></div>
-      <div><span>Next AK cost</span><b>${fmt(Number(tower.nextAkCost || 0))}</b></div>
-      <div><span>Next silver cost</span><b>${fmt(Number(tower.nextSilverCost || 0))}</b></div>
-    </div><div class="account-list"><strong>Next rewards</strong>${nextRewards.map((reward) => {
-      const item = itemByName(reward.name);
-      return `<span class="account-item">${itemImg(item, "drop-art", reward.name)}<span>${fmt(Number(reward.quantity))} ${esc(reward.name)}</span></span>`;
-    }).join("") || "<span>No visible next-floor rewards.</span>"}</div>` : "<p>Tower details have not been captured yet.</p>";
-    const warnings = [...(snapshot.warnings || []), ...(snapshot.unknownFields || []).map((field) => "Missing: " + field)];
-    $("accountWarnings").innerHTML = warnings.length ? warnings.slice(0, 30).map((warning) => `<p>${esc(warning)}</p>`).join("") : "<p>Nothing looked wrong in what you imported.</p>";
-    $("accountConsumables").innerHTML = (consumables.length || activeEffects.length) ? consumables.slice(0, 10).map(([name, entry]) => {
-        const item = itemByName(name);
-        return `<span>${itemImg(item, "drop-art", name)}<b>${fmt(Number(entry.quantity || 0))}</b><small>${esc(name)}</small></span>`;
-      }).join("") + activeEffects.map((effect) => {
-        const item = itemByName(effect.name);
-        const detail = effect.uses != null ? `${fmt(Number(effect.uses))} uses` : effect.remaining || "active";
-        return `<span>${itemImg(item, "drop-art", effect.name)}<b>${esc(detail)}</b><small>${esc(effect.name)} · at capture</small></span>`;
-      }).join("") : "";
+    const name = snapshot.player && snapshot.player.name;
+    const when = Date.parse(state.extensionConnectedAt || snapshot.generatedAt || "");
+    const items = (snapshot.inventory || []).filter((row) => isRealItem(row.name || row.itemName)).length;
+    const bits = [items ? `${fmt(items)} items` : "", Number.isFinite(when) ? `updated ${new Date(when).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : ""].filter(Boolean);
+    $("accountLoaded").innerHTML = `<strong>${name ? `${esc(name)}'s farm is loaded` : "Your farm is loaded"}</strong>${bits.length ? `<span>${bits.join(" · ")}</span>` : ""}`;
   }
 
 
@@ -2454,7 +2466,7 @@
     save();
     renderSetup();
     render();
-    $("accountWarnings").insertAdjacentHTML("afterbegin", `<p class="apply-success">Applied ${fmt(inventoryApplied)} exact inventory values and ${fmt(effectsApplied)} explicitly confirmed bonuses.</p>`);
+    return inventoryApplied + effectsApplied;
   }
 
   $("maxProfile").onclick = () => { state.enabled = new Set(allEffectIds); save(); renderSetup(); render(); };
@@ -2503,6 +2515,7 @@
         if (failures.length) state.account.warnings.unshift(...failures);
       }
       save();
+      applyAccountSnapshot();
       renderAccount();
       accountSourceChanged();
     } catch (error) {
@@ -2514,7 +2527,6 @@
     event.target.value = "";
   };
   $("clearAccount").onclick = () => { state.account = null; save(); renderAccount(); accountSourceChanged(); };
-  $("applyAccount").onclick = applyAccountSnapshot;
   $("towerStart").onchange = (event) => { state.towerStart = Number(event.target.value) || currentTowerFloor(); state.towerStartChosen = true; save(); renderTower(); };
   $("towerShowDone").onchange = (event) => { state.towerShowDone = event.target.checked; save(); renderTower(); };
 
@@ -2526,6 +2538,7 @@
     state.extensionConnectedAt = message.syncedAt || new Date().toISOString();
     save();
     accountSourceChanged();
+    applyAccountSnapshot();
     renderAccount();
     renderTower();
     if (fillFarmProduction(false)) { renderSetup(); render(); }

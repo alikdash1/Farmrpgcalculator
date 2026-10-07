@@ -5,6 +5,23 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Perk tiers, effectiveness everywhere, one-line Account
+
+- **Setup:** Artisan, Negotiator and Wanderer pick a tier (Off, I–IV) instead of
+  all-or-nothing. Values from the owner's perks capture: Artisan 5/10/15/20 and
+  Wanderer 4/7/9/13 add up; Negotiator keeps its strongest tier (20% at IV), as
+  the planner always counted it. A perk saved "on" before tiers counts as IV.
+  Every perk row has a small picture: real art for artifacts, the item it works
+  on for the rest.
+- **Effectiveness:** typed in the Cider cost on Calculate and on Cider trips,
+  stored in the same place as Places (`frpg_location_effort_v1`, through
+  `FRPG_PLACES.setEffectiveness`). Calculate re-renders when you come back to it,
+  so a number set on Places shows up straight away.
+- **Trips:** meal switches at the top (same store as Places and Setup).
+- **Account:** the review panel (summary cards, Tower/quest/mastery position,
+  missing-or-uncertain) is gone. A capture is applied as it arrives and the tab
+  shows one line: whose farm, how many items, when.
+
 ## 2026-10-08 — New look, no labels the box already explains
 
 The owner asked for the whole site to look cleaner and "not AI slop", and to

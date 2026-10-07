@@ -95,6 +95,10 @@
       }
       if (result.stamina != null && trip.kind !== "stamina") bits.push(whole(result.stamina) + " stamina");
     }
+    // Effectiveness only changes what a Cider does, so it sits on Cider trips.
+    const eff = trip.mode === "explore" && trip.kind === "cider" && trip.place
+      ? '<label class="eff-inline" title="Your exploring effectiveness at ' + esc(trip.place) + ', shared with Places and Calculate">Effectiveness <input type="number" min="0" step="1" inputmode="numeric" data-eff="' + esc(trip.place) + '" value="' + (api().effectiveness(trip.place) || "") + '" placeholder="0"></label>'
+      : "";
     return '<div class="trip-row" data-trip="' + trip.id + '">' +
       '<label class="trip-field"><span>Doing</span><select data-field="mode">' +
         '<option value="explore"' + (trip.mode === "explore" ? " selected" : "") + ">Exploring</option>" +
@@ -108,7 +112,7 @@
         kinds.map((entry) => '<option value="' + entry[0] + '"' + (entry[0] === trip.kind ? " selected" : "") + ">" + esc(entry[1]) + "</option>").join("") +
       "</select></label>" +
       '<button type="button" class="trip-remove" data-remove="' + trip.id + '" aria-label="Remove this trip">✕</button>' +
-      (bits.length ? '<p class="trip-sum">' + bits.join(" · ") + "</p>" : "") +
+      (bits.length || eff ? '<p class="trip-sum">' + bits.join(" · ") + eff + "</p>" : "") +
     "</div>";
   }
 
@@ -163,7 +167,17 @@
       "</tr>";
     }).join("");
 
-    root.innerHTML =
+    const modes = [...new Set(trips.map((trip) => trip.mode))];
+    const mealRows = [];
+    for (const mode of modes.length ? modes : ["explore"]) {
+      for (const row of api().meals ? api().meals(mode) : []) if (!mealRows.some((m) => m.id === row.id)) mealRows.push(row);
+    }
+    const mealsBar = mealRows.length
+      ? '<div class="places-meals trip-meals"><span class="places-basis-label">Meals</span>' +
+        mealRows.map((row) => '<button type="button" class="places-chip meal' + (row.on ? " active" : "") + '" data-trip-meal="' + row.id + '" aria-pressed="' + row.on + '" title="' + esc(row.note) + '">' + esc(row.name) + "</button>").join("") +
+        "</div>"
+      : "";
+    root.innerHTML = mealsBar +
       '<div class="trip-list">' + (list || '<p class="places-none">No trips yet.</p>') + "</div>" +
       '<div class="trip-actions"><button type="button" class="primary-action" data-add>Add a trip</button>' +
         (trips.length ? '<button type="button" class="quiet-button" data-clear>Clear all trips</button>' : "") + "</div>" +
@@ -207,6 +221,12 @@
           render();
         };
       });
+    });
+    root.querySelectorAll("[data-trip-meal]").forEach((button) => {
+      button.onclick = () => { api().toggleMeal(button.dataset.tripMeal); render(); };
+    });
+    root.querySelectorAll("[data-eff]").forEach((input) => {
+      input.onchange = () => { api().setEffectiveness(input.dataset.eff, input.value); render(); };
     });
     const search = root.querySelector("[data-filter]");
     if (search) {

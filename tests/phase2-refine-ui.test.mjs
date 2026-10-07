@@ -28,8 +28,8 @@ test("expected co-drops use item artwork", () => {
   assert.match(css, /\.drop-chips/);
 });
 
-test("Account tab validates and reviews local snapshots", () => {
-  for (const id of ["account", "accountFile", "accountSummary", "accountTower", "accountQuests", "accountMasteries", "applyAccount"]) {
+test("Account tab validates local snapshots and applies them as they load", () => {
+  for (const id of ["account", "accountFile", "accountLoaded"]) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(app, /farmrpg-account-snapshot-v1/);

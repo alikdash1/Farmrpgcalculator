@@ -747,6 +747,16 @@
   // Setup, same meals - so the two pages can never disagree.
   window.FRPG_PLACES = {
     kinds: KINDS,
+    meals: (mode) => (MEALS_FOR[mode] || []).map((row) => ({ id: row[0], name: row[1], note: row[2], on: meal(row[0]) })),
+    toggleMeal: (id) => setMeal(id, !meal(id)),
+    effectiveness: (name) => Number((effort["explore:" + name] || {}).stamina || 0),
+    setEffectiveness(name, value) {
+      const id = "explore:" + name;
+      const v = Math.max(0, Number(value) || 0);
+      if (v > 0) effort[id] = { stamina: v };
+      else delete effort[id];
+      writeJson(EFFORT_KEY, effort);
+    },
     list: () => places.map((place) => ({ name: place.name, mode: place.mode, image: place.image, event: place.event })),
     haul(mode, name, kind, amount) {
       const place = places.find((row) => row.mode === mode && row.name === name);
