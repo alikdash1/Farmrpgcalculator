@@ -32,7 +32,11 @@
     // Storage blocked: nothing of the visitor's can be here, so it is an example.
   }
 
-  const mode = isOwner ? "owner" : hasOwn ? "visitor" : "example";
+  // The downloadable copy (tools/pack-site.ps1) ships empty account files
+  // marked clean: there is no example farm, so a fresh copy is simply empty.
+  const clean = !!(window.FRPG_PERSONAL_TOWER || {}).clean;
+  if (clean) isOwner = false;
+  const mode = isOwner ? "owner" : hasOwn ? "visitor" : clean ? "empty" : "example";
   window.FRPG_ACCOUNT_MODE = mode;
 
   if (mode === "visitor") {
@@ -63,7 +67,7 @@
     mode,
     // Called when the visitor's own account arrives or is forgotten.
     accountChanged(hasAccount) {
-      const next = isOwner ? "owner" : hasAccount ? "visitor" : "example";
+      const next = isOwner ? "owner" : hasAccount ? "visitor" : clean ? "empty" : "example";
       if (next !== mode) location.reload();
     },
     setOwner(mine) {
@@ -81,22 +85,31 @@
   const wireOwner = () => {
     const box = document.getElementById("ownerFarm");
     if (!box) return;
+    if (clean) {
+      const row = box.closest(".owner-farm");
+      if (row) row.hidden = true;
+      return;
+    }
     box.checked = isOwner;
     box.addEventListener("change", () => window.FRPG_ACCOUNT_SOURCE.setOwner(box.checked));
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wireOwner);
   else wireOwner();
 
-  if (mode !== "example") return;
+  if (mode !== "example" && mode !== "empty") return;
   const show = () => {
     const main = document.querySelector("main") || document.body;
     if (!main || document.getElementById("exampleFarm")) return;
     const note = document.createElement("aside");
     note.id = "exampleFarm";
     note.className = "example-farm";
-    note.innerHTML = "<p><b>You are looking at an example farm.</b> " +
-      "Every count on this page belongs to the author until you bring your own.</p>" +
-      '<a class="quiet-button" href="#account">Use my farm</a>';
+    note.innerHTML = mode === "empty"
+      ? "<p><b>No farm loaded yet.</b> " +
+        "Connect the extension or load a saved account file to see your own masteries, Tower floor and quests.</p>" +
+        '<a class="quiet-button" href="#account">Connect my farm</a>'
+      : "<p><b>You are looking at an example farm.</b> " +
+        "Every count on this page belongs to the author until you bring your own.</p>" +
+        '<a class="quiet-button" href="#account">Use my farm</a>';
     main.prepend(note);
   };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", show);

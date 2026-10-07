@@ -2,7 +2,8 @@
 #
 #   powershell -ExecutionPolicy Bypass -File tools/pack-site.ps1
 #
-# Writes downloads/farm-rpg-calculator.zip. Unzipped, it is one folder:
+# Writes downloads/farm-rpg-calculator.zip, with NO account in it: the three
+# personal data files are replaced by empty ones. Unzipped, it is one folder:
 #
 #   farm-rpg-calculator/
 #     START-HERE.txt              what to do, in order
@@ -49,6 +50,39 @@ try {
     $commit = (git rev-parse --short HEAD).Trim()
   } finally { Pop-Location }
 
+  # A download starts EMPTY: the author's account files are replaced with
+  # blank ones marked clean, so js/account-source.js shows "No farm loaded yet"
+  # instead of an example farm, and nothing of the author's ships.
+  $blank = @{
+    "data/personal-tower.js" = @"
+// Empty on purpose: this copy ships with no account. Connect the extension or
+// load a saved account file and the planner fills in your own masteries.
+window.FRPG_PERSONAL_TOWER = {
+  "schema": "farmrpg-personal-tower-v1",
+  "clean": true,
+  "authoritativeMasteries": false,
+  "startFloor": 0,
+  "goalFloor": 350,
+  "towerAtCapture": 0,
+  "capturedAt": null,
+  "overrides": [],
+  "masteries": {}
+};
+"@
+    "data/personal-quests.js" = @"
+// Empty on purpose: your finished quests arrive from the extension.
+window.FRPG_PERSONAL_QUESTS = { "schema": "farmrpg-personal-quests-v1", "clean": true, "completed": [] };
+"@
+    "data/player-facts.js" = @"
+// Empty on purpose: facts about one farm (chests held, buildings, prices) do
+// not ship. Game rules the planner needs live in the other data files.
+window.FRPG_PLAYER_FACTS = { "schema": "farmrpg-player-facts-v1", "clean": true, "containersHeld": {}, "inventoryCap": null, "farm": {} };
+"@
+  }
+  foreach ($k in $blank.Keys) {
+    [System.IO.File]::WriteAllText((Join-Path $top $k), $blank[$k], (New-Object System.Text.UTF8Encoding $false))
+  }
+
   $manifest = Get-Content (Join-Path $top "farm-rpg-account-sync/manifest.json") -Raw | ConvertFrom-Json
   $guide = @"
 FARM RPG CALCULATOR - START HERE
@@ -64,7 +98,7 @@ This folder is the same planner, to run from your own computer.
 
 1. OPEN THE PLANNER
    Double-click index.html. No install, no server, nothing to set up.
-   It opens on the author's farm as an example, and says so on every page.
+   It opens empty - no farm is loaded until you bring your own (step 2).
 
 2. ADD THE EXTENSION (to see your own farm)
    a. Open chrome://extensions  (or brave://extensions, edge://extensions)
@@ -81,8 +115,7 @@ This folder is the same planner, to run from your own computer.
    b. Keep the planner open in another tab. Its Account page says when the
       two have found each other.
    c. In Farm RPG, visit your Profile, Inventory, Tower, Mastery, Quests and
-      farm pages once each. The example farm is dropped the moment your first
-      capture arrives - nothing of the author's is mixed into your numbers.
+      farm pages once each. Your numbers appear as each page is captured.
    After that, the pages you visit while playing keep it up to date.
 
 Keep this folder: the browser runs the extension from it.
