@@ -18,7 +18,7 @@
     { "id": "ashes", "name": "Ashes of Pentagorn", "kind": "Artifact", "type": "cook_save", "value": 0.9, "plain": "Cooking uses roughly 10% fewer ingredients." },
     { "id": "bahltru", "name": "Bahltruvian Scales", "kind": "Artifact", "type": "sale_bonus", "value": 0.1, "plain": "Items sell for 10% more silver." },
     { "id": "fert", "name": "Fertilizer I", "kind": "Farm Supply", "type": "sale_bonus", "value": 0.1, "plain": "Items sell for 10% more silver." },
-    { "id": "negotiator", "name": "Negotiator I-IV", "kind": "Skill perks", "type": "sale_bonus", "value": 0.2, "plain": "Items sell for about 20% more silver." },
+    { "id": "negotiator", "name": "Negotiator I-IV", "kind": "Skill perks", "type": "sale_bonus", "value": 0.5, "plain": "All four tiers together: items sell for 50% more silver." },
     { "id": "lemonsq", "family": "lemon_squeezer", "name": "Lemon Squeezer", "kind": "Farm Supply", "type": "lemonade_items_bonus", "value": 10, "plain": "Lemonade finds 20 items instead of 10." },
     { "id": "lemonsq_ap", "family": "lemon_squeezer", "name": "Lemon Squeezer", "kind": "Farm Supply", "type": "ap_items_bonus", "value": 300, "plain": "Arnold Palmer finds 500 items instead of 200." },
     { "id": "cinnamon", "name": "Cinnamon Sticks", "kind": "Farm Supply", "type": "cider_eff", "value": 0.25, "plain": "Apple Cider is 25% more effective." },

@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.6";
+  const FRPG_BUILD = "2026-10-08.7";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -129,11 +129,12 @@
   const allEffectIds = BASE_EFFECTS.map((effect) => effect.id);
   // Skill perks bought one tier at a time. Values are the game's own perk text
   // from the owner's capture (raw/account-captures/live-2026-10-05.json).
-  // Artisan and Wanderer tiers add up (4+7+9+13 = 33, the workbook's x0.67);
-  // Negotiator stays at its strongest tier, as the planner has always counted it.
+  // All three add up, tier on tier: Wanderer 4+7+9+13 = 33 (the workbook's
+  // x0.67); Artisan and Negotiator 5+10+15+20 = 50. Negotiator was counted as
+  // its top tier only (20%) until the owner confirmed it stacks, 2026-10-08.
   const PERK_TIERS = {
     artisan: { steps: [0.05, 0.10, 0.15, 0.20], stack: true, text: (p) => `Workshop silver cost ${p}% lower.` },
-    negotiator: { steps: [0.05, 0.10, 0.15, 0.20], stack: false, text: (p) => `Items sell for ${p}% more silver.` },
+    negotiator: { steps: [0.05, 0.10, 0.15, 0.20], stack: true, text: (p) => `Items sell for ${p}% more silver.` },
     wanderer: { steps: [0.04, 0.07, 0.09, 0.13], stack: true, text: (p) => `${p}% of explores cost no stamina.` },
   };
   const TIER_NAMES = ["Off", "I", "II", "III", "IV"];

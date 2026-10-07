@@ -9,8 +9,8 @@ reconstructed from the Codex chat transcript only).
 
 - **Setup:** Artisan, Negotiator and Wanderer pick a tier (Off, I–IV) instead of
   all-or-nothing. Values from the owner's perks capture: Artisan 5/10/15/20 and
-  Wanderer 4/7/9/13 add up; Negotiator keeps its strongest tier (20% at IV), as
-  the planner always counted it. A perk saved "on" before tiers counts as IV.
+  Wanderer 4/7/9/13 add up, and so does Negotiator 5/10/15/20 = 50% at IV (the
+  owner confirmed it stacks; it had been counted as 20%). A perk saved "on" before tiers counts as IV.
   Every perk row has a small picture: real art for artifacts, the item it works
   on for the rest.
 - **Effectiveness:** typed in the Cider cost on Calculate and on Cider trips,

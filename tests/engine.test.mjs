@@ -22,7 +22,8 @@ test("Red Trunk item facts remain available", () => {
 test("endgame permanent profile uses real drink and net units", () => {
   assert.ok(Math.abs(mods.craftCostOff - 0.7) < 1e-9);
   assert.ok(Math.abs(mods.craftYield - 1.45) < 1e-9);
-  assert.ok(Math.abs(mods.saleMult - 1.4) < 1e-9);
+  // Bahltruvian 10% + Fertilizer 10% + Negotiator I-IV 5+10+15+20 = 50% (stacks).
+  assert.ok(Math.abs(mods.saleMult - 1.7) < 1e-9);
   assert.equal(mods.nets.fnCatch, 15);
   assert.equal(mods.nets.lnCatch, 500);
   assert.equal(mods.drinks.ciderRolls, 1250);
