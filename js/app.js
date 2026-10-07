@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.2";
+  const FRPG_BUILD = "2026-10-08.3";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -162,9 +162,8 @@
     itemId: null,
     qty: 1000000,
     owned: read("frpg_owned", {}),
-    // Built for veterans: every permanent perk and artifact starts on, and the
-    // player turns off what they do not have. Meals and buildings stay off.
-    enabled: new Set(read("frpg_effects_v2", allEffectIds)),
+    // Nothing is assumed: each player ticks the perks they actually own.
+    enabled: new Set(read("frpg_effects_v2", [])),
     overrides: read("frpg_assumptions", {}),
     infra: Object.assign({}, INFRA_DEFAULTS, read("frpg_infra_v2", {})),
     meals: Object.assign({}, MEAL_DEFAULTS, read("frpg_meals_v2", {})),
@@ -1125,26 +1124,34 @@
 
     const buy = buyRateBlock(item, missing);
 
-    return `<div class="path-choices"><span class="path-head">${fmt(route.explores)} explores at ${esc(route.location)}</span>${cider}${ap}${mealStripFor("explore")}${buy}</div>`;
+    const pick = (value, label, off) => `<label class="path-mini${chosen === value ? " on" : ""}${off ? " muted" : ""}"><input type="radio" name="drink-${item.id}" value="${value}" ${chosen === value ? "checked" : ""} ${off ? "disabled" : ""} data-drink-id="${item.id}"> ${label}</label>`;
+    return `<div class="path-choices compact">${pick("cider", "Cider", route.ciders == null)}${pick("ap", "Arnold Palmer", route.aps == null)}</div>`;
+  }
+
+  // What one ingredient costs, in one line, in what the player chose to spend.
+  function costLine(item, route) {
+    if (!route) return "";
+    if (route.type === "explore" || route.type === "acorn") {
+      const ap = state.drinkChoices[item.id] === "ap" && route.aps != null;
+      return ap
+        ? `${fmt(route.aps)} Arnold Palmer at ${esc(route.location)}`
+        : `${fmt(route.ciders)} Cider · ${fmt(route.stamina)} stamina at ${esc(route.location)}`;
+    }
+    return route.detail || "";
   }
 
   function routeEvidence(item, route) {
-    const fact = itemFact(item.name);
     const lines = [];
-    if (route.reason) lines.push(`<span>${esc(route.reason)}</span>`);
-    if (route.coDrops && route.coDrops.length) lines.push(`<span><b>Expected drops from this run</b></span><span class="drop-chips">${route.coDrops.map((drop) => {
+    if (route.coDrops && route.coDrops.length) lines.push(`<span class="drop-chips">${route.coDrops.map((drop) => {
       const dropItem = itemByName(drop.name);
       const exactRate = ((EXACT_AP_RATES[route.location] || {})[drop.name]) || null;
       const rate = exactRate ? `${Number(exactRate.value).toFixed(2)} ${exactRate.unit}` : "";
       return `<span class="drop-chip">${itemImg(dropItem, "drop-art", drop.name)}<span><b>${fmt(drop.expected)}</b><small>${esc(drop.name)}</small>${rate ? `<small>${rate}</small>` : ""}</span></span>`;
     }).join("")}</span>`);
-    if (route.location && EVENT_LOCATIONS.has(route.location)) lines.push(`<span class="event-warning"><b>Seasonal:</b> ${esc(route.location)} is only included because event locations are enabled.</span>`);
     const questNeeds = questNeedsHtml(item.name);
     if (questNeeds) lines.push(questNeeds);
-    if (fact.mastery && fact.mastery.towerRequirement) {
-      lines.push(`<span class="hoard-note"><b>Save for later:</b> this is a Tower Mega Mastery at floor ${fmt(fact.mastery.towerRequirement)}.</span>`);
-    }
-    const summary = route.coDrops && route.coDrops.length ? `See ${route.coDrops.length} useful drops & future uses` : "Good to know";
+    const drops = route.coDrops && route.coDrops.length;
+    const summary = drops && questNeeds ? `Also drops (${drops}) · quests` : drops ? `Also drops (${drops})` : questNeeds ? "Quests want this" : "";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
   }
   // Everything hanging off a craft used to render bare, which made fished and
@@ -1210,7 +1217,7 @@
     const gathered = !!plan && !!GATHER_WORDS[plan.type];
 
     // Craft-shaped furniture only makes sense for something you craft.
-    for (const [id, hide] of [["routeSummaryHead", gathered], ["routeGrid", gathered], ["treeCard", gathered]]) {
+    for (const [id, hide] of [["treeCard", gathered]]) {
       const node = $(id);
       if (node) node.classList.toggle("hidden", hide);
     }
@@ -1322,13 +1329,13 @@
       ? `<label class="gather-acorn"><input type="checkbox" id="gatherAcorn" ${state.meals.acorn ? "checked" : ""}>` +
         `<span><b>Using Acorn Pie</b><small>${best && best.location === "Forest"
           ? "No effect in the Forest — Hide already drops there."
-          : "Adds Hide by replacing part of this location's normal drops. One charge per action, 150 per Pie."}</small></span></label>`
+          : "Lasts 150 actions."}</small></span></label>`
       : "";
 
     panel.innerHTML =
-      `<div class="gather-head"><span class="scope-label">Gathered, not crafted</span>` +
+      `<div class="gather-head">` +
       `<h2>${esc(goal.name)} × ${fmt(state.qty)} — ${esc(words.verb)}</h2>` +
-      `<p class="gather-sub">${canBuy ? "What each way actually costs you. No winner is picked — that depends on your own stamina and stock." : "Fish cannot be mailed, so there is no trade route — this is the only way to get it."}</p></div>` +
+      `</div>` +
       (places.length > 1
         ? `<label class="gather-where"><span>${esc(words.place)}</span><select data-location-id="${goal.id}">${placeChoices}</select></label>`
         : best ? `<p class="gather-where-fixed"><span>${esc(words.place)}</span> <b>${esc(best.location)}</b></p>` : "") +
@@ -1536,8 +1543,6 @@
     }
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
-    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${explores > 0 ? metric("Explores", fmt(explores)) : ""}${ciders > 0 ? metric("Apple Cider", fmt(ciders), "spends stamina") : ""}${aps > 0 ? metric("Arnold Palmer", fmt(aps), "no stamina") : ""}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
-    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}`;
 
     // A fished, explored or grown goal is not a production plan. Its recipe
     // tree, "mixed route" verdict and multi-ingredient shopping list are all
@@ -1548,7 +1553,7 @@
 
     if (coveredRows.length) {
       el.covered.classList.remove("hidden");
-      el.covered.innerHTML = `<div><span class="scope-label">Your farm already covers these</span><strong>${plural(coveredRows.length, "ingredient you do not need to chase", "ingredients you do not need to chase")}</strong><p>${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)} — ${esc(row.route.label)}`).join(" · ")}</p></div><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show them in the list anyway</label>`;
+      el.covered.innerHTML = `<p><b>Your farm covers:</b> ${coveredRows.map((row) => `${esc(row.item.name)} × ${fmt(row.missing)}`).join(" · ")}</p><label class="mini-check"><input type="checkbox" ${state.showCovered ? "checked" : ""} data-show-covered> Show in the list</label>`;
       el.covered.querySelector("[data-show-covered]").onchange = (event) => { state.showCovered = event.target.checked; $("toggleCovered").checked = state.showCovered; render(); };
     } else {
       el.covered.classList.add("hidden");
@@ -1556,7 +1561,7 @@
 
     if (activeDecisions.length) {
       el.makeBuy.classList.remove("hidden");
-      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
+      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make or get</h2></div></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
         const selected = state.sourceChoices[decision.item.id] === "free" ? "free" : decision.manual;
         const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
@@ -1564,7 +1569,7 @@
         const infraText = decision.infra ? decision.infra.detail : "";
         const costText = selected === "farm" ? farmText : selected === "trade" ? directText : selected === "building" ? infraText : materialText;
         const codrops = decision.farm ? coDropSentence(decision.farm) : "";
-        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}</div><div class="decision-cost">${costText}${costText !== materialText ? `<small>${materialText}</small>` : ""}</div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}<option value="free" ${selected === "free" ? "selected" : ""}>I have it / free</option></select>${decision.farm && selected === "farm" ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
+        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong></div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}<option value="free" ${selected === "free" ? "selected" : ""}>I have it / free</option></select>${decision.farm && selected === "farm" ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
       }).join("")}</div>`;
       el.makeBuy.querySelectorAll("[data-make-id]").forEach((select) => {
         select.onchange = () => {
@@ -1579,7 +1584,7 @@
     }
 
     $("ingCount").textContent = `${visibleRows.length} shown · ${rows.length} active`;
-    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${row.route.detail}</span>${row.route.goldEq != null && row.route.goldEq > 0 ? `<small class="gold-eq">≈ ${fmt(row.route.goldEq)} gold value</small>` : ""}${pathChoices(row.item, row.route, row.missing, m)}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
+    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${costLine(row.item, row.route)}</span>${pathChoices(row.item, row.route, row.missing, m)}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
     el.ingBody.querySelectorAll(".owned").forEach((input) => {
       input.onchange = () => {
         const value = parseInt(input.value.replace(/\D/g, ""), 10);

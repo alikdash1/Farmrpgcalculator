@@ -689,3 +689,10 @@ main { padding-bottom: 48px; }
 .owner-farm { margin: 14px 0 0; display: grid; gap: 3px; }
 .owner-farm label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
 .owner-farm small { color: var(--muted); font-size: 12px; }
+
+/* Calculate: the small Cider / Arnold Palmer switch on an explored ingredient. */
+.path-choices.compact { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.path-mini { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1px solid var(--line); border-radius: var(--r-sm); font-size: 12px; cursor: pointer; }
+.path-mini.on { border-color: var(--lantern); }
+.path-mini.muted { opacity: .5; cursor: default; }
+.covered-strip p { margin: 0; }
