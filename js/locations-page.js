@@ -45,9 +45,13 @@
 
   const effort = readJson(EFFORT_KEY, {});
   const prefs = Object.assign(
-    { mode: "explore", amount: 1000, kind: "ap", want: "", onlyNeeded: false, scaled: true, solve: false, target: 100000 },
+    { mode: "explore", amount: 1000, kind: "ap", want: "", onlyNeeded: false, scaled: true },
     readJson(PREFS_KEY, {})
   );
+  // "Start from what I need" worked out the amount for the player. The page no
+  // longer decides anything, so an old saved choice of it is dropped.
+  delete prefs.solve;
+  delete prefs.target;
 
   // ---- numbers -------------------------------------------------------------
   function count(value) {
@@ -262,11 +266,8 @@
   // finds. It is not a conversion between exploring and drinking.
   const WORKBOOK_FINDS = 500;
 
-  // Every figure on a card is linear in the amount poured, which is what lets
-  // the page run backwards: to answer "how much for 672,579 Shimmer Quartz" it
-  // asks one place what a single unit yields and divides. While that answer is
-  // being built, `solved` stands in for the typed amount so nothing else has to
-  // know which direction the question was asked in.
+  // While the Trips page asks a place about its own amount, `solved` stands in
+  // for the amount typed here, so nothing else has to know who is asking.
   let solved = null;
   const spend = () => (solved != null ? solved : (Number(prefs.amount) || 0));
 
@@ -383,25 +384,6 @@
     };
   }
 
-  // How much of the chosen drink, net or stamina this place needs before it has
-  // handed over `target` of the wanted item. One probe at a single unit gives
-  // the per-unit yield; everything above it is proportional. Returns null when
-  // the place does not drop the thing at all.
-  function amountFor(place, want, target) {
-    const keep = solved;
-    solved = 1;
-    let per = 0;
-    try {
-      const probe = yields(place);
-      const row = probe.rows.find((entry) => key(entry.name).includes(want)) ||
-        (probe.inChests || []).find((entry) => key(entry.name).includes(want));
-      if (row && row.expected > 0) per = row.expected;
-    } finally {
-      solved = keep;
-    }
-    return per > 0 ? target / per : null;
-  }
-
   // ---- what those items are worth to you ----------------------------------
   const itemsByName = new Map(((DATA.items && DATA.items.items) || []).map((item) => [item.name.toLowerCase(), item]));
   const key = (name) => String(name || "").trim().toLowerCase();
@@ -466,20 +448,15 @@
         '<button type="button" class="places-mode' + (prefs.mode === "fishing" ? " active" : "") + '" data-mode="fishing" aria-pressed="' + (prefs.mode === "fishing") + '">Fishing</button>' +
       "</div>" +
       '<div class="places-pour">' +
-        (prefs.solve
-          ? '<label class="places-field"><span>Get</span><input id="placesTarget" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.target) + '"></label>' +
-            '<label class="places-field grow"><span>of</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="name the item"></label>' +
-            '<label class="places-field"><span>paying in</span><select id="placesKind">' + options + "</select></label>"
-          : '<label class="places-field"><span>Spend</span><input id="placesAmount" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.amount) + '"></label>' +
-            '<label class="places-field"><span>of</span><select id="placesKind">' + options + "</select></label>" +
-            '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="anything — try Iron"></label>') +
+        '<label class="places-field"><span>Spend</span><input id="placesAmount" type="number" min="0" step="1" inputmode="numeric" value="' + esc(prefs.amount) + '"></label>' +
+        '<label class="places-field"><span>of</span><select id="placesKind">' + options + "</select></label>" +
+        '<label class="places-field grow"><span>after in particular</span><input id="placesWant" type="search" value="' + esc(prefs.want) + '" placeholder="anything — try Iron"></label>' +
       "</div>" +
       '<div class="places-basis">' +
         (FINDS.has(prefs.kind)
           ? '<button type="button" class="places-chip' + (prefs.scaled ? " active" : "") + '" data-scaled aria-pressed="' + !!prefs.scaled + '">Scale to my Setup</button>'
           : "") +
         '<button type="button" class="places-chip needed' + (prefs.onlyNeeded ? " active" : "") + '" data-only aria-pressed="' + !!prefs.onlyNeeded + '">Only what I still need</button>' +
-        '<button type="button" class="places-chip' + (prefs.solve ? " active" : "") + '" data-solve aria-pressed="' + !!prefs.solve + '">Start from what I need</button>' +
       "</div>" +
       '<div class="places-meals">' +
         '<span class="places-basis-label">Meals running</span>' +
@@ -607,42 +584,30 @@
     const tower = towerShort();
     const want = key(prefs.want);
     const wanted = (name) => quests.has(key(name)) || tower.has(key(name));
-    const target = Number(prefs.target) || 0;
-    const solving = !!prefs.solve && !!want && target > 0;
     const scored = places.filter((place) => place.mode === prefs.mode).map((place) => {
-      const need = solving ? amountFor(place, want, target) : null;
-      solved = solving ? need : null;
       const result = yields(place);
-      solved = null;
       if (prefs.onlyNeeded) result.rows = result.rows.filter((row) => wanted(row.name));
       const hit = want ? result.rows.find((row) => key(row.name).includes(want)) : null;
-      return { place, result, hit, need };
+      return { place, result, hit };
     });
-    // Asked forwards, the best place is the one that hands over the most. Asked
-    // backwards it is the one that asks for the least, so the order flips.
-    if (solving) scored.sort((a, b) => (a.need == null ? Infinity : a.need) - (b.need == null ? Infinity : b.need));
-    else if (want) scored.sort((a, b) => ((b.hit && b.hit.expected) || -1) - ((a.hit && a.hit.expected) || -1));
+    // Searching for an item lists the places that drop most of it first. The
+    // places stay in game order otherwise.
+    if (want) scored.sort((a, b) => ((b.hit && b.hit.expected) || -1) - ((a.hit && a.hit.expected) || -1));
 
     const label = kindLabel();
     const cards = scored.map((entry) => {
       const place = entry.place;
       const result = entry.result;
-      solved = solving ? entry.need : null;
-      const amount = whole(solving ? entry.need || 0 : prefs.amount);
+      const amount = whole(prefs.amount);
       const missing = !!result.missing;
       const noun = place.mode === "fishing" ? "catches" : "explores";
       const preview = '<span class="places-preview">' + (result.rows.slice(0, 3).map((row) =>
             "<b>" + count(row.expected || 0) + "</b> " + esc(row.name)).join(" · ") ||
             (missing ? "no per-" + (place.mode === "fishing" ? "net" : "Arnold Palmer") + " rates for this place" : "nothing recorded here")) + "</span>";
       const found = !want ? ""
-        : solving
-          // Backwards, the headline number is the price, not the pile.
-          ? (entry.need != null
-            ? '<span class="places-found">' + whole(entry.need) + " " + esc(label) + "</span>"
-            : '<span class="places-found none">no ' + esc(prefs.want) + "</span>")
-          : (entry.hit && entry.hit.expected != null
-            ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
-            : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
+        : (entry.hit && entry.hit.expected != null
+          ? '<span class="places-found">' + count(entry.hit.expected) + " " + esc(entry.hit.name) + "</span>"
+          : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
       const spent = staminaSpent(place);
       const silver = sellValue(result);
       const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
@@ -657,11 +622,8 @@
               ? " Its ordinary " + (place.mode === "fishing" ? "casts" : "explores") +
                 " are logged though — switch what you are spending to see those."
               : "")
-          : solving && entry.need == null
-            ? esc(place.name) + " does not drop " + esc(prefs.want) + "."
           : result.basis === "workbook"
-            ? (solving ? "<b>" + amount + "</b> " + esc(label) + " here gets you " + whole(target) + " " + esc(prefs.want)
-              : amount + " " + esc(label) + " here") + worth + "."
+            ? amount + " " + esc(label) + " here" + worth + "."
             : (prefs.kind === "explores" || prefs.kind === "casts")
               // Saying "1,000 casts is 1,000 catches" tells nobody anything.
               ? amount + " " + esc(label) + " here" + worth + "."
@@ -687,7 +649,6 @@
         (missing ? "" : chestMarkup(result, quests, tower)) +
         (place.buddyUrl ? '<p class="places-source"><a href="' + esc(place.buddyUrl) + '" target="_blank" rel="noopener">Open ' + esc(place.name) + " on Buddy's Almanac</a></p>" : "") +
       "</div></details>";
-      solved = null;
       return html;
     }).join("");
 
@@ -720,8 +681,6 @@
     if (scaled) scaled.onclick = () => update({ scaled: !prefs.scaled });
     const only = root.querySelector("[data-only]");
     if (only) only.onclick = () => update({ onlyNeeded: !prefs.onlyNeeded });
-    const solve = root.querySelector("[data-solve]");
-    if (solve) solve.onclick = () => update({ solve: !prefs.solve });
     root.querySelectorAll("[data-meal]").forEach((button) => {
       button.onclick = () => {
         const open = [...root.querySelectorAll("details.places-card[open]")].map((row) => row.dataset.place);
@@ -735,8 +694,6 @@
     if (amount) amount.onchange = () => update({ amount: Math.max(0, Number(amount.value) || 0) });
     const kind = root.querySelector("#placesKind");
     if (kind) kind.onchange = () => update({ kind: kind.value });
-    const target = root.querySelector("#placesTarget");
-    if (target) target.onchange = () => update({ target: Math.max(0, Number(target.value) || 0) });
 
     // Re-rendering on every keystroke would take the caret with it, so the
     // search waits for a pause and then puts the caret back where it was.
@@ -789,6 +746,37 @@
     if (window.FRPG_openItem) window.FRPG_openItem(button.dataset.openItem);
   });
 
+  // The Trips page asks the same questions with its own amounts: what does N
+  // of this drink, net or stamina hand back at this place. Same rates, same
+  // Setup, same meals - so the two pages can never disagree.
+  window.FRPG_PLACES = {
+    kinds: KINDS,
+    list: () => places.map((place) => ({ name: place.name, mode: place.mode, image: place.image })),
+    haul(mode, name, kind, amount) {
+      const place = places.find((row) => row.mode === mode && row.name === name);
+      if (!place) return null;
+      const keep = { mode: prefs.mode, kind: prefs.kind };
+      prefs.mode = mode;
+      prefs.kind = kind;
+      solved = Math.max(0, Number(amount) || 0);
+      try {
+        const result = yields(place);
+        return {
+          missing: !!result.missing,
+          basis: result.basis,
+          rows: result.rows.map((row) => ({ name: row.name, expected: row.expected, rate: row.rate })),
+          inChests: (result.inChests || []).map((row) => ({ name: row.name, chest: row.chest, expected: row.expected })),
+          actions: result.actions,
+          stamina: place.mode === "explore" ? staminaSpent(place) : null,
+          effectiveness: staminaPer(place),
+        };
+      } finally {
+        prefs.mode = keep.mode;
+        prefs.kind = keep.kind;
+        solved = null;
+      }
+    },
+  };
   window.FRPG_renderPlaces = render;
   render();
   // gather-model.js and the quest model load after this file, so the first

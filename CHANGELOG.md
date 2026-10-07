@@ -5,6 +5,26 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-07 (later) — The site stops deciding; a Trips page instead
+
+The owner: "the website shouldn't decide anything, the people choose their path."
+
+- **Removed:** the Plan-a-questline page, the Mega-Masteries-to-T300 page, the
+  Places "Start from what I need" solver, the home route notes and the
+  library's route exceptions.
+- **Calculate picks nothing.** Ingredients start on "Choose…"; craftable items
+  start on their recipe. The one thing still filled in is what the player's own
+  buildings make, as set on Setup (Steel, Steel Wire, Board, Straw, Wood, Stone).
+- **New Trips page** (`js/trips-page.js`): rows of "spend N of X at place", for
+  exploring and fishing, added up into one haul list next to what the account
+  holds, flagging anything over the inventory cap. It reads the same yields as
+  Places through `window.FRPG_PLACES.haul`, so the two never disagree.
+- **Quests:** two filter rows - status (Not Done / Available Now / Completed /
+  All) and kind (Every quest / Story and side / Events), so "Not Done + Events"
+  lists the seasonal quests still to finish. With no account loaded the page
+  opens on All. The "... of Friendship" quests say "No items needed - max your
+  friendship with Buddy (level 99)" instead of "No item requirement recorded".
+
 ## 2026-10-07 — One download for everybody, starting empty
 
 - **`tools/pack-site.ps1`** writes `downloads/farm-rpg-calculator.zip`: the

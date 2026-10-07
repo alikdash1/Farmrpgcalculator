@@ -101,8 +101,11 @@ test("Kitchen captures repair kitchen.php and preserve ovens and Fruit Punch", (
   assert.match(app, /fruitPunchLeft/);
 });
 
-test("Iron and Nails use Store automatically unless Iron Depot covers them", () => {
-  assert.match(app, /const isDepotItem = item\.name === "Iron" \|\| item\.name === "Nails"/);
-  assert.match(app, /isDepotItem && vendor/);
-  assert.match(app, /normal supply route when Iron Depot is not enabled/);
+test("Calculate picks nothing except what your own buildings make", () => {
+  // The owner's rule: the site does not choose routes. The one exception is a
+  // building on their own farm (Steel, Steel Wire, Board, Straw...) from Setup.
+  assert.match(app, /if \(infra\) return \{ type: "covered", label: infra\.kind/);
+  assert.match(app, /return \{ type: "choose", label: "Choose", detail: "Pick how you will get this from the list"/);
+  assert.match(app, /const manual = stored && stored !== "auto" \? stored : \(infra \? "building" : "craft"\);/);
+  assert.ok(!/Auto → |winnerSentence|Recommended:/.test(app), "no recommendation wording left");
 });

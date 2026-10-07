@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-07.1";
+  const FRPG_BUILD = "2026-10-07.3";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -298,8 +298,7 @@
     if (id === "home") renderHome();
     if (id === "library") renderLibrary();
     if (id === "places" && window.FRPG_renderPlaces) window.FRPG_renderPlaces();
-    if (id === "mm300" && window.FRPG_renderMM) window.FRPG_renderMM();
-    if (id === "plan" && window.FRPG_renderPlan) window.FRPG_renderPlan();
+    if (id === "trips" && window.FRPG_renderTrips) window.FRPG_renderTrips();
     if (history && history.pushState) {
       // Keep any sub-path the view owns, so returning to Items does not
       // throw away which item was open.
@@ -470,11 +469,8 @@
     ];
     $("homeReadinessRows").innerHTML = readinessRows.map(([label, value, ready]) => `<div><span class="readiness-dot ${ready ? "ready" : "review"}"></span><strong>${esc(label)}</strong><b>${esc(value)}</b></div>`).join("");
 
-    const ENGINE_DIRECTIVE = /should not|do not recommend|must not|never recommend|should be treated|do not treat/i;
-    const playerFacing = K.rules.filter((rule) => !ENGINE_DIRECTIVE.test(rule.rule));
-    const preferred = playerFacing.filter((rule) => /glass orb|acorn pie|leather|sawmill|stone|coal|ember|cider/i.test(rule.rule));
-    const rules = (preferred.length ? preferred : playerFacing).slice(0, 4);
-    $("homeRules").innerHTML = rules.length ? rules.map((rule) => `<div><span>${rule.needsVerification ? "Needs your own numbers" : "Confirmed"}</span><p>${esc(rule.rule)}</p></div>`).join("") : `<p class="empty-samples">No route notes to show yet.</p>`;
+    // The route notes that sat here steered players toward routes the planner
+    // preferred. The planner no longer picks routes, so they are gone.
   }
 
   $("itemOptions").innerHTML = D.items.items.filter((item) => item.active).map((item) => `<option value="${esc(item.name)}"></option>`).join("");
@@ -740,13 +736,6 @@
       vendor: "Country Store", inventory: "Use inventory" })[value] || value;
   }
 
-  function winnerSentence(decision) {
-    const cash = decisionLabel(decision.cashWinner);
-    const progression = decisionLabel(decision.progressionWinner);
-    if (decision.cashWinner === decision.progressionWinner) return `<b>Recommended:</b> ${esc(cash)}`;
-    return `<b>Cheapest:</b> ${esc(cash)} <b>With progression:</b> ${esc(progression)}`;
-  }
-
   function farmPlan(item, need, m, consts) {
     // Some items technically drop somewhere but nobody sane gathers them —
     // Glass Bottle off Crystal River at ~1 per 68 casts, for instance. A rule
@@ -839,7 +828,7 @@
           ? `${esc(drop.location)} · ${fmt(apUses)} AP with${state.meals.quandary ? "" : "out"} Quandary`
           : `${esc(drop.location)} · ${fmt(ciderUses)} Cider at ${fmt(effectiveness)}% effectiveness + ${fmt(oj)} OJ-equivalent stamina`,
       };
-    }).sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.explores - b.explores);
+    }).sort((a, b) => a.explores - b.explores);
     const chosenLocation = state.farmLocations[item.id];
     const chosenDrop = dropPlans.find((plan) => plan.location === chosenLocation);
     if (chosenDrop) return chosenDrop;
@@ -987,39 +976,22 @@
 
   function makeDecision(node, m, consts) {
     const item = index.itemsById.get(node.id);
-    const manual = state.makeChoices[node.id] || (hayMakes(item) ? "craft" : "auto");
+    // The planner does not pick a route. Until the player chooses, a craftable
+    // item is made from its recipe - that is just the recipe, not a judgement
+    // that crafting is best. Old saved "auto" choices read the same way.
+    const stored = state.makeChoices[node.id];
     const infra = infraFor(item, node.qtyOut, m);
+    // The one thing filled in without asking: what your own farm buildings
+    // already make (Steel, Steel Wire, Board, Straw...), as set on Setup.
+    const manual = stored && stored !== "auto" ? stored : (infra ? "building" : "craft");
     const direct = E.marketQuote(index, node.id, node.qtyOut);
     const farm = farmPlan(item, node.qtyOut, m, consts);
     const materials = makeMaterialQuote(node, m, consts);
-    const rule = routeRule(item.name);
-    const costs = [
-      materials.complete && { action: "craft", goldEq: materials.goldEq },
-      direct && direct.best.goldEq != null && { action: "trade", goldEq: direct.best.goldEq },
-      farm && farm.goldEq != null && { action: "farm", goldEq: farm.goldEq },
-    ].filter(Boolean).sort((a, b) => a.goldEq - b.goldEq);
-    const cashWinner = costs[0] || { action: "craft", goldEq: materials.goldEq };
-    let auto = cashWinner.action;
-    let reason = "Cheapest way to get this item on its own";
-    if (infra) {
-      auto = "building";
-      reason = infra.kind + " covers this input";
-    } else if (rule && rule.action === "farm" && farm && (!rule.location || rule.location === farm.location)) {
-      auto = "farm";
-      reason = rule.why;
-    } else if (farm && farm.goldEq != null && cashWinner.goldEq != null) {
-      const ratio = cashWinner.goldEq > 0 ? farm.goldEq / cashWinner.goldEq : Infinity;
-      if (ratio <= 1.2 || (ratio <= 1.5 && farm.progressionScore >= 16)) {
-        auto = "farm";
-        reason = ratio <= 1.2
-          ? "Farm cost is close enough that co-drops and mastery progress break the tie"
-          : "Progression-rich location offsets part of the higher consumable cost";
-      } else if (cashWinner.action === "trade") {
-        reason = "Buying is the cash winner; farming remains the progression alternative";
-      }
-    }
-    const progressionWinner = farm && (farm.preferred || farm.progressionScore >= 8) ? "farm" : auto;
-    const action = manual === "auto" ? auto : manual;
+    const auto = "craft";
+    const reason = "";
+    const cashWinner = { action: "craft" };
+    const progressionWinner = "craft";
+    const action = manual;
     return {
       action,
       auto,
@@ -1057,7 +1029,6 @@
     const trade = E.marketQuote(index, item.id, missing);
     const farm = farmPlan(item, missing, m, consts);
     const vendor = source.vendor ? { type: "vendor", label: "Country Store", silver: source.vendor.priceEach * missing, detail: `${fmt(source.vendor.priceEach * missing)} silver` } : null;
-    const isDepotItem = item.name === "Iron" || item.name === "Nails";
     const choice = state.sourceChoices[item.id] || "auto";
     if (choice === "covered" && infra) return { type: "covered", label: infra.kind, detail: infra.detail, hours: infra.hours, goldEq: 0 };
     if (choice === "trade" && trade && !isFish(item)) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
@@ -1065,27 +1036,14 @@
     if (choice === "vendor" && vendor) return vendor;
     if (choice !== "auto") return { type: "unknown", label: "Unavailable", detail: "That route is not known for this item" };
 
+    // Nothing chosen yet. The planner used to pick the cheapest route here; it
+    // no longer decides for the player, so it asks - except for what the
+    // player's own buildings already make, which is a fact of their farm.
     if (infra) return { type: "covered", label: infra.kind, detail: infra.detail, hours: infra.hours, goldEq: 0 };
-    if (isDepotItem && vendor) {
-      return {
-        ...vendor,
-        detail: `${fmt(vendor.silver)} silver · normal supply route when Iron Depot is not enabled`,
-      };
+    if (farm || trade || vendor) {
+      return { type: "choose", label: "Choose", detail: "Pick how you will get this from the list", goldEq: null };
     }
-    if (item.name === "Hide" && farm && farm.type === "acorn") {
-      const cashNote = trade && trade.best.goldEq != null
-        ? ` Cash-only alternative: trade costs about ${fmt(trade.best.goldEq)}g; Acorn remains the default because it adds Hide to exploration you already need.`
-        : " Acorn remains the default because it adds Hide to exploration you already need.";
-      return Object.assign({ label: "Acorn overlay" }, farm, { detail: farm.detail + cashNote });
-    }
-    if (farm && farm.type === "fish") return Object.assign({ label: "Fish" }, farm);
     if (isFish(item)) return { type: "unknown", label: "Fish for it", detail: "No fishing rate recorded for this one yet" };
-    if (trade && farm && trade.best.goldEq != null && farm.goldEq != null && trade.best.goldEq <= farm.goldEq * 1.05) {
-      return { type: "trade", label: "Buy in trade", detail: quoteText(trade) + " · cheaper than consumables", quote: trade, goldEq: trade.best.goldEq };
-    }
-    if (farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
-    if (vendor) return vendor;
-    if (trade) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
     const mine = mineFor(item.name);
     if (mine) return { type: "unknown", label: "Mine it", detail: `Found in ${esc(mine.name)}${mine.pickaxe ? ` with the ${esc(mine.pickaxe)}` : ""}. Mining rates are not recorded yet — see the Mining tab.` };
     return { type: "unknown", label: "Not known yet", detail: "No reliable way to get this one is recorded yet" };
@@ -1093,7 +1051,7 @@
 
   function routeOptions(item, route, m) {
     const source = E.sourcesFor(index, item.id, 1, m, constants());
-    const options = [["auto", "Auto"]];
+    const options = [["auto", "Choose…"]];
     // Craft was missing here entirely: an item with a recipe -- Twine, Rope,
     // any of the dyes -- could be listed as something to go and get with no way
     // to say "I will make it". It sets the make choice rather than the route,
@@ -1648,16 +1606,15 @@
 
     if (activeDecisions.length) {
       el.makeBuy.classList.remove("hidden");
-      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div><p>Auto picks the cheapest known route. Change it when you want mastery progress, a different location, or useful co-drops.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
-        const selected = state.sourceChoices[decision.item.id] === "free" ? "free" : (state.makeChoices[decision.item.id] || "auto");
-        const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients on the cheapest routes` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
+      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div><p>Each one starts on its recipe, or on your own building when Setup says it makes it. Choose craft, buy or farm for anything else — the planner does not pick for you.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
+        const selected = state.sourceChoices[decision.item.id] === "free" ? "free" : decision.manual;
+        const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
         const directText = decision.direct ? quoteText(decision.direct) : "";
         const infraText = decision.infra ? decision.infra.detail : "";
-        const costText = decision.auto === "farm" ? farmText : decision.auto === "trade" ? directText : decision.auto === "building" ? infraText : materialText;
+        const costText = selected === "farm" ? farmText : selected === "trade" ? directText : selected === "building" ? infraText : materialText;
         const codrops = decision.farm ? coDropSentence(decision.farm) : "";
-        const autoLabel = decision.auto === "building" ? "building" : decision.auto;
-        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong><small>${esc(decision.reason)}</small>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}<span class="winner-line">${winnerSentence(decision)}</span></div><div class="decision-cost">${costText}<small>${materialText}</small></div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="auto" ${selected === "auto" ? "selected" : ""}>Auto → ${esc(autoLabel)}</option><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}<option value="free" ${selected === "free" ? "selected" : ""}>I have it / free</option></select>${decision.farm && (selected === "farm" || (selected === "auto" && decision.auto === "farm")) ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
+        return `<div class="decision-row">${itemImg(decision.item, "small")}<div class="decision-copy"><strong>${esc(decision.item.name)} × ${fmt(decision.node.qtyOut)}</strong>${codrops ? `<span class="codrop-line">Co-drops: ${codrops}</span>` : ""}</div><div class="decision-cost">${costText}${costText !== materialText ? `<small>${materialText}</small>` : ""}</div><div class="decision-controls"><select data-make-id="${decision.item.id}" aria-label="How to get ${esc(decision.item.name)}"><option value="craft" ${selected === "craft" ? "selected" : ""}>Craft it</option>${decision.farm ? `<option value="farm" ${selected === "farm" ? "selected" : ""}>Farm directly</option>` : ""}${decision.direct ? `<option value="trade" ${selected === "trade" ? "selected" : ""}>Buy/trade it</option>` : ""}${decision.infra ? `<option value="building" ${selected === "building" ? "selected" : ""}>Use ${esc(decision.infra.kind)}</option>` : ""}<option value="free" ${selected === "free" ? "selected" : ""}>I have it / free</option></select>${decision.farm && selected === "farm" ? locationSelect(decision.item, decision.node.qtyOut, m, decision.farm) : ""}</div></div>`;
       }).join("")}</div>`;
       el.makeBuy.querySelectorAll("[data-make-id]").forEach((select) => {
         select.onchange = () => {
@@ -2673,14 +2630,14 @@
 if ($("footer")) $("footer").innerHTML = "Farm RPG Calculator is a fan-made planner, not affiliated with Farm RPG. Your account data stays in this browser. <span class=\"build-stamp\">Build " + FRPG_BUILD + "</span>";
 
   function renderLibrary() {
-    if (!$('strategyRules') || !$('mechanicsIndex')) return;
+    if (!$('mechanicsIndex')) return;
     // This used to print build diagnostics — database integrity, unresolved
     // names, "21 parsed · 24 incomplete". None of that is a player's problem.
     // What is worth saying plainly: not every part of the game is covered.
     const status = $("knowledgeStatus");
     if (status) status.innerHTML = `<p>Not everything in Farm RPG is in here yet. Where a drop rate or a price has never been measured, the planner says so rather than guessing — the notes below say so and ask for your own numbers instead.</p>`;
 
-    $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs your own numbers</b>` : `<b class="supported">Confirmed</b>`}</div><p>${esc(rule.rule)}</p></article>`).join("") : `<div class="empty-samples">No route rules yet.</div>`;
+    if ($("strategyRules")) $("strategyRules").innerHTML = K.rules.length ? K.rules.map((rule) => `<article><div><span>${esc(rule.topic || "strategy")}</span>${rule.needsVerification ? `<b>Needs your own numbers</b>` : `<b class="supported">Confirmed</b>`}</div><p>${esc(rule.rule)}</p></article>`).join("") : `<div class="empty-samples">No route rules yet.</div>`;
 
     const mealByName = new Map(K.meals.map((meal) => [meal.name.toLowerCase(), meal]));
     $("mechanicsIndex").innerHTML = MEALS.map((meal) => {

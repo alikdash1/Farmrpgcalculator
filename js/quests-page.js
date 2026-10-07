@@ -8,7 +8,12 @@
   const note = document.getElementById("questAccountNote");
   if (!MODEL || !ART || !root || !search || !count || !summary || !note) return;
 
-  let filter = "unfinished";
+  // Two independent choices: what state a quest is in, and what kind it is.
+  // "Not Done" + "Events" is the list of seasonal quests still to finish.
+  // With no account loaded every quest shows; once one is, Not Done is the
+  // natural starting point - unless the player has already picked.
+  let filter = null;
+  let kind = "any";
   const expanded = new Set();
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const fmt = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 });
@@ -48,17 +53,32 @@
       ? `${isLive(quest) ? "Running now" : "Ran"} ${dateLabel(quest.start)}${quest.end ? ` – ${dateLabel(quest.end)}` : ""}`
       : "";
     const pending = quest.pending ? `<small class="quest-pending">Planning estimate · in-game title not available yet</small>` : "";
-    const extra = [quest.prerequisite, quest.unlock, window_].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
-    return `<article class="quest-step is-${status}"><div class="quest-step-head"><div><strong>${esc(quest.title)}</strong>${pending}${quest.giver ? `<small>${esc(quest.giver)}</small>` : ""}</div><span>${labels[status]}</span></div>${requirements ? `<div class="quest-items">${requirements}</div>` : `<p class="quest-no-items">No item requirement recorded.</p>`}${extra ? `<div class="quest-extra">${extra}</div>` : ""}</article>`;
+    // "Buddy of Friendship" and the other "... of Friendship" quests ask for no
+    // items at all - only that friendship with that character is maxed.
+    const friend = /^(.+?) friendship (\d+)$/i.exec(String(quest.prerequisite || "").trim());
+    const noItems = friend
+      ? `<p class="quest-no-items">No items needed — max your friendship with ${esc(friend[1])} (level ${esc(friend[2])}).</p>`
+      : `<p class="quest-no-items">No item requirement recorded.</p>`;
+    const extra = [friend ? "" : quest.prerequisite, quest.unlock, window_].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
+    return `<article class="quest-step is-${status}"><div class="quest-step-head"><div><strong>${esc(quest.title)}</strong>${pending}${quest.giver ? `<small>${esc(quest.giver)}</small>` : ""}</div><span>${labels[status]}</span></div>${requirements ? `<div class="quest-items">${requirements}</div>` : noItems}${extra ? `<div class="quest-extra">${extra}</div>` : ""}</article>`;
   }
 
   function matchesFilter(status, quest) {
+    if (kind === "events" && !isEvent(quest)) return false;
+    if (kind === "story" && isEvent(quest)) return false;
     if (filter === "all") return true;
-    if (filter === "events") return isEvent(quest);
     if (filter === "completed") return status === "completed";
-    if (isEvent(quest) && hasEnded(quest)) return false;
     if (filter === "available") return ["ready", "active", "available"].includes(status);
+    // An event that has ended cannot be done right now, so it stays out of
+    // the everyday Not Done list - but asking for events specifically means
+    // asking for those too, since the seasons come round again.
+    if (isEvent(quest) && hasEnded(quest) && kind !== "events") return false;
     return status !== "completed";
+  }
+
+  function syncButtons() {
+    document.querySelectorAll("[data-quest-filter]").forEach((row) => row.classList.toggle("active", row.dataset.questFilter === filter));
+    document.querySelectorAll("[data-quest-kind]").forEach((row) => row.classList.toggle("active", row.dataset.questKind === kind));
   }
 
   function render() {
@@ -66,6 +86,8 @@
     const sets = MODEL.statusSets(snapshot);
     const query = normalize(search.value);
     const tracking = !!snapshot || MODEL.hasPersonal;
+    if (filter == null) filter = tracking ? "unfinished" : "all";
+    syncButtons();
     const tracked = trackedLine();
     const quests = MODEL.quests.map((quest) => ({ ...quest, status: MODEL.statusFor(quest.title, sets, !!snapshot) }));
     const visible = quests.filter((quest) => matchesFilter(quest.status, quest) && (!query || normalize(`${quest.title} ${quest.line} ${quest.giver} ${(quest.requirements || []).map((r) => r.item).join(" ")}`).includes(query)));
@@ -128,7 +150,10 @@
   search.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(render, 100); });
   document.querySelectorAll("[data-quest-filter]").forEach((button) => button.addEventListener("click", () => {
     filter = button.dataset.questFilter;
-    document.querySelectorAll("[data-quest-filter]").forEach((row) => row.classList.toggle("active", row === button));
+    render();
+  }));
+  document.querySelectorAll("[data-quest-kind]").forEach((button) => button.addEventListener("click", () => {
+    kind = button.dataset.questKind;
     render();
   }));
   root.addEventListener("click", (event) => {

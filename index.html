@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/v3.css?v=20260911-5">
   <link rel="stylesheet" href="css/tower.css?v=20260917-2">
   <link rel="stylesheet" href="css/mining.css?v=20260911-5">
-  <link rel="stylesheet" href="css/locations.css?v=20260911-5">
+  <link rel="stylesheet" href="css/locations.css?v=20261007-1">
   <link rel="stylesheet" href="css/quests.css?v=20260921-1">
   <link rel="stylesheet" href="css/inventory.css?v=20260911-6">
   <link rel="stylesheet" href="css/items.css?v=20260921-10">
@@ -30,6 +30,7 @@
       <button class="tab" data-tab="planner">Calculate</button>
       <button class="tab" data-tab="items">Items</button>
       <button class="tab" data-tab="places">Places</button>
+      <button class="tab" data-tab="trips">Trips</button>
       <button class="tab" data-tab="mining">Mining</button>
       <span class="tab-sep" aria-hidden="true"></span>
       <button class="tab" data-tab="tower">Tower</button>
@@ -66,17 +67,18 @@
       <section class="desk-drawers" aria-label="Planner work areas">
         <button class="desk-drawer featured" data-open-view="planner"><strong>Calculator</strong><p>Choose an item and see what it takes to craft, buy, fish, explore for or grow.</p><span class="drawer-action">Open calculator →</span></button>
         <button class="desk-drawer" data-open-view="items"><strong>Items</strong><p>Every item in the game: what it is, where it is found, what it makes, and which quests still want it.</p><span class="drawer-action">Open items →</span></button>
-        <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour drinks, nets or stamina into a spot and see what comes back — or name what you need and see what it costs.</p><span class="drawer-action">Open places →</span></button>
+        <button class="desk-drawer" data-open-view="places"><strong>Places</strong><p>Pour drinks, nets or stamina into a spot and see what comes back.</p><span class="drawer-action">Open places →</span></button>
+        <button class="desk-drawer" data-open-view="trips"><strong>Trips</strong><p>Write down where you will go and how much you will spend there, and see everything those trips bring home, added up.</p><span class="drawer-action">Plan my trips →</span></button>
         <button class="desk-drawer" data-open-view="mining"><strong>Mining</strong><p>Every mine, what it drops, and what those drops go on to make.</p><span class="drawer-action">Open mines →</span></button>
         <button class="desk-drawer" data-open-view="tower"><strong>Tower ledger</strong><p>Every floor from where you stand to <span data-tower-top>T340</span>, and the masteries each one needs.</p><span class="drawer-action">Open Tower ledger →</span></button>
         <button class="desk-drawer" data-open-view="quests"><strong>Quests</strong><p>Every questline, what each step wants, and what you still owe.</p><span class="drawer-action">Open quests →</span></button>
         <button class="desk-drawer" data-open-view="setup"><strong>Your setup</strong><p id="homeSetupSummary">Choose the perks, meals and passive sources that actually apply.</p><span class="drawer-action">Check assumptions →</span></button>
       </section>
-      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">see why a route was picked</button> · <button class="text-action" data-open-view="plan">plan a whole questline</button></p>
+      <p class="desk-tools">Also here: <button class="text-action" data-open-view="fieldlab">record your own drop rates</button> · <button class="text-action" data-open-view="library">where the numbers come from</button></p>
 
       <section class="desk-lower">
         <article class="readiness-card"><div class="section-heading compact"><div><h2>Before the grind</h2></div><span id="homeReadiness" class="readiness-score"></span></div><div id="homeReadinessRows" class="readiness-rows"></div></article>
-        <article class="rule-card"><h2>The price is only part of it.</h2><div id="homeRules" class="rule-stack"></div><button class="text-action" data-open-view="library">See why each route gets picked →</button></article>
+
       </section>
     </section>
 
@@ -238,8 +240,6 @@
       <section class="tower-toolbar" aria-label="Tower filters">
         <label><span>Start at floor</span><input id="towerStart" type="number" min="1" max="340" value="277"></label>
         <label class="tower-check"><input id="towerShowDone" type="checkbox"><span>Show completed floors</span></label>
-        <button type="button" class="quiet-button" data-open-view="mm300">Mega Masteries to T300 →</button>
-        <button type="button" class="quiet-button" data-open-view="plan">Plan a questline →</button>
         <div id="towerSyncState" class="tower-sync-state"><span></span><strong>Saved account</strong><small>Extension not connected</small></div>
       </section>
       <section id="towerSummary" class="tower-summary" aria-label="Tower progress summary"></section>
@@ -247,50 +247,28 @@
       <section id="towerRail" class="tower-rail"></section>
     </section>
 
-    <section id="plan" class="view">
-      <section class="mm-head">
-        <div>
-          <h1>Plan a whole questline</h1>
-          <p>Every step you have left, rolled through its recipes and netted against what you hold, then filed under where you actually get it.</p>
-        </div>
-        <div class="plan-controls">
-          <label class="mm-floor"><span>Questline</span><select id="planLine"></select></label>
-          <label class="mm-floor"><span>Which step</span><select id="planStep"></select></label>
-          <label class="inline-toggle"><input type="checkbox" id="planFarm" checked> My farm makes its own</label>
-          <label class="inline-toggle"><input type="checkbox" id="planStock" checked> Count what I hold</label>
-          <label class="inline-toggle"><input type="checkbox" id="planCompare" checked> Go and get it when that is cheaper</label>
-        </div>
-      </section>
-      <section id="planSummary" class="mm-summary" aria-label="Questline plan summary"></section>
-      <section id="planBody" class="plan-body"></section>
-    </section>
-
-    <section id="mm300" class="view">
-      <section class="mm-head">
-        <div>
-          <h1>Mega Masteries to <span data-mm-floor>T300</span></h1>
-          <p>Every Mega Mastery still owed between the floor you are on and <span data-mm-floor>T300</span>, furthest along first on each floor.</p>
-        </div>
-        <label class="mm-floor"><span>Up to floor</span><input id="mmFloor" type="number" min="1" max="350" value="300"></label>
-      </section>
-      <section id="mmSummary" class="mm-summary" aria-label="Mega Mastery summary"></section>
-      <section id="mmGrid" class="mm-grid"></section>
+    <section id="trips" class="view">
+      <section class="page-intro"><h1>Your trips</h1><p>Write down what you are going to do — 100 Arnold Palmers in the Forest, 50,000 stamina at Whispering Creek, 2,000 Large Nets at Forest Pond — and see everything it brings home, added together. You choose the places and the amounts; nothing is picked for you.</p></section>
+      <div id="tripsBody" class="trips-body"></div>
     </section>
 
     <section id="quests" class="view">
       <section class="quest-hero">
         <div><h1>Unfinished business</h1><p>Every questline in the game, with each step’s items and the sequels kept in order. Import your account to mark what is done or available. Seasonal quests are here too, filed under Events.</p></div>
-        <button type="button" class="quiet-button" data-open-view="plan">Plan a whole questline →</button>
       </section>
       <section id="questSummary" class="quest-summary" aria-label="Main quest summary"></section>
       <section class="quest-toolbar" aria-label="Quest filters">
         <label class="quest-search"><span>Find a quest or required item</span><input id="questSearch" name="quest-search" type="search" autocomplete="off" placeholder="Quest name or item…"></label>
         <div class="quest-filters" role="group" aria-label="Quest status">
-          <button class="active" type="button" data-quest-filter="unfinished">Not Done</button>
+          <button type="button" data-quest-filter="unfinished">Not Done</button>
           <button type="button" data-quest-filter="available">Available Now</button>
           <button type="button" data-quest-filter="completed">Completed</button>
-          <button type="button" data-quest-filter="events">Events</button>
-          <button type="button" data-quest-filter="all">All</button>
+          <button class="active" type="button" data-quest-filter="all">All</button>
+        </div>
+        <div class="quest-filters" role="group" aria-label="Kind of quest">
+          <button class="active" type="button" data-quest-kind="any">Every quest</button>
+          <button type="button" data-quest-kind="story">Story and side</button>
+          <button type="button" data-quest-kind="events">Events</button>
         </div>
         <strong id="questCount" class="quest-count"></strong>
       </section>
@@ -371,8 +349,8 @@
       <section class="page-intro"><h1>Behind the numbers</h1><p>The exceptions an experienced player would make, what each meal actually changes, and where the numbers came from.</p></section>
       <div id="knowledgeStatus" class="knowledge-status"></div>
       <div id="dataSummary" class="data-summary"></div>
-      <section class="library-grid"><article class="source-list"><h2>Route exceptions worth knowing</h2><p>Habits an experienced player has that the cheapest-price maths would miss. They steer the plan, but none of them pretend to be a measured drop rate.</p><div id="strategyRules" class="strategy-rules"></div></article><article class="source-list"><h2>What each meal actually does</h2><p>Meals that only save clicks are labelled as saving clicks — they don't change how much material you need.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
-      <section class="source-list"><h2>Where the numbers come from, most trusted first</h2><ol><li><b>The game itself</b><span>Farm RPG's own Library, Farm Supply and item descriptions</span></li><li><b>Items and recipes</b><span>A full export of every item and every recipe</span></li><li><b>Buddy's Almanac</b><span>Item pages, production timings and meal effects</span></li><li><b>What the game will ask you for</b><span>Quest requirements and Tower mastery targets</span></li><li><b>Route exceptions</b><span>Habits like taking Glass Orb from Ember Lagoon — listed above so you can disagree with them</span></li><li><b>Trade prices</b><span>Farm RPG Price Check; <code>/k</code> means per 1,000</span></li><li><b>Your own measurements</b><span>Acorn Pie samples and your farm's real production rates</span></li><li><b>Community drop logs</b><span>Old shared outcome logs. Least reliable, and anything unmeasured stays marked unmeasured</span></li></ol></section>
+      <section class="library-grid"><article class="source-list"><h2>What each meal actually does</h2><p>Meals that only save clicks are labelled as saving clicks — they don't change how much material you need.</p><div id="mechanicsIndex" class="mechanics-index"></div></article></section>
+      <section class="source-list"><h2>Where the numbers come from, most trusted first</h2><ol><li><b>The game itself</b><span>Farm RPG's own Library, Farm Supply and item descriptions</span></li><li><b>Items and recipes</b><span>A full export of every item and every recipe</span></li><li><b>Buddy's Almanac</b><span>Item pages, production timings and meal effects</span></li><li><b>What the game will ask you for</b><span>Quest requirements and Tower mastery targets</span></li><li><b>Trade prices</b><span>Farm RPG Price Check; <code>/k</code> means per 1,000</span></li><li><b>Your own measurements</b><span>Acorn Pie samples and your farm's real production rates</span></li><li><b>Community drop logs</b><span>Old shared outcome logs. Least reliable, and anything unmeasured stays marked unmeasured</span></li></ol></section>
       <section class="source-list"><h2>Recording your own data</h2><p>Save your account pages, or your own explore and fishing runs, without automating anything in the game.</p><ol><li><b>Visible page exporter</b><span><a href="collectors/collect-visible-page.js">Open the script</a> and follow <a href="collectors/README.md">the instructions</a></span></li><li><b>Account format</b><span><a href="collectors/account-snapshot.template.json">Open the account template</a>; unknown values can stay blank</span></li><li><b>Field runs</b><span><a href="collectors/field-runs.template.json">Open the run template</a> for exploration, Acorn Pie and fishing samples</span></li></ol></section>
     </section>
   </main>
@@ -416,12 +394,11 @@
   <script src="js/engine.js?v=20261005-1"></script>
   <script src="js/item-art.js?v=20260905-1"></script>
   <script src="js/quest-model.js?v=20260917-1"></script>
-  <script src="js/app.js?v=20261007-1"></script>
-  <script src="js/mm300.js?v=20260920-1"></script>
-  <script src="js/line-plan.js?v=20260921-19"></script>
+  <script src="js/app.js?v=20261007-3"></script>
   <script src="js/mining-page.js?v=20260911-5"></script>
-  <script src="js/locations-page.js?v=20260929-1"></script>
-  <script src="js/quests-page.js?v=20260905-3"></script>
+  <script src="js/locations-page.js?v=20261007-1"></script>
+  <script src="js/trips-page.js?v=20261007-1"></script>
+  <script src="js/quests-page.js?v=20261007-1"></script>
   <script src="js/gather-model.js?v=20261007-1"></script>
   <script src="js/inventory-page.js?v=20261007-1"></script>
   <script src="js/items-page.js?v=20260917-5"></script>

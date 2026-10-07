@@ -305,26 +305,18 @@ test("chest contents keep the flags that followed them out of the table", () => 
   assert.match(page, /whole\(need\.remaining \/ masteryMult\(\)\)/);
 });
 
-test("the page runs backwards: name what you need and it prices the pour", () => {
+test("Places never works out an amount for you, and Trips reads the same yields", () => {
   const page = read("js/locations-page.js");
-  // Every figure is linear in the amount, so one probe at a single unit gives
-  // the rate. If that stops being true this solver quietly starts lying.
-  assert.match(page, /let solved = null;/);
+  // The owner's rule: the site does not decide anything. "Start from what I
+  // need" chose the amount and the place, so it is gone.
+  assert.ok(!/data-solve|id="placesTarget"|function amountFor/.test(page), "no solver left");
+  // Trips asks with its own amounts through spend(), so both pages share one
+  // set of rates, perks and meals.
   assert.match(page, /const spend = \(\) => \(solved != null \? solved : \(Number\(prefs\.amount\) \|\| 0\)\);/);
-  assert.match(page, /function amountFor\(place, want, target\)/);
-  assert.match(page, /solved = 1;/);
-  // Nothing may read the typed amount directly any more, or half a card would
-  // answer the forward question while the other half answers the backward one.
-  assert.ok(
-    !/Number\(prefs\.amount\) \|\| 0/.test(page.replace(/const spend = [^\n]+\n/, "")),
-    "unitsFor, actionsFor and staminaSpent all go through spend()"
-  );
-  assert.ok(!/whole\(prefs\.amount\) \+ " " \+ esc\(kindLabel\(\)\)/.test(page), "the stamina bill uses the solved amount too");
-  // Asked forwards the best place gives the most; asked backwards it asks the
-  // least, so the order has to flip.
-  assert.match(page, /if \(solving\) scored\.sort\(\(a, b\) => \(a\.need == null \? Infinity : a\.need\) - \(b\.need == null \? Infinity : b\.need\)\);/);
-  assert.match(page, /data-solve/);
-  assert.match(page, /id="placesTarget"/);
+  assert.match(page, /window\.FRPG_PLACES = \{/);
+  assert.match(page, /haul\(mode, name, kind, amount\)/);
+  const trips = read("js/trips-page.js");
+  assert.match(trips, /api\(\)\.haul\(trip\.mode, trip\.place, trip\.kind, trip\.amount\)/);
 });
 
 test("the backward answer agrees with the workbook it came from", () => {
