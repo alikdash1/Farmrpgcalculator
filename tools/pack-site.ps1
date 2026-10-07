@@ -25,6 +25,11 @@ $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("frpg-site-" + [guid]::New
 $top = Join-Path $stage "farm-rpg-calculator"
 
 # What index.html loads, plus the licence. Keep in step with index.html.
+# Windows' own tar. Run from Git Bash, plain "tar" is GNU tar, which reads
+# "C:\..." as a remote host and fails.
+$tarExe = Join-Path $env:SystemRoot "System32	ar.exe"
+if (-not (Test-Path $tarExe)) { $tarExe = "tar" }
+
 $sitePaths = @("index.html", "site.webmanifest", "LICENSE", "js", "css", "data", "assets",
                "collectors/account-importer/shared", "downloads/farm-rpg-account-sync.zip")
 
@@ -35,7 +40,7 @@ try {
     $tar = Join-Path $stage "site.tar"
     git archive --format=tar -o $tar HEAD @sitePaths
     if ($LASTEXITCODE -ne 0) { throw "git archive failed for the site files" }
-    tar -xf $tar -C $top
+    & $tarExe -xf $tar -C $top
     Remove-Item $tar
 
     # The extension goes at the top level under its own readable name, since
@@ -45,7 +50,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "git archive failed for the extension" }
     $extStage = Join-Path $stage "ext"
     New-Item -ItemType Directory -Force $extStage | Out-Null
-    tar -xf $ext -C $extStage
+    & $tarExe -xf $ext -C $extStage
     Move-Item (Join-Path $extStage "collectors/account-sync-extension") (Join-Path $top "farm-rpg-account-sync")
     $commit = (git rev-parse --short HEAD).Trim()
   } finally { Pop-Location }
