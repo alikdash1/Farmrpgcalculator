@@ -64,3 +64,30 @@ test("it runs before the app reads those globals", () => {
   const firstPage = Math.min(...[...html.matchAll(/<script src="js\/(?!account-source)[^"]+"/g)].map((m) => m.index));
   assert.ok(at('src="js/account-source.js') < firstPage);
 });
+
+// The downloadable copy (tools/pack-site.ps1) ships blank account files marked
+// clean. It must open empty - no example farm, no author checkbox - and still
+// switch to the visitor's own numbers once they bring them.
+test("a clean download opens empty, then takes the visitor's account", () => {
+  const blank = (w) => {
+    w.FRPG_PERSONAL_TOWER = { clean: true, masteries: {}, startFloor: 0, towerAtCapture: 0, authoritativeMasteries: false };
+    w.FRPG_PERSONAL_QUESTS = { clean: true, completed: [] };
+  };
+  const run = (storage) => {
+    const store = new Map(Object.entries(storage));
+    const window = {};
+    blank(window);
+    const ctx = {
+      window,
+      localStorage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) },
+      document: { readyState: "complete", getElementById: () => null, querySelector: () => null, body: null, addEventListener() {} },
+      location: { reload() {} },
+    };
+    vm.createContext(ctx);
+    vm.runInContext(source, ctx);
+    return window;
+  };
+  assert.equal(run({}).FRPG_ACCOUNT_MODE, "empty");
+  assert.equal(run({ frpg_bundled_account_v1: "mine" }).FRPG_ACCOUNT_MODE, "empty", "nobody can claim a blank copy as the author's farm");
+  assert.equal(run({ frpg_account_snapshot_v1: "{}" }).FRPG_ACCOUNT_MODE, "visitor");
+});

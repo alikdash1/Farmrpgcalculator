@@ -12,6 +12,8 @@
 <p align="center">
   <a href="https://alikdash1.github.io/Farmrpgcalculator/"><b>Open the planner</b></a>
   &nbsp;·&nbsp;
+  <a href="https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-calculator.zip"><b>Download everything</b></a>
+  &nbsp;·&nbsp;
   <a href="https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-account-sync.zip"><b>Download the extension</b></a>
   &nbsp;·&nbsp;
   <a href="#bring-your-own-farm">Set it up</a>
@@ -71,7 +73,14 @@ cookies or session tokens. Everything it captures stays in your browser.
 
 ## Run it yourself
 
-There is no build step and no server. Clone it and open `index.html`:
+**[Download everything](https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-calculator.zip)**
+— the planner and the extension in one zip, starting empty so it shows only
+your own farm. Unzip it, open `START-HERE.txt`, and double-click `index.html`.
+Rebuild it with `powershell -ExecutionPolicy Bypass -File tools/pack-site.ps1`.
+
+Or clone it:
+
+There is no build step and no server.
 
 ```bash
 git clone https://github.com/alikdash1/Farmrpgcalculator.git

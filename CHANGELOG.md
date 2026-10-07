@@ -5,6 +5,20 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-07 — One download for everybody, starting empty
+
+- **`tools/pack-site.ps1`** writes `downloads/farm-rpg-calculator.zip`: the
+  planner, the extension folder ready for "Load unpacked", and START-HERE.txt.
+  Packed from the last commit; raw/, tools/, tests/ and docs/ never ship.
+- **The download carries no account.** The three personal data files are
+  replaced with blank ones marked `clean`, and `js/account-source.js` has a new
+  `empty` mode: "No farm loaded yet", no example farm, no author checkbox.
+- **Fresh-player fixes found by walking every tab empty:** Home no longer shows a
+  made-up "Next floor T277"; no questline is auto-tracked when no quests are on
+  record (it picked "99 Bottles"); Inventory no longer says "Everything on your
+  list is finished" to someone who has not started. Extension handoff and saved
+  file import both tested end to end on the blank copy. Build 2026-10-07.1.
+
 ## 2026-10-05 — Current account facts and one Cider formula
 
 - Recorded T350 as the long-term goal, T300 then PSA/Distant Illusions as the

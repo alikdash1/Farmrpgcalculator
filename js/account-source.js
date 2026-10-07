@@ -87,7 +87,7 @@
     if (!box) return;
     if (clean) {
       const row = box.closest(".owner-farm");
-      if (row) row.hidden = true;
+      if (row) { row.hidden = true; row.style.display = "none"; }
       return;
     }
     box.checked = isOwner;

@@ -112,6 +112,10 @@
       if (!anything || left > anything.left) anything = { name: line.name, left };
       if (steps.length - left > 0 && (!started || left > started.left)) started = { name: line.name, left };
     }
+    // With no finished quests on record (a fresh copy, or an account whose
+    // quest pages were never captured) nothing has been started, so every line
+    // ties for "most left" - picking one would only look like real progress.
+    if (!started && !completed.size) return "";
     return (started || anything || {}).name || "";
   }
 

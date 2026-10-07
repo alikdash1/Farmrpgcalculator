@@ -41,7 +41,9 @@
     if (!plan.lineName) {
       trackingNote.innerHTML = chose
         ? `Not tracking anything. Press <b>Track</b> on a questline in Quests and it appears in the corner.`
-        : `Everything on your list is finished.`;
+        : (MODEL && !MODEL.completedSet().size)
+          ? `No quests on record yet. Connect your farm, or press <b>Track</b> on a questline in Quests.`
+          : `Everything on your list is finished.`;
       return;
     }
     const short = plan.nextRows.filter((row) => row.short > 0).length;

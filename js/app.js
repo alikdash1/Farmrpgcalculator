@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-05.1";
+  const FRPG_BUILD = "2026-10-07.1";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -384,7 +384,12 @@
     const gather = window.FRPG_GATHER;
     const bits = [];
 
-    const needs = window.FRPG_TOWER_NEEDS || [];
+    // No farm loaded and no floor typed in: a "next floor" here would be a
+    // guess dressed up as the player's own progress.
+    if (window.FRPG_ACCOUNT_MODE === "empty" && !state.account && !state.towerStartChosen) {
+      bits.push(`<a href="#account" data-open-view="account"><span>Your farm</span><strong>Not connected</strong><small>Connect it to see your Tower floor and quest step</small></a>`);
+    }
+    const needs = window.FRPG_ACCOUNT_MODE === "empty" && !state.account && !state.towerStartChosen ? [] : (window.FRPG_TOWER_NEEDS || []);
     const nextFloor = needs.filter((row) => !row.complete).sort((a, b) => a.floor - b.floor)[0];
     if (nextFloor) {
       const left = needs.filter((row) => row.floor === nextFloor.floor && !row.complete).length;
