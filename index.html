@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="css/items.css?v=20260921-10">
   <link rel="stylesheet" href="css/tracker.css?v=20260911-5">
   <link rel="stylesheet" href="css/system.css?v=20261008-1">
-  <link rel="stylesheet" href="css/clean.css?v=20261008-5">
+  <link rel="stylesheet" href="css/clean.css?v=20261008-7">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -84,7 +84,6 @@
         <section id="goalHeader" class="goal-header"></section>
         <section id="resourceTrail" class="resource-trail"></section>
         <section id="goalQuests" class="quest-needs-panel"></section>
-        <p id="acornNotice" class="planner-notice" hidden></p>
 
         <section id="gatherPanel" class="gather-panel hidden"></section>
 
@@ -117,7 +116,7 @@
     </section>
 
     <section id="account" class="view">
-      <section class="page-intro"><h1>Your account</h1><p>Connect the extension, or load a saved file.</p></section>
+      <section class="page-intro"><h1>Your account</h1><p>Bring your farm in, so every page counts what you really have.</p></section>
       <section class="account-import-panel">
         <div class="account-import-copy"><h2>Account sync extension</h2><div id="extensionStatus" class="extension-status"><span></span><strong>Waiting for extension</strong><small>Load the extension once, then browse Farm RPG normally.</small></div><div class="account-actions"><button class="primary-link" type="button" id="goGuide">How to install and connect it</button></div></div>
         <div class="account-import-copy"><h2>Load a saved file instead</h2><label class="snapshot-drop"><input id="accountFile" type="file" accept="application/json,.json" multiple><strong>Pick your saved account file — or all the separate page files at once</strong></label><button id="clearAccount" class="quiet-button" type="button">Forget my account</button><p class="owner-farm"><label><input id="ownerFarm" type="checkbox"> The example farm is mine</label><small>Only for the author. It keeps the built-in account as your real one. Everyone else, leave it off.</small></p></div>
@@ -126,37 +125,43 @@
         <div class="sync-guide-head">
           <div>
 
-            <h2>Installing and connecting the account sync</h2>
-            <p>Three steps, once, in Chrome, Brave or Edge.</p>
+            <h2>Connect your farm</h2>
+            <p>A small browser extension reads your Farm RPG pages while you play and hands them to this planner. It never clicks or plays for you, and nothing leaves your computer. About five minutes, once. Works in Chrome, Brave and Edge on a computer.</p>
           </div>
           <button id="saveGuide" class="quiet-button" type="button">Save this guide</button>
         </div>
 
         <ol class="sync-steps">
           <li>
-            <h3>Install it</h3>
-            <p><a class="primary-link" href="downloads/farm-rpg-account-sync.zip" download>Download the extension</a> and unzip it somewhere you will keep it.</p>
-            <p>Open <code>chrome://extensions</code> (or <code>brave://extensions</code>, <code>edge://extensions</code>), turn on <b>Developer mode</b>, choose <b>Load unpacked</b> and pick the <code>farm-rpg-account-sync</code> folder.</p>
+            <h3>Open the planner</h3>
+            <p>Either keep using it right here on the website, <code>alikdash1.github.io/Farmrpgcalculator</code>, which needs nothing installed, or <a href="downloads/farm-rpg-calculator.zip" download>download the whole planner</a>, unzip it and double-click <code>index.html</code>. The download runs from your own computer, offline, and starts empty.</p>
           </li>
           <li>
-            <h3>Check its permissions</h3>
-            <p>Open <b>Details</b> on the extension. It only asks for these sites:</p>
-            <ul class="sync-sites">
-              <li><code>https://farmrpg.com/*</code><span>the game pages it reads</span></li>
-              <li><code>https://www.farmrpg.com/*</code><span>the same site</span></li>
-              <li><code>file:///*</code><span>this planner, if you opened it from a downloaded copy</span></li>
-              <li><code>http://localhost/*</code><span>this planner, run on your own computer</span></li>
-              <li><code>http://127.0.0.1/*</code><span>the same</span></li>
-              <li data-site-row><code>https://alikdash1.github.io/Farmrpgcalculator/*</code><span>this planner's website</span></li>
-            </ul>
-            <p>Using the downloaded copy? Also switch on <b>Allow access to file URLs</b>.</p>
+            <h3>Add the extension</h3>
+            <p class="sync-download"><a class="primary-link" href="downloads/farm-rpg-account-sync.zip" download>Download the extension</a></p>
+            <p>Unzip it and put the <code>farm-rpg-account-sync</code> folder somewhere it can stay. The browser loads it from there, so don't delete it afterwards. It is also inside the full planner download.</p>
+            <p>Go to <code>chrome://extensions</code> (<code>brave://extensions</code> or <code>edge://extensions</code>), switch on <b>Developer mode</b> in the corner, press <b>Load unpacked</b> and choose that folder.</p>
+            <p>Using the downloaded <code>index.html</code>? Press <b>Details</b> on the extension and switch on <b>Allow access to file URLs</b>.</p>
           </li>
           <li>
             <h3>Visit your pages</h3>
-            <p>Keep this planner open in a tab, refresh Farm RPG once, then open your <b>profile</b>, <b>Inventory</b>, <b>Tower</b>, <b>Mastery</b>, <b>Quests</b> and <b>farm</b> pages. That's it — from then on it updates as you play.</p>
-            <p class="sync-note">Nothing here? Reload the extension and this page.</p>
+            <p>Keep the planner open in one tab. In another, open Farm RPG and refresh it once, then visit your <b>Profile</b>, <b>Inventory</b>, <b>Tower</b>, <b>Mastery</b>, <b>Perks</b>, <b>Quests</b> and <b>My Farm</b>. This page then says <b>Extension connected</b> and your farm fills in: inventory, perks and their tiers, Tower and quests. From then on it keeps up as you play.</p>
+            <p class="sync-note">Still waiting? Press the reload arrow on the extension's card, then reload this page.</p>
           </li>
         </ol>
+
+        <details class="sync-permissions">
+          <summary>What the extension can see</summary>
+          <p>Only these sites, which <b>Details</b> on the extension lists too:</p>
+          <ul class="sync-sites">
+            <li><code>https://farmrpg.com/*</code><span>the game pages it reads</span></li>
+            <li><code>https://www.farmrpg.com/*</code><span>the same site</span></li>
+            <li><code>file:///*</code><span>the downloaded planner, only if you switch on file access</span></li>
+            <li><code>http://localhost/*</code><span>the planner, run on your own computer</span></li>
+            <li><code>http://127.0.0.1/*</code><span>the same</span></li>
+            <li data-site-row><code>https://alikdash1.github.io/Farmrpgcalculator/*</code><span>this planner's website</span></li>
+          </ul>
+        </details>
       </section>
 
       <section id="accountEmpty" class="account-empty"><strong>No account loaded yet.</strong><span>Your Setup page is used instead.</span></section>
@@ -310,7 +315,7 @@
   <script src="js/engine.js?v=20261005-1"></script>
   <script src="js/item-art.js?v=20260905-1"></script>
   <script src="js/quest-model.js?v=20260917-1"></script>
-  <script src="js/app.js?v=20261008-7"></script>
+  <script src="js/app.js?v=20261008-9"></script>
   <script src="js/mining-page.js?v=20260911-5"></script>
   <script src="js/locations-page.js?v=20261008-3"></script>
   <script src="js/trips-page.js?v=20261008-4"></script>
@@ -319,6 +324,6 @@
   <script src="js/inventory-page.js?v=20261008-1"></script>
   <script src="js/items-page.js?v=20261008-1"></script>
   <script src="js/tracker.js?v=20261008-2"></script>
-  <script src="js/sync-guide.js?v=20260929-2"></script>
+  <script src="js/sync-guide.js?v=20261008-1"></script>
 </body>
 </html>

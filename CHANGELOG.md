@@ -5,6 +5,18 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Tiers from the extension, a plainer Account guide, shorter gathered goals
+
+- The perks capture lists "Artisan I" … "IV" one by one with `owned`, so
+  applying an account now sets Artisan, Negotiator and Wanderer to the highest
+  owned tier (or Off when the capture lists them and none is owned).
+- Account guide rewritten for someone new: where the planner lives (the website,
+  or the downloaded `index.html`), add the extension, visit your pages. The site
+  list folds away under "What the extension can see".
+- A gathered goal (Emberstone, Stone…) no longer shows the long "explore for it"
+  panel - the row below says the same once a route is picked. Acorn Pie is gone
+  from the meals: its Hide was never measured, so it could not change a number.
+
 ## 2026-10-08 — Perk tiers, effectiveness everywhere, one-line Account
 
 - **Setup:** Artisan, Negotiator and Wanderer pick a tier (Off, I–IV) instead of

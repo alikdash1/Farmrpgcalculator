@@ -43,6 +43,7 @@
   function buildFile() {
     const body = guide.cloneNode(true);
     body.querySelectorAll("button").forEach((node) => node.remove());
+    body.querySelectorAll("details").forEach((node) => { node.open = true; });
     return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Farm RPG Calculator — account sync setup</title>
