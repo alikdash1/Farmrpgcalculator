@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="css/items.css?v=20260921-10">
   <link rel="stylesheet" href="css/tracker.css?v=20260911-5">
   <link rel="stylesheet" href="css/system.css?v=20261008-1">
+  <link rel="stylesheet" href="css/clean.css?v=20261008-1">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -69,7 +70,7 @@
         <div class="goal-copy"><h1>What will it cost?</h1></div>
         <div class="goal-controls">
           <label class="field search-field"><span>Item</span><input id="search" type="search" name="item-search" placeholder="Red Trunk…" autocomplete="off"><div id="suggest" class="suggest hidden"></div></label>
-          <label class="field quantity-field"><span>Target quantity</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
+          <label class="field quantity-field"><span>How many</span><input id="qty" name="target-quantity" type="text" inputmode="numeric" value="1,000,000"></label>
           <div class="presets"><button data-q="1000">1k</button><button data-q="10000">10k</button><button data-q="100000">100k</button><button data-q="1000000">1m</button></div>
         </div>
       </section>
@@ -84,9 +85,6 @@
         <section id="goalHeader" class="goal-header"></section>
         <section id="resourceTrail" class="resource-trail"></section>
         <section id="goalQuests" class="quest-needs-panel"></section>
-        <div class="planner-switches">
-          <label class="event-switch"><input id="includeEvents" type="checkbox"><span><b>Include event places</b></span></label>
-        </div>
         <p id="acornNotice" class="planner-notice" hidden></p>
 
         <section id="gatherPanel" class="gather-panel hidden"></section>
@@ -96,8 +94,8 @@
         <section id="makeBuy" class="make-buy hidden"></section>
 
         <section class="workbench" id="workbench">
-          <div class="section-heading compact"><div><span class="scope-label" id="workbenchEyebrow">Shopping &amp; Farming List</span><h2 id="workbenchTitle">Items still needed</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
-          <div class="tablewrap"><table id="ingTable"><thead><tr><th>Ingredient</th><th class="num">Need</th><th class="num">Owned</th><th class="num">Missing</th><th>How to Get It</th><th>Cost & Useful Drops</th></tr></thead><tbody></tbody></table></div>
+          <div class="section-heading compact"><div><h2 id="workbenchTitle">Items still needed</h2></div><div class="workbench-actions"><span id="ingCount"></span><label class="mini-check"><input id="includeEvents" type="checkbox"> Event places</label><label class="mini-check"><input id="toggleCovered" type="checkbox"> Show covered</label><button id="clearOwned" class="quiet-button">Clear owned</button></div></div>
+          <div class="tablewrap"><table id="ingTable"><thead><tr><th>Ingredient</th><th class="num">Need</th><th class="num">Owned</th><th class="num">Missing</th><th>Get it by</th><th>Cost</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <section class="tree-card" id="treeCard"><div class="section-heading compact"><div><h2>Ingredient tree</h2></div><button id="collapseTree" class="quiet-button">Collapse all</button></div><div id="tree" class="tree"></div></section>
@@ -321,15 +319,15 @@
   <script src="js/engine.js?v=20261005-1"></script>
   <script src="js/item-art.js?v=20260905-1"></script>
   <script src="js/quest-model.js?v=20260917-1"></script>
-  <script src="js/app.js?v=20261008-3"></script>
+  <script src="js/app.js?v=20261008-4"></script>
   <script src="js/mining-page.js?v=20260911-5"></script>
   <script src="js/locations-page.js?v=20261008-1"></script>
   <script src="js/trips-page.js?v=20261008-1"></script>
-  <script src="js/quests-page.js?v=20261008-1"></script>
+  <script src="js/quests-page.js?v=20261008-2"></script>
   <script src="js/gather-model.js?v=20261007-1"></script>
   <script src="js/inventory-page.js?v=20261008-1"></script>
   <script src="js/items-page.js?v=20261008-1"></script>
-  <script src="js/tracker.js?v=20260911-1"></script>
+  <script src="js/tracker.js?v=20261008-1"></script>
   <script src="js/sync-guide.js?v=20260929-2"></script>
 </body>
 </html>

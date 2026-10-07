@@ -1,0 +1,37 @@
+/* Last word on layout: fewer boxes, tighter rows. Loaded after every other sheet. */
+
+/* Calculate: the title and one search bar, item | how many | presets in a row. */
+#planner .goal-board { display: block; padding: 16px 0 24px; }
+#planner .goal-copy h1 { margin: 0 0 12px; }
+#planner .goal-controls {
+  max-width: none; padding: 16px;
+  grid-template-columns: minmax(0, 1fr) 170px auto; align-items: end; gap: 12px;
+}
+#planner .goal-controls .field > span { margin-bottom: 6px; }
+#planner .presets { grid-column: auto; gap: 6px; }
+#planner .presets button { flex: 0 0 auto; min-width: 52px; min-height: 46px; }
+
+/* Make or get: the choice sits at the end of the row, not across it. */
+.decision-row { grid-template-columns: 34px minmax(0, 1fr) 220px; }
+.decision-row select { width: 100%; }
+
+/* Ingredient table: the dropdown alone says what was picked. */
+.route-select { min-width: 140px; margin-right: 0; }
+.workbench-actions { flex-wrap: wrap; justify-content: flex-end; }
+
+/* Quests: one line of totals instead of four cards. */
+.quest-summary { display: block; }
+.quest-stats { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.quest-stats b { color: var(--text); }
+
+@media (max-width: 820px) {
+  #planner .goal-controls { grid-template-columns: minmax(0, 1fr) 130px; }
+  #planner .presets { grid-column: 1 / -1; }
+  #planner .presets button { flex: 1; min-height: 36px; }
+  .decision-row { grid-template-columns: 34px minmax(0, 1fr); }
+  .decision-row select { grid-column: 2; }
+}
+
+/* No empty strips drawing stray lines under the item header. */
+.resource-trail:empty { display: none; }
+#planner .goal-board { border-bottom: 0; }

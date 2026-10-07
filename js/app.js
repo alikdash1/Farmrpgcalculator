@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.3";
+  const FRPG_BUILD = "2026-10-08.4";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -1022,7 +1022,7 @@
     const selected = state.makeChoices[item.id] === "craft" && craftable
       ? "craft"
       : (state.sourceChoices[item.id] || "auto");
-    return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select><span class="route-choice ${route.type}">${esc(route.label)}</span>`;
+    return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select>`;
   }
 
   // The game will not let you mail some items, so there is no trade route for
@@ -1130,7 +1130,7 @@
 
   // What one ingredient costs, in one line, in what the player chose to spend.
   function costLine(item, route) {
-    if (!route) return "";
+    if (!route || route.type === "choose") return "";
     if (route.type === "explore" || route.type === "acorn") {
       const ap = state.drinkChoices[item.id] === "ap" && route.aps != null;
       return ap
@@ -1221,7 +1221,6 @@
       const node = $(id);
       if (node) node.classList.toggle("hidden", hide);
     }
-    if ($("workbenchEyebrow")) $("workbenchEyebrow").textContent = gathered ? "Your options" : "Shopping & Farming List";
     if ($("workbenchTitle")) $("workbenchTitle").textContent = gathered ? "Change how you get it" : "Items You Still Need";
 
     if (!gathered) { panel.classList.add("hidden"); panel.innerHTML = ""; return; }

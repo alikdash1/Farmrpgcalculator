@@ -102,7 +102,13 @@
     const mainCount = MODEL.quests.filter((q) => q.category === "main").length;
     const eventCount = MODEL.quests.filter(isEvent).length;
 
-    summary.innerHTML = `<article><span>Quests</span><strong>${MODEL.quests.filter((q) => !q.pending).length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${MODEL.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${tracking ? completed : "—"}</strong><small>${tracking ? "of every quest listed" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to see this"}</small></article>`;
+    const n = (value) => `<b>${Number(value).toLocaleString()}</b>`;
+    summary.innerHTML = `<p class="quest-stats">${[
+      `${n(MODEL.quests.filter((q) => !q.pending).length)} quests (${mainCount.toLocaleString()} story, ${eventCount.toLocaleString()} event)`,
+      `${n(MODEL.lines.length)} questlines`,
+      tracking ? `${n(completed)} done` : "",
+      snapshot ? `${n(actionable)} available now` : "",
+    ].filter(Boolean).join(" · ")}</p>`;
     if (!snapshot && MODEL.hasPersonal) {
       const personal = window.FRPG_PERSONAL_QUESTS || {};
       note.innerHTML = `<strong>Using your completed-quest list.</strong><span><b>${MODEL.personalCount.toLocaleString()}</b> finished quests${personal.capturedAt ? ` (${esc(personal.capturedAt)})` : ""}.</span>`;
@@ -138,7 +144,7 @@
       const tag = line.category === "main" ? "Story" : line.category === "event" ? "Event" : "NPC";
       const ran = line.category === "event" && line.lastEnd ? ` · ${Date.parse(line.lastEnd) < NOW ? "ended" : "running"} ${dateLabel(line.lastEnd)}` : "";
       const isTracked = tracked === line.name;
-      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length} shown · ${line.count} total${ran}</small>${line.aka && line.aka.length ? `<small class="quest-line-aka">Also called ${esc(line.aka.join(" · "))}</small>` : ""}</span><span class="quest-line-actions"><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span><button type="button" class="quest-track${isTracked ? " is-tracked" : ""}" data-track-line="${esc(line.name)}" aria-pressed="${isTracked}" title="${isTracked ? "Stop tracking this questline" : "Follow this questline on the Inventory tab"}">${isTracked ? "Tracking ✕" : "Track"}</button></span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
+      return `<details class="quest-line is-${esc(line.category)}" data-line="${esc(line.name)}" ${shouldOpen ? "open" : ""}><summary><span><b>${esc(line.name)}</b><small><i class="quest-line-tag">${tag}</i> ${all.length === line.count ? `${line.count} quest${line.count === 1 ? "" : "s"}` : `${all.length} of ${line.count} shown`}${ran}</small></span><span class="quest-line-actions"><span class="quest-line-progress">${tracking ? `${done}/${line.count} done` : "View quests"}</span><button type="button" class="quest-track${isTracked ? " is-tracked" : ""}" data-track-line="${esc(line.name)}" aria-pressed="${isTracked}" title="${isTracked ? "Stop tracking this questline" : "Follow this questline on the Inventory tab"}">${isTracked ? "Tracking ✕" : "Track"}</button></span></summary><div class="quest-line-body">${shouldOpen ? all.map((quest) => questHtml(quest, quest.status)).join("") : ""}</div></details>`;
     }).join("");
     root.innerHTML = grouped || `<div class="quest-empty"><strong>No matching quests.</strong><span>Try another name, item, or filter.</span></div>`;
 

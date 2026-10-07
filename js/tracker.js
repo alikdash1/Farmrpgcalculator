@@ -181,7 +181,8 @@
 
     draw("next", {
       title: plan.next.title,
-      subtitle: plan.lineName,
+      // "Problems Start Arising III" over "Problems Start Arising" says it twice.
+      subtitle: plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} short` : plan.lineName,
       rows: nextRows,
       collapsed: read("frpg_tracker_next_collapsed", "1") === "1",
       canExpand: false,
