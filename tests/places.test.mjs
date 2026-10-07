@@ -329,3 +329,24 @@ test("the backward answer agrees with the workbook it came from", () => {
   // 27,308 Arnold Palmers, which is only right if this rate is.
   assert.ok(Math.abs(672579 / rate - 27308) < 1, `672,579 / ${rate} should be 27,308`);
 });
+
+test("event places come from buddy.farm, including Apple Bobbing", async () => {
+  const vm = await import("node:vm");
+  const fs = await import("node:fs");
+  const W = {};
+  const ctx = { window: W, console };
+  vm.createContext(ctx);
+  for (const f of ["data/data.js", "data/extra-items.js", "data/location-rates.js", "data/event-places.js"]) {
+    vm.runInContext(fs.readFileSync(new URL("../" + f, import.meta.url), "utf8"), ctx);
+  }
+  const locs = W.FRPG_DATA.sources.locations;
+  const bob = locs.find((l) => l.name === "Apple Bobbing" && l.type === "fishing");
+  assert.ok(bob && bob.event, "Apple Bobbing is listed as an event fishing place");
+  assert.ok(bob.drops["King Apple"].denom > 0, "King Apple has a catch rate");
+  const hh = locs.filter((l) => l.name === "Haunted House");
+  assert.equal(hh.length, 1, "replaced, not duplicated");
+  assert.ok(hh[0].event && hh[0].drops["Candy"].denom > 0);
+  const html = read("index.html");
+  assert.ok(html.indexOf('src="data/location-rates.js') < html.indexOf('src="data/event-places.js'), "loads after location-rates");
+  assert.ok(html.indexOf('src="data/event-places.js') < html.indexOf('src="js/engine.js'), "loads before the engine");
+});

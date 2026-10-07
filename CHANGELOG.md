@@ -5,6 +5,14 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-07 (night) — Event places from buddy.farm
+
+- **`data/event-places.js`** (built by `tools/build-event-places.mjs`, raw pages
+  in `raw/buddy-events-2026-10-07.json`): Haunted House and Santa's Workshop
+  get buddy.farm's current drop logs, and **Apple Bobbing** is added as an
+  event fishing place (nets and rod tables). All three are tagged as events on
+  Places and Trips, and Calculate keeps them behind its seasonal switch.
+
 ## 2026-10-07 (evening) — Ready for the public: the build tools come out of the UI
 
 - **Removed:** the "Record your own drop rates" page (Acorn Pie samples and the

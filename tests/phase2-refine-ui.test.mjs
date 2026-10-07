@@ -16,7 +16,7 @@ test("calculator exposes per-item locations and opt-in seasonal areas", () => {
   assert.match(html, /id=["']includeEvents["']/);
   assert.match(app, /frpg_farm_locations_v1/);
   assert.match(app, /data-location-id/);
-  assert.match(app, /EVENT_LOCATIONS = new Set\(\["Haunted House", "Santa's Workshop"\]\)/);
+  assert.match(app, /EVENT_LOCATIONS = new Set\(\["Haunted House", "Santa's Workshop", "Apple Bobbing"\]\)/);
   assert.match(app, /state\.includeEvents \|\| !EVENT_LOCATIONS\.has/);
 });
 

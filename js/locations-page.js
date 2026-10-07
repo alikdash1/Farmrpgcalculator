@@ -103,6 +103,8 @@
       fish: loc.fish || {},
       ironDepot: (IRON && IRON.ironDepot && IRON.ironDepot[loc.name]) || null,
       workbook: null,
+      event: !!loc.event,
+      season: loc.season || "",
     });
   }
   // The workbook covers two places the logs never did. Listing them with their
@@ -634,7 +636,9 @@
                 worth + ".";
       const html = '<details class="places-card" data-place="' + esc(effortKey(place)) + '"><summary>' +
         '<span class="places-art">' + (place.image ? '<img src="' + esc(place.image) + '?v=20260905-1" alt="" width="52" height="52" loading="lazy">' : "") + "</span>" +
-        '<span class="places-headline"><strong>' + esc(place.name) + "</strong>" + preview + "</span>" +
+        '<span class="places-headline"><strong>' + esc(place.name) + "</strong>" +
+          (place.event ? '<small class="places-event">Event' + (place.season ? " · " + esc(place.season) : "") + "</small>" : "") +
+          preview + "</span>" +
         found +
         '<span class="places-cue" aria-hidden="true"></span>' +
       "</summary>" +
@@ -746,7 +750,7 @@
   // Setup, same meals - so the two pages can never disagree.
   window.FRPG_PLACES = {
     kinds: KINDS,
-    list: () => places.map((place) => ({ name: place.name, mode: place.mode, image: place.image })),
+    list: () => places.map((place) => ({ name: place.name, mode: place.mode, image: place.image, event: place.event })),
     haul(mode, name, kind, amount) {
       const place = places.find((row) => row.mode === mode && row.name === name);
       if (!place) return null;

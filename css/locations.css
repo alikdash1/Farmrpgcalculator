@@ -372,3 +372,4 @@
   .trip-row .trip-field { min-width: calc(50% - 10px); }
   .trip-row .trip-field.grow { flex-basis: 100%; }
 }
+.places-event { display: block; font-size: 12px; color: var(--amber); }

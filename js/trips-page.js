@@ -101,7 +101,7 @@
         '<option value="fishing"' + (trip.mode === "fishing" ? " selected" : "") + ">Fishing</option>" +
       "</select></label>" +
       '<label class="trip-field grow"><span>at</span><select data-field="place">' +
-        places.map((place) => '<option value="' + esc(place.name) + '"' + (place.name === trip.place ? " selected" : "") + ">" + esc(place.name) + "</option>").join("") +
+        places.map((place) => '<option value="' + esc(place.name) + '"' + (place.name === trip.place ? " selected" : "") + ">" + esc(place.name) + (place.event ? " (event)" : "") + "</option>").join("") +
       "</select></label>" +
       '<label class="trip-field"><span>using</span><input data-field="amount" type="number" min="0" step="1" inputmode="numeric" value="' + (trip.amount > 0 ? trip.amount : "") + '" placeholder="how many"></label>' +
       '<label class="trip-field"><span>of</span><select data-field="kind">' +
