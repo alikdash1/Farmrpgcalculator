@@ -5,6 +5,14 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-07 (late) — First outside tester's notes
+
+- **Veteran defaults:** a fresh visitor starts with every permanent perk and
+  artifact on (Runecube, Lemon Squeezer, Reinforced Netting, Wanderer...) and
+  turns off what they lack. Meals and buildings still start off.
+- **Hay Field** lost its "Make these from your Straw" list - no other building
+  had one, and Calculate already starts craftable items on their recipe.
+
 ## 2026-10-07 (night) — Event places from buddy.farm
 
 - **`data/event-places.js`** (built by `tools/build-event-places.mjs`, raw pages

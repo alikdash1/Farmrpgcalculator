@@ -28,9 +28,11 @@ test("Phase 2 exposes focused top-level work areas", () => {
   assert.equal(new Set(ids).size, ids.length, "HTML ids must stay unique");
 });
 
-test("fresh profiles do not assume ownership or active meals", () => {
+test("fresh profiles start as a veteran's, but assume no meals or buildings", () => {
   const app = readFileSync(new URL("js/app.js", root), "utf8");
-  assert.match(app, /new Set\(read\("frpg_effects_v2", \[\]\)\)/);
+  // A tester's note: this is for veterans, so Runecube and every other
+  // permanent bonus starts on. Meals and buildings still start off.
+  assert.match(app, /new Set\(read\("frpg_effects_v2", allEffectIds\)\)/);
   assert.match(app, /MEALS\.map\(\(meal\) => \[meal\.id, false\]\)/);
   assert.match(app, /sawmillWood: false/);
   assert.match(app, /quarryStone: false/);
