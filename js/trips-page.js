@@ -164,10 +164,9 @@
     }).join("");
 
     root.innerHTML =
-      '<div class="trip-list">' + (list || '<p class="places-none">No trips yet. Add one, pick the place and how much you will spend there.</p>') + "</div>" +
+      '<div class="trip-list">' + (list || '<p class="places-none">No trips yet.</p>') + "</div>" +
       '<div class="trip-actions"><button type="button" class="primary-action" data-add>Add a trip</button>' +
         (trips.length ? '<button type="button" class="quiet-button" data-clear>Clear all trips</button>' : "") + "</div>" +
-      '<p class="places-basis-note">Perks, meals and each place’s effectiveness come from Setup and the Places page. Items found inside chests are listed with the chest they come in.</p>' +
       (totals.size
         ? '<section class="trip-haul"><div class="section-heading compact"><div><h2>What you bring home</h2></div>' +
             "<p>" + (spentLine ? "Spending " + spentLine + (stamina > 0 ? " · " + whole(stamina) + " stamina in all" : "") + ". " : "") +

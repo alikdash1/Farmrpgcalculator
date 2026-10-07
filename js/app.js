@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-07.7";
+  const FRPG_BUILD = "2026-10-08.2";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -446,31 +446,12 @@
 
   function renderHome() {
     const item = state.itemId ? index.itemsById.get(state.itemId) : null;
-    const enabledRows = profileRows().filter((row) => row.ids.every((id) => state.enabled.has(id))).length;
-    const totalRows = profileRows().length;
-    const passiveSources = [state.infra.sawmillWood, state.infra.sawmillBoard, state.infra.quarryStone, state.infra.quarryCoal, state.infra.hayStraw];
-    const passive = passiveSources.filter(Boolean).length;
-    const activeMeals = Object.values(state.meals).filter(Boolean).length;
-    const readiness = [enabledRows > 0, passive > 0, activeMeals > 0].filter(Boolean).length;
-
     $("homeRecent").innerHTML = item
       ? `<button class="recent-button" data-home-recent><span>Last calculation</span><strong>${itemImg(item, "small")}${esc(item.name)} × ${fmt(state.qty)}</strong><b>Continue →</b></button>`
-      : `<span class="recent-empty">No previous calculation on this device.</span>`;
+      : "";
     const recent = document.querySelector("[data-home-recent]");
     if (recent) recent.onclick = () => showTab("planner");
-
     renderStanding();
-    $("homeSetupSummary").textContent = `${enabledRows}/${totalRows} permanent bonuses on · ${passive} passive sources · ${activeMeals} meals active.`;
-    $("homeReadiness").textContent = `${readiness}/3 checked`;
-    const readinessRows = [
-      ["Permanent bonuses", `${enabledRows}/${totalRows} active`, enabledRows > 0],
-      ["Passive materials", `${passive}/${passiveSources.length} covered`, passive > 0],
-      ["Plan meals", `${activeMeals}/${MEALS.length} active`, activeMeals > 0],
-    ];
-    $("homeReadinessRows").innerHTML = readinessRows.map(([label, value, ready]) => `<div><span class="readiness-dot ${ready ? "ready" : "review"}"></span><strong>${esc(label)}</strong><b>${esc(value)}</b></div>`).join("");
-
-    // The route notes that sat here steered players toward routes the planner
-    // preferred. The planner no longer picks routes, so they are gone.
   }
 
   $("itemOptions").innerHTML = D.items.items.filter((item) => item.active).map((item) => `<option value="${esc(item.name)}"></option>`).join("");
@@ -691,7 +672,7 @@
     return `<details class="quest-needs"><summary>Still needed for quests — ${fmt(needs.total)} across ${plural(needs.steps, "quest", "quests")}</summary>` +
       `<div class="quest-needs-body">${shown.map(line).join("")}` +
       (more > 0 ? `<p class="quest-needs-more">And ${plural(more, "quest", "quests")} more.</p>` : "") +
-      `<p class="quest-needs-note">Quests you have finished are left out. What you already hold counts towards these.</p></div></details>`;
+      `</div></details>`;
   }
   const farmLabel = (farm) => farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn overlay" : "Explore";
 
@@ -930,18 +911,18 @@
     const per = m.craftYield || 1;
     const crafts = Math.ceil(state.qty / per);
     const lines = [per > 1
-      ? `<b>${fmt(crafts)} crafts</b> give you ${fmt(state.qty)} — your ${fmt(per)}× duplicate chance makes the other ${fmt(state.qty - crafts)}.`
-      : `<b>${fmt(crafts)} crafts</b>. If you have Resource Saver I and II and Headdress of Luna, turn them on in Setup: together they make about 1.45 items per craft.`];
+      ? `<b>${fmt(crafts)} crafts</b> (${fmt(per)}× per craft).`
+      : `<b>${fmt(crafts)} crafts</b>.`];
     let button = "";
     let have = null;
     try { have = towerMasteryMap().get(goal.name.toLowerCase()); } catch (_) { have = null; }
     if (have != null && have < MM_GOAL) {
       const target = have < GM_GOAL ? GM_GOAL : MM_GOAL;
       const left = target - have;
-      lines.push(`Your mastery is ${fmt(have)}. ${target === GM_GOAL ? "Grand" : "Mega"} Mastery needs ${fmt(left)} more — about <b>${fmt(Math.ceil(left / per))} crafts</b>.`);
+      lines.push(`${target === GM_GOAL ? "GM" : "MM"} needs ${fmt(left)} more — <b>${fmt(Math.ceil(left / per))} crafts</b>.`);
       if (left !== state.qty) button = `<button type="button" class="text-action" data-plan-mastery="${left}">Plan just the ${fmt(left)} left</button>`;
     } else if (have != null && have >= MM_GOAL) {
-      lines.push("You have already Mega Mastered this.");
+      lines.push("Already Mega Mastered.");
     }
     return `<p class="goal-crafts">${lines.join(" ")} ${button}</p>`;
   }
@@ -1527,18 +1508,16 @@
     // crafting-yield chip) doesn't apply to it.
     const goalIsCrafted = !!(fullTree.children && fullTree.children.length);
     const goalSummary = goalIsCrafted
-      ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} already covered by your farm · ${activeDecisions.filter((d) => ["trade", "farm", "building"].includes(d.action)).length} bought or farmed instead of crafted`
+      ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} from your farm${passiveHours ? ` (longest wait ${fmt(passiveHours)}h)` : ""}`
       : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p>${goalIsCrafted ? masteryCraftsHtml(goal, m) : ""}</div></div><div class="goal-yield">${goalIsCrafted && m.craftYield > 1 ? `<strong>${fmt(m.craftYield)}× per craft</strong><span>your perks make extra</span>` : ""}${m.saleMult > 1 ? `<span>${fmt(m.saleMult)}× sell price</span>` : ""}</div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p>${goalIsCrafted ? masteryCraftsHtml(goal, m) : ""}</div></div>`;
     $("goalHeader").querySelectorAll("[data-plan-mastery]").forEach((button) => {
       button.onclick = () => { state.qty = Number(button.dataset.planMastery); el.qty.value = state.qty.toLocaleString("en-US"); render(); };
     });
-    $("resourceTrail").innerHTML = [
-      trail("Goal", fmt(state.qty), goal.name),
-      trail("Buying part", tradeGoldEq > 0 ? fmt(tradeGoldEq) + " gold" : "nothing", tradeGoldEq > 0 ? "the pieces you're buying" : "you're not buying any of it", "violet"),
-      trail("Ingredients", fmt(rows.length), rows.length === 1 ? "one thing to get" : "things to get"),
-      trail("Your farm covers", fmt(coveredRows.length), passiveHours ? `longest wait ${fmt(passiveHours)}h` : "ingredients you can skip"),
-    ].join("");
+    // The four boxes that sat here (goal, buying, ingredients, farm) repeated
+    // the line under the item name, so only the longest farm wait survives.
+    $("resourceTrail").innerHTML = "";
+    $("resourceTrail").hidden = true;
     // Every quest still asking for the item you opened, on the item itself.
     $("goalQuests").innerHTML = questNeedsHtml(goal.name);
     $("includeEvents").checked = state.includeEvents;
@@ -1557,8 +1536,8 @@
     }
 
     const bestText = Object.entries(chosenCounts).sort((a, b) => b[1] - a[1])[0];
-    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${explores > 0 ? metric("Explores", fmt(explores)) : ""}${ciders > 0 ? metric("Apple Cider", fmt(ciders), "spends stamina") : ""}${aps > 0 ? metric("Arnold Palmer", fmt(aps), "no stamina") : ""}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">Anything from the same location comes out of one trip — the biggest requirement carries the rest.${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
-    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}<p class="route-note">Price Check quotes ending in <b>/k</b> are per 1,000 items — Leather at 5 AP/k means 5 Arnold Palmers per 1,000 Leather.</p>`;
+    $("grindRoute").innerHTML = `<span class="route-label">Farm yourself</span><h3>Consumables and time</h3>${explores > 0 ? metric("Explores", fmt(explores)) : ""}${ciders > 0 ? metric("Apple Cider", fmt(ciders), "spends stamina") : ""}${aps > 0 ? metric("Arnold Palmer", fmt(aps), "no stamina") : ""}${acornPies > 0 ? metric("Acorn Pies", fmt(acornPies)) : ""}${largeNets > 0 ? metric("Large Nets", fmt(largeNets)) : ""}${plants > 0 ? metric("Crop plants", fmt(plants)) : ""}<p class="route-note">${acornPies > 0 ? ` ${fmt(acornUses)} Acorn uses = ${fmt(acornActions)} action charges` + (acornBulk > 1 ? ` because ${acornBulkMeal} makes 5 uses cost 1 charge` : "") + `, and one Pie covers ${fmt(c("acorn_pie_actions", 150))} charges.` : ""}</p>`;
+    $("marketRoute").innerHTML = `<span class="route-label">Buy or trade</span><h3>Buy it instead</h3>${metric("Gold", fmt(tradeCurrency.gold))}${metric("Arnold Palmer", fmt(tradeCurrency.ap))}${metric("Orange Juice", fmt(tradeCurrency.oj))}${metric("All of it in gold", fmt(tradeGoldEq))}${metric("Country Store", fmt(vendorSilver) + " silver")}`;
 
     // A fished, explored or grown goal is not a production plan. Its recipe
     // tree, "mixed route" verdict and multi-ingredient shopping list are all
@@ -1577,7 +1556,7 @@
 
     if (activeDecisions.length) {
       el.makeBuy.classList.remove("hidden");
-      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div><p>Each one starts on its recipe, or on your own building when Setup says it makes it. Choose craft, buy or farm for anything else — the planner does not pick for you.</p></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
+      el.makeBuy.innerHTML = `<div class="section-heading compact"><div><h2>Make, buy, farm, or wait</h2></div></div><div class="decision-list">${activeDecisions.slice(0, 40).map((decision) => {
         const selected = state.sourceChoices[decision.item.id] === "free" ? "free" : decision.manual;
         const materialText = decision.materials.complete ? `${fmt(decision.materials.goldEq)} gold of ingredients` : `${decision.materials.priced} of ${decision.materials.count} ingredients priced so far`;
         const farmText = decision.farm ? `${farmLabel(decision.farm)} ${esc(decision.farm.location || "")}${decision.farm.goldEq != null ? ` · ${fmt(decision.farm.goldEq)} gold` : ""}` : "";
@@ -1754,7 +1733,7 @@
     const production = farmProduction();
     const farmNote = production.length
       ? `<div class="farm-capture"><div><strong>From your farm</strong><span>${production.map(([, value, building, what]) => `${esc(building)} ${fmt(value)} ${esc(what)}`).join(" · ")}</span></div><button type="button" class="quiet-button" data-use-farm>Use my farm's numbers</button></div>`
-      : `<p class="farm-capture-hint">Capture your farm page (My Farm) with Account Sync and these numbers fill in by themselves.</p>`;
+      : "";
     $("infraGrid").innerHTML = farmNote + infraCards.map((card) => `<article class="infra-card"><div class="infra-title">${itemImg(card.art, "meal-art", card.title)}<div><h3>${card.title}</h3></div></div><p>${card.body}</p><div class="infra-controls">${card.controls}</div></article>`).join("");
     document.querySelectorAll("[data-infra]").forEach((input) => { input.onchange = () => { state.infra[input.dataset.infra] = input.checked; save(); render(); }; });
     const useFarm = document.querySelector("[data-use-farm]");
@@ -2414,14 +2393,14 @@
         const questTag = needs
           ? `<span class="tower-questtag${owed ? "" : " is-met"}" title="${esc(plural(needs.steps, "quest", "quests"))} asking for ${esc(fmt(needs.total))}${held != null ? `, and you hold ${esc(fmt(held))}` : ""}">${owed ? `Quest ${esc(fmt(owed))}` : "Quest met"}</span>`
           : "";
-        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span class="tower-mm-tags">${tierTag}${questTag}<span>${esc(method)}</span></span></div><div class="tower-mm-bar"><div class="tower-progress"><i style="width:${percent}%"></i></div><b class="tower-left">${row.complete ? "Done" : `${fmt(row.remaining)} left`}</b></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${Math.floor(percent)}%`}</span></div>${pjGap !== null ? `<small class="tower-pj">Drinking Pumpkin Juice? You only need ${fmt(pjGap)} more — it finishes at 909.09k</small>` : ""}${noPlan}${ratingTag}</div></div>`;
+        return `<div class="tower-mm ${row.complete ? "complete" : "working"}${plannable || row.complete ? "" : " no-plan"}"${openAttrs}>${art}<div class="tower-mm-main"><div class="tower-mm-title"><strong>${esc(row.name)}</strong><span class="tower-mm-tags">${tierTag}${questTag}<span>${esc(method)}</span></span></div><div class="tower-mm-bar"><div class="tower-progress"><i style="width:${percent}%"></i></div><b class="tower-left">${row.complete ? "Done" : `${fmt(row.remaining)} left`}</b></div><div class="tower-mm-numbers"><b>${fmt(row.current)} / ${goalLabel}</b><span>${row.complete ? `${row.tier === "gm" ? "GM" : "MM"} complete` : `${Math.floor(percent)}%`}</span></div>${pjGap !== null ? `<small class="tower-pj">With Pumpkin Juice: ${fmt(pjGap)} more</small>` : ""}${noPlan}${ratingTag}</div></div>`;
       }).join("")}</div></article>`;
     }).join("") : `<div class="tower-all-clear"><strong>Everything in this range is complete.</strong><span>Turn on “Show completed floors” to review the cleared requirements.</span></div>`;
 
     const connected = !!state.extensionConnectedAt;
     const sync = $("towerSyncState");
     sync.classList.toggle("connected", connected);
-    sync.innerHTML = `<span></span><strong>${connected ? "Updating automatically" : "Using your saved progress"}</strong><small>${connected ? `Refreshed ${new Date(state.extensionConnectedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "Numbers change only when you import again"}</small>`;
+    sync.innerHTML = `<span></span><strong>${connected ? "Updating automatically" : "Saved progress"}</strong><small>${connected ? `Refreshed ${new Date(state.extensionConnectedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : ""}</small>`;
     const accountSync = $("extensionStatus");
     if (accountSync) {
       accountSync.classList.toggle("connected", connected);

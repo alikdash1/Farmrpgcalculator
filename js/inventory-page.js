@@ -48,9 +48,9 @@
     }
     const short = plan.nextRows.filter((row) => row.short > 0).length;
     trackingNote.innerHTML = (plan.auto
-      ? `Tracking <b>${esc(plan.lineName)}</b> — the questline you have the most left to do on.`
+      ? `Tracking <b>${esc(plan.lineName)}</b>.`
       : `Tracking <b>${esc(plan.lineName)}</b>.`)
-      + ` <small class="inventory-diag">${plan.remaining.length} step${plan.remaining.length === 1 ? "" : "s"} left · ${plan.wholeRows.length} items · ${short} short for the step you are on. The corner panels have the lists.</small>`;
+      + ` <small class="inventory-diag">${plan.remaining.length} step${plan.remaining.length === 1 ? "" : "s"} left · ${plan.wholeRows.length} items · ${short} short for this step.</small>`;
   }
 
   function renderOwned(rows) {

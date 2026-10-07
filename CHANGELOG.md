@@ -5,6 +5,23 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Less text, fewer boxes
+
+The tester found the site overwhelming; the owner agreed it was "too much useless
+text". One pass over every page:
+
+- **Home** is the item box, last calculation, where you stand and your balances.
+  The big cards that repeated the tabs, "Before the grind" and the extra links
+  are gone.
+- **Calculate:** one line under the item ("689k crafts (1.45x per craft). MM
+  needs 407.9k more - 281k crafts"); the four repeat boxes, the big yield
+  number, the sell-price line and the explanation notes are gone. "Include event
+  places" is a plain switch.
+- **Every page intro** is a heading and at most one short line.
+- **Quests** drop "levels ... 99" from requirements (every endgame player has
+  them) and keep what is not 99: "needs tower 200 · Jill friendship 96 · after ...".
+- **Tower** says "With Pumpkin Juice: N more" instead of a sentence per row.
+
 ## 2026-10-07 (late) — First outside tester's notes
 
 - **Veteran defaults:** a fresh visitor starts with every permanent perk and

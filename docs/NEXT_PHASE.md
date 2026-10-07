@@ -1,5 +1,19 @@
 # Next Phase
 
+## Open after 2026-10-08 — public launch
+
+- **First tester** (a strong player): "mostly reasonable", "slightly
+  overwhelming", "within 10-30% of actual is good enough". Done since: veteran
+  perk defaults, Hay Field list removed, a text and box cut on every page.
+- **Ask:** what he meant by "EE perks" (exploring effectiveness is per place
+  and read off the game, so it cannot be a default).
+- **Accuracy check still owed:** one or two real runs logged against the Trips
+  page prediction, to see which drop rates are off.
+- **Not done, offered:** fold Mining into Places and Inventory into Quests to
+  cut the tab count from nine to about six.
+- **The website still opens on the owner's farm as the example** and the
+  personal files are in the public repo; only the zip starts empty. Undecided.
+
 ## Open after 2026-10-01 — T300 by the end of October
 
 Read the owner's live numbers from their Brave (Claude in Chrome, the planner's

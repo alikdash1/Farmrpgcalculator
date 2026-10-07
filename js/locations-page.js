@@ -486,7 +486,7 @@
     const said = per > 0
       ? "At " + whole(per) + "% one Apple Cider is <b>" + whole(cider) + "</b> explores for <b>" +
         whole(ciderStaminaEach(place) * perkFactor() * neighFactor()) + "</b> stamina here."
-      : "Your exploring effectiveness here — Farm RPG shows it on the location page. It only changes the Cider numbers.";
+      : "Your exploring effectiveness here, from the location page in Farm RPG.";
     const bill = spent > 0
       ? '<p class="places-effort-bill">Your ' + whole(spend()) + " " + esc(kindLabel()) +
         " here: <b>" + whole(spent) + "</b> stamina" +
@@ -607,17 +607,15 @@
           : '<span class="places-found none">no ' + esc(prefs.want) + "</span>");
       const spent = staminaSpent(place);
       const silver = sellValue(result);
-      const worth = silver > 0 ? ", worth about <b>" + whole(silver) + "</b> silver if you sold every bit of it" : "";
+      const worth = silver > 0 ? " · about <b>" + whole(silver) + "</b> silver if sold" : "";
       // An Arnold Palmer finds items without spending stamina, so a drink pour
       // is counted in finds and never restated as a number of explores.
       const line = missing
           // Falling back to the explore rates here would be the very error
           // docs/KNOWN_MISTAKES.md warns about, so say what would work instead.
-          ? "Nobody has measured " + esc(place.name) + " per " +
-            (place.mode === "fishing" ? "net" : "Arnold Palmer") + "." +
+          ? "No rates per " + (place.mode === "fishing" ? "net" : "Arnold Palmer") + " here." +
             (Object.keys(denomTable(place)).length
-              ? " Its ordinary " + (place.mode === "fishing" ? "casts" : "explores") +
-                " are logged though — switch what you are spending to see those."
+              ? " Try " + (place.mode === "fishing" ? "casts" : "stamina or Cider") + " instead."
               : "")
           : result.basis === "workbook"
             ? amount + " " + esc(label) + " here" + worth + "."

@@ -390,7 +390,6 @@
   function renderDetail(item) {
     if (!item) {
       detail.innerHTML = `<div class="items-empty"><h2>Pick an item</h2>
-        <p>Every item in the game is here: what it is, where it comes from, what it makes, and which quests still want it.</p>
         ${recent().length ? `<h3>Last looked at</h3><div class="items-chips">${recent().map((name) => chip(name)).join("")}</div>` : ""}</div>`;
       return;
     }

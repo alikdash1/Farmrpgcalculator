@@ -59,7 +59,13 @@
     const noItems = friend
       ? `<p class="quest-no-items">No items needed — max your friendship with ${esc(friend[1])} (level ${esc(friend[2])}).</p>`
       : `<p class="quest-no-items">No item requirement recorded.</p>`;
-    const extra = [friend ? "" : quest.prerequisite, quest.unlock, window_].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
+    const needs = friend ? "" : String(quest.prerequisite || "")
+      .replace(/levels ([^;]*)/i, (all, list) => {
+        const kept = list.split(/,\s*/).filter((part) => !/\s99$/.test(part.trim()));
+        return kept.length ? "needs " + kept.join(", ") : "";
+      })
+      .split(";").map((part) => part.trim()).filter(Boolean).join(" · ");
+    const extra = [needs, quest.unlock, window_].filter(Boolean).map((text) => `<small>${esc(text)}</small>`).join("");
     return `<article class="quest-step is-${status}"><div class="quest-step-head"><div><strong>${esc(quest.title)}</strong>${pending}${quest.giver ? `<small>${esc(quest.giver)}</small>` : ""}</div><span>${labels[status]}</span></div>${requirements ? `<div class="quest-items">${requirements}</div>` : noItems}${extra ? `<div class="quest-extra">${extra}</div>` : ""}</article>`;
   }
 
@@ -99,7 +105,7 @@
     summary.innerHTML = `<article><span>Quests</span><strong>${MODEL.quests.filter((q) => !q.pending).length}</strong><small>${mainCount} story · ${eventCount} seasonal</small></article><article><span>Questlines</span><strong>${MODEL.lines.length}</strong><small>sequels kept in order</small></article><article><span>Completed</span><strong>${tracking ? completed : "—"}</strong><small>${tracking ? "of every quest listed" : "import account to track"}</small></article><article><span>Available Now</span><strong>${snapshot ? actionable : "—"}</strong><small>${snapshot ? "ready, active, or available" : "import account to see this"}</small></article>`;
     if (!snapshot && MODEL.hasPersonal) {
       const personal = window.FRPG_PERSONAL_QUESTS || {};
-      note.innerHTML = `<strong>Using your completed-quest list.</strong><span><b>${MODEL.personalCount.toLocaleString()}</b> finished quests loaded from your own Farm RPG list${personal.capturedAt ? ` (${esc(personal.capturedAt)})` : ""}. Everything else is shown as still to do. Import an account capture as well if you want “Available Now” filled in.</span>`;
+      note.innerHTML = `<strong>Using your completed-quest list.</strong><span><b>${MODEL.personalCount.toLocaleString()}</b> finished quests${personal.capturedAt ? ` (${esc(personal.capturedAt)})` : ""}.</span>`;
     } else if (snapshot) {
       const known = new Set(MODEL.quests.map((quest) => MODEL.normalizeTitle(quest.title)));
       const capturedRows = (((snapshot || {}).quests || {}).completed || []);
