@@ -6,7 +6,7 @@
   const BASE_CONSTS = window.FRPG_CONSTANTS;
   const P = window.FRPG_PROGRESSION || { items: {}, routeRules: {}, locationNotes: {}, _meta: {} };
   const K = window.FRPG_KNOWLEDGE || { meta: { counts: {}, sourceStatus: {} }, rules: [], meals: [], perks: [], conflicts: [] };
-  const PERSONAL = window.FRPG_PERSONAL_TOWER || { startFloor: 277, goalFloor: 340, masteries: {} };
+  const PERSONAL = window.FRPG_PERSONAL_TOWER || { startFloor: 0, goalFloor: 340, masteries: {} };
   const TOWER_FLOORS = window.FRPG_TOWER_FLOORS || { floors: [] };
   const index = E.buildIndex(D);
   // Shared so the gather lists can say where an item comes from without
@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.13";
+  const FRPG_BUILD = "2026-10-08.14";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -216,7 +216,7 @@
     account: read("frpg_account_snapshot_v1", null),
     perkTiers: read("frpg_perk_tiers_v1", {}),
     acornTests: read("frpg_acorn_tests_v2", []),
-    towerStart: Number(read("frpg_tower_start_v1", PERSONAL.startFloor || 277)),
+    towerStart: Number(read("frpg_tower_start_v1", PERSONAL.startFloor || 1)),
     // save() wrote the start floor on every save, so the 277 from a first visit
     // stuck for good. Only a floor the player typed in is honoured now.
     towerStartChosen: read("frpg_tower_start_chosen_v1", false) === true,
@@ -2135,7 +2135,9 @@
   function currentTowerFloor() {
     const fromFile = Number(PERSONAL.towerAtCapture || PERSONAL.startFloor) || 0;
     const captured = Number(state.account && state.account.levels && state.account.levels.tower) || 0;
-    return Math.max(fromFile, captured) || 277;
+    // No farm and no Tower page seen yet: start at the bottom, not at the
+    // author's floor (a fresh download opened on T277).
+    return Math.max(fromFile, captured) || 1;
   }
 
   // Where the Tower's mastery numbers came from, so "did my capture land?" is

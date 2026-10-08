@@ -36,7 +36,7 @@ updated after every capture** to have it rewritten automatically.
 
 ## Account sections
 
-The popup tracks twelve core sections independently:
+The popup tracks nine core sections independently:
 
 - Profile
 - Inventory
@@ -46,12 +46,12 @@ The popup tracks twelve core sections independently:
 - Completed quests
 - Perks
 - Farm Supply
-- Pets
-- Craftworks
 - Kitchen
-- Friendships
 
-A page that is still loading cannot replace a complete saved Mastery, Inventory, Tower, Profile, Perks, Farm Supply, Friendship, Kitchen, or other protected capture. The extension retries a loading page up to three times.
+Pets, Friendship levels and the Craftworks queue are not saved (1.13.0): the
+planner never reads them.
+
+A page that is still loading cannot replace a complete saved Mastery, Inventory, Tower, Profile, Perks, Farm Supply, Kitchen, or other protected capture. The extension retries a loading page up to three times.
 
 Existing captures made by version 1.1 are migrated when possible. In particular, Pets, Craftworks, Kitchen, and Friendship captures that were incorrectly stored as `unknown` are recovered from their saved page label.
 

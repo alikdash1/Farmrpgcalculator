@@ -3,8 +3,13 @@ importScripts("shared/numbers.js", "shared/sanitize.js", "shared/schema.js", "sh
 const EXPECTED = [
   "profile", "inventory", "tower", "mastery",
   "quests-available", "quests-completed", "perks", "farm-supply",
-  "pets", "craftworks", "kitchen", "friendships"
+  "kitchen"
 ];
+
+// Pages the planner never reads. They are not saved, so they are not asked
+// for either - pets, friendship levels and the Craftworks queue (owner's call,
+// 2026-10-08: "things that arent on the website so we dont have to sync them").
+const NOT_USED = new Set(["pets", "craftworks", "friendships"]);
 
 const PAGE_HINTS = [
   [/completed requests?|completed help|questscomp/i, "quests-completed"],
@@ -81,7 +86,7 @@ function isExplicitlyEmpty(capture) {
 }
 
 function incompleteRequiredPage(capture) {
-  const required = new Set(["profile", "inventory", "tower", "mastery", "perks", "farm-supply", "friendships"]);
+  const required = new Set(["profile", "inventory", "tower", "mastery", "perks", "farm-supply"]);
   if (!required.has(capture.pageType) || detailCount(capture) > 0) return null;
   return capture.pageLabel + " has not finished loading any account details yet.";
 }
@@ -125,7 +130,7 @@ function normalizeStoredCaptures(raw) {
 }
 
 async function rebuild(captures) {
-  const rows = Object.values(captures || {}).filter(Boolean);
+  const rows = Object.values(captures || {}).filter((row) => row && !NOT_USED.has(row.pageType));
   if (!rows.length) return null;
   const snapshot = ImporterShared.mergeCaptures(rows);
   snapshot.legacyV1 = ImporterShared.buildLegacyV1(snapshot);
@@ -195,6 +200,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!checked.ok) return sendResponse({ ok: false, error: checked.errors.join("; ") });
 
       checked.capture.pageType = inferPageType(checked.capture);
+      if (NOT_USED.has(checked.capture.pageType)) {
+        return sendResponse({ ok: true, skipped: true, pageType: checked.capture.pageType, rowCount: 0,
+          message: "The planner does not use this page, so nothing was saved." });
+      }
       checked.capture._fileName = message.filename || checked.capture.pageType + ".json";
       const state = await readState();
       const captures = state.captures || {};

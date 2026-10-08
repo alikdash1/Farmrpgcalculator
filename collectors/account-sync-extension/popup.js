@@ -93,6 +93,7 @@ $("#capture").onclick = async () => {
   }
   // A capture can succeed and still have read almost nothing. The warnings are
   // the only place that says so, and they used to go nowhere.
+  if (result.skipped) { say(result.message || "The planner does not use this page, so nothing was saved."); setTimeout(refresh, 1200); return; }
   const notes = (result.warnings || []).filter(Boolean);
   const rows = Number.isFinite(result.rowCount) ? result.rowCount : null;
   say(notes.length

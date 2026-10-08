@@ -78,7 +78,9 @@
     }
     retries = 0;
     setStatus(
-      result.ok === false ? (result.error || "Could not sync") : ((result.pageType || "Page") + detail + " saved locally"),
+      result.ok === false ? (result.error || "Could not sync")
+        : result.skipped ? "Not needed by the planner - nothing saved"
+        : ((result.pageType || "Page") + detail + " saved locally"),
       result.ok === false ? "error" : "ok"
     );
   });

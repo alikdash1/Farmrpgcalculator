@@ -5,6 +5,15 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Fresh download starts at floor 1; extension 1.13.0 skips unused pages
+
+- A fresh copy with no farm opened the Tower on T277 (the author's old floor,
+  hard-coded as the fallback). With no farm and no Tower page seen it now starts
+  at floor 1; the captured floor still wins as soon as the Tower page is read.
+- Account sync 1.13.0: Pets, Friendship levels and the Craftworks queue are no
+  longer saved or asked for - the planner never read them. Kitchen stays.
+  Old captures of those pages are left out of the merge.
+
 ## 2026-10-08 — Event drops taken out of ordinary places
 
 The drop logs behind data/data.js were taken all year, so a few event items sat
