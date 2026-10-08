@@ -7,7 +7,7 @@
   // The website address the extension may talk to. It must match
   // collectors/account-sync-extension/manifest.json, which lists exactly these.
   const KNOWN_SITES = ["https://alikdash1.github.io/Farmrpgcalculator/"];
-  const DOWNLOAD = KNOWN_SITES[0] + "downloads/farm-rpg-account-sync.zip";
+  const DOWNLOAD = "https://github.com/alikdash1/Farmrpgcalculator/releases/latest/download/farm-rpg-account-sync.zip";
 
   // Show the address this planner was actually opened from, so nobody reads the
   // row as "link it to someone else's page". Opened from disk or localhost, the

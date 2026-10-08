@@ -12,9 +12,9 @@
 <p align="center">
   <a href="https://alikdash1.github.io/Farmrpgcalculator/"><b>Open the planner</b></a>
   &nbsp;·&nbsp;
-  <a href="https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-calculator.zip"><b>Download everything</b></a>
+  <a href="https://github.com/alikdash1/Farmrpgcalculator/releases/latest/download/farm-rpg-calculator.zip"><b>Download everything</b></a>
   &nbsp;·&nbsp;
-  <a href="https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-account-sync.zip"><b>Download the extension</b></a>
+  <a href="https://github.com/alikdash1/Farmrpgcalculator/releases/latest/download/farm-rpg-account-sync.zip"><b>Download the extension</b></a>
   &nbsp;·&nbsp;
   <a href="#bring-your-own-farm">Set it up</a>
 </p>
@@ -53,7 +53,7 @@ every page. To see your own numbers, add the account sync extension. It is
 read-only: it reads the Farm RPG pages you open, and hands what it finds to the
 planner inside your own browser.
 
-1. **[Download the extension](https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-account-sync.zip)**
+1. **[Download the extension](https://github.com/alikdash1/Farmrpgcalculator/releases/latest/download/farm-rpg-account-sync.zip)**
    and unzip it somewhere you will keep it.
 2. Open `chrome://extensions` (or `brave://extensions`, `edge://extensions`),
    switch on **Developer mode**, choose **Load unpacked**, and pick the
@@ -73,7 +73,7 @@ cookies or session tokens. Everything it captures stays in your browser.
 
 ## Run it yourself
 
-**[Download everything](https://alikdash1.github.io/Farmrpgcalculator/downloads/farm-rpg-calculator.zip)**
+**[Download everything](https://github.com/alikdash1/Farmrpgcalculator/releases/latest/download/farm-rpg-calculator.zip)**
 — the planner and the extension in one zip, starting empty so it shows only
 your own farm. Unzip it, open `START-HERE.txt`, and double-click `index.html`.
 Rebuild it with `powershell -ExecutionPolicy Bypass -File tools/pack-site.ps1`.

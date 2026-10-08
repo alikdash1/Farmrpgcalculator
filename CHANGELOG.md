@@ -5,6 +5,15 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-09 — Downloads counted through GitHub Releases
+
+GitHub Pages counts nothing, so the zips now go out as GitHub release assets
+(release v1) and every download button points at
+`releases/latest/download/<file>`. `tools/release.ps1` makes the next release
+(a new one each time - replacing a file resets its count) and `-Count` prints
+the totals. Run it after `pack-site.ps1` when the zips should go out, not on
+every push.
+
 ## 2026-10-08 — Tower: "too expensive", never "not possible"
 
 The workbook's "not possible" (62 items: every Runestone, Bone Broth, Wine...)
