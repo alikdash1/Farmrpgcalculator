@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Event drops taken out of ordinary places
+
+The drop logs behind data/data.js were taken all year, so a few event items sat
+in normal places' tables: Egg 07 (Lake Tempest), Egg 08 (Highland Hills), Heart
+Necklace Left/Right Piece (Small Island, Cane Pole Ridge) and Snowball (Misty
+Forest, Highland Hills, Small Spring). `tools/build-event-drops.mjs` compares
+every ordinary place with buddy.farm's current table and writes
+`data/event-drops.js`, which removes them at load time - so Calculate, Places
+and Trips no longer count them - and Calculate labels them "Event only".
+The owner caught it on Egg 07.
+
 ## 2026-10-08 — Every item says where it comes from
 
 - **Fishing fix:** non-fish catches (Frost Snapper Shell, Pirate Hook, Strange

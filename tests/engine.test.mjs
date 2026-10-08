@@ -160,3 +160,17 @@ test("every unrouted item says where it comes from", () => {
   assert.equal(items.Gravicite.repeat, true);
   assert.equal(items["Lorn Bobblehead"].repeat, false);
 });
+
+test("event items logged in ordinary places are not normal drops", () => {
+  const W = {};
+  for (const f of ["data.js", "extra-items.js", "event-places.js", "event-drops.js"]) {
+    new Function("window", readFileSync(new URL(`../data/${f}`, import.meta.url), "utf8"))(W);
+  }
+  const at = (name, type) => W.FRPG_DATA.sources.locations.find((l) => l.name === name && l.type === type);
+  const tempest = at("Lake Tempest", "fishing");
+  assert.ok(!("Egg 07" in (tempest.drops || {})) && !("Egg 07" in (tempest.fish || {})), "Egg 07 is a spring event egg");
+  assert.ok(!("Snowball" in at("Misty Forest", "explore").drops), "Snowball is a winter event drop");
+  assert.deepEqual(W.FRPG_EVENT_DROPS["Egg 07"].map((x) => x.place), ["Lake Tempest"]);
+  // real catches stay
+  assert.ok("Frost Snapper Shell" in at("Glacier Lake", "fishing").drops);
+});

@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.11";
+  const FRPG_BUILD = "2026-10-08.13";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -1043,6 +1043,10 @@
     }
     // Everything else: every way the game hands it out, from buddy.farm
     // (data/item-sources.js) - pets, mining, chests, the Temple, quests...
+    // Logged in an ordinary place during an event (painted eggs, snowballs) -
+    // data/event-drops.js took it out of the tables, so say why it is missing.
+    const eventAt = (window.FRPG_EVENT_DROPS || {})[item.name];
+    if (eventAt) return { type: "unknown", label: "Event only", detail: `<span class="where-from"><span>Only during an event - it was logged at ${esc(eventAt.map((at) => at.place).join(", "))} while one was on. Not a normal drop.</span></span>` };
     const where = (window.FRPG_ITEM_SOURCES && window.FRPG_ITEM_SOURCES.items || {})[item.name];
     if (where) return { type: "unknown", label: where.repeat ? "Where to get it" : "Not farmable", detail: `<span class="where-from">${where.lines.map((line) => `<span>${esc(line)}</span>`).join("")}</span>` };
     if (isFish(item)) return { type: "unknown", label: "Fish for it", detail: "No fishing rate recorded for this one yet" };
@@ -1189,7 +1193,11 @@
 
   // What one ingredient costs, in one line, in what the player chose to spend.
   function costLine(item, route) {
-    if (!route || route.type === "choose") return "";
+    if (!route) return "";
+    if (route.type === "choose") {
+      const eventAt = (window.FRPG_EVENT_DROPS || {})[item.name];
+      return eventAt ? `<span class="where-from"><span>Event only - not a normal drop at ${esc(eventAt.map((at) => at.place).join(", "))}. You can still trade for it.</span></span>` : "";
+    }
     if (route.type === "explore" || route.type === "acorn") {
       const ap = state.drinkChoices[item.id] === "ap" && route.aps != null;
       if (ap) return `${fmt(route.aps)} Arnold Palmer at ${esc(route.location)}`;
