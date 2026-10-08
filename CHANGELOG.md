@@ -5,6 +5,12 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Mushroom: Explore and Grow both offered
+
+Items you can both grow and gather (Mushroom, Jack-o-lantern) only ever offered
+Grow; `farmPlan` stopped at the crop. Explore (with its places) and Grow are
+now separate choices. See KNOWN_MISTAKES.md.
+
 ## 2026-10-08 — Fresh download starts at floor 1; extension 1.13.0 skips unused pages
 
 - A fresh copy with no farm opened the Tower on T277 (the author's old floor,

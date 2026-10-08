@@ -317,3 +317,11 @@ Pirate Hook, Strange Ring, Egg 07, Large Chest 03, Mystical Chest 02, Heart
 Necklace Left Piece, Runestone 08) live only in that table, so Calculate had
 no route for them. The outcome table is now read for everything the fish table
 does not already list. The owner caught it on Frost Snapper Shell.
+
+## A crop that also drops never showed its gathering places (fixed 2026-10-08)
+
+`farmPlan` returned the crop plan as soon as an item had a grow time, so
+Mushroom (and Jack-o-lantern) never offered Explore or any of their six
+exploring places. Growing is now its own route choice ("Grow"), and the
+gathering route is used unless there is nothing to gather. The owner caught it
+on Mushroom.

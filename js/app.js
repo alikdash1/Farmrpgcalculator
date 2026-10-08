@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.14";
+  const FRPG_BUILD = "2026-10-08.15";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -746,17 +746,29 @@
       const measured = acornPlan(need);
       if (measured) return measured;
     }
-    if (sources.crop) {
-      return {
-        type: "crop",
-        plants: sources.crop.plants,
-        minutes: sources.crop.minutesEach,
-        goldEq: null,
-        confidence: { label: "Official crop time", level: 3 },
-        progressionScore: itemFact(item.name).relevance || 0,
-        detail: `${fmt(sources.crop.plants)} plants · ${fmt(sources.crop.minutesEach)} min/harvest`,
-      };
-    }
+    // Something you can both grow and find (Mushroom) used to stop here, so
+    // its exploring places never showed. Growing is now its own choice; the
+    // gathering route wins unless there is nothing to gather.
+    const canGather = sources.drops.some((row) => row.explores != null) || sources.fish.some((row) => row.catches != null);
+    if (sources.crop && !canGather) return cropPlan(item, need, sources);
+    return gatherPlan(item, need, m, consts, sources);
+  }
+
+  function cropPlan(item, need, sources) {
+    sources = sources || E.sourcesFor(index, item.id, need, mods(), constants());
+    if (!sources.crop) return null;
+    return {
+      type: "crop",
+      plants: sources.crop.plants,
+      minutes: sources.crop.minutesEach,
+      goldEq: null,
+      confidence: { label: "Official crop time", level: 3 },
+      progressionScore: itemFact(item.name).relevance || 0,
+      detail: `${fmt(sources.crop.plants)} plants · ${fmt(sources.crop.minutesEach)} min/harvest`,
+    };
+  }
+
+  function gatherPlan(item, need, m, consts, sources) {
     const rule = routeRule(item.name);
     const dropPlans = sources.drops.filter((row) => row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).map((drop) => {
       const qc = state.meals.quandary ? 1 + c("quandary_bonus", 0.1) : 1;
@@ -1031,6 +1043,7 @@
     if (choice === "covered" && infra) return { type: "covered", label: infra.kind, detail: infra.detail, hours: infra.hours, goldEq: 0 };
     if (choice === "trade" && trade && !isFish(item)) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
     if (choice === "farm" && farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
+    if (choice === "grow" && source.crop) return Object.assign({ label: "Grow" }, cropPlan(item, missing, source));
     if (choice === "vendor" && vendor) return vendor;
     if (choice !== "auto") return { type: "unknown", label: "Unavailable", detail: "That route is not known for this item" };
 
@@ -1066,6 +1079,7 @@
     if (craftable) options.push(["craft", "Craft"]);
     const gather = farmPlan(item, 1, m, constants());
     if (gather) options.push(["farm", farmLabel(gather)]);
+    if (source.crop && gather && gather.type !== "crop") options.push(["grow", "Grow"]);
     if (!isFish(item) && E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
     if (!isFish(item) && source.vendor) options.push(["vendor", "Store"]);
     if (infraFor(item, 1, m)) options.push(["covered", "Covered"]);
