@@ -140,6 +140,8 @@ async function rebuild(captures) {
 async function readState() {
   const data = await chrome.storage.local.get(["captures", "snapshot", "syncedAt"]);
   const captures = normalizeStoredCaptures(data.captures);
+  // Saved before 1.13.0 stopped reading these pages - drop them for good.
+  for (const type of NOT_USED) delete captures[type];
   if (JSON.stringify(captures) !== JSON.stringify(data.captures || {})) {
     const snapshot = await rebuild(captures);
     await chrome.storage.local.set({ captures, snapshot });

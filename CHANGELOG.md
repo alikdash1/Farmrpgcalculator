@@ -10,6 +10,8 @@ reconstructed from the Codex chat transcript only).
 - A fresh copy with no farm opened the Tower on T277 (the author's old floor,
   hard-coded as the fallback). With no farm and no Tower page seen it now starts
   at floor 1; the captured floor still wins as soon as the Tower page is read.
+- Account sync 1.13.1: the popup still listed Pets, Craftworks and Friendships
+  with their old saves; they are gone from the list and from storage now.
 - Account sync 1.13.0: Pets, Friendship levels and the Craftworks queue are no
   longer saved or asked for - the planner never read them. Kitchen stays.
   Old captures of those pages are left out of the merge.
