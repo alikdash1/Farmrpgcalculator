@@ -64,22 +64,27 @@ const free = new Set(includeFree ? [] : (facts.treatAsFree || []));
 const from = currentFloor(W);
 const owed = [];
 const skipped = [];
-const seen = new Set();
+// An item can be a GM on one floor and an MM on a later one (Bamboo Chair: GM
+// T311, MM T342). The MM is what has to be reached, so a later MM replaces the
+// GM; keeping the first floor priced 100k for things that need 1m.
+const goalByItem = new Map();
 for (const row of towerFloors(W, from)) {
   if (row.floor > to) continue;
   for (const [tier, list, goal] of [["GM", row.gms || [], 100000], ["MM", row.mms || [], 1000000]]) {
     for (const e of list) {
-      if (seen.has(e.name)) continue;
-      seen.add(e.name);
-      const cur = Number(held[e.name]) || 0;
-      const juice = tier === "MM" ? (pj[e.name] || 0) : 0;
-      const target = finishAt(goal, juice);
-      const left = Math.max(0, target - cur);
-      if (left <= 0) continue;
-      const m = { name: e.name, floor: row.floor, tier, goal, cur, juice, target, left };
-      if (free.has(e.name)) skipped.push(m); else owed.push(m);
+      const prior = goalByItem.get(e.name);
+      if (!prior || goal > prior.goal) goalByItem.set(e.name, { floor: row.floor, tier, goal, name: e.name });
     }
   }
+}
+for (const { floor, tier, goal, name } of [...goalByItem.values()].sort((a, b) => a.floor - b.floor)) {
+  const cur = Number(held[name]) || 0;
+  const juice = tier === "MM" ? (pj[name] || 0) : 0;
+  const target = finishAt(goal, juice);
+  const left = Math.max(0, target - cur);
+  if (left <= 0) continue;
+  const m = { name, floor, tier, goal, cur, juice, target, left };
+  if (free.has(name)) skipped.push(m); else owed.push(m);
 }
 
 // ---- masteries that finish on the way to others ----------------------------

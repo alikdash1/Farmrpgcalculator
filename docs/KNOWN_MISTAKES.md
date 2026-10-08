@@ -325,3 +325,12 @@ Mushroom (and Jack-o-lantern) never offered Explore or any of their six
 exploring places. Growing is now its own route choice ("Grow"), and the
 gathering route is used unless there is nothing to gather. The owner caught it
 on Mushroom.
+
+## A later MM was dropped when the item was a GM first (fixed 2026-10-09)
+
+`tower-plan.mjs`, `cost.mjs --mastery` and `goals.mjs` kept the FIRST floor an
+item appears on. Bamboo Chair is a GM at T311 and an MM at T342, so every plan
+priced 100k instead of 1m - and the same for Propeller Hat (T349), Tie Dye
+Scarf (T350), Bamboo Trellis (T345), Brown Bag (T348), Orange Scarf (T338) and
+more. The T340-T350 list given to the owner missed 13 masteries. A later MM now
+replaces the earlier GM. The Tower page was right all along; the owner caught it.

@@ -64,7 +64,8 @@ for (const row of towerFloors(W)) {
   if (row.floor > topFloor) continue;
   for (const [tier, list, goal] of [["GM", row.gms || [], 100000], ["MM", row.mms || [], 1000000]]) {
     for (const e of list) {
-      if (masteries.has(e.name)) continue;
+      // A later MM outranks an earlier GM of the same item.
+      if (masteries.has(e.name) && goal <= masteries.get(e.name).left + masteries.get(e.name).cur) continue;
       const cur = Number(held[e.name]) || 0;
       if (cur >= goal) continue;
       masteries.set(e.name, { name: e.name, left: goal - cur, cur, tier, floor: row.floor });

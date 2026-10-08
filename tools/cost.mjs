@@ -118,7 +118,8 @@ const held = (W.FRPG_PERSONAL_TOWER || {}).masteries || {};
 const goalFloors = new Map();
 for (const row of towerFloors(W)) {
   for (const [tier, list, goal] of [["GM", row.gms || [], 100000], ["MM", row.mms || [], 1000000]]) {
-    for (const e of list) if (!goalFloors.has(e.name)) goalFloors.set(e.name, { tier, goal, floor: row.floor });
+    // A later MM outranks an earlier GM of the same item (Bamboo Chair T311 -> T342).
+    for (const e of list) if (!goalFloors.has(e.name) || goal > goalFloors.get(e.name).goal) goalFloors.set(e.name, { tier, goal, floor: row.floor });
   }
 }
 const goals = [];
