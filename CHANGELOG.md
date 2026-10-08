@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Fishing rows: co-catches, nets and meals; mastery for every masterable goal
+
+- A Fish row now has Large Nets / Fishing Nets / By hand and Sea Pincher
+  Special, plus an "Also catches" fold from the place's own logged tables. An
+  Explore row has Neigh (Cider) or Quandary Chowder (AP) beside the drink switch.
+- The goal header shows mastery for any item that has one - crafted or gathered
+  (Most Masteries workbook + the player's Mastery page) - with a Mushroom Stew
+  switch: "MM needs 686.77k more mastery - 624.34k items with Mushroom Stew".
+  The page's own next target is used when it has one (Amber Cane at 1k). Items
+  with no mastery (Emberstone) show none.
+
 ## 2026-10-08 — Explore or Fish for Water Lily; other ways listed for every item
 
 - Water Lily (the only item both explored and fished) offered one "Explore"

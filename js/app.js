@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.17";
+  const FRPG_BUILD = "2026-10-08.19";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -770,6 +770,20 @@
     };
   }
 
+  // Everything else a fishing run brings up, from the place's own logged
+  // tables: each catch is one roll, so N catches give N / (catches per drop).
+  // The fish table is per catch; the outcome table adds what is not a fish.
+  function fishCoDrops(item, location, catches) {
+    const place = D.sources.locations.find((loc) => loc.name === location && loc.type === "fishing");
+    if (!place || !(catches > 0)) return [];
+    const rows = new Map();
+    for (const [name, info] of Object.entries(place.fish || {})) if (info && info.denom > 0) rows.set(name, info.denom);
+    for (const [name, info] of Object.entries(place.drops || {})) if (info && info.denom > 0 && !rows.has(name)) rows.set(name, info.denom);
+    rows.delete(item.name);
+    return [...rows].map(([name, denom]) => ({ name, expected: catches / denom, score: 0 }))
+      .filter((row) => row.expected >= 1).sort((a, b) => b.expected - a.expected).slice(0, 20);
+  }
+
   function gatherPlan(item, need, m, consts, sources, kind) {
     const rule = routeRule(item.name);
     const dropPlans = (kind === "fish" ? [] : sources.drops).filter((row) => row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).map((drop) => {
@@ -885,6 +899,8 @@
         location: fish.location,
         catches: fish.catches,
         netNotes,
+        coDrops: fishCoDrops(item, fish.location, method === "large" && largeNets != null ? largeNets * lnCatch
+          : method === "net" && fishingNets != null ? fishingNets * fnCatch : fish.catches),
         method,
         largeNets,
         fishingNets,
@@ -971,24 +987,44 @@
   // Mastery counts every item a craft gives you, duplicates included. So the
   // number that matters is crafts, not items: 1,000,000 Yarn at 1.45x per
   // craft is 689,656 crafts. Mushroom Stew never applies to crafting.
-  function masteryCraftsHtml(goal, m) {
-    const per = m.craftYield || 1;
-    const crafts = Math.ceil(state.qty / per);
-    const lines = [per > 1
-      ? `<b>${fmt(crafts)} crafts</b> (${fmt(per)}× per craft).`
-      : `<b>${fmt(crafts)} crafts</b>.`];
+  // The mastery line under the goal, for any item that has a mastery -
+  // crafted or gathered - and nothing for one that has none (Emberstone).
+  // Which items have one: the Most Masteries workbook (P.items[].mastery) and
+  // the player's own Mastery page. Mushroom Stew makes each item count 1.1x.
+  function masteryHtml(goal, m, crafted) {
+    const key = goal.name.toLowerCase();
+    const row = ((state.account && state.account.masteries) || []).find((entry) => String(entry.itemName || "").toLowerCase() === key);
+    const known = !!((P.items[goal.name] || {}).mastery) || !!row;
+    const per = crafted ? (m.craftYield || 1) : 1;
+    const lines = [];
+    if (crafted) lines.push(per > 1 ? `<b>${fmt(Math.ceil(state.qty / per))} crafts</b> (${fmt(per)}× per craft).` : `<b>${fmt(state.qty)} crafts</b>.`);
+    if (!known) return lines.length ? `<p class="goal-crafts">${lines.join(" ")}</p>` : "";
+    const stew = !!state.meals.mushroom;
+    const boost = stew ? 1 + c("mushroom_mastery_bonus", 0.1) : 1;
+    const unit = crafted ? "crafts" : "items";
+    const count = (mastery) => Math.ceil(Math.ceil(mastery / boost) / per);
     let button = "";
     let have = null;
-    try { have = towerMasteryMap().get(goal.name.toLowerCase()); } catch (_) { have = null; }
-    if (have != null && have < MM_GOAL) {
-      const target = have < GM_GOAL ? GM_GOAL : MM_GOAL;
-      const left = target - have;
-      lines.push(`${target === GM_GOAL ? "GM" : "MM"} needs ${fmt(left)} more — <b>${fmt(Math.ceil(left / per))} crafts</b>.`);
-      if (left !== state.qty) button = `<button type="button" class="text-action" data-plan-mastery="${left}">Plan just the ${fmt(left)} left</button>`;
-    } else if (have != null && have >= MM_GOAL) {
-      lines.push("Already Mega Mastered.");
+    try { have = towerMasteryMap().get(key); } catch (_) { have = null; }
+    if (have != null) {
+      // The Mastery page says the next target itself (Amber Cane: 1k, a fossil:
+      // 10); without it the planner assumes the usual 100k / 1m.
+      const pageTarget = Number(row && row.progressTarget) || 0;
+      const target = pageTarget > have ? pageTarget : have < GM_GOAL ? GM_GOAL : have < MM_GOAL ? MM_GOAL : 0;
+      if (target) {
+        const left = target - have;
+        const name = target === MM_GOAL ? "MM" : target === GM_GOAL ? "GM" : "The next tier";
+        lines.push(`${name} needs ${fmt(left)} more mastery — <b>${fmt(count(left))} ${unit}</b>${stew ? " with Mushroom Stew" : ""}.`);
+        const items = Math.ceil(left / boost);
+        if (items !== state.qty) button = `<button type="button" class="text-action" data-plan-mastery="${items}">Plan just the ${fmt(items)}</button>`;
+      } else {
+        lines.push("Already Mega Mastered.");
+      }
+    } else {
+      lines.push(`Has a mastery: Mega Mastery at 1m — <b>${fmt(count(MM_GOAL))} ${unit}</b>${stew ? " with Mushroom Stew" : ""}.`);
     }
-    return `<p class="goal-crafts">${lines.join(" ")} ${button}</p>`;
+    const chip = `<label class="path-mini${stew ? " on" : ""}" title="+10% mastery for 5 minutes"><input type="checkbox" data-gather-meal="mushroom" ${stew ? "checked" : ""}> Mushroom Stew</label>`;
+    return `<p class="goal-crafts">${lines.join(" ")} ${button}</p><div class="path-choices compact goal-meal">${chip}</div>`;
   }
 
   function makeDecision(node, m, consts) {
@@ -1184,6 +1220,12 @@
     if (!route) return "";
     // On a bought row the only thing worth showing is what you pay for it.
     if (["trade", "vendor"].includes(route.type)) return `<div class="path-choices">${buyRateBlock(item, missing)}</div>`;
+    const meal = (id, label, note) => `<label class="path-mini${state.meals[id] ? " on" : ""}" title="${esc(note)}"><input type="checkbox" data-gather-meal="${id}" ${state.meals[id] ? "checked" : ""}> ${label}</label>`;
+    if (route.type === "fish") {
+      const method = FISH_METHODS[state.fishMethods[item.id]] ? state.fishMethods[item.id] : "large";
+      const how = (value, label) => `<label class="path-mini${method === value ? " on" : ""}"><input type="radio" name="fish-${item.id}" value="${value}" ${method === value ? "checked" : ""} data-fish-method="${item.id}"> ${label}</label>`;
+      return `<div class="path-choices compact">${how("large", "Large Nets")}${how("net", "Fishing Nets")}${how("hand", "By hand")}<span class="path-sep">Meal</span>${meal("seapincher", "Sea Pincher Special", "Nets catch about 10% more")}</div>`;
+    }
     if (!["explore", "acorn"].includes(route.type)) return "";
     const chosen = state.drinkChoices[item.id] === "ap" ? "ap" : "cider";
     const perks = [
@@ -1212,7 +1254,7 @@
     const buy = buyRateBlock(item, missing);
 
     const pick = (value, label, off) => `<label class="path-mini${chosen === value ? " on" : ""}${off ? " muted" : ""}"><input type="radio" name="drink-${item.id}" value="${value}" ${chosen === value ? "checked" : ""} ${off ? "disabled" : ""} data-drink-id="${item.id}"> ${label}</label>`;
-    return `<div class="path-choices compact">${pick("cider", "Cider", route.ciders == null)}${pick("ap", "Arnold Palmer", route.aps == null)}</div>`;
+    return `<div class="path-choices compact">${pick("cider", "Cider", route.ciders == null)}${pick("ap", "Arnold Palmer", route.aps == null)}<span class="path-sep">Meals</span>${chosen === "ap" ? meal("quandary", "Quandary Chowder", "10% more from each Arnold Palmer") : meal("neigh", "Neigh", "Cider uses 20% less stamina")}</div>`;
   }
 
   // "1m", "250k", "1.5m" or "1,000,000" — the quick buttons were replaced by
@@ -1256,7 +1298,7 @@
     const other = route.type === "unknown" ? null : ((window.FRPG_ITEM_SOURCES || {}).also || {})[item.name];
     if (other) lines.push(`<span class="where-from"><b>Other ways to get it</b>${other.map((line) => `<span>${esc(line)}</span>`).join("")}</span>`);
     const drops = route.coDrops && route.coDrops.length;
-    const parts = [drops ? `Also drops (${drops})` : "", questNeeds ? "quests" : "", other ? "other ways" : ""].filter(Boolean);
+    const parts = [drops ? `${route.type === "fish" ? "Also catches" : "Also drops"} (${drops})` : "", questNeeds ? "quests" : "", other ? "other ways" : ""].filter(Boolean);
     const summary = parts.length ? parts.join(" · ").replace(/^./, (c) => c.toUpperCase()) : "";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
   }
@@ -1490,7 +1532,7 @@
     const goalSummary = goalIsCrafted
       ? `${plural(rows.length, "ingredient", "ingredients")} · ${coveredRows.length} from your farm${passiveHours ? ` (longest wait ${fmt(passiveHours)}h)` : ""}`
       : `Not a craft — you get this one directly. ${esc(capitalise(treeRouteWord(rows[0] && rows[0].route) || "see the route below"))}.`;
-    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p>${goalIsCrafted ? masteryCraftsHtml(goal, m) : ""}</div></div>`;
+    $("goalHeader").innerHTML = `<div class="goal-identity">${itemImg(goal, "goal-art", goal.name)}<div class="goal-title"><h2>${esc(goal.name)} × ${fmt(state.qty)}</h2><p>${goalSummary}</p>${masteryHtml(goal, m, goalIsCrafted)}</div></div>`;
     $("goalHeader").querySelectorAll("[data-plan-mastery]").forEach((button) => {
       button.onclick = () => { state.qty = Number(button.dataset.planMastery); el.qty.value = state.qty.toLocaleString("en-US"); render(); };
     });
@@ -1602,6 +1644,9 @@
         const perK = existing ? existing.perK : Number(input && input.value);
         if (Number.isFinite(perK) && perK > 0) { state.buyRates[id] = { perK, currency: select.value }; save(); render(); }
       };
+    });
+    document.querySelectorAll("[data-fish-method]").forEach((radio) => {
+      radio.onchange = () => { if (radio.checked) { state.fishMethods[radio.dataset.fishMethod] = radio.value; save(); render(); } };
     });
     document.querySelectorAll("[data-drink-id]").forEach((radio) => {
       radio.onchange = () => { if (radio.checked) { state.drinkChoices[radio.dataset.drinkId] = radio.value; save(); render(); } };
