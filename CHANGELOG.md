@@ -5,6 +5,11 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Tower: "too expensive", never "not possible"
+
+The workbook's "not possible" (62 items: every Runestone, Bone Broth, Wine...)
+now shows as "too expensive" on the Tower - they can be done, at a cost.
+
 ## 2026-10-08 — Fishing rows: co-catches, nets and meals; mastery for every masterable goal
 
 - A Fish row now has Large Nets / Fishing Nets / By hand and Sea Pincher

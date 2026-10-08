@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.19";
+  const FRPG_BUILD = "2026-10-08.20";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -2298,7 +2298,11 @@
   function masteryRating(name) {
     const row = MASTERY_RATING[name] ||
       MASTERY_RATING[Object.keys(MASTERY_RATING).find((key) => key.toLowerCase() === String(name).toLowerCase())];
-    return row && row.note ? { note: row.note, kind: RATING_CLASS[row.note] || "mid" } : null;
+    // The workbook says "not possible" for 62 items (every Runestone, Bone
+    // Broth...). They can be done - just at a cost nobody pays - so the Tower
+    // says that instead (owner's call, 2026-10-08).
+    const note = row && row.note === "not possible" ? "too expensive" : row && row.note;
+    return note ? { note, kind: RATING_CLASS[note] || "mid" } : null;
   }
   function renderTower() {
     // The top floor is whatever the floor data reaches, so publishing a new
