@@ -229,3 +229,4 @@ select, input[type=search], #search, #homeSearch, .places-mode { font-family: va
 .where-from { display: grid; gap: 3px; }
 .where-from span { color: var(--muted); font-size: 12px; line-height: 1.4; }
 .where-from span::before { content: "· "; color: var(--line-strong); }
+.where-from b { font-size: 12px; color: var(--text); margin-top: 6px; }

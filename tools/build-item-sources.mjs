@@ -21,8 +21,9 @@ const cacheDir = path.join(root, "raw", ".buddy-cache-" + stamp, "items");
 const combinedFile = path.join(root, "raw", `buddy-sources-${stamp}.json`);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Every item the planner cannot cost today, computed the way Calculate does.
-function unrouted() {
+// Every active item, and the ones the planner cannot cost today, computed the
+// way Calculate does.
+function itemLists() {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const scripts = [...html.matchAll(/<script src="((?:data|js)\/[^"?]+)/g)].map((m) => m[1])
     .filter((src) => (src.startsWith("data/") && src !== "data/item-sources.js") || src === "js/containers.js" || src === "js/engine.js");
@@ -33,11 +34,12 @@ function unrouted() {
     try { vm.runInContext(fs.readFileSync(path.join(root, src), "utf8"), ctx, { filename: src }); } catch { /* optional data */ }
   }
   const D = ctx.FRPG_DATA, E = ctx.Engine, I = E.buildIndex(D), mods = E.computeMods([], ctx.FRPG_CONSTANTS);
-  return D.items.items.filter((item) => {
-    if (!item.active) return false;
+  const active = D.items.items.filter((item) => item.active);
+  const unrouted = active.filter((item) => {
     const s = E.sourcesFor(I, item.id, 1, mods, {});
     return !(s.crop || s.fish.length || s.drops.length || s.vendor || s.market || I.craftByItem.has(item.id) || I.cookByItem.has(item.id));
   }).map((item) => item.name);
+  return { all: active.map((item) => item.name), unrouted };
 }
 
 async function getJson(url) {
@@ -49,13 +51,15 @@ async function getJson(url) {
 
 async function fetchPages() {
   fs.mkdirSync(cacheDir, { recursive: true });
-  const names = unrouted();
+  // Every item, not only the unrouted ones: an item Calculate can cost may
+  // also come out of a chest, a pet or the Temple, and that is worth saying.
+  const names = itemLists().all;
   const search = await getJson(BUDDY + "/search.json");
   const hrefByName = new Map(search.filter((e) => /^\/i\//.test(e.href || "")).map((e) => [String(e.name).toLowerCase(), e.href]));
   const jobs = names.map((name) => [name, hrefByName.get(name.toLowerCase())]);
   const missing = jobs.filter(([, href]) => !href).map(([name]) => name);
   const queue = jobs.filter(([, href]) => href);
-  console.log(`${names.length} unrouted items; ${queue.length} on buddy.farm, ${missing.length} not listed there`);
+  console.log(`${names.length} items; ${queue.length} on buddy.farm, ${missing.length} not listed there`);
   let done = 0;
   const failures = [];
   async function worker() {
@@ -87,5 +91,5 @@ async function fetchPages() {
 
 const command = process.argv[2];
 if (command === "fetch") await fetchPages();
-else if (command === "build") await (await import("./item-sources-build.mjs")).build(root);
+else if (command === "build") await (await import("./item-sources-build.mjs")).build(root, new Set(itemLists().unrouted));
 else { console.log("usage: node tools/build-item-sources.mjs fetch|build"); process.exit(1); }

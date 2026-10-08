@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.15";
+  const FRPG_BUILD = "2026-10-08.17";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -734,7 +734,9 @@
       vendor: "Country Store", inventory: "Use inventory" })[value] || value;
   }
 
-  function farmPlan(item, need, m, consts) {
+  // kind: "explore" or "fish" keeps to that one way of gathering, for an item
+  // you can get both ways (Water Lily: Sinking Swamp or Forest Pond nets).
+  function farmPlan(item, need, m, consts, kind) {
     // Some items technically drop somewhere but nobody sane gathers them —
     // Glass Bottle off Crystal River at ~1 per 68 casts, for instance. A rule
     // with never:"farm" keeps them out of the routing entirely.
@@ -750,8 +752,8 @@
     // its exploring places never showed. Growing is now its own choice; the
     // gathering route wins unless there is nothing to gather.
     const canGather = sources.drops.some((row) => row.explores != null) || sources.fish.some((row) => row.catches != null);
-    if (sources.crop && !canGather) return cropPlan(item, need, sources);
-    return gatherPlan(item, need, m, consts, sources);
+    if (sources.crop && !canGather) return kind ? null : cropPlan(item, need, sources);
+    return gatherPlan(item, need, m, consts, sources, kind);
   }
 
   function cropPlan(item, need, sources) {
@@ -768,9 +770,9 @@
     };
   }
 
-  function gatherPlan(item, need, m, consts, sources) {
+  function gatherPlan(item, need, m, consts, sources, kind) {
     const rule = routeRule(item.name);
-    const dropPlans = sources.drops.filter((row) => row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).map((drop) => {
+    const dropPlans = (kind === "fish" ? [] : sources.drops).filter((row) => row.explores != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).map((drop) => {
       const qc = state.meals.quandary ? 1 + c("quandary_bonus", 0.1) : 1;
       const neigh = state.meals.neigh ? 1 - c("neigh_stamina_save", 0.2) : 1;
       // Places stores the effectiveness printed by Farm RPG for each location.
@@ -842,7 +844,7 @@
     const chosenLocation = state.farmLocations[item.id];
     const chosenDrop = dropPlans.find((plan) => plan.location === chosenLocation);
     if (chosenDrop) return chosenDrop;
-    const fishPlans = sources.fish.filter((row) => row.catches != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).sort((a, b) => a.catches - b.catches);
+    const fishPlans = (kind === "explore" ? [] : sources.fish).filter((row) => row.catches != null && (state.includeEvents || !EVENT_LOCATIONS.has(row.location))).sort((a, b) => a.catches - b.catches);
     const chosenFish = fishPlans.find((row) => row.location === chosenLocation);
     const buildFish = (fish) => {
       const mealBoost = state.meals.seapincher ? 1 + c("sea_pincher_bonus", 0.1) : 1;
@@ -919,12 +921,17 @@
         rows.push({ location: row.location, kind: "Fish", event: EVENT_LOCATIONS.has(row.location) });
       }
     }
-    return rows.filter((row, i) => rows.findIndex((other) => other.location === row.location) === i);
+    // Sinking Swamp is an exploring place and a fishing place under one name,
+    // so the same name can appear once per kind.
+    return rows.filter((row, i) => rows.findIndex((other) => other.location === row.location && other.kind === row.kind) === i);
   }
 
   function locationSelect(item, need, m, route) {
-    const choices = farmLocationChoices(item, need, m, constants());
-    if (!choices.length || !route || !["explore", "fish"].includes(route.type)) return "";
+    if (!route || !["explore", "fish"].includes(route.type)) return "";
+    // Only the places for the way you chose to gather; Explore and Fish are
+    // picked in "Get it by" now.
+    const choices = farmLocationChoices(item, need, m, constants()).filter((choice) => choice.kind === (route.type === "fish" ? "Fish" : "Explore"));
+    if (!choices.length) return "";
     const selected = state.farmLocations[item.id] || route.location || "";
     return `<label class="location-choice"><span>Farm at</span><select data-location-id="${item.id}">${choices.map((choice) => `<option value="${esc(choice.location)}" ${selected === choice.location ? "selected" : ""}>${choice.event ? "Event · " : ""}${esc(choice.location)} · ${choice.kind}</option>`).join("")}</select></label>`;
   }
@@ -1043,6 +1050,10 @@
     if (choice === "covered" && infra) return { type: "covered", label: infra.kind, detail: infra.detail, hours: infra.hours, goldEq: 0 };
     if (choice === "trade" && trade && !isFish(item)) return { type: "trade", label: "Buy in trade", detail: quoteText(trade), quote: trade, goldEq: trade.best.goldEq };
     if (choice === "farm" && farm) return Object.assign({ label: farm.type === "fish" ? "Fish" : farm.type === "crop" ? "Grow" : farm.type === "acorn" ? "Acorn test" : "Explore" }, farm);
+    if (choice === "explore" || choice === "fish") {
+      const kept = farmPlan(item, missing, m, consts, choice);
+      if (kept) return Object.assign({ label: choice === "fish" ? "Fish" : "Explore" }, kept);
+    }
     if (choice === "grow" && source.crop) return Object.assign({ label: "Grow" }, cropPlan(item, missing, source));
     if (choice === "vendor" && vendor) return vendor;
     if (choice !== "auto") return { type: "unknown", label: "Unavailable", detail: "That route is not known for this item" };
@@ -1078,7 +1089,13 @@
     const craftable = (index.craftByItem.get(item.id) || []).length > 0;
     if (craftable) options.push(["craft", "Craft"]);
     const gather = farmPlan(item, 1, m, constants());
-    if (gather) options.push(["farm", farmLabel(gather)]);
+    // Both ways open (Water Lily): offer Explore and Fish side by side rather
+    // than one "Explore" with the fishing spots hidden in the place list.
+    const canExplore = !!farmPlan(item, 1, m, constants(), "explore");
+    const canFish = !!farmPlan(item, 1, m, constants(), "fish");
+    const bothWays = canExplore && canFish;
+    if (bothWays) options.push(["explore", "Explore"], ["fish", "Fish"]);
+    else if (gather) options.push(["farm", farmLabel(gather)]);
     if (source.crop && gather && gather.type !== "crop") options.push(["grow", "Grow"]);
     if (!isFish(item) && E.marketQuote(index, item.id, 1)) options.push(["trade", "Trade"]);
     if (!isFish(item) && source.vendor) options.push(["vendor", "Store"]);
@@ -1087,9 +1104,11 @@
     // costed — a gift, a reward, a stack in storage. It then costs nothing and
     // stops the tree there.
     options.push(["free", "I have it / free"]);
+    const stored = state.sourceChoices[item.id] || "auto";
     const selected = state.makeChoices[item.id] === "craft" && craftable
       ? "craft"
-      : (state.sourceChoices[item.id] || "auto");
+      : bothWays && stored === "farm" ? (gather && gather.type === "fish" ? "fish" : "explore")
+      : stored;
     return `<select class="route-select" data-source-id="${item.id}" aria-label="Acquisition route for ${esc(item.name)}">${options.map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("")}</select>`;
   }
 
@@ -1232,8 +1251,13 @@
     }).join("")}</span>`);
     const questNeeds = questNeedsHtml(item.name);
     if (questNeeds) lines.push(questNeeds);
+    // Other ways the game hands it out (pets, chests, the Temple...), when the
+    // row is costed one way. An item with no route already lists them in place.
+    const other = route.type === "unknown" ? null : ((window.FRPG_ITEM_SOURCES || {}).also || {})[item.name];
+    if (other) lines.push(`<span class="where-from"><b>Other ways to get it</b>${other.map((line) => `<span>${esc(line)}</span>`).join("")}</span>`);
     const drops = route.coDrops && route.coDrops.length;
-    const summary = drops && questNeeds ? `Also drops (${drops}) · quests` : drops ? `Also drops (${drops})` : questNeeds ? "Quests want this" : "";
+    const parts = [drops ? `Also drops (${drops})` : "", questNeeds ? "quests" : "", other ? "other ways" : ""].filter(Boolean);
+    const summary = parts.length ? parts.join(" · ").replace(/^./, (c) => c.toUpperCase()) : "";
     return lines.length ? `<details class="route-evidence"><summary>${summary}</summary><small class="route-evidence-body">${lines.join("")}</small></details>` : "";
   }
   // Everything hanging off a craft used to render bare, which made fished and

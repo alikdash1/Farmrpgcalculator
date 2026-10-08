@@ -5,6 +5,16 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Explore or Fish for Water Lily; other ways listed for every item
+
+- Water Lily (the only item both explored and fished) offered one "Explore"
+  with Forest Pond hidden in the place list. "Get it by" now has Explore and
+  Fish side by side, and "Farm at" lists only that kind's places. Place choices
+  are kept per kind, since Sinking Swamp is both an exploring and a fishing place.
+- `tools/build-item-sources.mjs` now reads buddy.farm's record for every item.
+  Items Calculate can cost get an "Other ways" fold (pets, buildings, chests,
+  Temple, Wishing Well, Exchange Center, shop, one-time rewards) - 611 items.
+
 ## 2026-10-08 — Mushroom: Explore and Grow both offered
 
 Items you can both grow and gather (Mushroom, Jack-o-lantern) only ever offered
