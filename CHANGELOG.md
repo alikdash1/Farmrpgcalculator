@@ -5,6 +5,20 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-08 — Every item says where it comes from
+
+- **Fishing fix:** non-fish catches (Frost Snapper Shell, Pirate Hook, Strange
+  Ring, Egg 07, two chests, Heart Necklace Left Piece, Runestone 08) were
+  hidden by `buildIndex`; they now have a Fish route. See KNOWN_MISTAKES.md.
+- **Audit:** 711 of 1,555 items had no route at all. `tools/build-item-sources.mjs`
+  fetched buddy.farm's record for each and wrote `data/item-sources.js`: every
+  way the game hands it out (mining, harvest drops, pets, buildings, Temple,
+  Wishing Well, Exchange Center, chests, shop, and one-time quest/Tower/friend
+  rewards). 195 can be repeated; the rest are one-time or event-only. Calculate
+  shows those lines instead of "No reliable way to get this one".
+- Mining rates on buddy.farm do not say what they count, so mining stays
+  "Mining at <mine>" with no cost until that is settled.
+
 ## 2026-10-08 — "Where the numbers come from" removed
 
 The owner asked for the page and everything leading to it to go: the Library

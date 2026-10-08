@@ -308,3 +308,12 @@ orchard and the 800k/day Farmhouse, the whole Salt + Red Trunk feather trip fit
 the owner's budget. The owner caught it: "Whispering Creek apple orange and
 lemon take out some of the cost". Always credit co-drops that are themselves
 stamina or AP.
+
+## Fishing places hid everything that is not a fish (fixed 2026-10-08)
+
+`buildIndex` skipped a fishing place's outcome table so fish were not counted
+twice, but things a net brings up that are not fish (Frost Snapper Shell,
+Pirate Hook, Strange Ring, Egg 07, Large Chest 03, Mystical Chest 02, Heart
+Necklace Left Piece, Runestone 08) live only in that table, so Calculate had
+no route for them. The outcome table is now read for everything the fish table
+does not already list. The owner caught it on Frost Snapper Shell.

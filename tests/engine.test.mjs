@@ -138,3 +138,25 @@ test("Red Dye still reaches Glass Orb through Glass Bottle", () => {
   assert.ok(Engine.collectNodes(tree).has(idOf("glass bottle")));
   assert.ok(Engine.collectNodes(tree).has(idOf("glass orb")));
 });
+
+test("things a net brings up that are not fish still have a fishing route", () => {
+  // Glacier Lake's fish table lists the fish; Frost Snapper Shell is only in
+  // its outcome table. Reading fish tables only hid it (and Pirate Hook, Egg 07...).
+  const id = index.idByName.get("frost snapper shell");
+  assert.ok(id, "Frost Snapper Shell is an item");
+  const fish = Engine.sourcesFor(index, id, 1, mods, consts).fish;
+  assert.ok(fish.some((row) => row.location === "Glacier Lake" && row.denom > 1000), "fished at Glacier Lake");
+  // and a fish is still counted once, not twice
+  const bullfish = Engine.sourcesFor(index, index.idByName.get("bullfish"), 1, mods, consts).fish;
+  assert.equal(bullfish.filter((row) => row.location === "Glacier Lake").length, 1);
+});
+
+test("every unrouted item says where it comes from", () => {
+  const src = readFileSync(new URL("../data/item-sources.js", import.meta.url), "utf8");
+  const W = {}; new Function("window", src)(W);
+  const items = W.FRPG_ITEM_SOURCES.items;
+  assert.ok(Object.keys(items).length > 500);
+  assert.match(items.Gravicite.lines.join(" "), /Mining at Mossrock Mine/);
+  assert.equal(items.Gravicite.repeat, true);
+  assert.equal(items["Lorn Bobblehead"].repeat, false);
+});

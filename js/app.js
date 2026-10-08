@@ -72,7 +72,7 @@
     plot_yield_default: "Crops harvested per seed planted",
     rate_adjust_global: "Adjustment to the community drop rates",
   };
-  const FRPG_BUILD = "2026-10-08.10";
+  const FRPG_BUILD = "2026-10-08.11";
   const itemByName = (name) => index.itemsById.get(index.idByName.get(name.toLowerCase()));
   const ART = window.FRPG_ITEM_ART_HELPER;
   // Items the game has but this planner has no artwork for still need a tile.
@@ -1041,6 +1041,10 @@
     if (farm || trade || vendor) {
       return { type: "choose", label: "Choose", detail: "Pick how you will get this from the list", goldEq: null };
     }
+    // Everything else: every way the game hands it out, from buddy.farm
+    // (data/item-sources.js) - pets, mining, chests, the Temple, quests...
+    const where = (window.FRPG_ITEM_SOURCES && window.FRPG_ITEM_SOURCES.items || {})[item.name];
+    if (where) return { type: "unknown", label: where.repeat ? "Where to get it" : "Not farmable", detail: `<span class="where-from">${where.lines.map((line) => `<span>${esc(line)}</span>`).join("")}</span>` };
     if (isFish(item)) return { type: "unknown", label: "Fish for it", detail: "No fishing rate recorded for this one yet" };
     const mine = mineFor(item.name);
     if (mine) return { type: "unknown", label: "Mine it", detail: `Found in ${esc(mine.name)}${mine.pickaxe ? ` with the ${esc(mine.pickaxe)}` : ""}. Mining rates are not recorded yet — see the Mining tab.` };

@@ -28,8 +28,14 @@
       // Only exploring routes read this map (for co-drops), so exploring wins.
       if (!locationsByName.has(loc.name) || loc.type === "explore") locationsByName.set(loc.name, loc);
       // Fishing snapshots carry a generic outcome table and a dedicated fish
-      // table. Indexing both double-counts every fishing route.
-      const drops = loc.mode === "fishes" ? {} : (loc.drops || {});
+      // table. Indexing both double-counts every fishing route, so a fish is
+      // read from the fish table only - but anything else a net brings up
+      // (Frost Snapper Shell, Grab Bags) is only in the outcome table, and
+      // skipping that table hid those items entirely.
+      const fishNames = new Set(Object.keys(loc.fish || {}).map((name) => name.toLowerCase()));
+      const drops = loc.mode === "fishes"
+        ? Object.fromEntries(Object.entries(loc.drops || {}).filter(([name]) => !fishNames.has(name.toLowerCase())))
+        : (loc.drops || {});
       for (const [itemName, info] of Object.entries(drops)) {
         if (info.denom == null && info.src !== "override") continue;
         const key = itemName.toLowerCase();
