@@ -86,17 +86,29 @@ test("old unknown captures migrate back to their real account page type", async 
     unknown: {
       capturedAt: "2026-08-27T10:00:00.000Z",
       pageType: "unknown",
+      pageLabel: "My Kitchen",
+      title: "My Kitchen",
+      fields: { kitchenStats: { ovens: { value: 8 } } },
+      visibleText: "My Kitchen"
+    },
+    // Pets, Friendships and Craftworks are not read by the planner (1.13.0),
+    // so an old save of one is dropped rather than migrated.
+    pets: {
+      capturedAt: "2026-08-27T10:00:00.000Z",
+      pageType: "pets",
       pageLabel: "Pets",
-      title: "My Pets",
       fields: { pets: [{ petKey: "owl", displayName: "Owl" }] },
       visibleText: "My Pets"
     }
   };
   const result = await send({ type: "farmrpg-account-status" });
   assert.equal(result.ok, true);
-  assert.ok(result.captured.includes("pets"));
-  assert.equal(storage.captures.pets.pageType, "pets");
+  assert.ok(result.captured.includes("kitchen"));
+  assert.equal(storage.captures.kitchen.pageType, "kitchen");
   assert.equal(storage.captures.unknown, undefined);
+  assert.ok(!result.captured.includes("pets"));
+  assert.equal(storage.captures.pets, undefined);
+  assert.ok(!result.missing.includes("pets") && !result.missing.includes("friendships"));
 });
 
 test("manifest stays narrowly scoped and popup supports complete export", () => {
