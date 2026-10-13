@@ -23,7 +23,7 @@ import { prepare } from "./prepare.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { window: {}, console };
 vm.createContext(ctx);
-for (const f of ["data/data.js", "data/extra-items.js", "data/main-quests.js",
+for (const f of ["data/data.js", "data/extra-items.js", "data/event-places.js", "data/main-quests.js",
   "data/personal-quests.js", "data/personal-tower.js", "data/tower-floors.js",
   "data/workbook-rates.js", "data/player-facts.js", "data/tradeable.js"]) {
   const p = path.join(root, f);
