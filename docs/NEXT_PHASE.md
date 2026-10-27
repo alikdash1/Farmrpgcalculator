@@ -1,5 +1,20 @@
 # Next Phase
 
+## Open after 2026-10-27 — T300 done, aiming at T350
+
+- **T300 reached 2026-10-26.** Next goal T350, then Distant Illusions and the
+  PSA lines.
+- **Quest data has no build script.** `data/main-quests.js` was converted by
+  hand from the Quest Tracker's `questlines.json` (2026-09-02, merge 2026-10-27).
+  Worth a `tools/import-quests.mjs` that diffs the tracker and Buddy's `/q/`
+  pages, so new questlines arrive without a one-off script.
+- **The knowledge pack (`knowledge-pack/farmrpg.db`) has no recipes for 153
+  newer crafted items** (butterflies, dyes, Black Shield, Oak Table...); the
+  site has them via `data/extra-items.js`. Rebuild the pack from extra-items.
+- T301-T350 Steel / Steel Wire, counted with sub-crafts: about 10.0m Steel and
+  10.3m Wire (Grand Piano GM + Engine GM are 9.2m of the Wire). Owner will
+  upgrade Steelworks 500 at a time and buy Carbon.
+
 ## Open after 2026-10-08 — public launch
 
 - **First tester** (a strong player): "mostly reasonable", "slightly

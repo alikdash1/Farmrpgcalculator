@@ -56,7 +56,8 @@ const pjArg = flag("--pj", null);
 if (pjArg === "plan") pj = { ...(facts.pumpkinJuicePlan || {}) };
 else if (pjArg) for (const part of pjArg.split(",")) { const [k, v] = part.split("="); if (k && v) pj[k.trim()] = Number(v); }
 const PJ_STEP = (facts.pumpkinJuice || {}).perJuice || 0.1;
-const finishAt = (goal, n) => (n > 0 ? Math.ceil(goal / (1 + PJ_STEP * n)) : goal);
+// Each juice adds 10% of the CURRENT count, so juices compound (player-facts).
+const finishAt = (goal, n) => (n > 0 ? Math.ceil(goal / Math.pow(1 + PJ_STEP, n)) : goal);
 
 // ---- what is owed ----------------------------------------------------------
 const held = W.FRPG_PERSONAL_TOWER.masteries || {};

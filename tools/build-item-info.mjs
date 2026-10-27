@@ -35,7 +35,9 @@ for (const row of readJson("raw/items-etl2.json").items || []) {
   const key = String(row.name || "").toLowerCase();
   if (key) descriptions.set(key, { d: clean(row.description), x: clean(row.description_ext) });
 }
-const buddyPages = readJson("raw/buddy-items-2026-09-11.json").pages;
+// The newest Buddy capture: import-buddy.mjs fetch writes one per run.
+const buddyFile = fs.readdirSync(path.join(root, "raw")).filter((f) => /^buddy-items-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().pop();
+const buddyPages = readJson("raw/" + buddyFile).pages;
 for (const page of Object.values(buddyPages)) {
   const row = (page.items || [])[0];
   if (!row) continue;

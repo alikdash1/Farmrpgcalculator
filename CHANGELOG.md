@@ -5,6 +5,23 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-10-27 — New quests and items (mining lines, Troubled Waters)
+
+- Quests 2,479 -> 2,563. 75 came from a fresh Quest Tracker `questlines.json`
+  (the mining questlines, Pie Inversion Experimentation, Market Risk
+  Opportunities - four one-quest lines on the tracker, joined into one here -
+  and four events). The converter reproduced 2,429 of the 2,479 existing
+  entries exactly; the other 50 differ only where the tracker has since
+  updated prerequisites, and were left as they were.
+- Troubled Waters I-IX (event, 2026-10-26 to 11-05, 31,710 Mega Lamprey Shark)
+  came from Buddy's Almanac, which had it before the tracker.
+- Items 1,556 -> 1,579, matching Buddy's full list: `import-buddy.mjs` fetch
+  and build re-run (only additions; adds Apple Bobbing and Mega Lamprey Shark
+  rates). `build-item-info.mjs` now reads the newest Buddy capture instead of
+  a fixed date.
+- `tower-plan.mjs`: stacked Pumpkin Juices compound (each takes 10% of the
+  current count) instead of adding.
+
 ## 2026-10-09 — Downloads counted through GitHub Releases
 
 GitHub Pages counts nothing, so the zips now go out as GitHub release assets
