@@ -113,6 +113,34 @@ for (let pass = 0; pass < 25; pass += 1) {
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
 const free = [...masteries.values()].filter((m) => !active.has(m.name));
 
+// --line "<questline>": which open masteries that one line moves, and by how
+// much, if everything it asks for is crafted (stock on hand not netted).
+const lineName = flag("--line", null);
+if (lineName) {
+  const want = lineName.toLowerCase();
+  const steps = questSteps.filter((s) => String(s.line || "").toLowerCase() === want);
+  const lineMade = new Map();
+  const add = (n, q) => lineMade.set(n, (lineMade.get(n) || 0) + q);
+  const roll = (n, q, depth) => {
+    const item = byName.get(n.toLowerCase());
+    const rec = item && craft.get(item.id);
+    if (!item || !rec || !rec.length || depth > 12 || cook.has(item.id)) return;
+    add(n, q);
+    for (const r of rec) {
+      const part = (byId.get(r.reqId) || {}).name;
+      if (part) roll(part, (q / YIELD) * r.amt, depth + 1);
+    }
+  };
+  for (const step of steps) for (const r of step.requirements || []) roll(r.item, r.quantity, 0);
+  console.log(`${steps.length} open steps in ${lineName}. Open masteries it moves (crafted items only):`);
+  const rows = [...masteries.values()].filter((m) => lineMade.get(m.name)).sort((a, b) => lineMade.get(b.name) - lineMade.get(a.name));
+  for (const m of rows) {
+    const got = lineMade.get(m.name);
+    console.log(`  ${m.name.padEnd(22)} ${m.tier} T${m.floor}  +${fmt(got)} of ${fmt(m.left)} left (${Math.min(100, Math.round(got / m.left * 100))}%)`);
+  }
+  process.exit(0);
+}
+
 if (only) {
   const n = items.find((i) => i.name.toLowerCase() === only.toLowerCase());
   const name = n ? n.name : only;

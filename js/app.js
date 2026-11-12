@@ -193,6 +193,25 @@
   ];
   const MEAL_DEFAULTS = Object.fromEntries(MEALS.map((meal) => [meal.id, false]));
 
+  // The capture keeps meals (Red Berry Pie, Molasses...) in their own
+  // "consumables" list, and every page here reads only "inventory" - so meals
+  // looked like 0 on hand. Copy them into inventory wherever a snapshot is
+  // loaded. An inventory row that already exists always wins.
+  function withMeals(snapshot) {
+    if (!snapshot || typeof snapshot !== "object" || !Array.isArray(snapshot.inventory)) return snapshot;
+    const cons = snapshot.consumables;
+    const rows = Array.isArray(cons) ? cons : Object.entries(cons || {}).map(([name, v]) => Object.assign({ name }, v));
+    const have = new Set(snapshot.inventory.map((r) => String(r.name || r.itemName || "").trim().toLowerCase()));
+    for (const row of rows) {
+      const name = String(row.name || "").trim();
+      const quantity = Number(row.quantity && typeof row.quantity === "object" ? row.quantity.value : row.quantity);
+      if (!name || have.has(name.toLowerCase()) || !Number.isFinite(quantity)) continue;
+      have.add(name.toLowerCase());
+      snapshot.inventory.push({ name, quantity, confidence: "meal-from-capture" });
+    }
+    return snapshot;
+  }
+
   const state = {
     itemId: null,
     qty: 1000000,
@@ -213,7 +232,7 @@
     includeEvents: read("frpg_include_events_v1", false) === true,
     drinkPath: read("frpg_drink_path_v1", "auto"),
     makeChoices: read("frpg_make_v2", {}),
-    account: read("frpg_account_snapshot_v1", null),
+    account: withMeals(read("frpg_account_snapshot_v1", null)),
     perkTiers: read("frpg_perk_tiers_v1", {}),
     acornTests: read("frpg_acorn_tests_v2", []),
     towerStart: Number(read("frpg_tower_start_v1", PERSONAL.startFloor || 1)),
@@ -227,6 +246,9 @@
     lastPlan: null,
     decisionActions: new Map(),
   };
+  // Write the meal-folded snapshot back so pages that read storage directly
+  // (Quests, Items, Gather) see meals too.
+  if (state.account) { try { localStorage.setItem("frpg_account_snapshot_v1", JSON.stringify(state.account)); } catch (e) { /* storage full or blocked */ } }
 
   const el = {
     search: $("search"), qty: $("qty"), suggest: $("suggest"), result: $("result"),
@@ -400,6 +422,7 @@
     });
   }
   function pick(id) {
+    if (id !== state.netItemId) state.netItemId = null;
     state.itemId = id;
     el.search.value = index.itemsById.get(id).name;
     el.suggest.classList.add("hidden");
@@ -409,10 +432,13 @@
 
   // Cross-page bridge: lets other loaded scripts (Quests, New items) open an
   // item directly in the calculator without duplicating item lookup/route
-  // logic. Returns true if the item was found and opened.
-  window.FRPG_openItem = function (name, qty) {
+  // logic. Returns true if the item was found and opened. alreadyNet: the qty
+  // is what is still short (quest tracker) or mastery left, so the copies you
+  // hold must not be taken off it a second time.
+  window.FRPG_openItem = function (name, qty, alreadyNet) {
     const id = index.idByName.get(String(name || "").trim().toLowerCase());
     if (!id) return false;
+    state.netItemId = alreadyNet ? id : null;
     const parsedQty = Number(qty);
     if (Number.isFinite(parsedQty) && parsedQty > 0) {
       state.qty = Math.round(parsedQty);
@@ -1463,9 +1489,10 @@
     const leaves = E.flattenLeaves(tree);
     const rows = [...leaves.values()].filter((leaf) => leaf.id != null).map((leaf) => {
       const item = index.itemsById.get(leaf.id);
-      const owned = Number(state.owned[leaf.id] || 0);
+      const netted = state.netItemId === leaf.id;
+      const owned = netted ? 0 : Number(state.owned[leaf.id] || 0);
       const missing = Math.max(0, leaf.total - owned);
-      return { leaf, item, owned, missing, route: sourceRoute(item, missing, m, consts) };
+      return { leaf, item, owned, netted, missing, route: sourceRoute(item, missing, m, consts) };
     }).sort((a, b) => b.missing - a.missing);
     leafRoutes = new Map(rows.map((row) => [row.item.id, row.route]));
 
@@ -1592,7 +1619,7 @@
     }
 
     $("ingCount").textContent = `${visibleRows.length} shown · ${rows.length} active`;
-    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num"><input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}"></td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${costLine(row.item, row.route)}</span>${pathChoices(row.item, row.route, row.missing, m)}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
+    el.ingBody.innerHTML = visibleRows.map((row) => `<tr class="route-${row.route.type}"><td><div class="item-cell">${itemImg(row.item, "table-art")}<span><b>${esc(row.item.name)}</b>${row.leaf.stopped ? '<small>Getting this ready-made, so its own recipe is not broken down</small>' : ""}${row.netted ? '<small>The ones you already have are taken off this number</small>' : ""}</span></div></td><td class="num">${fmt(row.leaf.total)}</td><td class="num">${row.netted ? '<span class="owned-counted" title="Already taken off the amount you opened">—</span>' : `<input class="owned" data-id="${row.item.id}" inputmode="numeric" value="${row.owned || ""}" placeholder="0" aria-label="Owned quantity of ${esc(row.item.name)}">`}</td><td class="num">${fmt(row.missing)}</td><td>${routeOptions(row.item, row.route, m)}${locationSelect(row.item, row.missing, m, row.route)}</td><td><span class="route-detail">${costLine(row.item, row.route)}</span>${pathChoices(row.item, row.route, row.missing, m)}${routeEvidence(row.item, row.route)}</td></tr>`).join("");
     el.ingBody.querySelectorAll(".owned").forEach((input) => {
       input.onchange = () => {
         const value = parseInt(input.value.replace(/\D/g, ""), 10);
@@ -2396,7 +2423,8 @@
   function openTowerItem(target) {
     const button = target.closest("[data-open-item]");
     if (!button) return;
-    window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty);
+    // Mastery left counts items made; the ones sitting in inventory never count.
+    window.FRPG_openItem && window.FRPG_openItem(button.dataset.openItem, button.dataset.openQty, true);
   }
   $("towerRail").addEventListener("click", (event) => openTowerItem(event.target));
   $("towerRail").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openTowerItem(event.target); } });
@@ -2470,7 +2498,7 @@
     try {
       const parsedFiles = await Promise.all(files.map(async (file) => ({ file, parsed: enrichCapture(JSON.parse(await file.text())) })));
       if (parsedFiles.length === 1 && validAccountSnapshot(parsedFiles[0].parsed)) {
-        state.account = parsedFiles[0].parsed;
+        state.account = withMeals(parsedFiles[0].parsed);
       } else {
         const shared = window.ImporterShared;
         if (!shared || typeof shared.validateCapture !== "function" || typeof shared.mergeCaptures !== "function") {
@@ -2487,7 +2515,7 @@
           }
         }
         if (!captures.length) throw new Error(failures.join(" ") || "No valid page captures were selected.");
-        state.account = shared.mergeCaptures(captures);
+        state.account = withMeals(shared.mergeCaptures(captures));
         state.account.legacyV1 = shared.buildLegacyV1(state.account);
         if (failures.length) state.account.warnings.unshift(...failures);
       }
@@ -2511,7 +2539,7 @@
     const message = event.data;
     if (event.source !== window || !message || message.source !== "farmrpg-account-sync" || message.type !== "snapshot") return;
     if (!validAccountSnapshot(message.snapshot)) return;
-    state.account = message.snapshot;
+    state.account = withMeals(message.snapshot);
     state.extensionConnectedAt = message.syncedAt || new Date().toISOString();
     save();
     accountSourceChanged();

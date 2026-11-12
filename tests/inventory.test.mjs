@@ -19,9 +19,9 @@ test("the shared quest model owns saga order and exact title normalization", () 
   const model = modelContext().window.FRPG_QUEST_MODEL;
   assert.equal(model.normalizeTitle("Problems Start Arising III"), "problemsstartarisingiii");
   assert.equal(model.normalizeTitle("ProblemsStartArising III!"), "problemsstartarisingiii");
-  assert.equal(model.personalCount, 1952);
+  assert.equal(model.personalCount, 1955);
   const known = new Set(model.quests.map((quest) => model.normalizeTitle(quest.title)));
-  assert.equal([...model.completedSet(null)].filter((title) => known.has(title)).length, 1952);
+  assert.equal([...model.completedSet(null)].filter((title) => known.has(title)).length, 1955);
   assert.equal(model.quests.filter((quest) => quest.line === "Problems Start Arising").length, 33);
   assert.doesNotMatch(read("js/quests-page.js"), /function applySagas/);
 });

@@ -334,3 +334,11 @@ priced 100k instead of 1m - and the same for Propeller Hat (T349), Tie Dye
 Scarf (T350), Bamboo Trellis (T345), Brown Bag (T348), Orange Scarf (T338) and
 more. The T340-T350 list given to the owner missed 13 masteries. A later MM now
 replaces the earlier GM. The Tower page was right all along; the owner caught it.
+
+## 2026-10-29 — Mushroom Stew does count on crafts
+
+We told the owner for weeks that Mushroom Stew never applies to crafting
+mastery. Wrong. The owner showed 9,671 Pyrite made giving 11,702 mastery =
+x1.21, which is the event's +10% times Stew's +10%. Mastery per craft is the
+1.45 output times every active mastery boost, Stew included. Never drop Stew
+from a craft plan again.

@@ -5,6 +5,17 @@ changed and why, not a diff. See git log for the actual diffs (this project
 started tracking git history 2026-09-02; everything before that is
 reconstructed from the Codex chat transcript only).
 
+## 2026-11-12 — Meals count as owned; full-amounts switch on the tracker
+
+- Meals were captured but never counted: the capture files them under
+  `consumables`, and every page reads only `inventory`. `withMeals()` in
+  `js/app.js` copies them into inventory wherever a snapshot loads.
+- Questline tracker: a "Full amounts" / "Minus my inventory" button shows
+  the steps' full asks or what is still short. Remembered per browser.
+- Tracker click-through no longer subtracts inventory twice (from 10-31).
+- `tools/goals.mjs --line "<questline>"`: open masteries one line moves.
+- Distant Illusions I-III marked done; quest-count test updated to 1,955.
+
 ## 2026-10-27 — New quests and items (mining lines, Troubled Waters)
 
 - Quests 2,479 -> 2,563. 75 came from a fresh Quest Tracker `questlines.json`

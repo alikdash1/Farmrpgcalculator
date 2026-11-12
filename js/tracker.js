@@ -35,6 +35,11 @@
       : `<span class="tracker-noart" aria-hidden="true"></span>`;
   }
 
+  // "Full amounts" shows what the steps ask for, ignoring what you hold;
+  // the default takes your inventory off. Stored so it sticks.
+  const fullAmounts = () => read("frpg_tracker_gross", "") === "1";
+  const amountOf = (row) => (fullAmounts() ? row.quantity : row.short);
+
   function rowsHtml(rows, mark) {
     if (!rows.length) return `<li class="tracker-done"><span>Nothing left to gather.</span></li>`;
     return rows.map((row) => {
@@ -46,9 +51,9 @@
       const where = GATHER.whereFor ? GATHER.whereFor(row.name) : "";
       const hint = [where, now ? "Also needed for the step you are on" : ""].filter(Boolean).join(" — ");
       const attrs = openable
-        ? ` data-open-item="${esc(row.name)}" data-open-qty="${row.short}" role="button" tabindex="0" title="${esc(hint || ("Work out how to get " + row.name))}"`
+        ? ` data-open-item="${esc(row.name)}" data-open-qty="${amountOf(row)}" role="button" tabindex="0" title="${esc(hint || ("Work out how to get " + row.name))}"`
         : (hint ? ` title="${esc(hint)}"` : "");
-      return `<li${cls ? ` class="${cls}${openable ? " is-openable" : ""}"` : (openable ? ' class="is-openable"' : "")}${attrs}>${art(row.name)}<span>${esc(row.name)}</span><b>${short(row.short)}</b></li>`;
+      return `<li${cls ? ` class="${cls}${openable ? " is-openable" : ""}"` : (openable ? ' class="is-openable"' : "")}${attrs}>${art(row.name)}<span>${esc(row.name)}</span><b>${short(amountOf(row))}</b></li>`;
     }).join("");
   }
 
@@ -73,7 +78,7 @@
       </header>
       ${collapsed ? "" : `${big ? `<div class="tracker-filter"><input type="search" data-filter value="${esc(filter)}" placeholder="Filter these ${rows.length} items…" autocomplete="off"></div>` : ""}
         <ul class="tracker-list">${rowsHtml(rows, mark)}</ul>
-        <footer class="tracker-foot">${rows.length} still short<span class="tracker-foot-actions">${canExpand ? `<button type="button" data-copy title="Copy as tab-separated rows, ready to paste into a spreadsheet">Copy list</button>` : ""}<button type="button" data-open>Open</button></span></footer>`}
+        <footer class="tracker-foot">${rows.length} ${fullAmounts() ? "needed in total" : "still short"}<span class="tracker-foot-actions"><button type="button" data-gross aria-pressed="${fullAmounts()}" title="${fullAmounts() ? "Take what you already have off each amount" : "Show the full amounts the steps ask for, ignoring what you have"}">${fullAmounts() ? "Minus my inventory" : "Full amounts"}</button>${canExpand ? `<button type="button" data-copy title="Copy as tab-separated rows, ready to paste into a spreadsheet">Copy list</button>` : ""}<button type="button" data-open>Open</button></span></footer>`}
     `;
   }
 
@@ -158,9 +163,9 @@
       return;
     }
 
-    const nextRows = plan.nextRows.filter((row) => row.short > 0);
-    const wholeRows = plan.wholeRows.filter((row) => row.short > 0);
-    const steps = `${plan.remaining.length} step${plan.remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} items`;
+    const nextRows = plan.nextRows.filter((row) => amountOf(row) > 0);
+    const wholeRows = plan.wholeRows.filter((row) => amountOf(row) > 0);
+    const steps = `${plan.remaining.length} step${plan.remaining.length === 1 ? "" : "s"} left · ${wholeRows.length} items${fullAmounts() ? " · full amounts" : ""}`;
 
     const big = read("frpg_tracker_big", "") === "1";
 
@@ -169,7 +174,7 @@
       panels.whole.hidden = true;
       draw("next", {
         title: showingStep ? plan.next.title : plan.lineName,
-        subtitle: showingStep ? (plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} short` : plan.lineName) : steps,
+        subtitle: showingStep ? (plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} ${fullAmounts() ? "needed" : "short"}` : plan.lineName) : steps,
         rows: showingStep ? nextRows : wholeRows,
         mark: showingStep ? null : new Set(nextRows.map((row) => row.name)),
         collapsed: read("frpg_tracker_next_collapsed", "1") === "1",
@@ -182,7 +187,7 @@
     draw("next", {
       title: plan.next.title,
       // "Problems Start Arising III" over "Problems Start Arising" says it twice.
-      subtitle: plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} short` : plan.lineName,
+      subtitle: plan.next.title.startsWith(plan.lineName) ? `${nextRows.length} item${nextRows.length === 1 ? "" : "s"} ${fullAmounts() ? "needed" : "short"}` : plan.lineName,
       rows: nextRows,
       collapsed: read("frpg_tracker_next_collapsed", "1") === "1",
       canExpand: false,
@@ -205,7 +210,7 @@
   function openItem(node) {
     const row = node && node.closest(".quest-tracker [data-open-item]");
     if (!row) return false;
-    window.FRPG_openItem && window.FRPG_openItem(row.dataset.openItem, row.dataset.openQty);
+    window.FRPG_openItem && window.FRPG_openItem(row.dataset.openItem, row.dataset.openQty, true);
     return true;
   }
 
@@ -243,6 +248,10 @@
     }
     if (button.dataset.close !== undefined) {
       write("frpg_tracker_hidden", "1");
+      return render();
+    }
+    if (button.dataset.gross !== undefined) {
+      write("frpg_tracker_gross", fullAmounts() ? "0" : "1");
       return render();
     }
     if (button.dataset.copy !== undefined) {

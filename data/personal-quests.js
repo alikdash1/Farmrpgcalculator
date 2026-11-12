@@ -8,6 +8,9 @@ window.FRPG_PERSONAL_QUESTS = {
  "authoritative": true,
  "note": "Titles are the canonical ones from data/main-quests.js. Farm RPG prints a few titles without a space (MisconstruedRelational), so those were matched space-insensitively and stored in canonical form.",
  "completed": [
+  "Distant Illusions I",
+  "Distant Illusions II",
+  "Distant Illusions III",
   "1,000,000 Farmers I",
   "1,000,000 Farmers II",
   "1,000,000 Farmers III",
